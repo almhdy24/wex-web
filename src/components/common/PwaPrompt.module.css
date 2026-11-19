@@ -1,0 +1,114 @@
+.offlineBanner {
+  background-color: var(--color-danger);
+  color: var(--color-white);
+  padding: var(--space-2) var(--space-4);
+  text-align: center;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.installCard {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-height) + var(--space-3));
+  inset-inline: var(--space-4);
+  max-width: 440px;
+  margin-inline: auto;
+  background-color: var(--color-navy);
+  color: var(--color-white);
+  border-radius: var(--radius-card);
+  padding: var(--space-3) var(--space-4);
+  box-shadow: var(--shadow-toast);
+  z-index: 9990;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  border: 1px solid rgba(0, 183, 255, 0.25);
+  animation: slideUp 200ms ease;
+}
+
+@media (min-width: 768px) {
+  .installCard {
+    bottom: var(--space-4);
+  }
+}
+
+.installInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.appIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.appName {
+  font-weight: 700;
+  font-size: var(--text-sm);
+}
+
+.appDesc {
+  font-size: var(--text-xs);
+  color: var(--color-slate-300);
+}
+
+.installActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.installBtn {
+  background-color: var(--color-cyan);
+  color: var(--color-navy);
+  border-radius: var(--radius-sm);
+  padding-block: var(--space-1);
+  padding-inline: var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  min-height: 34px;
+  cursor: pointer;
+}
+
+.installBtn:hover {
+  background-color: #38C7FF;
+}
+
+.dismissBtn {
+  min-height: 32px;
+  min-width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-slate-300);
+  cursor: pointer;
+  padding: 0;
+}
+
+.dismissBtn:hover {
+  color: var(--color-white);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

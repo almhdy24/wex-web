@@ -53,7 +53,9 @@ export function AuthProvider({ children }) {
       if (storedUser) {
         try {
           setUser(JSON.parse(storedUser));
-        } catch {}
+        } catch {
+          // ignore corrupted user JSON
+        }
       }
 
       if (storedToken) {
@@ -121,7 +123,9 @@ export function AuthProvider({ children }) {
       const next = { ...prev, ...updatedUserData };
       try {
         localStorage.setItem('wex_user', JSON.stringify(next));
-      } catch {}
+      } catch {
+        // ignore storage write errors
+      }
       return next;
     });
   }, []);

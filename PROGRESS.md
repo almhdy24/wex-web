@@ -10,12 +10,13 @@
   - Deleted dead CSS (`mockup.css`).
   - Set up ESLint with `eslint-plugin-jsx-a11y` and `eslint-plugin-react`.
   - All 24 unit tests passing, production build verified.
-- [ ] **Redesign Phase 2: Layout & Navigation**
-  - Header: logo (min 120px), search field (inline on desktop, icon-expand on mobile), notification bell with dot, cart counter.
-  - Rate strip: "الدرهم اليوم 650 جنيه" + timestamp. Removed dark top banner.
-  - Mobile bottom navigation (4 tabs: الرئيسية، المتجر، طلباتي، حسابي) with Lucide icons.
-  - Plain footer: address (مول الواحة - الشهداء - أم درمان), hours, phone, WhatsApp.
-  - Global ErrorBoundary and updated 404 page with CSS Modules.
+- [x] **Redesign Phase 2: Layout & Navigation**
+  - Header: logo (130px min 120px), search field (inline on desktop, icon-expand on mobile), notification bell with unread dot, cart counter.
+  - Rate strip: "الدرهم اليوم [rate] جنيه" + "تحديث: اليوم 9:00". Dark top banner removed.
+  - Mobile bottom navigation (4 tabs: الرئيسية، المتجر، طلباتي، حسابي) with Lucide icons (`Home`, `LayoutGrid`, `Package`, `User`). Automatically hidden on checkout/product pages.
+  - Plain footer: address (مول الواحة - الشهداء - أم درمان), hours, phone, WhatsApp. Emojis removed.
+  - Global `ErrorBoundary` with reload action, updated `NotFoundPage`, `OfflinePage`, and `PwaPrompt` with CSS Modules and zero inline styles.
+  - ESLint, Vitest (24 tests), and Vite production build verified.
 - [ ] **Redesign Phase 3: Storefront & Catalog**
   - Home: search field, category chips, "وصل جديد" grid, "ملحقات" row, 3-step "كيف تطلب", shop info block.
   - Shared ProductCard: 4:3 image, 2-line name, single spec line, condition tag, large SDG price + small AED, stock badge if low.
