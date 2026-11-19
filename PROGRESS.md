@@ -27,12 +27,13 @@
   - Integrated Google Identity Services with client ID configuration support.
   - Built protected customer account management (`src/pages/store/AccountPage.jsx`) with Sudan phone normalization, notification preference toggles, logout, and soft account deletion.
   - Unit tests for API client passed (100% passing).
-- [ ] **Phase 3: Storefront**
-  - Home page (branding, search, categories, featured laptops, accessories, shop info).
-  - Product catalog (search, category/brand filters, condition, AED price range, sorting, pagination).
-  - Product details (gallery, specs table, warranty, stock status, accessories suggestions).
-  - Cart context with persistence and touch-friendly controls.
-  - Checkout page (pickup vs delivery, shipping zone selection, address, contact phone).
+- [x] **Phase 3: Storefront**
+  - Implemented responsive Home page (`HomePage.jsx`) with live shop data, category cards, featured laptops, and trust badges.
+  - Implemented Product Catalog (`CatalogPage.jsx`) with live filtering (category, brand, condition, AED price range, in-stock, search keyword, sorting, pagination), URL sync, loading skeletons, and empty states.
+  - Implemented Product Detail view (`ProductDetailPage.jsx`) with photo gallery thumbnails, technical specs table, warranty details, stock status protection, and suggested accessories.
+  - Implemented touch-friendly Cart page (`CartPage.jsx`) with local storage persistence and quantity limits (1-10).
+  - Implemented Checkout flow (`CheckoutPage.jsx`) with pickup vs. delivery selection, shipping zones from API, and server-side calculation notice.
+  - Unit tests for formatting utilities and business logic passed (100% passing).
 - [ ] **Phase 4: Customer Operations**
   - Order creation with server-computed totals.
   - Bank transfer instructions & live price-lock countdown timer.
@@ -112,4 +113,4 @@
 ---
 
 ## (h) Next Immediate Action
-- Proceed to Phase 3: Storefront implementation (Home page, product catalog with search/filter, product details with specs/accessories, cart, checkout, and shipping zones).
+- Proceed to Phase 4: Customer Operations (Order tracking, live countdown timer, Bankak transfer receipt upload, cancel/reorder actions, and notifications center).
