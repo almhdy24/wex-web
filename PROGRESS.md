@@ -19,13 +19,14 @@
   - Implemented ToastContext and notifications provider.
   - Configured PWA manifest with original Wex Technology brand icons.
   - Production build and test runner verified (100% passing).
-- [ ] **Phase 2: API and Authentication**
-  - Centralized API client with JWT refresh rotation and request deduplication.
-  - AuthContext & session management.
-  - Email OTP login flow (request, 6-digit input, countdown, verify).
-  - Google Sign-in integration with Google Identity Services.
-  - Protected route guards (Public, Customer, Staff, Admin).
-  - Customer profile & preferences management (`/me`).
+- [x] **Phase 2: API and Authentication**
+  - Implemented centralized API client (`src/api/client.js`) with standard JSON envelope, error extraction, and FormData handling.
+  - Implemented access token refresh rotation with single-flight deduplication and theft protection.
+  - Implemented AuthContext with user session persistence, role checking, and `/me` profile updates.
+  - Implemented passwordless Email OTP login flow (`/auth/email/request`, `/auth/email/verify`, 6-digit input, 60s cooldown timer, new account name prompt).
+  - Integrated Google Identity Services with client ID configuration support.
+  - Built protected customer account management (`src/pages/store/AccountPage.jsx`) with Sudan phone normalization, notification preference toggles, logout, and soft account deletion.
+  - Unit tests for API client passed (100% passing).
 - [ ] **Phase 3: Storefront**
   - Home page (branding, search, categories, featured laptops, accessories, shop info).
   - Product catalog (search, category/brand filters, condition, AED price range, sorting, pagination).
@@ -111,4 +112,4 @@
 ---
 
 ## (h) Next Immediate Action
-- Proceed to Phase 2: Centralized API client (`src/api/client.js`), token refresh rotation, AuthContext implementation, Google Auth & Email OTP sign-in, session management, and `/me` profile updates.
+- Proceed to Phase 3: Storefront implementation (Home page, product catalog with search/filter, product details with specs/accessories, cart, checkout, and shipping zones).
