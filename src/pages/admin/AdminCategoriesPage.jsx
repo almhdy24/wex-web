@@ -1,14 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { Plus, Edit, Trash2, Check, FolderTree } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { useToast } from '../../context/ToastContext';
 import Modal from '../../components/common/Modal';
-import Badge from '../../components/common/Badge';
-import Skeleton from '../../components/common/Skeleton';
+import Tag from '../../components/common/Tag';
+import Button from '../../components/common/Button';
+import Input from '../../components/common/Input';
+import { TableSkeleton } from '../../components/common/Skeleton';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
+import styles from './AdminCommon.module.css';
 
 export default function AdminCategoriesPage() {
-  const { showToast } = useToast();
+  const { success, error: toastError } = useToast();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -38,7 +42,7 @@ export default function AdminCategoriesPage() {
       const res = await adminApi.getCategories();
       setCategories(res.data || []);
     } catch (err) {
-      setError(err.message || 'فشل في تحميل الفئات');
+      setError(err.message || 'الاتصال ضعيف. حاول تاني.');
     } finally {
       setLoading(false);
     }
@@ -58,7 +62,7 @@ export default function AdminCategoriesPage() {
         name_ar: '',
         name_en: '',
         slug: '',
-        sort_order: String(categories.length),
+        sort_order: '0',
         is_active: true,
       },
     });
@@ -75,7 +79,7 @@ export default function AdminCategoriesPage() {
         name_en: cat.name_en || '',
         slug: cat.slug || '',
         sort_order: String(cat.sort_order ?? 0),
-        is_active: Number(cat.is_active) === 1,
+        is_active: Boolean(cat.is_active),
       },
     });
   };
@@ -84,31 +88,32 @@ export default function AdminCategoriesPage() {
     e.preventDefault();
     const { name_ar, name_en, slug, sort_order, is_active } = editModal.formData;
     if (!name_ar.trim()) {
-      showToast('يرجى إدخال اسم الفئة بالعربية', 'error');
+      toastError('يرجى إدخال اسم الفئة بالعربية');
       return;
     }
 
     const payload = {
       name_ar: name_ar.trim(),
-      name_en: name_en.trim() || null,
+      name_en: name_en.trim() || undefined,
       slug: slug.trim() || undefined,
       sort_order: Number(sort_order || 0),
-      is_active: is_active ? 1 : 0,
+      is_active: Boolean(is_active),
     };
 
     try {
       setEditModal((prev) => ({ ...prev, submitting: true }));
       if (editModal.isEdit) {
         await adminApi.updateCategory(editModal.id, payload);
-        showToast('تم تحديث الفئة بنجاح', 'success');
+        success('تم تحديث الفئة بنجاح');
       } else {
         await adminApi.createCategory(payload);
-        showToast('تمت إضافة الفئة بنجاح', 'success');
+        success('تمت إضافة الفئة بنجاح');
       }
       setEditModal((prev) => ({ ...prev, open: false }));
       fetchCategories();
     } catch (err) {
-      showToast(err.message || 'حدث خطأ أثناء حفظ الفئة', 'error');
+      toastError(err.message || 'فشل حفظ الفئة');
+    } finally {
       setEditModal((prev) => ({ ...prev, submitting: false }));
     }
   };
@@ -118,239 +123,225 @@ export default function AdminCategoriesPage() {
     try {
       setDeleteModal((prev) => ({ ...prev, loading: true }));
       await adminApi.deleteCategory(deleteModal.category.id);
-      showToast('تم حذف الفئة بنجاح', 'success');
+      success('تم حذف الفئة بنجاح');
       setDeleteModal({ open: false, category: null, loading: false });
       fetchCategories();
     } catch (err) {
-      showToast(err.message || 'فشل في حذف الفئة', 'error');
+      toastError(err.message || 'فشل حذف الفئة');
       setDeleteModal((prev) => ({ ...prev, loading: false }));
     }
   };
 
   return (
-    <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <h1 className="admin-page-title">إدارة فئات المنتجات</h1>
-          <p className="admin-page-subtitle">تصنيفات الأجهزة والملحقات وترتيب ظهورها في المتجر</p>
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <div className={styles.titleInfo}>
+          <h1 className={styles.title}>إدارة فئات وتصنيفات المتجر</h1>
+          <p className={styles.subtitle}>
+            تنظيم هيكل المنتجات والتصنيفات في الواجهة والمتجر
+          </p>
         </div>
-        <button type="button" className="btn btn-primary" onClick={openAddModal}>
-          + إضافة فئة جديدة
-        </button>
-      </div>
+        <Button variant="primary" size="md" onClick={openAddModal}>
+          <Plus size={16} />
+          <span>إضافة فئة جديدة</span>
+        </Button>
+      </header>
+
+      {/* Brand graphic divider */}
+      <div className={styles.titleDivider} aria-hidden="true" />
 
       {loading ? (
-        <div className="card">
-          <Skeleton height="50px" className="mb-2" />
-          <Skeleton height="50px" className="mb-2" />
-          <Skeleton height="50px" />
-        </div>
+        <TableSkeleton rows={5} cols={5} />
       ) : error ? (
         <ErrorState message={error} onRetry={fetchCategories} />
       ) : categories.length === 0 ? (
         <EmptyState
-          title="لا توجد فئات حالياً"
-          description="قم بإضافة أول فئة للبدء بتصنيف المنتجات في المتجر."
+          title="لا توجد فئات مسجلة"
+          description="أضف تصنيفات الأجهزة لعرضها في شريط التصفح والكتالوج."
+          actionLabel="إضافة فئة جديدة"
+          onAction={openAddModal}
         />
       ) : (
-        <div className="card p-0 table-responsive">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th style={{ width: '60px' }}>الترتيب</th>
-                <th>اسم الفئة (عربي)</th>
-                <th>اسم الفئة (إنجليزي)</th>
-                <th>الرابط المباشر (Slug)</th>
-                <th>حالة العرض</th>
-                <th style={{ width: '130px', textAlign: 'center' }}>الإجراءات</th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories.map((cat) => (
-                <tr key={cat.id}>
-                  <td className="font-semibold text-center">{cat.sort_order}</td>
-                  <td className="font-semibold text-navy">{cat.name_ar}</td>
-                  <td className="text-muted">{cat.name_en || '—'}</td>
-                  <td>
-                    <code>{cat.slug}</code>
-                  </td>
-                  <td>
-                    {Number(cat.is_active) === 1 ? (
-                      <Badge variant="success">نشطة</Badge>
-                    ) : (
-                      <Badge variant="warning">معطلة</Badge>
-                    )}
-                  </td>
-                  <td style={{ textAlign: 'center' }}>
-                    <div className="admin-actions-cell">
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-secondary"
-                        onClick={() => openEditModal(cat)}
-                      >
-                        تعديل
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-danger"
-                        onClick={() => setDeleteModal({ open: true, category: cat, loading: false })}
-                      >
-                        حذف
-                      </button>
-                    </div>
-                  </td>
+        <div className={styles.card}>
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>اسم الفئة (عربي)</th>
+                  <th>الاسم بالإنجليزية</th>
+                  <th>المعرف (Slug)</th>
+                  <th>ترتيب العرض</th>
+                  <th>الحالة</th>
+                  <th style={{ width: '130px', textAlign: 'center' }}>الإجراءات</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {categories.map((c) => (
+                  <tr key={c.id}>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                        <FolderTree size={16} style={{ color: 'var(--color-royal-blue)' }} />
+                        <strong>{c.name_ar}</strong>
+                      </div>
+                    </td>
+                    <td dir="ltr">{c.name_en || '—'}</td>
+                    <td dir="ltr" style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)' }}>
+                      {c.slug}
+                    </td>
+                    <td>{c.sort_order}</td>
+                    <td>
+                      {c.is_active ? (
+                        <Tag variant="success">نشط</Tag>
+                      ) : (
+                        <Tag variant="warning">معطل</Tag>
+                      )}
+                    </td>
+                    <td style={{ textAlign: 'center' }}>
+                      <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
+                        <Button variant="ghost" size="sm" onClick={() => openEditModal(c)}>
+                          <Edit size={14} />
+                        </Button>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => setDeleteModal({ open: true, category: c, loading: false })}
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
       {/* Add / Edit Modal */}
-      {editModal.open && (
-        <Modal
-          isOpen={editModal.open}
-          onClose={() => setEditModal((prev) => ({ ...prev, open: false }))}
-          title={editModal.isEdit ? 'تعديل الفئة' : 'إضافة فئة جديدة'}
-        >
-          <form onSubmit={handleFormSubmit} className="p-2">
-            <div className="form-group mb-3">
-              <label className="form-label required">اسم الفئة بالعربية</label>
-              <input
-                type="text"
-                value={editModal.formData.name_ar}
-                onChange={(e) =>
-                  setEditModal({
-                    ...editModal,
-                    formData: { ...editModal.formData, name_ar: e.target.value },
-                  })
-                }
-                placeholder="مثال: لابتوبات للأعمال"
-                className="form-control"
-                required
-              />
-            </div>
+      <Modal
+        isOpen={editModal.open}
+        onClose={() => setEditModal((prev) => ({ ...prev, open: false }))}
+        title={editModal.isEdit ? 'تعديل الفئة' : 'إضافة فئة جديدة'}
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => setEditModal((prev) => ({ ...prev, open: false }))}
+            >
+              إلغاء
+            </Button>
+            <Button
+              variant="primary"
+              loading={editModal.submitting}
+              onClick={handleFormSubmit}
+            >
+              <Check size={16} />
+              <span>{editModal.isEdit ? 'حفظ التعديلات' : 'إضافة الفئة'}</span>
+            </Button>
+          </>
+        }
+      >
+        <form onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+          <Input
+            label="اسم الفئة بالعربية"
+            placeholder="مثال: لابتوبات، هواتف ذكية..."
+            value={editModal.formData.name_ar}
+            onChange={(e) =>
+              setEditModal((prev) => ({
+                ...prev,
+                formData: { ...prev.formData, name_ar: e.target.value },
+              }))
+            }
+            required
+          />
 
-            <div className="form-group mb-3">
-              <label className="form-label">اسم الفئة بالإنجليزية (اختياري)</label>
-              <input
-                type="text"
-                value={editModal.formData.name_en}
-                onChange={(e) =>
-                  setEditModal({
-                    ...editModal,
-                    formData: { ...editModal.formData, name_en: e.target.value },
-                  })
-                }
-                placeholder="مثال: Business Laptops"
-                className="form-control"
-              />
-            </div>
+          <Input
+            label="الاسم بالإنجليزية (اختياري)"
+            placeholder="مثال: Laptops, Smartphones..."
+            value={editModal.formData.name_en}
+            onChange={(e) =>
+              setEditModal((prev) => ({
+                ...prev,
+                formData: { ...prev.formData, name_en: e.target.value },
+              }))
+            }
+            dir="ltr"
+          />
 
-            <div className="form-group mb-3">
-              <label className="form-label">الرابط الفريد (Slug - اختياري)</label>
-              <input
-                type="text"
-                value={editModal.formData.slug}
-                onChange={(e) =>
-                  setEditModal({
-                    ...editModal,
-                    formData: { ...editModal.formData, slug: e.target.value },
-                  })
-                }
-                placeholder="يتم إنشاؤه تلقائياً إذا ترك فارغاً"
-                className="form-control"
-              />
-            </div>
+          <Input
+            label="المعرف في الرابط (Slug) - اختياري"
+            placeholder="laptops"
+            value={editModal.formData.slug}
+            onChange={(e) =>
+              setEditModal((prev) => ({
+                ...prev,
+                formData: { ...prev.formData, slug: e.target.value },
+              }))
+            }
+            dir="ltr"
+            hint="يترك فارغاً للتوليد التلقائي"
+          />
 
-            <div className="form-group mb-3">
-              <label className="form-label">ترتيب العرض (رقم تصاعدي)</label>
-              <input
-                type="number"
-                value={editModal.formData.sort_order}
-                onChange={(e) =>
-                  setEditModal({
-                    ...editModal,
-                    formData: { ...editModal.formData, sort_order: e.target.value },
-                  })
-                }
-                className="form-control"
-              />
-            </div>
+          <Input
+            label="ترتيب الظهور في القوائم"
+            type="number"
+            value={editModal.formData.sort_order}
+            onChange={(e) =>
+              setEditModal((prev) => ({
+                ...prev,
+                formData: { ...prev.formData, sort_order: e.target.value },
+              }))
+            }
+            dir="ltr"
+          />
 
-            <div className="form-group mb-4">
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={editModal.formData.is_active}
-                  onChange={(e) =>
-                    setEditModal({
-                      ...editModal,
-                      formData: { ...editModal.formData, is_active: e.target.checked },
-                    })
-                  }
-                />
-                <span className="font-semibold">تفعيل الفئة وعرضها في المتجر</span>
-              </label>
-            </div>
-
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                disabled={editModal.submitting}
-                onClick={() => setEditModal((prev) => ({ ...prev, open: false }))}
-              >
-                إلغاء
-              </button>
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={editModal.submitting}
-              >
-                {editModal.submitting ? 'جاري الحفظ...' : editModal.isEdit ? 'حفظ التعديلات' : 'إضافة الفئة'}
-              </button>
-            </div>
-          </form>
-        </Modal>
-      )}
+          <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', cursor: 'pointer', fontSize: 'var(--text-sm)', marginTop: 4 }}>
+            <input
+              type="checkbox"
+              checked={editModal.formData.is_active}
+              onChange={(e) =>
+                setEditModal((prev) => ({
+                  ...prev,
+                  formData: { ...prev.formData, is_active: e.target.checked },
+                }))
+              }
+              style={{ accentColor: 'var(--color-royal-blue)' }}
+            />
+            <span>عرض هذه الفئة في المتجر (نشطة)</span>
+          </label>
+        </form>
+      </Modal>
 
       {/* Delete Confirmation Modal */}
-      {deleteModal.open && (
-        <Modal
-          isOpen={deleteModal.open}
-          onClose={() => setDeleteModal({ open: false, category: null, loading: false })}
-          title="تأكيد حذف الفئة"
-        >
-          <div className="p-2">
-            <p className="mb-4">
-              هل أنت متأكد من رغبتك في حذف الفئة:{' '}
-              <strong className="text-navy">{deleteModal.category?.name_ar}</strong>؟
-            </p>
-            <p className="text-muted text-sm mb-4">
-              ملاحظة: إذا كانت هناك أجهزة مرتبطة بهذه الفئة، يفضل تعديل ارتباطها أولاً.
-            </p>
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                disabled={deleteModal.loading}
-                onClick={() => setDeleteModal({ open: false, category: null, loading: false })}
-              >
-                إلغاء
-              </button>
-              <button
-                type="button"
-                className="btn btn-danger"
-                disabled={deleteModal.loading}
-                onClick={handleDeleteConfirm}
-              >
-                {deleteModal.loading ? 'جاري الحذف...' : 'تأكيد الحذف'}
-              </button>
-            </div>
-          </div>
-        </Modal>
-      )}
+      <Modal
+        isOpen={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false, category: null, loading: false })}
+        title="تأكيد حذف الفئة"
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => setDeleteModal({ open: false, category: null, loading: false })}
+            >
+              إلغاء
+            </Button>
+            <Button
+              variant="danger"
+              loading={deleteModal.loading}
+              onClick={handleDeleteConfirm}
+            >
+              تأكيد الحذف
+            </Button>
+          </>
+        }
+      >
+        <p style={{ color: 'var(--color-slate-700)', fontSize: 'var(--text-sm)', lineHeight: 1.6, margin: 0 }}>
+          هل أنت متأكد من رغبتك في حذف الفئة:
+          <br />
+          <strong>{deleteModal.category?.name_ar}</strong>؟
+        </p>
+      </Modal>
     </div>
   );
 }

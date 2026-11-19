@@ -1,14 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { Tag as TagIcon, Plus, Edit, Trash2, Check } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { useToast } from '../../context/ToastContext';
 import Modal from '../../components/common/Modal';
-import Badge from '../../components/common/Badge';
-import Skeleton from '../../components/common/Skeleton';
+import Tag from '../../components/common/Tag';
+import Button from '../../components/common/Button';
+import Input from '../../components/common/Input';
+import { TableSkeleton } from '../../components/common/Skeleton';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
+import styles from './AdminCommon.module.css';
 
 export default function AdminBrandsPage() {
-  const { showToast } = useToast();
+  const { success, error: toastError } = useToast();
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -36,7 +40,7 @@ export default function AdminBrandsPage() {
       const res = await adminApi.getBrands();
       setBrands(res.data || []);
     } catch (err) {
-      setError(err.message || 'فشل في تحميل الماركات');
+      setError(err.message || 'الاتصال ضعيف. حاول تاني.');
     } finally {
       setLoading(false);
     }
@@ -69,7 +73,7 @@ export default function AdminBrandsPage() {
       formData: {
         name: brand.name || '',
         slug: brand.slug || '',
-        is_active: Number(brand.is_active) === 1,
+        is_active: Boolean(brand.is_active),
       },
     });
   };
@@ -78,29 +82,30 @@ export default function AdminBrandsPage() {
     e.preventDefault();
     const { name, slug, is_active } = editModal.formData;
     if (!name.trim()) {
-      showToast('يرجى إدخال اسم الماركة', 'error');
+      toastError('يرجى إدخال اسم الماركة');
       return;
     }
 
     const payload = {
       name: name.trim(),
       slug: slug.trim() || undefined,
-      is_active: is_active ? 1 : 0,
+      is_active: Boolean(is_active),
     };
 
     try {
       setEditModal((prev) => ({ ...prev, submitting: true }));
       if (editModal.isEdit) {
         await adminApi.updateBrand(editModal.id, payload);
-        showToast('تم تحديث الماركة بنجاح', 'success');
+        success('تم تحديث الماركة بنجاح');
       } else {
         await adminApi.createBrand(payload);
-        showToast('تمت إضافة الماركة بنجاح', 'success');
+        success('تمت إضافة الماركة بنجاح');
       }
       setEditModal((prev) => ({ ...prev, open: false }));
       fetchBrands();
     } catch (err) {
-      showToast(err.message || 'حدث خطأ أثناء حفظ الماركة', 'error');
+      toastError(err.message || 'فشل حفظ الماركة');
+    } finally {
       setEditModal((prev) => ({ ...prev, submitting: false }));
     }
   };
@@ -110,203 +115,199 @@ export default function AdminBrandsPage() {
     try {
       setDeleteModal((prev) => ({ ...prev, loading: true }));
       await adminApi.deleteBrand(deleteModal.brand.id);
-      showToast('تم حذف الماركة بنجاح', 'success');
+      success('تم حذف الماركة بنجاح');
       setDeleteModal({ open: false, brand: null, loading: false });
       fetchBrands();
     } catch (err) {
-      showToast(err.message || 'فشل في حذف الماركة', 'error');
+      toastError(err.message || 'فشل حذف الماركة');
       setDeleteModal((prev) => ({ ...prev, loading: false }));
     }
   };
 
   return (
-    <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <h1 className="admin-page-title">إدارة الماركات والشركات المصنعة</h1>
-          <p className="admin-page-subtitle">الماركات المسجلة في المتجر (Dell, HP, Lenovo, Apple, Samsung...)</p>
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <div className={styles.titleInfo}>
+          <h1 className={styles.title}>إدارة الماركات والشركات المصنعة</h1>
+          <p className={styles.subtitle}>
+            الماركات المسجلة في المتجر (Dell, HP, Lenovo, Apple, Samsung...)
+          </p>
         </div>
-        <button type="button" className="btn btn-primary" onClick={openAddModal}>
-          + إضافة ماركة جديدة
-        </button>
-      </div>
+        <Button variant="primary" size="md" onClick={openAddModal}>
+          <Plus size={16} />
+          <span>إضافة ماركة جديدة</span>
+        </Button>
+      </header>
+
+      {/* Brand graphic divider */}
+      <div className={styles.titleDivider} aria-hidden="true" />
 
       {loading ? (
-        <div className="card">
-          <Skeleton height="50px" className="mb-2" />
-          <Skeleton height="50px" className="mb-2" />
-          <Skeleton height="50px" />
-        </div>
+        <TableSkeleton rows={5} cols={5} />
       ) : error ? (
         <ErrorState message={error} onRetry={fetchBrands} />
       ) : brands.length === 0 ? (
         <EmptyState
           title="لا توجد ماركات مسجلة"
-          description="قم بإضافة الماركات لتسهيل التصفية والبحث للعملاء."
+          description="أضف الماركات لتسهيل التصفية والبحث في المتجر."
+          actionLabel="إضافة ماركة جديدة"
+          onAction={openAddModal}
         />
       ) : (
-        <div className="card p-0 table-responsive">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th style={{ width: '80px' }}>المعرف</th>
-                <th>اسم الماركة</th>
-                <th>الرابط المباشر (Slug)</th>
-                <th>حالة العرض</th>
-                <th style={{ width: '130px', textAlign: 'center' }}>الإجراءات</th>
-              </tr>
-            </thead>
-            <tbody>
-              {brands.map((b) => (
-                <tr key={b.id}>
-                  <td className="text-muted text-center">#{b.id}</td>
-                  <td className="font-semibold text-navy">{b.name}</td>
-                  <td>
-                    <code>{b.slug}</code>
-                  </td>
-                  <td>
-                    {Number(b.is_active) === 1 ? (
-                      <Badge variant="success">نشطة</Badge>
-                    ) : (
-                      <Badge variant="warning">معطلة</Badge>
-                    )}
-                  </td>
-                  <td style={{ textAlign: 'center' }}>
-                    <div className="admin-actions-cell">
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-secondary"
-                        onClick={() => openEditModal(b)}
-                      >
-                        تعديل
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-danger"
-                        onClick={() => setDeleteModal({ open: true, brand: b, loading: false })}
-                      >
-                        حذف
-                      </button>
-                    </div>
-                  </td>
+        <div className={styles.card}>
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th style={{ width: '80px' }}>المعرف</th>
+                  <th>اسم الماركة</th>
+                  <th>الرابط المباشر (Slug)</th>
+                  <th>الحالة</th>
+                  <th style={{ width: '130px', textAlign: 'center' }}>الإجراءات</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {brands.map((b) => (
+                  <tr key={b.id}>
+                    <td style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)' }}>
+                      #{b.id}
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                        <TagIcon size={16} style={{ color: 'var(--color-royal-blue)' }} />
+                        <strong>{b.name}</strong>
+                      </div>
+                    </td>
+                    <td dir="ltr" style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)' }}>
+                      {b.slug}
+                    </td>
+                    <td>
+                      {b.is_active ? (
+                        <Tag variant="success">نشطة</Tag>
+                      ) : (
+                        <Tag variant="warning">معطلة</Tag>
+                      )}
+                    </td>
+                    <td style={{ textAlign: 'center' }}>
+                      <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
+                        <Button variant="ghost" size="sm" onClick={() => openEditModal(b)}>
+                          <Edit size={14} />
+                        </Button>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => setDeleteModal({ open: true, brand: b, loading: false })}
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
       {/* Add / Edit Modal */}
-      {editModal.open && (
-        <Modal
-          isOpen={editModal.open}
-          onClose={() => setEditModal((prev) => ({ ...prev, open: false }))}
-          title={editModal.isEdit ? 'تعديل الماركة' : 'إضافة ماركة جديدة'}
-        >
-          <form onSubmit={handleFormSubmit} className="p-2">
-            <div className="form-group mb-3">
-              <label className="form-label required">اسم الماركة</label>
-              <input
-                type="text"
-                value={editModal.formData.name}
-                onChange={(e) =>
-                  setEditModal({
-                    ...editModal,
-                    formData: { ...editModal.formData, name: e.target.value },
-                  })
-                }
-                placeholder="مثال: Lenovo"
-                className="form-control"
-                required
-              />
-            </div>
+      <Modal
+        isOpen={editModal.open}
+        onClose={() => setEditModal((prev) => ({ ...prev, open: false }))}
+        title={editModal.isEdit ? 'تعديل الماركة' : 'إضافة ماركة جديدة'}
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => setEditModal((prev) => ({ ...prev, open: false }))}
+            >
+              إلغاء
+            </Button>
+            <Button
+              variant="primary"
+              loading={editModal.submitting}
+              onClick={handleFormSubmit}
+            >
+              <Check size={16} />
+              <span>{editModal.isEdit ? 'حفظ التعديلات' : 'إضافة الماركة'}</span>
+            </Button>
+          </>
+        }
+      >
+        <form onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+          <Input
+            label="اسم الماركة"
+            placeholder="مثال: Lenovo, Dell, Apple..."
+            value={editModal.formData.name}
+            onChange={(e) =>
+              setEditModal((prev) => ({
+                ...prev,
+                formData: { ...prev.formData, name: e.target.value },
+              }))
+            }
+            required
+          />
 
-            <div className="form-group mb-3">
-              <label className="form-label">الرابط الفريد (Slug - اختياري)</label>
-              <input
-                type="text"
-                value={editModal.formData.slug}
-                onChange={(e) =>
-                  setEditModal({
-                    ...editModal,
-                    formData: { ...editModal.formData, slug: e.target.value },
-                  })
-                }
-                placeholder="يتم إنشاؤه تلقائياً إذا ترك فارغاً"
-                className="form-control"
-              />
-            </div>
+          <Input
+            label="الرابط الفريد (Slug) - اختياري"
+            placeholder="lenovo"
+            value={editModal.formData.slug}
+            onChange={(e) =>
+              setEditModal((prev) => ({
+                ...prev,
+                formData: { ...prev.formData, slug: e.target.value },
+              }))
+            }
+            dir="ltr"
+            hint="يترك فارغاً للتوليد التلقائي"
+          />
 
-            <div className="form-group mb-4">
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={editModal.formData.is_active}
-                  onChange={(e) =>
-                    setEditModal({
-                      ...editModal,
-                      formData: { ...editModal.formData, is_active: e.target.checked },
-                    })
-                  }
-                />
-                <span className="font-semibold">تفعيل الماركة وعرضها في الفلاتر</span>
-              </label>
-            </div>
-
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                disabled={editModal.submitting}
-                onClick={() => setEditModal((prev) => ({ ...prev, open: false }))}
-              >
-                إلغاء
-              </button>
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={editModal.submitting}
-              >
-                {editModal.submitting ? 'جاري الحفظ...' : editModal.isEdit ? 'حفظ التعديلات' : 'إضافة الماركة'}
-              </button>
-            </div>
-          </form>
-        </Modal>
-      )}
+          <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', cursor: 'pointer', fontSize: 'var(--text-sm)', marginTop: 4 }}>
+            <input
+              type="checkbox"
+              checked={editModal.formData.is_active}
+              onChange={(e) =>
+                setEditModal((prev) => ({
+                  ...prev,
+                  formData: { ...prev.formData, is_active: e.target.checked },
+                }))
+              }
+              style={{ accentColor: 'var(--color-royal-blue)' }}
+            />
+            <span>تفعيل الماركة وعرضها في الفلاتر</span>
+          </label>
+        </form>
+      </Modal>
 
       {/* Delete Confirmation Modal */}
-      {deleteModal.open && (
-        <Modal
-          isOpen={deleteModal.open}
-          onClose={() => setDeleteModal({ open: false, brand: null, loading: false })}
-          title="تأكيد حذف الماركة"
-        >
-          <div className="p-2">
-            <p className="mb-4">
-              هل أنت متأكد من رغبتك في حذف الماركة:{' '}
-              <strong className="text-navy">{deleteModal.brand?.name}</strong>؟
-            </p>
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                disabled={deleteModal.loading}
-                onClick={() => setDeleteModal({ open: false, brand: null, loading: false })}
-              >
-                إلغاء
-              </button>
-              <button
-                type="button"
-                className="btn btn-danger"
-                disabled={deleteModal.loading}
-                onClick={handleDeleteConfirm}
-              >
-                {deleteModal.loading ? 'جاري الحذف...' : 'تأكيد الحذف'}
-              </button>
-            </div>
-          </div>
-        </Modal>
-      )}
+      <Modal
+        isOpen={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false, brand: null, loading: false })}
+        title="تأكيد حذف الماركة"
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => setDeleteModal({ open: false, brand: null, loading: false })}
+            >
+              إلغاء
+            </Button>
+            <Button
+              variant="danger"
+              loading={deleteModal.loading}
+              onClick={handleDeleteConfirm}
+            >
+              تأكيد الحذف
+            </Button>
+          </>
+        }
+      >
+        <p style={{ color: 'var(--color-slate-700)', fontSize: 'var(--text-sm)', lineHeight: 1.6, margin: 0 }}>
+          هل أنت متأكد من رغبتك في حذف الماركة:
+          <br />
+          <strong>{deleteModal.brand?.name}</strong>؟
+        </p>
+      </Modal>
     </div>
   );
 }
