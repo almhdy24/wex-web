@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { ShieldCheck, Plus, Minus, ShoppingCart, MapPin, ZoomIn } from 'lucide-react';
 import { productsApi } from '../../api/products';
 import { formatSdg, formatAed, getProductImageUrl, getStockStatusInfo, getConditionLabel } from '../../utils/formatters';
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
-import Badge from '../../components/common/Badge';
+import Tag from '../../components/common/Tag';
 import Button from '../../components/common/Button';
 import ErrorState from '../../components/common/ErrorState';
+import Modal from '../../components/common/Modal';
 import { Skeleton } from '../../components/common/Skeleton';
 import ProductCard from '../../components/products/ProductCard';
+import styles from './ProductDetailPage.module.css';
 
 export default function ProductDetailPage() {
   const { slug } = useParams();
@@ -18,6 +21,7 @@ export default function ProductDetailPage() {
 
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [zoomOpen, setZoomOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,12 +32,12 @@ export default function ProductDetailPage() {
     setError(null);
     setQuantity(1);
 
-    productsApi.getProductDetail(slug)
+    productsApi
+      .getProductDetail(slug)
       .then((res) => {
         if (!isMounted) return;
         const data = res.data;
         setProduct(data);
-        // Find primary image or first
         if (data.images && data.images.length > 0) {
           const primary = data.images.find((img) => img.is_primary) || data.images[0];
           setSelectedImage(primary.path);
@@ -49,20 +53,24 @@ export default function ProductDetailPage() {
         if (isMounted) setLoading(false);
       });
 
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [slug]);
 
   if (loading) {
     return (
-      <div className="container" style={{ padding: 'var(--space-8) var(--space-4)' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'var(--space-8)' }}>
+      <div className={styles.container}>
+        <div className={styles.mainLayout}>
           <Skeleton height="360px" borderRadius="var(--radius-lg)" />
           <div>
-            <Skeleton width="40%" height="24px" style={{ marginBottom: 'var(--space-3)' }} />
-            <Skeleton width="80%" height="36px" style={{ marginBottom: 'var(--space-4)' }} />
-            <Skeleton width="50%" height="28px" style={{ marginBottom: 'var(--space-6)' }} />
-            <Skeleton height="120px" borderRadius="var(--radius-md)" style={{ marginBottom: 'var(--space-4)' }} />
-            <Skeleton width="100%" height="48px" borderRadius="var(--radius-md)" />
+            <Skeleton width="40%" height="24px" />
+            <div style={{ height: 16 }} />
+            <Skeleton width="80%" height="36px" />
+            <div style={{ height: 16 }} />
+            <Skeleton width="50%" height="28px" />
+            <div style={{ height: 16 }} />
+            <Skeleton height="120px" borderRadius="var(--radius-md)" />
           </div>
         </div>
       </div>
@@ -71,9 +79,9 @@ export default function ProductDetailPage() {
 
   if (error || !product) {
     return (
-      <div className="container" style={{ padding: 'var(--space-8) var(--space-4)' }}>
+      <div className={styles.container}>
         <ErrorState
-          title="الجهاز غير موجود"
+          title="الجهاز غير متوفر"
           message={error || 'لم نتمكن من العثور على الجهاز المطلوب في المتجر.'}
           onRetry={() => navigate('/products')}
         />
@@ -83,87 +91,97 @@ export default function ProductDetailPage() {
 
   const stock = getStockStatusInfo(product.stock_status);
   const condition = getConditionLabel(product.condition);
-  const isOutOfStock = product.stock_status === 'out_of_stock';
+  const isOutOfStock =
+    product.stock_status === 'out_of_stock' ||
+    (product.stock_quantity !== undefined && product.stock_quantity <= 0);
   const displayImage = getProductImageUrl(selectedImage);
 
   const handleAddToCart = () => {
     if (isOutOfStock) return;
     addItem(product, quantity);
-    success(`تمت إضافة ${quantity} قطعة من "${product.name}" إلى السلة`);
+    success(`تمت إضافة ${quantity} من "${product.name}" إلى السلة`);
+  };
+
+  const specEntries =
+    product.specs && typeof product.specs === 'object'
+      ? Object.entries(product.specs)
+      : [];
+
+  const specLabelMap = {
+    cpu: 'المعالج (CPU)',
+    ram: 'الذاكرة (RAM)',
+    storage: 'التخزين (Storage)',
+    screen: 'الشاشة',
+    gpu: 'كرت الشاشة (GPU)',
+    battery: 'البطارية',
+    os: 'نظام التشغيل',
+    color: 'اللون',
   };
 
   return (
-    <div className="container" style={{ padding: 'var(--space-8) var(--space-4)' }}>
-      {/* Breadcrumb */}
-      <nav style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)', marginBottom: 'var(--space-6)' }}>
+    <div className={styles.container}>
+      {/* Breadcrumb navigation */}
+      <nav className={styles.breadcrumb} aria-label="مسار التنقل">
         <Link to="/">الرئيسية</Link>
         <span>/</span>
-        <Link to="/products">الأجهزة والمنتجات</Link>
+        <Link to="/products">المتجر</Link>
         {product.category && (
           <>
             <span>/</span>
-            <Link to={`/products?category=${product.category.slug}`}>{product.category.name_ar}</Link>
+            <Link to={`/products?category=${product.category.slug}`}>
+              {product.category.name_ar}
+            </Link>
           </>
         )}
         <span>/</span>
-        <span style={{ color: 'var(--color-slate-800)', fontWeight: 600 }}>{product.name}</span>
+        <span className={styles.breadcrumbCurrent}>{product.name}</span>
       </nav>
 
-      {/* Main Product Layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'var(--space-8)', marginBottom: 'var(--space-12)' }}>
-        {/* Gallery Section */}
-        <div>
+      {/* Main product view */}
+      <div className={styles.mainLayout}>
+        {/* Gallery */}
+        <div className={styles.gallerySection}>
           <div
-            className="card"
-            style={{
-              padding: 'var(--space-4)',
-              backgroundColor: 'var(--color-white)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              minHeight: 340,
-              maxHeight: 440,
-              marginBottom: 'var(--space-3)',
+            className={styles.mainImageCard}
+            onClick={() => setZoomOpen(true)}
+            role="button"
+            tabIndex={0}
+            aria-label="تكبير صورة المنتج"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') setZoomOpen(true);
             }}
           >
             <img
               src={displayImage}
               alt={product.name}
+              className={styles.mainImage}
               onError={(e) => {
                 e.target.onerror = null;
                 e.target.src = '/favicon.svg';
               }}
-              style={{
-                maxWidth: '100%',
-                maxHeight: 400,
-                objectFit: 'contain',
-              }}
             />
+            <div className={styles.zoomHint}>
+              <ZoomIn size={14} />
+              <span>تكبير</span>
+            </div>
           </div>
 
-          {/* Thumbnails */}
           {product.images && product.images.length > 1 && (
-            <div style={{ display: 'flex', gap: 'var(--space-2)', overflowX: 'auto', paddingBottom: 'var(--space-2)' }}>
+            <div className={styles.thumbnailStrip}>
               {product.images.map((img) => (
                 <button
                   key={img.id}
                   type="button"
                   onClick={() => setSelectedImage(img.path)}
-                  style={{
-                    width: 70,
-                    height: 70,
-                    borderRadius: 'var(--radius-md)',
-                    border: `2px solid ${selectedImage === img.path ? 'var(--color-royal-blue)' : 'var(--color-slate-200)'}`,
-                    padding: 4,
-                    backgroundColor: 'var(--color-white)',
-                    cursor: 'pointer',
-                    flexShrink: 0,
-                  }}
+                  className={`${styles.thumbnailBtn} ${
+                    selectedImage === img.path ? styles.thumbnailBtnActive : ''
+                  }`}
+                  aria-label="عرض الصورة"
                 >
                   <img
                     src={getProductImageUrl(img.thumb_path || img.path)}
                     alt=""
-                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                    className={styles.thumbnailImg}
                   />
                 </button>
               ))}
@@ -171,181 +189,166 @@ export default function ProductDetailPage() {
           )}
         </div>
 
-        {/* Product Details Column */}
-        <div>
-          <div style={{ display: 'flex', gap: 'var(--space-2)', marginBottom: 'var(--space-3)', flexWrap: 'wrap' }}>
-            <Badge variant={stock.variant}>{stock.label}</Badge>
-            <Badge variant="neutral">{condition}</Badge>
-            {product.brand && <Badge variant="info">{product.brand.name}</Badge>}
-            {product.is_featured && <Badge variant="navy">⭐ مميز</Badge>}
+        {/* Product Details */}
+        <div className={styles.infoSection}>
+          <div className={styles.badgeRow}>
+            <Tag variant={stock.variant}>{stock.label}</Tag>
+            {condition && <Tag variant="neutral">{condition}</Tag>}
+            {product.brand && <Tag variant="info">{product.brand.name}</Tag>}
           </div>
 
-          <h1 style={{ fontSize: 'var(--text-2xl)', marginBottom: 'var(--space-2)', lineHeight: 1.3 }}>
-            {product.name}
-          </h1>
+          <h1 className={styles.productTitle}>{product.name}</h1>
 
           {product.short_description && (
-            <p style={{ color: 'var(--color-slate-600)', fontSize: 'var(--text-base)', lineHeight: 1.6, marginBottom: 'var(--space-4)' }}>
-              {product.short_description}
-            </p>
+            <p className={styles.shortDesc}>{product.short_description}</p>
           )}
 
           {/* Price Box */}
-          <div
-            className="card"
-            style={{
-              padding: 'var(--space-4) var(--space-5)',
-              backgroundColor: 'var(--color-ice-blue-alt)',
-              borderColor: '#CCE4FF',
-              marginBottom: 'var(--space-6)',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 'var(--text-3xl)', fontWeight: 800, color: 'var(--color-royal-blue)' }}>
+          <div className={styles.priceBox}>
+            <div className={styles.priceValues}>
+              <span className={styles.sdgPrice}>
                 {formatSdg(product.price_sdg)}
               </span>
               {product.price_aed && (
-                <span style={{ fontSize: 'var(--text-sm)', color: 'var(--color-slate-500)' }}>
+                <span className={styles.aedPrice}>
                   (يعادل: {formatAed(product.price_aed)})
                 </span>
               )}
             </div>
-            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)', marginTop: 'var(--space-1)' }}>
-              💡 يتم حجز وتثبيت السعر لمدة 4 ساعات عند تقديم الطلب
-            </div>
+            <p className={styles.priceNote}>
+              السعر بالدرهم وبيتغير مع الصرف. بنثبته ليك بعد الطلب.
+            </p>
           </div>
 
-          {/* Warranty Info */}
+          {/* Warranty Line from API */}
           {product.warranty_text && (
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-2)',
-                padding: 'var(--space-3)',
-                borderRadius: 'var(--radius-md)',
-                backgroundColor: 'var(--color-success-bg)',
-                color: 'var(--color-success)',
-                border: '1px solid var(--color-success-border)',
-                fontSize: 'var(--text-sm)',
-                fontWeight: 600,
-                marginBottom: 'var(--space-6)',
-              }}
-            >
-              <span>🛡️</span>
-              <span>الضمان المعتمد: {product.warranty_text}</span>
+            <div className={styles.warrantyNote}>
+              <ShieldCheck size={18} className={styles.warrantyIcon} />
+              <span>الضمان: {product.warranty_text}</span>
             </div>
           )}
 
-          {/* Quantity & Add to Cart */}
-          <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center', marginBottom: 'var(--space-6)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--color-slate-300)', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--color-white)' }}>
+          {/* Desktop Purchase Actions */}
+          <div className={styles.desktopActions}>
+            <div className={styles.qtyPicker} aria-label="اختيار الكمية">
               <button
                 type="button"
-                className="btn btn-ghost"
+                className={styles.qtyBtn}
                 disabled={quantity <= 1 || isOutOfStock}
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                style={{ padding: 'var(--space-2) var(--space-3)', fontSize: '1.25rem' }}
+                aria-label="تقليل الكمية"
               >
-                -
+                <Minus size={16} />
               </button>
-              <span style={{ padding: '0 var(--space-3)', fontWeight: 700, minWidth: 32, textAlign: 'center' }}>
-                {quantity}
-              </span>
+              <span className={styles.qtyValue}>{quantity}</span>
               <button
                 type="button"
-                className="btn btn-ghost"
+                className={styles.qtyBtn}
                 disabled={quantity >= 10 || isOutOfStock}
                 onClick={() => setQuantity((q) => Math.min(10, q + 1))}
-                style={{ padding: 'var(--space-2) var(--space-3)', fontSize: '1.25rem' }}
+                aria-label="زيادة الكمية"
               >
-                +
+                <Plus size={16} />
               </button>
             </div>
 
             <Button
               variant="primary"
               size="lg"
+              className={styles.desktopAddBtn}
               disabled={isOutOfStock}
               onClick={handleAddToCart}
-              style={{ flex: 1 }}
             >
-              {isOutOfStock ? 'الجهاز غير متوفر بالمخزن' : '🛒 إضافة إلى سلة الشراء'}
+              <ShoppingCart size={18} />
+              <span>{isOutOfStock ? 'نفد من المخزن' : 'أضف للسلة'}</span>
             </Button>
           </div>
 
-          {/* Shop Location Note */}
-          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)', borderTop: '1px solid var(--color-slate-200)', paddingTop: 'var(--space-4)' }}>
-            📍 متوفر للاستلام الفوري من فرع أم درمان (مول الواحة)، أو التوصيل لكافة ولايات السودان.
+          <div className={styles.storeNote}>
+            <MapPin size={16} />
+            <span>متوفر للاستلام من المحل (مول الواحة - أم درمان) أو التوصيل</span>
           </div>
         </div>
       </div>
 
-      {/* Specifications & Description Tabs/Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'var(--space-6)', marginBottom: 'var(--space-12)' }}>
-        {/* Specs Table */}
-        {product.specs && typeof product.specs === 'object' && Object.keys(product.specs).length > 0 && (
-          <div className="card">
-            <div className="card-header">
-              <h3 style={{ margin: 0, fontSize: 'var(--text-base)' }}>المواصفات الفنية للجهاز</h3>
-            </div>
-            <div className="table-container" style={{ border: 'none', borderRadius: 0 }}>
-              <table className="table">
-                <tbody>
-                  {Object.entries(product.specs).map(([key, val]) => (
-                    <tr key={key}>
-                      <td style={{ fontWeight: 600, color: 'var(--color-navy)', width: '35%', backgroundColor: 'var(--color-slate-50)' }}>
-                        {key === 'cpu' ? 'المعالج (CPU)' :
-                         key === 'ram' ? 'الذاكرة العشوائية (RAM)' :
-                         key === 'storage' ? 'سعة التخزين (Storage)' :
-                         key === 'screen' ? 'الشاشة' :
-                         key === 'gpu' ? 'كرت الشاشة (GPU)' : key}
-                      </td>
-                      <td className="en-text" style={{ color: 'var(--color-slate-800)' }}>
-                        {String(val)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+      {/* Technical Specifications Definition List */}
+      {specEntries.length > 0 && (
+        <section className={styles.specsSection} aria-label="المواصفات الفنية">
+          <h2 className={styles.sectionHeading}>المواصفات الفنية</h2>
+          <dl className={styles.specsList}>
+            {specEntries.map(([key, val]) => (
+              <div key={key} className={styles.specRow}>
+                <dt className={styles.specTerm}>
+                  {specLabelMap[key] || key}
+                </dt>
+                <dd className={styles.specDesc}>
+                  {String(val)}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
 
-        {/* Detailed Description */}
-        {product.description && (
-          <div className="card">
-            <div className="card-header">
-              <h3 style={{ margin: 0, fontSize: 'var(--text-base)' }}>تفاصيل الاستخدام والفحص</h3>
-            </div>
-            <div className="card-body">
-              <p style={{ color: 'var(--color-slate-700)', lineHeight: 1.8, whiteSpace: 'pre-line' }}>
-                {product.description}
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
+      {/* Description */}
+      {product.description && (
+        <section className={styles.specsSection} aria-label="تفاصيل الجهاز">
+          <h2 className={styles.sectionHeading}>تفاصيل الجهاز</h2>
+          <p className={styles.descText}>{product.description}</p>
+        </section>
+      )}
 
-      {/* Suggested Accessories */}
+      {/* Accessories */}
       {product.accessories && product.accessories.length > 0 && (
-        <section style={{ marginTop: 'var(--space-8)' }}>
-          <h2 style={{ fontSize: 'var(--text-xl)', marginBottom: 'var(--space-4)' }}>
-            إكسسوارات وملحقات مقترحة لهذا الجهاز
-          </h2>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-              gap: 'var(--space-5)',
-            }}
-          >
+        <section className={styles.accessoriesSection} aria-label="ملحقات متوافقة">
+          <h2 className={styles.sectionHeading}>ملحقات متوافقة</h2>
+          <div className={styles.accessoriesGrid}>
             {product.accessories.map((acc) => (
               <ProductCard key={acc.id} product={acc} />
             ))}
           </div>
         </section>
       )}
+
+      {/* Sticky Mobile Bottom Bar */}
+      <div className={styles.mobileStickyBar}>
+        <div className={styles.mobilePriceInfo}>
+          <span className={styles.mobileSdgPrice}>
+            {formatSdg(product.price_sdg)}
+          </span>
+          {product.price_aed && (
+            <span className={styles.mobileAedPrice}>
+              {formatAed(product.price_aed)}
+            </span>
+          )}
+        </div>
+
+        <Button
+          variant="primary"
+          size="md"
+          className={styles.mobileAddBtn}
+          disabled={isOutOfStock}
+          onClick={handleAddToCart}
+        >
+          <ShoppingCart size={16} />
+          <span>{isOutOfStock ? 'نفد' : 'أضف للسلة'}</span>
+        </Button>
+      </div>
+
+      {/* Image Zoom Modal */}
+      <Modal
+        isOpen={zoomOpen}
+        onClose={() => setZoomOpen(false)}
+        title={product.name}
+      >
+        <div className={styles.imageModal}>
+          <img
+            src={displayImage}
+            alt={product.name}
+            className={styles.modalImage}
+          />
+        </div>
+      </Modal>
     </div>
   );
 }

@@ -17,11 +17,12 @@
   - Plain footer: address (مول الواحة - الشهداء - أم درمان), hours, phone, WhatsApp. Emojis removed.
   - Global `ErrorBoundary` with reload action, updated `NotFoundPage`, `OfflinePage`, and `PwaPrompt` with CSS Modules and zero inline styles.
   - ESLint, Vitest (24 tests), and Vite production build verified.
-- [ ] **Redesign Phase 3: Storefront & Catalog**
-  - Home: search field, category chips, "وصل جديد" grid, "ملحقات" row, 3-step "كيف تطلب", shop info block.
-  - Shared ProductCard: 4:3 image, 2-line name, single spec line, condition tag, large SDG price + small AED, stock badge if low.
-  - Catalog: mobile bottom sheet filters, desktop sidebar, URL sync, sort, skeletons, empty state, "عرض المزيد" pagination.
-  - Product Page: gallery with zoom, specs definition list, warranty text from API, accessories row, sticky mobile bottom action bar.
+- [x] **Redesign Phase 3: Storefront & Catalog**
+  - Shared `ProductCard` + `ProductCard.module.css`: 4:3 image on white, object-fit contain, 2-line title, one-line spec summary, condition tag ("جديد", "مستعمل استيراد"), tabular SDG price + muted AED price, low-stock indicator, whole card link with quick "أضف للسلة" button.
+  - `HomePage` + `HomePage.module.css`: removed gradient hero and generic trust cards. Clean search input, scrollable category chips, "وصل جديد" responsive grid (2 cols mobile, 4 cols desktop), "ملحقات" row, compact 3-step "كيف تطلب" strip, and shop info block with WhatsApp and Maps links.
+  - `CatalogPage` + `CatalogPage.module.css`: mobile bottom `Sheet` filter drawer with count badge, desktop sticky sidebar filter card, URL param synchronization, sort dropdown, skeleton loading state, "ما لقينا أجهزة بالمواصفات دي" honest empty state with filter reset, and pagination.
+  - `ProductDetailPage` + `ProductDetailPage.module.css`: image gallery with thumbnail selector and click-to-zoom modal, clean 2-column specs definition list (`<dl>`, `<dt>`, `<dd>`), warranty line mapped from API, exchange rate volatility note ("السعر بالدرهم وبيتغير مع الصرف. بنثبته ليك بعد الطلب."), compatible accessories section, and sticky mobile bottom action bar.
+  - Lint, test suite (24 tests), and production build verified.
 - [ ] **Redesign Phase 4: Cart, Checkout & Sign-In**
   - Cart: compact list, quantity stepper, clear summary, "السلة فاضية".
   - Checkout: one-page 3-step layout (pickup/delivery, Sudan phone input, price lock notice, double-submit protection).

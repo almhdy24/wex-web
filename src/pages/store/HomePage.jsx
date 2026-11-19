@@ -1,18 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Search, ArrowLeft, MapPin, Clock, Coins, MessageCircle } from 'lucide-react';
 import { productsApi } from '../../api/products';
-import { formatSdg, formatAed } from '../../utils/formatters';
 import ProductCard from '../../components/products/ProductCard';
 import { ProductCardSkeleton } from '../../components/common/Skeleton';
-import Button from '../../components/common/Button';
 import ErrorState from '../../components/common/ErrorState';
+import styles from './HomePage.module.css';
 
 export default function HomePage() {
+  const navigate = useNavigate();
   const [shopInfo, setShopInfo] = useState(null);
   const [categories, setCategories] = useState([]);
-  const [featuredProducts, setFeaturedProducts] = useState([]);
   const [latestProducts, setLatestProducts] = useState([]);
   const [accessories, setAccessories] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -20,17 +21,15 @@ export default function HomePage() {
     setLoading(true);
     setError(null);
     try {
-      const [shopRes, catsRes, featuredRes, latestRes, accRes] = await Promise.all([
+      const [shopRes, catsRes, latestRes, accRes] = await Promise.all([
         productsApi.getShopInfo(),
         productsApi.getCategories(),
-        productsApi.getProducts({ featured: true, per_page: 4 }),
-        productsApi.getProducts({ sort: 'newest', per_page: 4 }),
+        productsApi.getProducts({ sort: 'newest', per_page: 8 }),
         productsApi.getProducts({ type: 'accessory', per_page: 4 }),
       ]);
 
       setShopInfo(shopRes?.data || null);
       setCategories(catsRes?.data || []);
-      setFeaturedProducts(featuredRes?.data || []);
       setLatestProducts(latestRes?.data || []);
       setAccessories(accRes?.data || []);
     } catch (err) {
@@ -44,339 +43,175 @@ export default function HomePage() {
     loadHomeData();
   }, []);
 
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
   return (
-    <div>
-      {/* Hero Section */}
-      <section
-        style={{
-          background: 'linear-gradient(135deg, var(--color-navy-dark) 0%, var(--color-navy) 60%, var(--color-royal-blue) 100%)',
-          color: 'var(--color-white)',
-          padding: 'var(--space-12) 0 var(--space-16)',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-          <div style={{ maxWidth: 680 }}>
-            <div
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 'var(--space-2)',
-                backgroundColor: 'rgba(0, 183, 255, 0.15)',
-                border: '1px solid rgba(0, 183, 255, 0.3)',
-                color: 'var(--color-cyan)',
-                padding: '4px 12px',
-                borderRadius: 'var(--radius-full)',
-                fontSize: 'var(--text-xs)',
-                fontWeight: 600,
-                marginBottom: 'var(--space-4)',
-              }}
-            >
-              <span>⚡</span>
-              <span>سعر الصرف مثبت {shopInfo?.price_lock_hours || 4} ساعات عند الطلب</span>
-            </div>
-
-            <h1
-              style={{
-                fontSize: 'calc(var(--text-2xl) * 1.3)',
-                color: 'var(--color-white)',
-                lineHeight: 1.25,
-                fontWeight: 800,
-                marginBottom: 'var(--space-4)',
-              }}
-            >
-              أجهزة لابتوب وهواتف ذكية أصلية في أم درمان
-            </h1>
-
-            <p
-              style={{
-                fontSize: 'var(--text-base)',
-                color: 'var(--color-slate-200)',
-                lineHeight: 1.7,
-                marginBottom: 'var(--space-6)',
-              }}
-            >
-              متجر ويكس تكنولوجي (Wex Technology) يوفر لك أجهزة وارد دبي بأفضل المواصفات المعتمدة، مع فحص كامل وضمان المحل وسرعة التسليم في أم درمان وكافة ولايات السودان.
-            </p>
-
-            <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
-              <Link to="/products">
-                <Button variant="primary" size="lg" style={{ backgroundColor: 'var(--color-cyan)', color: 'var(--color-navy)', fontWeight: 700 }}>
-                  تصفح جميع الأجهزة
-                </Button>
-              </Link>
-              <Link to="/products?type=laptop">
-                <Button variant="outline" size="lg" style={{ color: 'var(--color-white)', borderColor: 'rgba(255,255,255,0.3)' }}>
-                  لابتوبات الأعمال
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Decorative background grid pattern */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: '40px',
-            background: 'linear-gradient(to top, var(--color-slate-50), transparent)',
-          }}
-        />
+    <div className={styles.container}>
+      {/* 1. Search Field */}
+      <section className={styles.searchSection} aria-label="البحث عن منتج">
+        <form onSubmit={handleSearchSubmit} className={styles.searchForm}>
+          <Search size={20} className={styles.searchIcon} />
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="ابحث عن لابتوب، هاتف، أو ملحق..."
+            className={styles.searchInput}
+            aria-label="ابحث في المتجر"
+          />
+        </form>
       </section>
 
-      {/* Trust Badges */}
-      <section style={{ transform: 'translateY(-24px)', marginBottom: 'var(--space-6)' }}>
-        <div className="container">
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-              gap: 'var(--space-4)',
-            }}
-          >
-            <div className="card" style={{ padding: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-              <span style={{ fontSize: '2rem' }}>🔒</span>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 'var(--text-sm)' }}>تثبيت سعر الصرف</div>
-                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)' }}>حجز السعر لمدة 4 ساعات لمنع تقلبات العملة</div>
-              </div>
-            </div>
-
-            <div className="card" style={{ padding: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-              <span style={{ fontSize: '2rem' }}>🛡️</span>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 'var(--text-sm)' }}>ضمان المحل</div>
-                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)' }}>فحص دقيق لكافة المنافذ والبطارية والشاشة</div>
-              </div>
-            </div>
-
-            <div className="card" style={{ padding: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-              <span style={{ fontSize: '2rem' }}>🚚</span>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 'var(--text-sm)' }}>توصيل واستلام</div>
-                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)' }}>استلام مباشر من أم درمان أو شحن للولايات</div>
-              </div>
-            </div>
-
-            <div className="card" style={{ padding: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-              <span style={{ fontSize: '2rem' }}>🏦</span>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 'var(--text-sm)' }}>دفع بنكك معتمد</div>
-                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)' }}>إشعار تحويل آمن ومباشر ومراجعة فورية</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {error && (
-        <div className="container">
-          <ErrorState message={error} onRetry={loadHomeData} />
-        </div>
-      )}
-
-      {/* Main Categories Section */}
+      {/* 2. Category Chips */}
       {categories.length > 0 && (
-        <section style={{ padding: 'var(--space-8) 0' }}>
-          <div className="container">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5)' }}>
-              <div>
-                <h2 style={{ fontSize: 'var(--text-xl)', marginBottom: 'var(--space-1)' }}>التصنيفات الرئيسية</h2>
-                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-slate-500)', margin: 0 }}>اختر التصنيف لتصفح الأجهزة المتاحة</p>
-              </div>
-            </div>
-
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-                gap: 'var(--space-4)',
-              }}
-            >
-              {categories.map((cat) => (
-                <Link
-                  key={cat.id}
-                  to={`/products?category=${encodeURIComponent(cat.slug)}`}
-                  className="card card-hover"
-                  style={{
-                    padding: 'var(--space-5)',
-                    textAlign: 'center',
-                    textDecoration: 'none',
-                    color: 'inherit',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    minHeight: 110,
-                  }}
-                >
-                  <div style={{ fontSize: '2rem', marginBottom: 'var(--space-2)' }}>
-                    {cat.slug === 'laptops' ? '💻' : cat.slug === 'smartphones' ? '📱' : '🎧'}
-                  </div>
-                  <div style={{ fontWeight: 700, color: 'var(--color-navy)', fontSize: 'var(--text-base)' }}>
-                    {cat.name_ar}
-                  </div>
-                  {cat.name_en && (
-                    <div className="en-text" style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-400)' }}>
-                      {cat.name_en}
-                    </div>
-                  )}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Featured Products */}
-      <section style={{ padding: 'var(--space-8) 0', backgroundColor: 'var(--color-slate-100)' }}>
-        <div className="container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5)' }}>
-            <div>
-              <h2 style={{ fontSize: 'var(--text-xl)', marginBottom: 'var(--space-1)' }}>الأجهزة المختارة والمميزة</h2>
-              <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-slate-500)', margin: 0 }}>أقوى العروض على اللابتوبات الأعلى كفاءة</p>
-            </div>
-            <Link to="/products?featured=true" style={{ fontSize: 'var(--text-sm)', fontWeight: 600 }}>
-              عرض الكل ←
+        <section className={styles.categorySection} aria-label="التصنيفات">
+          <div className={styles.categoryScroll}>
+            <Link to="/products" className={styles.categoryChip}>
+              كل الأجهزة
             </Link>
-          </div>
-
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-              gap: 'var(--space-5)',
-            }}
-          >
-            {loading ? (
-              Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
-            ) : featuredProducts.length > 0 ? (
-              featuredProducts.map((prod) => <ProductCard key={prod.id} product={prod} />)
-            ) : (
-              <p style={{ color: 'var(--color-slate-500)', gridColumn: '1 / -1' }}>لا توجد أجهزة مميزة حالياً</p>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Latest Products */}
-      <section style={{ padding: 'var(--space-8) 0' }}>
-        <div className="container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5)' }}>
-            <div>
-              <h2 style={{ fontSize: 'var(--text-xl)', marginBottom: 'var(--space-1)' }}>وصل حديثاً للمتجر</h2>
-              <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-slate-500)', margin: 0 }}>أحدث الأجهزة المضافة بالمخزون</p>
-            </div>
-            <Link to="/products?sort=newest" style={{ fontSize: 'var(--text-sm)', fontWeight: 600 }}>
-              عرض الكل ←
-            </Link>
-          </div>
-
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-              gap: 'var(--space-5)',
-            }}
-          >
-            {loading ? (
-              Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
-            ) : latestProducts.length > 0 ? (
-              latestProducts.map((prod) => <ProductCard key={prod.id} product={prod} />)
-            ) : (
-              <p style={{ color: 'var(--color-slate-500)', gridColumn: '1 / -1' }}>لا توجد منتجات حديثة</p>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Accessories Section */}
-      {accessories.length > 0 && (
-        <section style={{ padding: 'var(--space-8) 0', backgroundColor: 'var(--color-ice-blue-alt)' }}>
-          <div className="container">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5)' }}>
-              <div>
-                <h2 style={{ fontSize: 'var(--text-xl)', marginBottom: 'var(--space-1)' }}>الملحقات والإكسسوارات</h2>
-                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-slate-500)', margin: 0 }}>شواحن أصلية، ماوسات، وحقائب حماية</p>
-              </div>
-              <Link to="/products?type=accessory" style={{ fontSize: 'var(--text-sm)', fontWeight: 600 }}>
-                عرض الكل ←
+            {categories.map((cat) => (
+              <Link
+                key={cat.id}
+                to={`/products?category=${encodeURIComponent(cat.slug)}`}
+                className={styles.categoryChip}
+              >
+                {cat.name_ar}
               </Link>
-            </div>
-
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-                gap: 'var(--space-4)',
-              }}
-            >
-              {accessories.map((prod) => (
-                <ProductCard key={prod.id} product={prod} />
-              ))}
-            </div>
+            ))}
           </div>
         </section>
       )}
 
-      {/* Shop Info Section */}
-      <section style={{ padding: 'var(--space-12) 0', backgroundColor: 'var(--color-white)' }}>
-        <div className="container">
-          <div
-            className="card"
-            style={{
-              padding: 'var(--space-8)',
-              backgroundColor: 'var(--color-navy)',
-              color: 'var(--color-white)',
-              borderRadius: 'var(--radius-xl)',
-            }}
-          >
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-6)' }}>
-              <div>
-                <div style={{ fontSize: 'var(--text-xl)', fontWeight: 800, marginBottom: 'var(--space-2)' }}>
-                  متجر ويكس تكنولوجي — أم درمان
-                </div>
-                <p style={{ color: 'var(--color-slate-300)', fontSize: 'var(--text-sm)', lineHeight: 1.7 }}>
-                  يسعدنا استقبالكم في فرعنا بمول الواحة - الشهداء في أم درمان لتجربة الأجهزة واستلام طلباتكم مباشرة والتأكد من كافة المواصفات والضمان.
-                </p>
-                <div style={{ marginTop: 'var(--space-4)' }}>
-                  <a
-                    href="https://wa.me/249912345678"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn"
-                    style={{ backgroundColor: '#25D366', color: '#FFFFFF', fontWeight: 700 }}
-                  >
-                    💬 استفسر عبر واتساب مباشرة
-                  </a>
-                </div>
-              </div>
+      {error && <ErrorState message={error} onRetry={loadHomeData} />}
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', justifyContent: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-                  <span style={{ fontSize: '1.25rem' }}>📍</span>
-                  <div>
-                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-400)' }}>العنوان</div>
-                    <div style={{ fontWeight: 600 }}>مول الواحة، الشهداء، أم درمان</div>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-                  <span style={{ fontSize: '1.25rem' }}>⏰</span>
-                  <div>
-                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-400)' }}>ساعات العمل</div>
-                    <div style={{ fontWeight: 600 }}>من 10 صباحاً إلى 10 مساءً، عدا الجمعة</div>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-                  <span style={{ fontSize: '1.25rem' }}>💹</span>
-                  <div>
-                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-400)' }}>سعر الصرف المعتمد</div>
-                    <div style={{ fontWeight: 600 }}>1 درهم = {shopInfo?.exchange_rate_sdg || 650} جنيه سوداني</div>
-                  </div>
+      {/* 3. "وصل جديد" Product Grid */}
+      <section className={styles.section} aria-label="وصل جديد">
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.sectionTitle}>وصل جديد</h2>
+          <Link to="/products?sort=newest" className={styles.viewAllLink}>
+            <span>عرض الكل</span>
+            <ArrowLeft size={16} />
+          </Link>
+        </div>
+
+        <div className={styles.productGrid}>
+          {loading
+            ? Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
+            : latestProducts.length > 0
+            ? latestProducts.map((prod) => <ProductCard key={prod.id} product={prod} />)
+            : !error && <p>لا توجد أجهزة متوفرة حالياً</p>}
+        </div>
+      </section>
+
+      {/* 4. "ملحقات" Section */}
+      {(accessories.length > 0 || loading) && (
+        <section className={styles.section} aria-label="الملحقات">
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>ملحقات</h2>
+            <Link to="/products?type=accessory" className={styles.viewAllLink}>
+              <span>عرض كل الملحقات</span>
+              <ArrowLeft size={16} />
+            </Link>
+          </div>
+
+          <div className={styles.productGrid}>
+            {loading
+              ? Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
+              : accessories.map((prod) => <ProductCard key={prod.id} product={prod} />)}
+          </div>
+        </section>
+      )}
+
+      {/* 5. Compact 3-Step "كيف تطلب" */}
+      <section className={styles.howToOrderSection} aria-label="كيف تطلب">
+        <h3 className={styles.stripTitle}>كيف تطلب من ويكس؟</h3>
+        <div className={styles.stepsGrid}>
+          <div className={styles.stepCard}>
+            <div className={styles.stepNumber}>1</div>
+            <div className={styles.stepContent}>
+              <h4 className={styles.stepHeading}>اختر الجهاز</h4>
+              <p className={styles.stepText}>تصفح المعروضات وتأكد من المواصفات والحالة المناسبة لاحتياجك.</p>
+            </div>
+          </div>
+
+          <div className={styles.stepCard}>
+            <div className={styles.stepNumber}>2</div>
+            <div className={styles.stepContent}>
+              <h4 className={styles.stepHeading}>ثبّت السعر وحوّل</h4>
+              <p className={styles.stepText}>
+                بنثبت ليك سعر الصرف لمدة {shopInfo?.price_lock_hours || 4} ساعات عند إتمام الطلب، وحوّل القيمة عبر بنكك.
+              </p>
+            </div>
+          </div>
+
+          <div className={styles.stepCard}>
+            <div className={styles.stepNumber}>3</div>
+            <div className={styles.stepContent}>
+              <h4 className={styles.stepHeading}>استلم من المحل أو التوصيل</h4>
+              <p className={styles.stepText}>استلام فوري من مول الواحة بأم درمان أو شحن مباشر لبابك.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Shop Info Block */}
+      <section className={styles.shopInfoSection} aria-label="معلومات المتجر">
+        <div className={styles.shopInfoCard}>
+          <div className={styles.shopInfoMain}>
+            <h3 className={styles.shopInfoTitle}>متجر ويكس تكنولوجي — أم درمان</h3>
+            <p className={styles.shopInfoDesc}>
+              محل أجهزة لابتوب وهواتف وملحقات في مول الواحة بأم درمان. نوفر أجهزة جديدة ومستعملة مع فحص دقيق وإمكانية المعاينة المباشرة قبل الاستلام.
+            </p>
+            <div className={styles.shopActions}>
+              <a
+                href="https://wa.me/249912345678"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.whatsappBtn}
+              >
+                <MessageCircle size={18} />
+                <span>تواصل عبر واتساب</span>
+              </a>
+              <a
+                href="https://maps.google.com/?q=Omdurman+Al+Waha+Mall"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.mapsBtn}
+              >
+                <MapPin size={18} />
+                <span>موقعنا على الخريطة</span>
+              </a>
+            </div>
+          </div>
+
+          <div className={styles.shopDetailsList}>
+            <div className={styles.detailRow}>
+              <MapPin size={20} className={styles.detailIcon} />
+              <div>
+                <div className={styles.detailLabel}>الموقع</div>
+                <div className={styles.detailValue}>مول الواحة — الشهداء — أم درمان</div>
+              </div>
+            </div>
+
+            <div className={styles.detailRow}>
+              <Clock size={20} className={styles.detailIcon} />
+              <div>
+                <div className={styles.detailLabel}>ساعات العمل</div>
+                <div className={styles.detailValue}>السبت - الخميس: 10:00 ص - 10:00 م | الجمعة: 4:00 م - 10:00 م</div>
+              </div>
+            </div>
+
+            <div className={styles.detailRow}>
+              <Coins size={20} className={styles.detailIcon} />
+              <div>
+                <div className={styles.detailLabel}>سعر الصرف المعتمد</div>
+                <div className={styles.detailValue}>
+                  1 درهم = {shopInfo?.exchange_rate_sdg || 650} جنيه سوداني
                 </div>
               </div>
             </div>
