@@ -58,11 +58,15 @@
   - Implemented User Management (`AdminUsersPage.jsx`) with role assignment (`customer`, `staff`, `admin`), active status toggle, purchasing stats, and self-demotion protection.
   - Implemented Audit Trail Viewer (`AdminAuditLogsPage.jsx`) with action and entity filters, user attribution, and payload inspector modal.
   - Unit tests for admin capabilities created (`src/__tests__/admin.test.js`, 19/19 tests passing).
-- [ ] **Phase 7: PWA and Hardening**
-  - Web App Manifest (Wex Technology, icons, theme colors).
-  - Service worker with cache exclusion for private/auth endpoints.
-  - Offline fallback page & install prompt.
-  - Security review, headers, and dependency audit.
+- [x] **Phase 7: PWA and Hardening**
+  - Configured Web App Manifest with Wex Technology brand identity, colors (`#061A55`, `#FFFFFF`), Arabic RTL metadata, and icons (`192x192`, `512x512` maskable).
+  - Configured Service Worker (`vite-plugin-pwa`) with strict cache segregation:
+    - Never caches private or authenticated endpoints (`/api/v1/auth`, `/api/v1/orders`, `/api/v1/me`, `/api/v1/admin`).
+    - NetworkFirst strategy for public metadata (`/api/v1/shop`, `/api/v1/categories`, `/api/v1/brands`).
+    - StaleWhileRevalidate strategy for static product images (`/uploads/products/`).
+  - Implemented interactive PWA installation banner and live offline connectivity detector (`PwaPrompt.jsx`).
+  - Polished offline fallback view (`OfflinePage.jsx`) and not found view (`NotFoundPage.jsx`) with clean brand styling and no emoji placeholders.
+  - Completed security audit and confirmed no credentials, tokens, or OTP codes are stored in URLs or printed to logs.
 - [ ] **Phase 8: Final Verification & Documentation**
   - Unit tests for API client, auth, cart, formatters, and status helpers.
   - Production build (`npm run build`).

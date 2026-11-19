@@ -3,6 +3,7 @@ import { Outlet, Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { notificationsApi } from '../api/notifications';
+import PwaPrompt from '../components/common/PwaPrompt';
 
 export default function StoreLayout() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -520,6 +521,8 @@ export default function StoreLayout() {
           </div>
         </div>
       </footer>
+
+      <PwaPrompt />
 
       <style>{`
         @media (min-width: 768px) {
