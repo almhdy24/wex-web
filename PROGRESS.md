@@ -34,13 +34,13 @@
   - Implemented touch-friendly Cart page (`CartPage.jsx`) with local storage persistence and quantity limits (1-10).
   - Implemented Checkout flow (`CheckoutPage.jsx`) with pickup vs. delivery selection, shipping zones from API, and server-side calculation notice.
   - Unit tests for formatting utilities and business logic passed (100% passing).
-- [ ] **Phase 4: Customer Operations**
-  - Order creation with server-computed totals.
-  - Bank transfer instructions & live price-lock countdown timer.
-  - Payment proof upload (Bankak screenshot, sender name, reference).
-  - Customer orders list & order tracking timeline.
-  - In-app notification center (unread badge, mark read, mark all read).
-  - Customer account profile settings & soft delete.
+- [x] **Phase 4: Customer Operations**
+  - Implemented Customer Orders listing (`OrdersPage.jsx`) with status tabs, order cards, and pagination.
+  - Implemented Order Details & Tracking (`OrderDetailPage.jsx`) with live price lock countdown timer (`.price-lock-banner`), Bankak transfer instructions, and copy shortcuts.
+  - Implemented Payment Proof Upload modal with file picker, client preview, sender name, reference number, and immediate order status refresh.
+  - Implemented Order Cancel and Reorder actions respecting backend state machine rules.
+  - Implemented In-App Notification Center (`NotificationsPage.jsx`) with unread badge counter in header, single mark-read, and mark-all-read.
+  - Unit tests for order status mapping, proof reviews, and timer calculations passed (100% passing).
 - [ ] **Phase 5: Admin Operations**
   - Admin operational dashboard (status counters, pending reviews, today's revenue, low-stock alerts).
   - Admin order management (order table, filtering, order detail, event timeline).
@@ -113,4 +113,4 @@
 ---
 
 ## (h) Next Immediate Action
-- Proceed to Phase 4: Customer Operations (Order tracking, live countdown timer, Bankak transfer receipt upload, cancel/reorder actions, and notifications center).
+- Proceed to Phase 5: Admin Operations (Operational dashboard metrics, orders management table, order details, payment proof approval/rejection review, status transitions, and price-lock extension).

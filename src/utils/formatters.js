@@ -57,6 +57,48 @@ export function getStockStatusInfo(status) {
 }
 
 /**
+ * Order status label and semantic badge mapping
+ */
+export function getOrderStatusInfo(status) {
+  switch (status) {
+    case 'pending_payment':
+      return { label: 'بانتظار الدفع', variant: 'warning', icon: '⏳' };
+    case 'payment_review':
+      return { label: 'مراجعة إشعار الدفع', variant: 'info', icon: '🔍' };
+    case 'confirmed':
+      return { label: 'تم تأكيد الطلب', variant: 'success', icon: '✓' };
+    case 'ready_for_pickup':
+      return { label: 'جاهز للاستلام بالمحل', variant: 'info', icon: '🏪' };
+    case 'out_for_delivery':
+      return { label: 'جاري التوصيل مع المندوب', variant: 'info', icon: '🚚' };
+    case 'completed':
+      return { label: 'مكتمل ومستلم', variant: 'success', icon: '🎉' };
+    case 'cancelled':
+      return { label: 'ملغي', variant: 'danger', icon: '✕' };
+    case 'expired':
+      return { label: 'انتهت فترة الحجز', variant: 'danger', icon: '⏰' };
+    default:
+      return { label: status || 'غير معروف', variant: 'neutral', icon: '•' };
+  }
+}
+
+/**
+ * Payment proof status mapping
+ */
+export function getProofStatusInfo(status) {
+  switch (status) {
+    case 'pending':
+      return { label: 'قيد المراجعة', variant: 'warning' };
+    case 'approved':
+      return { label: 'مقبول ومعتمد', variant: 'success' };
+    case 'rejected':
+      return { label: 'مرفوض', variant: 'danger' };
+    default:
+      return { label: status || 'قيد المراجعة', variant: 'neutral' };
+  }
+}
+
+/**
  * Condition label mapping
  */
 export function getConditionLabel(condition) {
