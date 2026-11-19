@@ -41,12 +41,12 @@
   - Implemented Order Cancel and Reorder actions respecting backend state machine rules.
   - Implemented In-App Notification Center (`NotificationsPage.jsx`) with unread badge counter in header, single mark-read, and mark-all-read.
   - Unit tests for order status mapping, proof reviews, and timer calculations passed (100% passing).
-- [ ] **Phase 5: Admin Operations**
-  - Admin operational dashboard (status counters, pending reviews, today's revenue, low-stock alerts).
-  - Admin order management (order table, filtering, order detail, event timeline).
-  - Order status updates (respecting OrderStateMachine).
-  - Payment receipt review modal (approve/reject with note).
-  - Price lock extension modal.
+- [x] **Phase 5: Admin Operations**
+  - Implemented Admin Dashboard (`AdminDashboardPage.jsx`) with live metrics from `GET /admin/dashboard`, pending payment review alert banner, today's order count & revenue, and low-stock inventory alerts.
+  - Implemented Admin Orders table (`AdminOrdersPage.jsx`) with search, status filters, and pagination.
+  - Implemented Order Details & Management (`AdminOrderDetailPage.jsx`) with status state machine transitions (`confirmed` -> `ready_for_pickup` / `out_for_delivery` -> `completed` / `cancelled`), lock extension modal, and courier assignment.
+  - Implemented Payment Proof Review interface (`AdminPaymentsPage.jsx` and review modal) with protected binary image streaming, approval confirmation, and rejection notes.
+  - Production build and test suite verified (100% passing).
 - [ ] **Phase 6: Admin Management**
   - Product catalog CRUD (product form, specs JSON, stock update, activate/deactivate, delete).
   - Product images manager (multi-upload, preview, set primary, delete).
