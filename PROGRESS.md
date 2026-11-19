@@ -185,5 +185,59 @@
 
 ---
 
+# Redesign & Hardening Track (`redesign` branch)
+
+## Overview & Objectives
+Calm, trustworthy, production-ready UI/UX tailored for Sudanese customers and electronics retail:
+- Self-hosted Tajawal font (Arabic + Latin subsets, preloaded WOFF2, Western tabular numbers).
+- Zero inline styles (~430 legacy blocks converted to scoped CSS Modules).
+- Zero emojis (replaced with unified `lucide-react` icons).
+- Pure CSS design system with Navy `#061A55`, Royal `#0B3FBF`, Vivid `#1E6BFF`, restrained Cyan `#00B7FF`, Ice `#EAF3FF`.
+- Honest technical copy (zero forbidden promotional words: أصلية, أفضل, مميز, احترافي, حصري, ضمان حقيقي, وارد دبي, ذكي, تجربة).
+- Mobile-first layout with 44px+ touch targets and bottom navigation bar.
+
+## Completed Redesign Phases
+- [x] **Redesign Phase 1: Design System & Base Components (commit `67f8f10`)**
+  - Self-hosted Tajawal font via `@fontsource/tajawal` (400, 500, 700, 800) with preload in `index.html`.
+  - Refactored `tokens.css` with exact brand palette and semantic colors.
+  - Built 14 atomic CSS Modules: Button, Input, Select, Chip, Tag, Card, Sheet, Modal, Toast, Skeleton, EmptyState, ErrorState, Countdown, CopyField.
+  - Replaced emojis with `lucide-react` (stroke 1.75, size 20).
+- [x] **Redesign Phase 2: Layout & Navigation (commit `6245d67`)**
+  - Responsive header with 120px+ logo, search input, rate strip ("الدرهم اليوم [rate] جنيه" + timestamp), unread notification dot, and cart count.
+  - Mobile bottom navigation with 4 tabs (الرئيسية، المتجر، طلباتي، حسابي).
+  - Redesigned AdminLayout with responsive sidebar and active route indicators.
+  - Redesigned NotFoundPage, OfflinePage, and PwaPrompt.
+- [x] **Redesign Phase 3: Storefront & Catalog (commit `40cd7b5`)**
+  - ProductCard with 4:3 aspect ratio, 2-line title clamp, honest condition tags ("جديد", "مستعمل استيراد"), tabular SDG price and muted AED reference, low-stock warning, and quick add action.
+  - HomePage without AI-template gradients; scrollable category chips, "وصل جديد" grid, "ملحقات" row, 3-step "كيف تطلب" strip, and store location block.
+  - CatalogPage with mobile bottom Sheet filter drawer, desktop sticky sidebar, URL-synced multi-filter, and empty state.
+  - ProductDetailPage with photo gallery modal, `<dl>` technical specs table, warranty from API, and accessories section.
+- [x] **Redesign Phase 4: Cart, Checkout & Sign-In (commit `085f12c`)**
+  - CartPage with responsive rows, stepper, clear breakdown, and honest empty state.
+  - CheckoutPage with 1-page 3-step layout, telephone inputMode, double-submit protection, and sticky CTA.
+  - LoginPage and VerifyOtpPage with brand ribbon header, Google first, 6-box auto-advance OTP input, paste handling, and 60s countdown.
+- [x] **Redesign Phase 5: Customer Operations & Vite API Proxy (commit `f017d54`)**
+  - Configured Vite dev server reverse proxy for `/api` and `/uploads` to `http://localhost:8081`.
+  - OrderDetailPage with tabular price lock countdown bar, Bankak transfer card with CopyField shortcuts, client-side canvas receipt compression (< 1600px, JPEG 0.8), timeline, and WhatsApp support.
+  - OrdersPage, NotificationsPage, and AccountPage redesigned with CSS Modules.
+- [x] **Redesign Phase 6: Admin Dashboard & Management (commits `7a87451` & `c7e008c`)**
+  - AdminPaymentsPage with split-view receipt preview alongside order details, one-click verify/reject, and quick rejection reason chips.
+  - AdminDashboardPage, AdminOrdersPage, AdminOrderDetailPage, AdminProductsPage with quick inline stock editor, AdminProductFormPage with specs presets and image manager.
+  - AdminRatesPage, AdminSettingsPage, AdminShippingZonesPage, AdminUsersPage, AdminAuditLogsPage, AdminCategoriesPage, AdminBrandsPage.
+- [x] **Redesign Phase 7: Code-Splitting, Copy & Performance Pass (current)**
+  - Dynamic `lazy()` imports in `src/app/router.jsx` with `<Suspense>` fallback, dropping main JS bundle from 559 kB to 349 kB (gzip 110 kB).
+  - Deleted dead monolithic `components.css`, cutting CSS bundle to 91 kB (gzip 14.8 kB).
+  - Global copy audit verified 0 occurrences of forbidden marketing terms and 0 emojis.
+  - Created `docs/PERFORMANCE.md` documenting bundle breakdown, font preloading, and client-side image downsampling.
+  - ESLint verified 0 errors, 0 warnings.
+
+## Remaining Redesign Phase
+- [ ] **Redesign Phase 8: Extended Tests, Design System Docs & Final Audit**
+  - Add targeted unit tests for Western price formatting, price lock countdown, OTP input, and receipt compression.
+  - Author `docs/DESIGN-SYSTEM.md` and `docs/UI-CHECKLIST.md`.
+  - Run comprehensive audit (lint, test, build, grep) before final report.
+
+---
+
 ## (h) Next Immediate Action
-- Proceed to Phase 5: Admin Operations (Operational dashboard metrics, orders management table, order details, payment proof approval/rejection review, status transitions, and price-lock extension).
+- Proceed to Redesign Phase 8: author unit tests for pricing, countdown, OTP, and image compression, create design system documentation, and perform final double-check verification.

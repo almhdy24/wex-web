@@ -1,5 +1,5 @@
-import React from 'react';
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
+import { createBrowserRouter } from 'react-router-dom';
 
 // Layouts
 import StoreLayout from '../layouts/StoreLayout';
@@ -9,36 +9,53 @@ import AdminLayout from '../layouts/AdminLayout';
 import { ProtectedRoute, RoleGuard, GuestRoute } from '../components/common/RouteGuard';
 import NotFoundPage from '../pages/errors/NotFoundPage';
 import OfflinePage from '../pages/errors/OfflinePage';
+import Skeleton from '../components/common/Skeleton';
 
-// Store Pages
-import HomePage from '../pages/store/HomePage';
-import CatalogPage from '../pages/store/CatalogPage';
-import ProductDetailPage from '../pages/store/ProductDetailPage';
-import CartPage from '../pages/store/CartPage';
-import CheckoutPage from '../pages/store/CheckoutPage';
-import OrdersPage from '../pages/store/OrdersPage';
-import OrderDetailPage from '../pages/store/OrderDetailPage';
-import AccountPage from '../pages/store/AccountPage';
-import NotificationsPage from '../pages/store/NotificationsPage';
+// Page Loader Fallback
+function PageFallback() {
+  return (
+    <div style={{ maxWidth: '1200px', marginInline: 'auto', padding: 'var(--space-6) var(--space-4)' }}>
+      <Skeleton height="36px" width="220px" style={{ marginBottom: 'var(--space-4)' }} />
+      <Skeleton height="240px" borderRadius="var(--radius-lg)" />
+    </div>
+  );
+}
+
+const load = (Component) => (
+  <Suspense fallback={<PageFallback />}>
+    <Component />
+  </Suspense>
+);
+
+// Store Pages (Lazy loaded for optimal bundle splitting)
+const HomePage = lazy(() => import('../pages/store/HomePage'));
+const CatalogPage = lazy(() => import('../pages/store/CatalogPage'));
+const ProductDetailPage = lazy(() => import('../pages/store/ProductDetailPage'));
+const CartPage = lazy(() => import('../pages/store/CartPage'));
+const CheckoutPage = lazy(() => import('../pages/store/CheckoutPage'));
+const OrdersPage = lazy(() => import('../pages/store/OrdersPage'));
+const OrderDetailPage = lazy(() => import('../pages/store/OrderDetailPage'));
+const AccountPage = lazy(() => import('../pages/store/AccountPage'));
+const NotificationsPage = lazy(() => import('../pages/store/NotificationsPage'));
 
 // Auth Pages
-import LoginPage from '../pages/auth/LoginPage';
-import VerifyOtpPage from '../pages/auth/VerifyOtpPage';
+const LoginPage = lazy(() => import('../pages/auth/LoginPage'));
+const VerifyOtpPage = lazy(() => import('../pages/auth/VerifyOtpPage'));
 
 // Admin Pages
-import AdminDashboardPage from '../pages/admin/AdminDashboardPage';
-import AdminOrdersPage from '../pages/admin/AdminOrdersPage';
-import AdminOrderDetailPage from '../pages/admin/AdminOrderDetailPage';
-import AdminPaymentsPage from '../pages/admin/AdminPaymentsPage';
-import AdminProductsPage from '../pages/admin/AdminProductsPage';
-import AdminProductFormPage from '../pages/admin/AdminProductFormPage';
-import AdminCategoriesPage from '../pages/admin/AdminCategoriesPage';
-import AdminBrandsPage from '../pages/admin/AdminBrandsPage';
-import AdminRatesPage from '../pages/admin/AdminRatesPage';
-import AdminSettingsPage from '../pages/admin/AdminSettingsPage';
-import AdminShippingZonesPage from '../pages/admin/AdminShippingZonesPage';
-import AdminUsersPage from '../pages/admin/AdminUsersPage';
-import AdminAuditLogsPage from '../pages/admin/AdminAuditLogsPage';
+const AdminDashboardPage = lazy(() => import('../pages/admin/AdminDashboardPage'));
+const AdminOrdersPage = lazy(() => import('../pages/admin/AdminOrdersPage'));
+const AdminOrderDetailPage = lazy(() => import('../pages/admin/AdminOrderDetailPage'));
+const AdminPaymentsPage = lazy(() => import('../pages/admin/AdminPaymentsPage'));
+const AdminProductsPage = lazy(() => import('../pages/admin/AdminProductsPage'));
+const AdminProductFormPage = lazy(() => import('../pages/admin/AdminProductFormPage'));
+const AdminCategoriesPage = lazy(() => import('../pages/admin/AdminCategoriesPage'));
+const AdminBrandsPage = lazy(() => import('../pages/admin/AdminBrandsPage'));
+const AdminRatesPage = lazy(() => import('../pages/admin/AdminRatesPage'));
+const AdminSettingsPage = lazy(() => import('../pages/admin/AdminSettingsPage'));
+const AdminShippingZonesPage = lazy(() => import('../pages/admin/AdminShippingZonesPage'));
+const AdminUsersPage = lazy(() => import('../pages/admin/AdminUsersPage'));
+const AdminAuditLogsPage = lazy(() => import('../pages/admin/AdminAuditLogsPage'));
 
 export const router = createBrowserRouter([
   // Public Storefront Routes
@@ -47,14 +64,14 @@ export const router = createBrowserRouter([
     element: <StoreLayout />,
     errorElement: <NotFoundPage />,
     children: [
-      { index: true, element: <HomePage /> },
-      { path: 'products', element: <CatalogPage /> },
-      { path: 'products/:slug', element: <ProductDetailPage /> },
+      { index: true, element: load(HomePage) },
+      { path: 'products', element: load(CatalogPage) },
+      { path: 'products/:slug', element: load(ProductDetailPage) },
       {
         path: 'login',
         element: (
           <GuestRoute>
-            <LoginPage />
+            {load(LoginPage)}
           </GuestRoute>
         ),
       },
@@ -62,16 +79,16 @@ export const router = createBrowserRouter([
         path: 'auth/verify',
         element: (
           <GuestRoute>
-            <VerifyOtpPage />
+            {load(VerifyOtpPage)}
           </GuestRoute>
         ),
       },
-      { path: 'cart', element: <CartPage /> },
+      { path: 'cart', element: load(CartPage) },
       {
         path: 'checkout',
         element: (
           <ProtectedRoute>
-            <CheckoutPage />
+            {load(CheckoutPage)}
           </ProtectedRoute>
         ),
       },
@@ -79,7 +96,7 @@ export const router = createBrowserRouter([
         path: 'orders',
         element: (
           <ProtectedRoute>
-            <OrdersPage />
+            {load(OrdersPage)}
           </ProtectedRoute>
         ),
       },
@@ -87,7 +104,7 @@ export const router = createBrowserRouter([
         path: 'orders/:orderNumber',
         element: (
           <ProtectedRoute>
-            <OrderDetailPage />
+            {load(OrderDetailPage)}
           </ProtectedRoute>
         ),
       },
@@ -95,7 +112,7 @@ export const router = createBrowserRouter([
         path: 'account',
         element: (
           <ProtectedRoute>
-            <AccountPage />
+            {load(AccountPage)}
           </ProtectedRoute>
         ),
       },
@@ -103,7 +120,7 @@ export const router = createBrowserRouter([
         path: 'notifications',
         element: (
           <ProtectedRoute>
-            <NotificationsPage />
+            {load(NotificationsPage)}
           </ProtectedRoute>
         ),
       },
@@ -123,17 +140,17 @@ export const router = createBrowserRouter([
     ),
     errorElement: <NotFoundPage />,
     children: [
-      { index: true, element: <AdminDashboardPage /> },
-      { path: 'orders', element: <AdminOrdersPage /> },
-      { path: 'orders/:orderNumber', element: <AdminOrderDetailPage /> },
-      { path: 'payments', element: <AdminPaymentsPage /> },
+      { index: true, element: load(AdminDashboardPage) },
+      { path: 'orders', element: load(AdminOrdersPage) },
+      { path: 'orders/:orderNumber', element: load(AdminOrderDetailPage) },
+      { path: 'payments', element: load(AdminPaymentsPage) },
 
       // Admin Only Routes
       {
         path: 'products',
         element: (
           <RoleGuard allowedRoles={['admin']}>
-            <AdminProductsPage />
+            {load(AdminProductsPage)}
           </RoleGuard>
         ),
       },
@@ -141,7 +158,7 @@ export const router = createBrowserRouter([
         path: 'products/new',
         element: (
           <RoleGuard allowedRoles={['admin']}>
-            <AdminProductFormPage />
+            {load(AdminProductFormPage)}
           </RoleGuard>
         ),
       },
@@ -149,7 +166,7 @@ export const router = createBrowserRouter([
         path: 'products/:id/edit',
         element: (
           <RoleGuard allowedRoles={['admin']}>
-            <AdminProductFormPage />
+            {load(AdminProductFormPage)}
           </RoleGuard>
         ),
       },
@@ -157,7 +174,7 @@ export const router = createBrowserRouter([
         path: 'categories',
         element: (
           <RoleGuard allowedRoles={['admin']}>
-            <AdminCategoriesPage />
+            {load(AdminCategoriesPage)}
           </RoleGuard>
         ),
       },
@@ -165,7 +182,7 @@ export const router = createBrowserRouter([
         path: 'brands',
         element: (
           <RoleGuard allowedRoles={['admin']}>
-            <AdminBrandsPage />
+            {load(AdminBrandsPage)}
           </RoleGuard>
         ),
       },
@@ -173,7 +190,7 @@ export const router = createBrowserRouter([
         path: 'rates',
         element: (
           <RoleGuard allowedRoles={['admin']}>
-            <AdminRatesPage />
+            {load(AdminRatesPage)}
           </RoleGuard>
         ),
       },
@@ -181,7 +198,7 @@ export const router = createBrowserRouter([
         path: 'shipping-zones',
         element: (
           <RoleGuard allowedRoles={['admin']}>
-            <AdminShippingZonesPage />
+            {load(AdminShippingZonesPage)}
           </RoleGuard>
         ),
       },
@@ -189,7 +206,7 @@ export const router = createBrowserRouter([
         path: 'settings',
         element: (
           <RoleGuard allowedRoles={['admin']}>
-            <AdminSettingsPage />
+            {load(AdminSettingsPage)}
           </RoleGuard>
         ),
       },
@@ -197,7 +214,7 @@ export const router = createBrowserRouter([
         path: 'users',
         element: (
           <RoleGuard allowedRoles={['admin']}>
-            <AdminUsersPage />
+            {load(AdminUsersPage)}
           </RoleGuard>
         ),
       },
@@ -205,7 +222,7 @@ export const router = createBrowserRouter([
         path: 'audit-logs',
         element: (
           <RoleGuard allowedRoles={['admin']}>
-            <AdminAuditLogsPage />
+            {load(AdminAuditLogsPage)}
           </RoleGuard>
         ),
       },

@@ -245,7 +245,7 @@ export default function AdminCategoriesPage() {
         <form onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
           <Input
             label="اسم الفئة بالعربية"
-            placeholder="مثال: لابتوبات، هواتف ذكية..."
+            placeholder="مثال: لابتوبات، موبايلات..."
             value={editModal.formData.name_ar}
             onChange={(e) =>
               setEditModal((prev) => ({

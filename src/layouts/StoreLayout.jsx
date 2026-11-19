@@ -162,7 +162,7 @@ export default function StoreLayout() {
           <div className={styles.footerGrid}>
             <div className={styles.footerCol}>
               <div className={styles.footerHeading}>ويكس تكنولوجي (Wex Technology)</div>
-              <p>متجر أجهزة لابتوب وهواتف ذكية وملحقات في أم درمان. بنوفر أسعار واضحة ومثبتة بعد الطلب.</p>
+              <p>متجر أجهزة لابتوب وموبايلات وملحقات في أم درمان. بنوفر أسعار واضحة ومثبتة بعد الطلب.</p>
               <div className={styles.footerItem}>
                 <MapPin size={16} strokeWidth={1.75} />
                 <span>مول الواحة - الشهداء - أم درمان</span>

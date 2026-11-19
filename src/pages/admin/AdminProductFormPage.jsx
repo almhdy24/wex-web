@@ -497,7 +497,7 @@ export default function AdminProductFormPage() {
                     onChange={handleInputChange}
                     style={{ accentColor: 'var(--color-royal-blue)' }}
                   />
-                  <span>جهاز مميز</span>
+                  <span>عرض في الواجهة الرئيسية</span>
                 </label>
               </div>
             </div>

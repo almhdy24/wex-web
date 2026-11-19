@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { apiClient, ApiError, setMemoryAccessToken, getMemoryAccessToken } from '../api/client';
+import { apiClient, setMemoryAccessToken } from '../api/client';
 
 const createStorageMock = () => {
   let store = {};

@@ -141,3 +141,50 @@
   color: var(--color-slate-600);
   font-variant-numeric: tabular-nums;
 }
+
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.modalText {
+  color: var(--color-slate-700);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  margin-top: 4px;
+}
+
+.checkboxInput {
+  accent-color: var(--color-royal-blue);
+}
+
+.actionCell {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+}
+
+.codeBlock {
+  direction: ltr;
+  text-align: start;
+  font-family: monospace;
+  font-size: 11px;
+  background-color: var(--color-slate-50);
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-subtle);
+  max-height: 160px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
