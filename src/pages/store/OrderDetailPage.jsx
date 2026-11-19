@@ -1,14 +1,75 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Clock, UploadCloud, MessageCircle, RefreshCw } from 'lucide-react';
 import { ordersApi } from '../../api/orders';
 import { formatSdg, formatDate, getOrderStatusInfo, getProofStatusInfo } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
-import Badge from '../../components/common/Badge';
+import Tag from '../../components/common/Tag';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import Modal from '../../components/common/Modal';
+import CopyField from '../../components/common/CopyField';
+import Countdown from '../../components/common/Countdown';
 import ErrorState from '../../components/common/ErrorState';
 import { Skeleton } from '../../components/common/Skeleton';
+import styles from './OrderDetailPage.module.css';
+
+/**
+ * Client-side receipt image compression
+ * Scales images down to max 1600px dimension, compresses at JPEG 0.8 to stay well under 1MB
+ */
+async function compressProofImage(file) {
+  // If not an image or already small SVG/GIF, return as is
+  if (!file.type.startsWith('image/')) return file;
+
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        const maxDim = 1600;
+
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              resolve(file);
+              return;
+            }
+            const cleanName = file.name.replace(/\.[^.]+$/, '.jpg');
+            const compressedFile = new File([blob], cleanName, {
+              type: 'image/jpeg',
+              lastModified: Date.now(),
+            });
+            resolve(compressedFile);
+          },
+          'image/jpeg',
+          0.8
+        );
+      };
+      img.onerror = () => resolve(file);
+      img.src = e.target.result;
+    };
+    reader.onerror = () => resolve(file);
+    reader.readAsDataURL(file);
+  });
+}
 
 export default function OrderDetailPage() {
   const { orderNumber } = useParams();
@@ -46,7 +107,7 @@ export default function OrderDetailPage() {
       setOrder(data);
       setSecondsRemaining(data.seconds_remaining || 0);
     } catch (err) {
-      setError(err.message || 'تعذر تحميل بيانات الطلب');
+      setError(err.message || 'الاتصال ضعيف. حاول تاني.');
     } finally {
       if (showLoading) setLoading(false);
     }
@@ -64,7 +125,7 @@ export default function OrderDetailPage() {
       setSecondsRemaining((prev) => {
         if (prev <= 1) {
           clearInterval(timerRef.current);
-          loadOrder(false); // Refresh status when timer expires
+          loadOrder(false);
           return 0;
         }
         return prev - 1;
@@ -76,33 +137,28 @@ export default function OrderDetailPage() {
     };
   }, [secondsRemaining]);
 
-  const hours = Math.floor(secondsRemaining / 3600);
-  const minutes = Math.floor((secondsRemaining % 3600) / 60);
-  const seconds = secondsRemaining % 60;
-
-  const pad = (n) => String(n).padStart(2, '0');
-
-  // Handle Proof File Selection
-  const handleFileChange = (e) => {
+  // Handle Proof File Selection with instant client-side compression
+  const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      toastError('حجم الصورة يجب ألا يتجاوز 5 ميجابايت');
-      return;
-    }
+    try {
+      const processed = await compressProofImage(file);
+      setProofFile(processed);
 
-    setProofFile(file);
-    const reader = new FileReader();
-    reader.onload = () => setProofPreview(reader.result);
-    reader.readAsDataURL(file);
+      const reader = new FileReader();
+      reader.onload = () => setProofPreview(reader.result);
+      reader.readAsDataURL(processed);
+    } catch {
+      setProofFile(file);
+    }
   };
 
   // Submit Payment Proof
   const handleUploadSubmit = async (e) => {
     e.preventDefault();
     if (!proofFile) {
-      toastError('يرجى اختيار صورة إشعار التحويل البنكي');
+      toastError('يرجى اختيار صورة إشعار التحويل');
       return;
     }
 
@@ -114,7 +170,7 @@ export default function OrderDetailPage() {
 
     try {
       await ordersApi.uploadPaymentProof(orderNumber, formData);
-      success('تم رفع إشعار التحويل بنجاح، جاري مراجعته من موظفي المحل');
+      success('تم رفع إشعار التحويل بنجاح، جاري مراجعته');
       setUploadModalOpen(false);
       setProofFile(null);
       setProofPreview(null);
@@ -122,7 +178,7 @@ export default function OrderDetailPage() {
       setReferenceNumber('');
       loadOrder(false);
     } catch (err) {
-      toastError(err.message || 'فشل رفع إشعار التحويل');
+      toastError(err.message || 'فشل رفع إشعار التحويل. حاول تاني.');
     } finally {
       setUploading(false);
     }
@@ -133,7 +189,7 @@ export default function OrderDetailPage() {
     setCancelling(true);
     try {
       await ordersApi.cancelOrder(orderNumber);
-      success('تم إلغاء الطلب بنجاح وإعادة الأجهزة للمخزن');
+      success('تم إلغاء الطلب');
       setCancelModalOpen(false);
       loadOrder(false);
     } catch (err) {
@@ -152,36 +208,30 @@ export default function OrderDetailPage() {
       success(`تم إنشاء طلب جديد برقم #${newOrder.order_number}`);
       navigate(`/orders/${newOrder.order_number}`, { replace: true });
     } catch (err) {
-      toastError(err.message || 'فشل إعادة الطلب');
+      toastError(err.message || 'فشل إعادة الطلب. حاول تاني.');
     } finally {
       setReordering(false);
     }
   };
 
-  // Quick Copy Helper
-  const handleCopy = (text, msg) => {
-    if (navigator?.clipboard?.writeText) {
-      navigator.clipboard.writeText(text);
-      success(msg || 'تم النسخ');
-    }
-  };
-
   if (loading) {
     return (
-      <div className="container" style={{ padding: 'var(--space-8) var(--space-4)', maxWidth: 840 }}>
-        <Skeleton height="36px" width="50%" style={{ marginBottom: 'var(--space-4)' }} />
-        <Skeleton height="180px" borderRadius="var(--radius-xl)" style={{ marginBottom: 'var(--space-6)' }} />
-        <Skeleton height="260px" borderRadius="var(--radius-lg)" />
+      <div className={styles.container}>
+        <Skeleton height="36px" width="50%" />
+        <div style={{ height: 16 }} />
+        <Skeleton height="160px" borderRadius="var(--radius-lg)" />
+        <div style={{ height: 16 }} />
+        <Skeleton height="240px" borderRadius="var(--radius-lg)" />
       </div>
     );
   }
 
   if (error || !order) {
     return (
-      <div className="container" style={{ padding: 'var(--space-8) var(--space-4)' }}>
+      <div className={styles.container}>
         <ErrorState
           title="تعذر العثور على الطلب"
-          message={error || 'رقم الطلب غير صحيح أو ليس لديك صلاحية للاطلاع عليه.'}
+          message={error || 'رقم الطلب غير صحيح.'}
           onRetry={() => navigate('/orders')}
         />
       </div>
@@ -195,217 +245,150 @@ export default function OrderDetailPage() {
   const bankDetails = order.bank_details;
 
   return (
-    <div className="container" style={{ padding: 'var(--space-8) var(--space-4)', maxWidth: 840 }}>
+    <div className={styles.container}>
       {/* Top Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 'var(--space-3)', marginBottom: 'var(--space-6)' }}>
-        <div>
-          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-400)' }}>تفاصيل ومتابعة الطلب</div>
-          <h1 className="en-text" style={{ fontSize: 'var(--text-2xl)', color: 'var(--color-navy)', margin: 0 }}>
-            #{order.order_number}
-          </h1>
-          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)', marginTop: 4 }}>
-            تم الإنشاء بتاريخ: {formatDate(order.created_at)}
-          </div>
+      <header className={styles.header}>
+        <div className={styles.headerInfo}>
+          <span className={styles.headerSub}>تفاصيل ومتابعة الطلب</span>
+          <h1 className={styles.orderNumber}>#{order.order_number}</h1>
+          <span className={styles.orderDate}>
+            تاريخ الإنشاء: {formatDate(order.created_at)}
+          </span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-          <Badge variant={statusInfo.variant} style={{ fontSize: '13px', padding: '6px 14px' }}>
-            <span>{statusInfo.icon}</span>
-            <span>{statusInfo.label}</span>
-          </Badge>
-        </div>
-      </div>
+        <Tag variant={statusInfo.variant}>{statusInfo.label}</Tag>
+      </header>
 
-      {/* Hero Countdown Banner (if Pending Payment) */}
+      {/* Live Tabular Countdown Banner (if Pending Payment) */}
       {isPending && secondsRemaining > 0 && (
-        <div className="price-lock-banner">
-          <div className="lock-header">
-            <div className="lock-status-badge">
-              <span>السعر مثبت حالياً</span>
-            </div>
-            <span style={{ fontSize: '12px', opacity: 0.85 }}>طلب #{order.order_number}</span>
-          </div>
-
-          <div style={{ textAlign: 'center', marginBottom: 6 }}>
-            <div style={{ fontSize: '12px', color: 'var(--color-cyan)', fontWeight: 700 }}>
-              الوقت المتبقي للتحويل في بنكك ورفع صورة الإشعار
+        <section className={styles.countdownCard} aria-label="الوقت المتبقي لتثبيت السعر">
+          <div className={styles.countdownHeader}>
+            <div className={styles.countdownLabel}>
+              <Clock size={16} />
+              <span>الوقت المتبقي لتثبيت السعر والتحويل:</span>
             </div>
           </div>
 
-          <div className="timer-digits-container">
-            <div className="timer-box">
-              <span className="digit">{pad(hours)}</span>
-              <span className="unit">ساعة</span>
-            </div>
-            <span className="timer-colon">:</span>
-            <div className="timer-box">
-              <span className="digit">{pad(minutes)}</span>
-              <span className="unit">دقيقة</span>
-            </div>
-            <span className="timer-colon">:</span>
-            <div className="timer-box">
-              <span className="digit">{pad(seconds)}</span>
-              <span className="unit">ثانية</span>
-            </div>
-          </div>
+          <Countdown
+            initialSeconds={secondsRemaining}
+            onExpire={() => loadOrder(false)}
+          />
 
-          <div
-            style={{
-              background: 'rgba(255, 255, 255, 0.12)',
-              borderRadius: 'var(--radius-md)',
-              padding: '10px 14px',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginTop: 14,
-            }}
-          >
+          <div className={styles.rateBanner}>
             <div>
-              <div style={{ fontSize: '10px', opacity: 0.85 }}>المبلغ المطلوب تحويله:</div>
-              <div style={{ fontSize: '18px', fontWeight: 900, color: '#FFFFFF' }}>
+              <span>المبلغ المطلوب تحويله: </span>
+              <strong className={styles.rateBannerTotal}>
                 {formatSdg(order.total_sdg)}
-              </div>
+              </strong>
             </div>
-            <div style={{ textAlign: 'left' }}>
-              <div style={{ fontSize: '10px', opacity: 0.85 }}>سعر الصرف المحجوز به:</div>
-              <div style={{ fontSize: '12px', fontWeight: 800, color: 'var(--color-cyan)' }}>
-                1 درهم = {order.exchange_rate_sdg} جنيه
-              </div>
+            <div>
+              <span>سعر الصرف المثبت: </span>
+              <strong>1 درهم = {order.exchange_rate_sdg} جنيه</strong>
             </div>
           </div>
-        </div>
+        </section>
       )}
 
       {/* Expired State Notice */}
       {isExpired && (
-        <div
-          style={{
-            backgroundColor: 'var(--color-danger-bg)',
-            border: '1.5px solid var(--color-danger-border)',
-            borderRadius: 'var(--radius-lg)',
-            padding: 'var(--space-5)',
-            textAlign: 'center',
-            marginBottom: 'var(--space-6)',
-          }}
-        >
-          <h3 style={{ color: 'var(--color-danger)', fontSize: 'var(--text-base)', marginBottom: 'var(--space-2)' }}>
-            انتهت مدة تثبيت السعر المحددة (4 ساعات)
-          </h3>
-          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-700)', lineHeight: 1.6, maxWidth: 540, margin: '0 auto var(--space-4)' }}>
-            سعر اللابتوب بالدرهم وبيتغير مع الصرف. لما تطلب، بنثبت ليك السعر لمدة محددة وبتحول فيها. لو المدة انتهت بيرجع السعر للصرف الحالي. تقدر تطلب الجهاز من جديد بالسعر الحالي.
+        <div className={styles.expiredBanner}>
+          <h2 className={styles.expiredTitle}>انتهت مدة تثبيت السعر (4 ساعات)</h2>
+          <p className={styles.expiredDesc}>
+            السعر بالدرهم وبيتغير مع الصرف. لما تطلب، بنثبت ليك السعر لمدة 4 ساعات وبتحول فيها. لو المدة انتهت بيرجع السعر للصرف الحالي. تقدر تطلب الجهاز من جديد بالسعر الحالي.
           </p>
-          <Button variant="primary" loading={reordering} onClick={handleReorder}>
-            إعادة الطلب بالسعر الحالي
+          <Button
+            variant="primary"
+            size="md"
+            loading={reordering}
+            onClick={handleReorder}
+          >
+            <RefreshCw size={16} />
+            <span>إعادة الطلب بالسعر الحالي</span>
           </Button>
         </div>
       )}
 
       {/* Cancelled Notice */}
       {isCancelled && (
-        <div
-          style={{
-            backgroundColor: 'var(--color-slate-100)',
-            border: '1px solid var(--color-slate-200)',
-            borderRadius: 'var(--radius-lg)',
-            padding: 'var(--space-5)',
-            textAlign: 'center',
-            marginBottom: 'var(--space-6)',
-          }}
-        >
-          <div style={{ fontWeight: 700, color: 'var(--color-slate-700)', marginBottom: 'var(--space-2)' }}>
-            هذا الطلب ملغي وتمت استعادة الأجهزة إلى المخزن
-          </div>
-          <Button variant="outline" size="sm" loading={reordering} onClick={handleReorder}>
-            إنشاء طلب جديد بنفس الأجهزة
+        <div className={styles.expiredBanner}>
+          <h2 className={styles.expiredTitle}>الطلب ملغي</h2>
+          <p className={styles.expiredDesc}>
+            تم إلغاء هذا الطلب واسترجاع الأجهزة للمخزن.
+          </p>
+          <Button
+            variant="outline"
+            size="md"
+            loading={reordering}
+            onClick={handleReorder}
+          >
+            <RefreshCw size={16} />
+            <span>إنشاء طلب جديد</span>
           </Button>
         </div>
       )}
 
-      {/* Bankak Details Card (if Pending Payment and bank details returned) */}
+      {/* Bankak Details Card with CopyFields */}
       {isPending && bankDetails && (
-        <div className="bank-card">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, paddingBottom: 8, borderBottom: '1px solid var(--color-slate-100)' }}>
+        <section className={styles.bankCard} aria-label="بيانات التحويل البنكي">
+          <div className={styles.bankHeader}>
             <div>
-              <h4 style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-navy)', margin: 0 }}>
+              <h2 className={styles.bankTitle}>
                 {bankDetails.bank_name || 'بنك الخرطوم (تطبيق بنكك)'}
-              </h4>
-              <div style={{ fontSize: '11px', color: 'var(--color-slate-500)', marginTop: 2 }}>
-                فرع أم درمان - الحساب الرسمي المعتمد لمتجر ويكس تكنولوجي
+              </h2>
+              <div className={styles.bankSubtitle}>
+                الحساب الرسمي المعتمد لمتجر ويكس تكنولوجي
               </div>
             </div>
-            <span className="badge badge-success">تحويل بنكك</span>
+            <Tag variant="success">تحويل بنكك</Tag>
           </div>
 
-          <div className="bank-row">
-            <span style={{ fontSize: '12px', color: 'var(--color-slate-600)' }}>رقم الحساب:</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span className="font-mono" style={{ fontSize: '15px', fontWeight: 900, color: 'var(--color-navy)' }}>
-                {bankDetails.account_number}
-              </span>
-              <button
-                type="button"
-                className="copy-badge-btn"
-                onClick={() => handleCopy(bankDetails.account_number, 'تم نسخ رقم الحساب')}
-              >
-                نسخ
-              </button>
-            </div>
+          <div className={styles.bankGrid}>
+            <CopyField
+              label="رقم الحساب"
+              value={bankDetails.account_number}
+            />
+
+            <CopyField
+              label="اسم الحساب"
+              value={bankDetails.account_name}
+            />
+
+            <CopyField
+              label="المبلغ المطلوب (جنيه سوداني)"
+              value={String(bankDetails.amount_sdg || order.total_sdg)}
+            />
+
+            <CopyField
+              label="ملاحظة التحويل (رقم الطلب)"
+              value={`#${order.order_number}`}
+            />
           </div>
 
-          <div className="bank-row">
-            <span style={{ fontSize: '12px', color: 'var(--color-slate-600)' }}>اسم الحساب:</span>
-            <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-navy)' }}>
-              {bankDetails.account_name}
-            </span>
-          </div>
-
-          <div className="bank-row">
-            <span style={{ fontSize: '12px', color: 'var(--color-slate-600)' }}>المبلغ الدقيق:</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: '15px', fontWeight: 900, color: 'var(--color-royal-blue)' }}>
-                {formatSdg(bankDetails.amount_sdg || order.total_sdg)}
-              </span>
-              <button
-                type="button"
-                className="copy-badge-btn"
-                onClick={() => handleCopy(String(bankDetails.amount_sdg || order.total_sdg), 'تم نسخ المبلغ')}
-              >
-                نسخ
-              </button>
-            </div>
-          </div>
-
-          <div className="bank-row">
-            <span style={{ fontSize: '12px', color: 'var(--color-slate-600)' }}>ملاحظة التحويل:</span>
-            <span style={{ fontSize: '12px', color: 'var(--color-royal-blue)', fontWeight: 700 }}>
-              اكتب رقم الطلب #{order.order_number}
-            </span>
-          </div>
-
-          <div style={{ marginTop: 'var(--space-4)', display: 'flex', gap: 'var(--space-2)' }}>
+          <div className={styles.bankActions}>
             <Button
-              variant="vivid"
+              variant="primary"
               size="lg"
               block
               onClick={() => setUploadModalOpen(true)}
             >
-              📤 رفع صورة إشعار التحويل البنكي (بنكك)
+              <UploadCloud size={18} />
+              <span>ارفع إشعار التحويل</span>
             </Button>
           </div>
-        </div>
+        </section>
       )}
 
       {/* Order Items Table */}
-      <div className="card" style={{ marginBottom: 'var(--space-6)' }}>
-        <div className="card-header">
-          <h3 style={{ margin: 0, fontSize: 'var(--text-base)' }}>الأجهزة والمنتجات المطلوبة</h3>
+      <section className={styles.card} aria-label="المنتجات المطلوبة">
+        <div className={styles.cardHeader}>
+          <h2 className={styles.cardTitle}>المنتجات المطلوبة</h2>
         </div>
-        <div className="table-container" style={{ border: 'none', borderRadius: 0 }}>
-          <table className="table">
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
             <thead>
               <tr>
-                <th>الجهاز / المنتج</th>
-                <th>سعر الوحدة</th>
+                <th>الجهاز</th>
+                <th>سعر القطعة</th>
                 <th>الكمية</th>
                 <th>المجموع</th>
               </tr>
@@ -414,18 +397,16 @@ export default function OrderDetailPage() {
               {order.items?.map((item) => (
                 <tr key={item.id}>
                   <td>
-                    <div style={{ fontWeight: 700, color: 'var(--color-navy)' }}>{item.product_name}</div>
+                    <strong>{item.product_name}</strong>
                     {item.specs_snapshot && (
-                      <div className="en-text" style={{ fontSize: '11px', color: 'var(--color-slate-500)' }}>
-                        {item.specs_snapshot.cpu || ''} {item.specs_snapshot.ram ? `| ${item.specs_snapshot.ram}` : ''}
+                      <div style={{ fontSize: '11px', color: 'var(--color-slate-500)' }}>
+                        {item.specs_snapshot.cpu || ''} {item.specs_snapshot.ram ? `· ${item.specs_snapshot.ram}` : ''}
                       </div>
                     )}
                   </td>
                   <td>{formatSdg(item.unit_price_sdg)}</td>
-                  <td style={{ fontWeight: 600 }}>{item.quantity}</td>
-                  <td style={{ fontWeight: 700, color: 'var(--color-royal-blue)' }}>
-                    {formatSdg(item.subtotal_sdg)}
-                  </td>
+                  <td>{item.quantity}</td>
+                  <td>{formatSdg(item.subtotal_sdg)}</td>
                 </tr>
               ))}
             </tbody>
@@ -433,168 +414,173 @@ export default function OrderDetailPage() {
         </div>
 
         {/* Calculations Footer */}
-        <div style={{ padding: 'var(--space-4) var(--space-5)', backgroundColor: 'var(--color-slate-50)', borderTop: '1px solid var(--color-slate-100)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 'var(--text-xs)' }}>
-            <span style={{ color: 'var(--color-slate-600)' }}>المجموع الفرعي للأجهزة:</span>
-            <span style={{ fontWeight: 600 }}>{formatSdg(order.subtotal_sdg)}</span>
+        <div className={styles.tableFooter}>
+          <div className={styles.footerRow}>
+            <span>المجموع الفرعي:</span>
+            <span>{formatSdg(order.subtotal_sdg)}</span>
           </div>
 
           {order.discount_sdg > 0 && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 'var(--text-xs)', color: 'var(--color-success)' }}>
-              <span>خصم الطلب بالتطبيق:</span>
+            <div className={styles.footerRow} style={{ color: 'var(--color-success)' }}>
+              <span>خصم التطبيق (3%):</span>
               <span>-{formatSdg(order.discount_sdg)}</span>
             </div>
           )}
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 'var(--text-xs)' }}>
-            <span style={{ color: 'var(--color-slate-600)' }}>رسوم التوصيل:</span>
-            <span style={{ fontWeight: 600 }}>
+          <div className={styles.footerRow}>
+            <span>رسوم التوصيل:</span>
+            <span>
               {order.delivery_fee_sdg === 0 ? 'مجاناً (استلام من المحل)' : formatSdg(order.delivery_fee_sdg)}
             </span>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '2px dashed var(--color-slate-200)', fontSize: 'var(--text-lg)', fontWeight: 800, color: 'var(--color-royal-blue)' }}>
+          <div className={styles.footerTotalRow}>
             <span>المبلغ الإجمالي المثبت:</span>
-            <span>{formatSdg(order.total_sdg)}</span>
+            <span className={styles.totalSdg}>{formatSdg(order.total_sdg)}</span>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Delivery and Customer Information */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-5)', marginBottom: 'var(--space-6)' }}>
-        <div className="card">
-          <div className="card-header">
-            <h3 style={{ margin: 0, fontSize: 'var(--text-base)' }}>بيانات الاستلام والتوصيل</h3>
+      <div className={styles.infoGrid}>
+        <div className={styles.card} style={{ marginBottom: 0 }}>
+          <div className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>بيانات الاستلام</h2>
           </div>
-          <div className="card-body" style={{ fontSize: 'var(--text-sm)', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-            <div>
-              <span style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)' }}>طريقة الاستلام: </span>
-              <strong>{order.delivery_type === 'pickup' ? 'استلام من المحل (مول الواحة - الشهداء - أم درمان)' : 'توصيل للعنوان'}</strong>
-            </div>
-
-            {order.delivery_type === 'delivery' && (
-              <>
-                {order.shipping_zone && (
-                  <div>
-                    <span style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)' }}>الولاية / المنطقة: </span>
-                    <span>{order.shipping_zone.state_name_ar}</span>
-                  </div>
-                )}
-                <div>
-                  <span style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)' }}>العنوان: </span>
-                  <span>{order.delivery_address}</span>
-                </div>
-              </>
-            )}
-
-            <div>
-              <span style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)' }}>هاتف التواصل: </span>
-              <span className="en-text" style={{ fontWeight: 600 }}>{order.contact_phone}</span>
-            </div>
-
-            {order.customer_notes && (
+          <div className={styles.cardBody}>
+            <div className={styles.infoList}>
               <div>
-                <span style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)' }}>ملاحظات العميل: </span>
-                <span style={{ color: 'var(--color-slate-700)' }}>{order.customer_notes}</span>
+                <span className={styles.infoLabel}>طريقة الاستلام: </span>
+                <strong>
+                  {order.delivery_type === 'pickup'
+                    ? 'استلام من المحل (مول الواحة - الشهداء - أم درمان)'
+                    : 'توصيل للعنوان'}
+                </strong>
               </div>
-            )}
+
+              {order.delivery_type === 'delivery' && (
+                <>
+                  {order.shipping_zone && (
+                    <div>
+                      <span className={styles.infoLabel}>الولاية / المنطقة: </span>
+                      <span>{order.shipping_zone.state_name_ar}</span>
+                    </div>
+                  )}
+                  <div>
+                    <span className={styles.infoLabel}>العنوان: </span>
+                    <span>{order.delivery_address}</span>
+                  </div>
+                </>
+              )}
+
+              <div>
+                <span className={styles.infoLabel}>هاتف التواصل: </span>
+                <span dir="ltr"><strong>{order.contact_phone}</strong></span>
+              </div>
+
+              {order.customer_notes && (
+                <div>
+                  <span className={styles.infoLabel}>ملاحظات: </span>
+                  <span>{order.customer_notes}</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Courier Info (if out for delivery) */}
-        {order.status === 'out_for_delivery' && (
-          <div className="card" style={{ borderColor: 'var(--color-cyan)', backgroundColor: 'var(--color-cyan-light)' }}>
-            <div className="card-header">
-              <h3 style={{ margin: 0, fontSize: 'var(--text-base)', color: 'var(--color-navy)' }}>بيانات المندوب والتسليم</h3>
-            </div>
-            <div className="card-body" style={{ fontSize: 'var(--text-sm)' }}>
-              <div style={{ marginBottom: 6 }}>
-                الطلب حالياً في الطريق مع مندوب التوصيل المعتمد.
-              </div>
-              {order.courier_name && (
-                <div>اسم المندوب: <strong>{order.courier_name}</strong></div>
-              )}
-              {order.courier_phone && (
-                <div>هاتف المندوب: <span className="en-text">{order.courier_phone}</span></div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Submitted Proofs Status (if any uploaded) */}
+        {/* Submitted Proofs Status */}
         {order.proofs && order.proofs.length > 0 && (
-          <div className="card">
-            <div className="card-header">
-              <h3 style={{ margin: 0, fontSize: 'var(--text-base)' }}>إشعارات التحويل المرفوعة</h3>
+          <div className={styles.card} style={{ marginBottom: 0 }}>
+            <div className={styles.cardHeader}>
+              <h2 className={styles.cardTitle}>إشعارات التحويل المرفوعة</h2>
             </div>
-            <div className="card-body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-              {order.proofs.map((proof) => {
-                const proofStatus = getProofStatusInfo(proof.status);
-                return (
-                  <div key={proof.id} style={{ padding: 'var(--space-3)', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--color-slate-50)', border: '1px solid var(--color-slate-200)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                      <span style={{ fontSize: '11px', color: 'var(--color-slate-500)' }}>
-                        تاريخ الرفع: {formatDate(proof.created_at)}
-                      </span>
-                      <Badge variant={proofStatus.variant}>{proofStatus.label}</Badge>
-                    </div>
-
-                    {proof.sender_name && (
-                      <div style={{ fontSize: '12px' }}>اسم المحوّل: <strong>{proof.sender_name}</strong></div>
-                    )}
-                    {proof.reference_number && (
-                      <div style={{ fontSize: '12px' }}>الرقم المرجعي: <span className="en-text">{proof.reference_number}</span></div>
-                    )}
-                    {proof.reviewer_note && (
-                      <div style={{ fontSize: '12px', color: 'var(--color-danger)', marginTop: 4 }}>
-                        ملاحظة المراجعة: {proof.reviewer_note}
+            <div className={styles.cardBody}>
+              <div className={styles.infoList}>
+                {order.proofs.map((proof) => {
+                  const proofStatus = getProofStatusInfo(proof.status);
+                  return (
+                    <div
+                      key={proof.id}
+                      style={{
+                        padding: 'var(--space-3)',
+                        borderRadius: 'var(--radius-md)',
+                        backgroundColor: 'var(--color-slate-50)',
+                        border: '1px solid var(--color-border-subtle)',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                        <span style={{ fontSize: '11px', color: 'var(--color-slate-500)' }}>
+                          {formatDate(proof.created_at)}
+                        </span>
+                        <Tag variant={proofStatus.variant}>{proofStatus.label}</Tag>
                       </div>
-                    )}
-                  </div>
-                );
-              })}
+                      {proof.sender_name && (
+                        <div style={{ fontSize: '12px' }}>المحوّل: {proof.sender_name}</div>
+                      )}
+                      {proof.reference_number && (
+                        <div style={{ fontSize: '12px' }} dir="ltr">رقم الإشعار: {proof.reference_number}</div>
+                      )}
+                      {proof.reviewer_note && (
+                        <div style={{ fontSize: '12px', color: 'var(--color-danger)', marginTop: 4 }}>
+                          ملاحظة: {proof.reviewer_note}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Order Timeline Events */}
+      {/* Timeline Events */}
       {order.events && order.events.length > 0 && (
-        <div className="card" style={{ marginBottom: 'var(--space-6)' }}>
-          <div className="card-header">
-            <h3 style={{ margin: 0, fontSize: 'var(--text-base)' }}>سجل ومسار مراحل الطلب</h3>
+        <section className={styles.card} aria-label="مسار الطلب">
+          <div className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>مسار مراحل الطلب</h2>
           </div>
-          <div className="card-body">
-            <div className="timeline">
+          <div className={styles.cardBody}>
+            <div className={styles.timeline}>
               {order.events.map((evt) => (
-                <div key={evt.id} className="timeline-item">
-                  <div className="timeline-dot" />
-                  <div style={{ fontWeight: 700, fontSize: 'var(--text-sm)', color: 'var(--color-navy)' }}>
+                <div key={evt.id} className={styles.timelineItem}>
+                  <div className={styles.timelineDot} />
+                  <span className={styles.timelineStatus}>
                     {evt.status_ar || evt.new_status}
-                  </div>
-                  <div style={{ fontSize: '11px', color: 'var(--color-slate-400)' }}>
+                  </span>
+                  <span className={styles.timelineDate}>
                     {formatDate(evt.created_at)}
-                  </div>
-                  {evt.note && (
-                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-600)', marginTop: 2 }}>
-                      {evt.note}
-                    </div>
-                  )}
+                  </span>
+                  {evt.note && <span className={styles.timelineNote}>{evt.note}</span>}
                 </div>
               ))}
             </div>
           </div>
-        </div>
+        </section>
       )}
 
-      {/* Bottom Danger Action: Cancel Order */}
-      {isPending && (
-        <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 'var(--space-4)', borderTop: '1px solid var(--color-slate-200)' }}>
-          <Button variant="danger-outline" size="sm" onClick={() => setCancelModalOpen(true)}>
-            إلغاء الطلب وتحرير الأجهزة
+      {/* Support & Actions row */}
+      <footer className={styles.supportRow}>
+        <a
+          href={`https://wa.me/249912345678?text=${encodeURIComponent(`مرحباً، أستفسر بخصوص الطلب رقم #${order.order_number}`)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.whatsappSupportBtn}
+        >
+          <MessageCircle size={18} />
+          <span>استفسار عن الطلب عبر واتساب</span>
+        </a>
+
+        {isPending && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCancelModalOpen(true)}
+          >
+            إلغاء الطلب
           </Button>
-        </div>
-      )}
+        )}
+      </footer>
 
       {/* Modal: Upload Bankak Payment Proof */}
       <Modal
@@ -609,7 +595,7 @@ export default function OrderDetailPage() {
             <Button
               variant="primary"
               loading={uploading}
-              disabled={!proofFile}
+              disabled={!proofFile || uploading}
               onClick={handleUploadSubmit}
             >
               تأكيد ورفع الإشعار
@@ -617,28 +603,35 @@ export default function OrderDetailPage() {
           </>
         }
       >
-        <form onSubmit={handleUploadSubmit}>
-          <div style={{ marginBottom: 'var(--space-4)' }}>
-            <label className="form-label form-label-required">صورة إشعار التحويل (لقطة الشاشة من تطبيق بنكك)</label>
+        <form onSubmit={handleUploadSubmit} className={styles.modalForm}>
+          <div className={styles.fileUploadArea}>
+            <label htmlFor="proof_image_input" style={{ fontSize: 'var(--text-sm)', fontWeight: 600 }}>
+              صورة الإشعار (لقطة الشاشة من تطبيق بنكك)
+            </label>
             <input
+              id="proof_image_input"
               type="file"
               accept="image/jpeg,image/png,image/webp"
               onChange={handleFileChange}
-              className="form-input"
-              style={{ paddingTop: 8 }}
               required
             />
-            <span className="form-hint">الصيغ المقبولة: JPEG, PNG, WEBP (الحد الأقصى 5 ميجابايت)</span>
+            <span style={{ fontSize: '11px', color: 'var(--color-slate-500)' }}>
+              يتم ضغط الصورة تلقائياً لتسريع الرفع
+            </span>
           </div>
 
           {proofPreview && (
-            <div style={{ textAlign: 'center', marginBottom: 'var(--space-4)', maxHeight: 240, overflow: 'hidden', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-slate-200)' }}>
-              <img src={proofPreview} alt="معاينة الإشعار" style={{ maxHeight: 220, margin: 'auto', objectFit: 'contain' }} />
+            <div className={styles.previewContainer}>
+              <img
+                src={proofPreview}
+                alt="معاينة إشعار التحويل"
+                className={styles.previewImage}
+              />
             </div>
           )}
 
           <Input
-            label="اسم صاحب الحساب المحوِّل (اختياري)"
+            label="اسم صاحب الحساب المحوّل (اختياري)"
             placeholder="مثال: أحمد محمد عثمان"
             value={senderName}
             onChange={(e) => setSenderName(e.target.value)}
@@ -664,14 +657,18 @@ export default function OrderDetailPage() {
             <Button variant="ghost" onClick={() => setCancelModalOpen(false)}>
               تراجع
             </Button>
-            <Button variant="danger" loading={cancelling} onClick={handleCancelOrder}>
+            <Button
+              variant="danger"
+              loading={cancelling}
+              onClick={handleCancelOrder}
+            >
               نعم، إلغاء الطلب
             </Button>
           </>
         }
       >
-        <p style={{ color: 'var(--color-slate-700)', fontSize: 'var(--text-sm)', lineHeight: 1.6 }}>
-          هل أنت متأكد من رغبتك في إلغاء هذا الطلب؟ سيتم إلغاء حجز السعر فوراً وإتاحة الجهاز لباقي المشترين في المتجر.
+        <p style={{ color: 'var(--color-slate-700)', fontSize: 'var(--text-sm)', lineHeight: 1.6, margin: 0 }}>
+          هل أنت متأكد من رغبتك في إلغاء هذا الطلب؟ سيتم إلغاء تثبيت السعر فوراً وإرجاع الأجهزة للمخزن.
         </p>
       </Modal>
     </div>

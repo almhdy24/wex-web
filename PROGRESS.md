@@ -28,9 +28,13 @@
   - `CheckoutPage` + `CheckoutPage.module.css`: 1-page 3-step streamlined checkout (Pickup vs Delivery selection, delivery zone fees, Sudan telephone input with `inputMode="tel"`, customer notes, price freeze notice, double-submit protection, and sticky mobile CTA bar).
   - `LoginPage` & `VerifyOtpPage` + `Auth.module.css`: brand ribbon decoration at top of card, Google Sign-In placed first and largest, 6-box numeric OTP input with autofocus, digit-advance, backspace navigation, paste-fill, auto-submit, 60s live countdown timer, and prompt for new user registration.
   - Verified with zero inline styles, zero forbidden words, zero emojis, clean lint, 24 unit tests, and production build.
-- [ ] **Redesign Phase 5: Customer Operations**
-  - Order Detail: live tabular countdown with warning under 30 min, Bankak card with CopyFields, client-side receipt image compression (target < 1MB), timeline, WhatsApp support.
-  - Orders list, notifications, account with CSS Modules and zero inline styles.
+- [x] **Redesign Phase 5: Customer Operations**
+  - `OrderDetailPage` + `OrderDetailPage.module.css`: live tabular countdown banner with progress bar and urgent visual treatment when remaining time < 30 minutes, Bankak payment card with `CopyField` actions for account number, account name, and exact amount, client-side receipt image compression (canvas max 1600px, JPEG quality 0.8, < 1 MB target), order timeline history, WhatsApp customer support link, and expired state handling with reorder action.
+  - `OrdersPage` + `OrdersPage.module.css`: order list with status filter pills, tabular pricing and countdown remaining time, delivery type indicators, and clean pagination.
+  - `NotificationsPage` + `NotificationsPage.module.css`: unread notification indicators, mark single / mark all read actions, honest empty states.
+  - `AccountPage` + `AccountPage.module.css`: customer profile information, editable phone/name, email notifications preference switch, multi-session logout, and account deletion confirmation modal.
+  - Verified with zero inline styles, zero forbidden words, zero emojis, clean lint, 24 unit tests, and production build.
+  - Added Vite dev server reverse proxy for `/api` and `/uploads` forwarding to local Wex API server `http://localhost:8081`.
 - [ ] **Redesign Phase 6: Admin Redesign**
   - Split-view payment review (receipt preview/zoom alongside details, one-click approve/reject with canned notes).
   - Orders table, products form with specs builder, rates management with confirmation dialog.

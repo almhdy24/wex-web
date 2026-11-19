@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { CheckCheck } from 'lucide-react';
 import { notificationsApi } from '../../api/notifications';
 import { formatDate } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
@@ -6,6 +7,7 @@ import Button from '../../components/common/Button';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import { Skeleton } from '../../components/common/Skeleton';
+import styles from './NotificationsPage.module.css';
 
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState([]);
@@ -21,7 +23,7 @@ export default function NotificationsPage() {
       const res = await notificationsApi.getNotifications({ page: 1, per_page: 20 });
       setNotifications(res.data || []);
     } catch (err) {
-      setError(err.message || 'فشل تحميل الإشعارات');
+      setError(err.message || 'الاتصال ضعيف. حاول تاني.');
     } finally {
       setLoading(false);
     }
@@ -38,7 +40,7 @@ export default function NotificationsPage() {
         prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
       );
     } catch {
-      // silent
+      // ignore
     }
   };
 
@@ -49,7 +51,7 @@ export default function NotificationsPage() {
       setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
       success('تم تحديد جميع الإشعارات كمقروءة');
     } catch (err) {
-      toastError(err.message || 'فشل تحديث الإشعارات');
+      toastError(err.message || 'الاتصال ضعيف. حاول تاني.');
     } finally {
       setMarkingAll(false);
     }
@@ -58,11 +60,11 @@ export default function NotificationsPage() {
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   return (
-    <div className="container" style={{ padding: 'var(--space-8) var(--space-4)', maxWidth: 760 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-6)', flexWrap: 'wrap', gap: 'var(--space-3)' }}>
+    <div className={styles.container}>
+      <header className={styles.header}>
         <div>
-          <h1 style={{ marginBottom: 'var(--space-1)' }}>الإشعارات والتنبيهات</h1>
-          <p style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-sm)', margin: 0 }}>
+          <h1 className={styles.title}>الإشعارات</h1>
+          <p className={styles.subtitle}>
             متابعة إشعارات تأكيد الطلبات، مراجعة التحويلات، وتحديثات التسليم
           </p>
         </div>
@@ -74,18 +76,20 @@ export default function NotificationsPage() {
             loading={markingAll}
             onClick={handleMarkAllRead}
           >
-            تحديد الكل كمقروء ({unreadCount})
+            <CheckCheck size={16} />
+            <span>تحديد الكل كمقروء ({unreadCount})</span>
           </Button>
         )}
-      </div>
+      </header>
 
       {error ? (
         <ErrorState message={error} onRetry={fetchNotifications} />
       ) : loading ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+        <div className={styles.list}>
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="card" style={{ padding: 'var(--space-4)' }}>
-              <Skeleton width="45%" height="20px" style={{ marginBottom: 'var(--space-2)' }} />
+            <div key={i} className={styles.card}>
+              <Skeleton width="45%" height="20px" />
+              <div style={{ height: 8 }} />
               <Skeleton width="80%" height="16px" />
             </div>
           ))}
@@ -93,35 +97,33 @@ export default function NotificationsPage() {
       ) : notifications.length === 0 ? (
         <EmptyState
           title="لا توجد إشعارات حالياً"
-          description="ستصلك هنا كافة التنبيهات المتعلقة بحالة طلباتك، انتهاء مدة حجز الأسعار، أو وصول إشعار بنكك."
+          description="ستصلك هنا كافة التنبيهات المتعلقة بحالة طلباتك أو مراجعة إشعار بنكك."
         />
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+        <div className={styles.list}>
           {notifications.map((item) => (
-            <div
+            <article
               key={item.id}
               onClick={() => !item.is_read && handleMarkRead(item.id)}
-              className="card card-hover"
-              style={{
-                padding: 'var(--space-4) var(--space-5)',
-                backgroundColor: item.is_read ? 'var(--color-white)' : 'var(--color-ice-blue-alt)',
-                borderLeft: !item.is_read ? '4px solid var(--color-royal-blue)' : '1px solid var(--color-slate-200)',
-                cursor: !item.is_read ? 'pointer' : 'default',
+              className={`${styles.card} ${!item.is_read ? styles.unreadCard : ''}`}
+              role={!item.is_read ? 'button' : undefined}
+              tabIndex={!item.is_read ? 0 : undefined}
+              onKeyDown={(e) => {
+                if (!item.is_read && (e.key === 'Enter' || e.key === ' ')) {
+                  handleMarkRead(item.id);
+                }
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
-                <h4 style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: 'var(--color-navy)', margin: 0 }}>
-                  {item.title}
-                </h4>
-                <span style={{ fontSize: '11px', color: 'var(--color-slate-400)' }}>
-                  {formatDate(item.created_at)}
-                </span>
+              <div className={styles.cardTop}>
+                <h2 className={styles.cardTitle}>
+                  {!item.is_read && <span className={styles.unreadDot} aria-hidden="true" />}
+                  <span>{item.title}</span>
+                </h2>
+                <span className={styles.cardDate}>{formatDate(item.created_at)}</span>
               </div>
 
-              <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-600)', margin: 0, lineHeight: 1.6 }}>
-                {item.message}
-              </p>
-            </div>
+              <p className={styles.cardMessage}>{item.message}</p>
+            </article>
           ))}
         </div>
       )}

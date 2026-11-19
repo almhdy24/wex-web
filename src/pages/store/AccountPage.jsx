@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { LogOut, ShieldAlert, Check } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { authApi } from '../../api/auth';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import Modal from '../../components/common/Modal';
-import Badge from '../../components/common/Badge';
+import Tag from '../../components/common/Tag';
+import styles from './AccountPage.module.css';
 
 export default function AccountPage() {
   const { user, updateUserProfile, logout, logoutAll } = useAuth();
@@ -30,15 +32,20 @@ export default function AccountPage() {
   // Refresh profile from API on mount
   useEffect(() => {
     let isMounted = true;
-    authApi.getMe().then((res) => {
-      if (res?.data && isMounted) {
-        updateUserProfile(res.data);
-        setName(res.data.name || '');
-        setPhone(res.data.phone || '');
-        setEmailNotif(res.data.email_notifications ?? true);
-      }
-    }).catch(() => {});
-    return () => { isMounted = false; };
+    authApi
+      .getMe()
+      .then((res) => {
+        if (res?.data && isMounted) {
+          updateUserProfile(res.data);
+          setName(res.data.name || '');
+          setPhone(res.data.phone || '');
+          setEmailNotif(res.data.email_notifications ?? true);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
   }, [updateUserProfile]);
 
   const handleProfileSubmit = async (e) => {
@@ -52,12 +59,12 @@ export default function AccountPage() {
         phone: phone.trim() || undefined,
       });
       updateUserProfile(res.data);
-      success('تم تحديث الملف الشخصي بنجاح');
+      success('تم تحديث البيانات');
     } catch (err) {
       if (err.errors) {
         setProfileErrors(err.errors);
       }
-      toastError(err.message || 'فشل تحديث البيانات');
+      toastError(err.message || 'الاتصال ضعيف. حاول تاني.');
     } finally {
       setUpdatingProfile(false);
     }
@@ -73,8 +80,8 @@ export default function AccountPage() {
       updateUserProfile({ email_notifications: val });
       success(val ? 'تم تفعيل إشعارات البريد' : 'تم إيقاف إشعارات البريد');
     } catch (err) {
-      setEmailNotif(!val); // revert
-      toastError(err.message || 'فشل حفظ التفضيلات');
+      setEmailNotif(!val);
+      toastError(err.message || 'الاتصال ضعيف. حاول تاني.');
     } finally {
       setUpdatingNotif(false);
     }
@@ -82,14 +89,14 @@ export default function AccountPage() {
 
   const handleLogout = async () => {
     await logout();
-    success('تم تسجيل الخروج بنجاح');
+    success('تم تسجيل الخروج');
     navigate('/');
   };
 
   const handleLogoutAll = async () => {
     await logoutAll();
-    success('تم إنهاء جميع الجلسات المسجلة بحسابك بنجاح');
-    navigate('/login');
+    success('تم إنهاء جميع الجلسات');
+    navigate('/auth/login');
   };
 
   const handleDeleteAccount = async () => {
@@ -97,51 +104,61 @@ export default function AccountPage() {
     try {
       await authApi.deleteMe();
       await logout();
-      success('تم حذف حسابك بنجاح');
+      success('تم حذف الحساب');
       navigate('/');
     } catch (err) {
-      toastError(err.message || 'فشل حذف الحساب');
+      toastError(err.message || 'فشل حذف الحساب. حاول تاني.');
     } finally {
       setDeleting(false);
       setDeleteModalOpen(false);
     }
   };
 
-  return (
-    <div className="container" style={{ padding: 'var(--space-8) var(--space-4)', maxWidth: 840 }}>
-      <div style={{ marginBottom: 'var(--space-6)' }}>
-        <h1 style={{ marginBottom: 'var(--space-1)' }}>حسابي الشخصي</h1>
-        <p style={{ color: 'var(--color-slate-500)', margin: 0 }}>
-          إدارة بياناتك الشخصية، رقم الهاتف السوداني للتوصيل، وإعدادات الإشعارات
-        </p>
-      </div>
+  const roleLabelMap = {
+    admin: { label: 'مدير عام', variant: 'warning' },
+    staff: { label: 'موظف', variant: 'info' },
+    customer: { label: 'عميل', variant: 'neutral' },
+  };
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'var(--space-6)' }}>
+  const currentRole = roleLabelMap[user?.role] || { label: 'عميل', variant: 'neutral' };
+
+  return (
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>حسابي</h1>
+        <p className={styles.subtitle}>
+          إدارة بياناتك الشخصية، رقم الهاتف السوداني، وإعدادات الإشعارات
+        </p>
+      </header>
+
+      <div className={styles.grid}>
         {/* Profile Card */}
-        <div className="card">
-          <div className="card-header">
-            <h3 style={{ margin: 0, fontSize: 'var(--text-base)' }}>البيانات الشخصية</h3>
-            <Badge variant={user?.role === 'admin' ? 'warning' : user?.role === 'staff' ? 'info' : 'neutral'}>
-              {user?.role === 'admin' ? 'مدير عام' : user?.role === 'staff' ? 'موظف متجر' : 'عميل'}
-            </Badge>
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>البيانات الشخصية</h2>
+            <Tag variant={currentRole.variant}>{currentRole.label}</Tag>
           </div>
-          <div className="card-body">
-            <form onSubmit={handleProfileSubmit}>
-              <div className="form-group">
-                <label className="form-label">البريد الإلكتروني</label>
+          <div className={styles.cardBody}>
+            <form onSubmit={handleProfileSubmit} className={styles.form}>
+              <div className={styles.readOnlyField}>
+                <label className={styles.fieldLabel} htmlFor="account_email">
+                  البريد الإلكتروني
+                </label>
                 <input
+                  id="account_email"
                   type="text"
                   disabled
                   value={user?.email || ''}
-                  className="form-input"
-                  style={{ backgroundColor: 'var(--color-slate-100)', color: 'var(--color-slate-600)' }}
+                  className={styles.readOnlyInput}
                   dir="ltr"
                 />
-                <span className="form-hint">البريد الإلكتروني مسجل كمعرف أساسي ولا يمكن تعديله</span>
+                <span className={styles.fieldHint}>
+                  معرف الحساب الأساسي ولا يمكن تغييره
+                </span>
               </div>
 
               <Input
-                label="الاسم الكامل"
+                label="الاسم الكريم"
                 name="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -154,9 +171,9 @@ export default function AccountPage() {
                 name="phone"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="0912345678 أو 01..."
+                placeholder="0912345678"
                 dir="ltr"
-                hint="يستخدم للتواصل وتأكيد التوصيل (09 أو 01)"
+                hint="يستخدم للتواصل وتأكيد التسليم (09 أو 01)"
                 error={profileErrors.phone}
               />
 
@@ -164,57 +181,63 @@ export default function AccountPage() {
                 type="submit"
                 variant="primary"
                 loading={updatingProfile}
-                style={{ marginTop: 'var(--space-2)' }}
+                disabled={updatingProfile}
               >
-                حفظ التعديلات
+                <Check size={16} />
+                <span>حفظ التعديلات</span>
               </Button>
             </form>
           </div>
         </div>
 
-        {/* Preferences & Quick Actions */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+        {/* Preferences & Security Column */}
+        <div className={styles.actionsColumn}>
           {/* Notifications Card */}
-          <div className="card">
-            <div className="card-header">
-              <h3 style={{ margin: 0, fontSize: 'var(--text-base)' }}>إشعارات الطلبات</h3>
+          <div className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h2 className={styles.cardTitle}>إشعارات البريد</h2>
             </div>
-            <div className="card-body">
-              <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', cursor: 'pointer' }}>
+            <div className={styles.cardBody}>
+              <label className={styles.checkboxLabel}>
                 <input
                   type="checkbox"
                   checked={emailNotif}
                   onChange={handleToggleNotifications}
                   disabled={updatingNotif}
-                  style={{ width: 18, height: 18, accentColor: 'var(--color-royal-blue)' }}
+                  className={styles.checkbox}
                 />
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: 'var(--text-sm)' }}>
+                  <div className={styles.checkboxTitle}>
                     استلام تحديثات الطلبات عبر البريد
                   </div>
-                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)' }}>
-                    إشعارات بتثبيت السعر، قبول إشعار التحويل البنكي، وجاهزية الجهاز للاستلام.
+                  <div className={styles.checkboxDesc}>
+                    تنبيهات بتثبيت السعر، اعتماد إشعار التحويل، وجاهزية الجهاز للاستلام.
                   </div>
                 </div>
               </label>
             </div>
           </div>
 
-          {/* Sessions & Security Card */}
-          <div className="card">
-            <div className="card-header">
-              <h3 style={{ margin: 0, fontSize: 'var(--text-base)' }}>الجلسات والأمان</h3>
+          {/* Sessions & Security */}
+          <div className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h2 className={styles.cardTitle}>الجلسات والأمان</h2>
             </div>
-            <div className="card-body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+            <div className={styles.cardBody}>
               <Button variant="outline" onClick={handleLogout}>
-                تسجيل الخروج من هذا الجهاز
+                <LogOut size={16} />
+                <span>تسجيل الخروج من هذا الجهاز</span>
               </Button>
+
               <Button variant="outline" onClick={handleLogoutAll}>
-                تسجيل الخروج من كافة الأجهزة الأخرى
+                <LogOut size={16} />
+                <span>تسجيل الخروج من كافة الأجهزة</span>
               </Button>
-              <div style={{ paddingTop: 'var(--space-4)', borderTop: '1px solid var(--color-slate-200)', marginTop: 'var(--space-2)' }}>
-                <Button variant="danger-outline" onClick={() => setDeleteModalOpen(true)}>
-                  حذف الحساب نهائياً
+
+              <div className={styles.dangerSection}>
+                <Button variant="danger" size="sm" onClick={() => setDeleteModalOpen(true)}>
+                  <ShieldAlert size={14} />
+                  <span>حذف الحساب</span>
                 </Button>
               </div>
             </div>
@@ -232,14 +255,18 @@ export default function AccountPage() {
             <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
               إلغاء
             </Button>
-            <Button variant="danger" loading={deleting} onClick={handleDeleteAccount}>
+            <Button
+              variant="danger"
+              loading={deleting}
+              onClick={handleDeleteAccount}
+            >
               نعم، احذف حسابي
             </Button>
           </>
         }
       >
-        <p style={{ color: 'var(--color-slate-700)', fontSize: 'var(--text-sm)', lineHeight: 1.6 }}>
-          هل أنت متأكد من رغبتك في حذف حسابك؟ سيتم إلغاء تفعيل حسابك ولن تتمكن من الوصول إلى سجل طلباتك السابقة عبر هذا البريد الإلكتروني.
+        <p style={{ color: 'var(--color-slate-700)', fontSize: 'var(--text-sm)', lineHeight: 1.6, margin: 0 }}>
+          هل أنت متأكد من رغبتك في حذف حسابك؟ سيتم إيقاف تفعيل الحساب ولن تتمكن من الوصول إلى سجل طلباتك السابقة.
         </p>
       </Modal>
     </div>

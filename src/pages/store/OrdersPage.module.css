@@ -1,0 +1,143 @@
+.container {
+  max-width: 860px;
+  margin-inline: auto;
+  padding: var(--space-6) var(--space-4) var(--space-16);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.title {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  color: var(--color-navy);
+  margin: 0 0 var(--space-1);
+}
+
+.subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-slate-500);
+  margin: 0;
+}
+
+.filterTabs {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.filterTab {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-white);
+  color: var(--color-slate-600);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.filterTabActive {
+  background-color: var(--color-royal-blue);
+  color: var(--color-white);
+  border-color: var(--color-royal-blue);
+}
+
+.ordersList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.orderCard {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.orderCard:hover {
+  border-color: var(--color-royal-blue);
+  box-shadow: 0 4px 16px rgba(6, 26, 85, 0.06);
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-3);
+  gap: var(--space-2);
+}
+
+.orderNumber {
+  font-size: var(--text-base);
+  font-weight: 800;
+  color: var(--color-navy);
+  direction: ltr;
+  text-align: start;
+  font-variant-numeric: tabular-nums;
+}
+
+.orderMetaGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-slate-600);
+  margin-bottom: var(--space-4);
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.metaIcon {
+  color: var(--color-slate-400);
+  flex-shrink: 0;
+}
+
+.remainingAlert {
+  color: var(--color-warning-text);
+  font-weight: 700;
+}
+
+.cardBottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-subtle);
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.totalPrice {
+  font-size: var(--text-base);
+  font-weight: 800;
+  color: var(--color-royal-blue);
+  font-variant-numeric: tabular-nums;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.pageCount {
+  font-size: var(--text-sm);
+  color: var(--color-slate-600);
+  font-variant-numeric: tabular-nums;
+}
