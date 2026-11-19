@@ -141,3 +141,6 @@ export function getProductImageUrl(path, thumb = false) {
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   return `${HOST_BASE}${cleanPath}`;
 }
+
+export const resolveImageUrl = getProductImageUrl;
+export const formatCondition = getConditionLabel;

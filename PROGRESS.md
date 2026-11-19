@@ -47,15 +47,17 @@
   - Implemented Order Details & Management (`AdminOrderDetailPage.jsx`) with status state machine transitions (`confirmed` -> `ready_for_pickup` / `out_for_delivery` -> `completed` / `cancelled`), lock extension modal, and courier assignment.
   - Implemented Payment Proof Review interface (`AdminPaymentsPage.jsx` and review modal) with protected binary image streaming, approval confirmation, and rejection notes.
   - Production build and test suite verified (100% passing).
-- [ ] **Phase 6: Admin Management**
-  - Product catalog CRUD (product form, specs JSON, stock update, activate/deactivate, delete).
-  - Product images manager (multi-upload, preview, set primary, delete).
-  - Suggested accessories linking / unlinking.
-  - Category and Brand CRUD.
-  - Exchange rate management (current AED -> SDG rate, audit history).
-  - Store settings management & Shipping zones CRUD.
-  - User management (role update, activate/deactivate, spending stats).
-  - System audit log viewer.
+- [x] **Phase 6: Admin Management**
+  - Implemented Products catalog table (`AdminProductsPage.jsx`) with keyword search, type filter, active filter, inline quick stock editing, and product deletion.
+  - Implemented Product Form (`AdminProductFormPage.jsx`) supporting both creation and editing, specs builder with laptop/phone presets, image upload manager (multi-file, set primary, delete), and accessories linker.
+  - Implemented Categories management (`AdminCategoriesPage.jsx`) with Arabic/English names, slugs, sort order, and active toggling.
+  - Implemented Brands management (`AdminBrandsPage.jsx`) with slug generation and active toggling.
+  - Implemented Exchange Rate management (`AdminRatesPage.jsx`) with live AED-to-SDG rate card, instant store price update warning, rate update dialog, and paginated historical audit trail.
+  - Implemented Store Settings form (`AdminSettingsPage.jsx`) covering shop contacts, Bankak bank details, price lock duration, discount, and low-stock threshold.
+  - Implemented Shipping Zones management (`AdminShippingZonesPage.jsx`) for Sudan states with SDG delivery fees.
+  - Implemented User Management (`AdminUsersPage.jsx`) with role assignment (`customer`, `staff`, `admin`), active status toggle, purchasing stats, and self-demotion protection.
+  - Implemented Audit Trail Viewer (`AdminAuditLogsPage.jsx`) with action and entity filters, user attribution, and payload inspector modal.
+  - Unit tests for admin capabilities created (`src/__tests__/admin.test.js`, 19/19 tests passing).
 - [ ] **Phase 7: PWA and Hardening**
   - Web App Manifest (Wex Technology, icons, theme colors).
   - Service worker with cache exclusion for private/auth endpoints.
