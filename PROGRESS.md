@@ -35,9 +35,13 @@
   - `AccountPage` + `AccountPage.module.css`: customer profile information, editable phone/name, email notifications preference switch, multi-session logout, and account deletion confirmation modal.
   - Verified with zero inline styles, zero forbidden words, zero emojis, clean lint, 24 unit tests, and production build.
   - Added Vite dev server reverse proxy for `/api` and `/uploads` forwarding to local Wex API server `http://localhost:8081`.
-- [ ] **Redesign Phase 6: Admin Redesign**
-  - Split-view payment review (receipt preview/zoom alongside details, one-click approve/reject with canned notes).
-  - Orders table, products form with specs builder, rates management with confirmation dialog.
+- [x] **Redesign Phase 6: Admin Redesign**
+  - `AdminPaymentsPage` + `AdminPaymentsPage.module.css`: split-view review modal featuring receipt image preview/zoom alongside full order details, one-click approve/reject actions, and quick-fill canned rejection chips ("الإشعار غير واضح", "المبلغ لا يطابق المطلوب", "رقم الإشعار غير صحيح").
+  - `AdminDashboardPage` + `AdminDashboardPage.module.css`: high-priority payment review alert banner, key KPI cards (daily orders, review queue, current exchange rate, price lock duration), order status breakdown, and low-stock alerts.
+  - `AdminOrdersPage` & `AdminOrderDetailPage`: responsive orders table with status filter, courier dispatch inputs, price lock extension dialog, and full audit timeline.
+  - `AdminProductsPage` & `AdminProductFormPage`: product catalog with inline quick stock editor, specifications builder with presets (laptop, phone), multi-image upload with primary selector, and accessory linking.
+  - `AdminRatesPage`, `AdminSettingsPage`, `AdminShippingZonesPage`, `AdminUsersPage`, `AdminAuditLogsPage`: converted to CSS Modules with `AdminCommon.module.css`, brand ribbon decorative divider under all admin page titles, zero inline styles, zero forbidden words, zero emojis.
+  - Verified with clean ESLint (0 errors), 24 passing unit tests, and production build.
 - [ ] **Redesign Phase 7: Copy, A11y & Performance Pass**
   - Complete copy review eliminating all forbidden words.
   - React.lazy for routes, admin chunk segregation, LCP preloads.

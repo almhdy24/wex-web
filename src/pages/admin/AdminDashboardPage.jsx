@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { AlertCircle, RefreshCw, Package, Coins, Clock, CreditCard } from 'lucide-react';
 import { adminApi } from '../../api/admin';
-import { formatSdg, formatDate, getOrderStatusInfo, getProductTypeLabel } from '../../utils/formatters';
-import Badge from '../../components/common/Badge';
+import { formatSdg, getOrderStatusInfo, getProductTypeLabel } from '../../utils/formatters';
 import Button from '../../components/common/Button';
+import Tag from '../../components/common/Tag';
 import ErrorState from '../../components/common/ErrorState';
 import { Skeleton } from '../../components/common/Skeleton';
+import styles from './AdminDashboardPage.module.css';
 
 export default function AdminDashboardPage() {
   const [data, setData] = useState(null);
@@ -19,7 +21,7 @@ export default function AdminDashboardPage() {
       const res = await adminApi.getDashboard();
       setData(res.data);
     } catch (err) {
-      setError(err.message || 'فشل تحميل بيانات لوحة التحكم');
+      setError(err.message || 'الاتصال ضعيف. حاول تاني.');
     } finally {
       setLoading(false);
     }
@@ -31,13 +33,15 @@ export default function AdminDashboardPage() {
 
   if (loading) {
     return (
-      <div>
-        <Skeleton height="32px" width="300px" style={{ marginBottom: 'var(--space-6)' }} />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
+      <div className={styles.container}>
+        <Skeleton height="32px" width="300px" />
+        <div style={{ height: 16 }} />
+        <div className={styles.metricsGrid}>
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} height="110px" borderRadius="var(--radius-lg)" />
           ))}
         </div>
+        <div style={{ height: 16 }} />
         <Skeleton height="240px" borderRadius="var(--radius-lg)" />
       </div>
     );
@@ -57,214 +61,152 @@ export default function AdminDashboardPage() {
   } = data;
 
   return (
-    <div>
+    <div className={styles.container}>
       {/* Title */}
-      <div style={{ marginBottom: 'var(--space-6)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--space-3)' }}>
-        <div>
-          <h1 style={{ fontSize: 'var(--text-xl)', marginBottom: 4 }}>لوحة العمليات والمؤشرات</h1>
-          <p style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)', margin: 0 }}>
+      <header className={styles.header}>
+        <div className={styles.titleInfo}>
+          <h1 className={styles.title}>لوحة العمليات والمؤشرات</h1>
+          <p className={styles.subtitle}>
             متابعة حالة الطلبات اليومية، مراجعة إشعارات بنكك، ومخزون الأجهزة
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-          <Button variant="outline" size="sm" onClick={loadDashboard}>
-            🔄 تحديث البيانات
-          </Button>
-        </div>
-      </div>
+        <Button variant="outline" size="sm" onClick={loadDashboard}>
+          <RefreshCw size={14} />
+          <span>تحديث البيانات</span>
+        </Button>
+      </header>
+
+      {/* Brand graphic: thin divider under admin page title */}
+      <div className={styles.titleDivider} aria-hidden="true" />
 
       {/* Action Banner for Pending Reviews */}
       {pending_reviews_count > 0 && (
-        <div
-          style={{
-            backgroundColor: 'var(--color-warning-bg)',
-            border: '1.5px solid var(--color-warning-border)',
-            borderRadius: 'var(--radius-lg)',
-            padding: 'var(--space-4) var(--space-5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: 'var(--space-3)',
-            marginBottom: 'var(--space-6)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-            <span style={{ fontSize: '1.75rem' }}>⚠️</span>
+        <aside className={styles.alertBanner} aria-label="تنبيه إشعارات معلقة">
+          <div className={styles.alertContent}>
+            <AlertCircle size={24} className={styles.alertIcon} />
             <div>
-              <div style={{ fontWeight: 800, color: '#92400E', fontSize: 'var(--text-sm)' }}>
+              <div className={styles.alertTitle}>
                 يوجد {pending_reviews_count} إشعار تحويل بنكي بانتظار المراجعة والاعتماد
               </div>
-              <div style={{ fontSize: 'var(--text-xs)', color: '#B45309', marginTop: 2 }}>
-                قم بمطابقة لقطة شاشة التحويل برقم الحساب لتأكيد الطلب قبل انتهاء مدة الحجز.
+              <div className={styles.alertSub}>
+                قم بمطابقة صورة التحويل برقم الحساب لتأكيد الطلب قبل انتهاء مدة الحجز.
               </div>
             </div>
           </div>
 
           <Link to="/admin/payments">
             <Button variant="primary" size="sm">
-              مراجعة الإشعارات الآن ←
+              <CreditCard size={14} />
+              <span>مراجعة الإشعارات الآن</span>
             </Button>
           </Link>
-        </div>
+        </aside>
       )}
 
-      {/* Metric Cards Row */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: 'var(--space-4)',
-          marginBottom: 'var(--space-6)',
-        }}
-      >
-        {/* Today's Sales */}
-        <div className="card" style={{ padding: 'var(--space-5)' }}>
-          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)', fontWeight: 600, marginBottom: 4 }}>
-            مبيعات اليوم المؤكدة
+      {/* Key Metrics Grid */}
+      <section className={styles.metricsGrid} aria-label="المؤشرات الرئيسية">
+        <div className={styles.metricCard}>
+          <div className={styles.metricHeader}>
+            <span className={styles.metricLabel}>طلبات اليوم</span>
+            <Package size={18} className={styles.metricIcon} />
           </div>
-          <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 900, color: 'var(--color-royal-blue)' }}>
-            {formatSdg(today_orders.revenue_sdg)}
-          </div>
-          <div style={{ fontSize: '11px', color: 'var(--color-slate-400)', marginTop: 4 }}>
-            عدد طلبات اليوم: {today_orders.count}
-          </div>
+          <div className={styles.metricValue}>{today_orders.count || 0}</div>
+          <span className={styles.metricSub}>
+            بإجمالي: {formatSdg(today_orders.revenue_sdg || 0)}
+          </span>
         </div>
 
-        {/* Pending Reviews */}
-        <div className="card" style={{ padding: 'var(--space-5)' }}>
-          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)', fontWeight: 600, marginBottom: 4 }}>
-            إشعارات الدفع المعلقة
+        <div className={styles.metricCard}>
+          <div className={styles.metricHeader}>
+            <span className={styles.metricLabel}>إشعارات قيد المراجعة</span>
+            <CreditCard size={18} className={styles.metricIcon} />
           </div>
-          <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 900, color: pending_reviews_count > 0 ? 'var(--color-warning)' : 'var(--color-slate-700)' }}>
-            {pending_reviews_count}
-          </div>
-          <div style={{ fontSize: '11px', color: 'var(--color-slate-400)', marginTop: 4 }}>
-            تتطلب موافقة أو رفض مع سبب
-          </div>
+          <div className={styles.metricValue}>{pending_reviews_count}</div>
+          <span className={styles.metricSub}>تتطلب قرار اعتماد أو رفض</span>
         </div>
 
-        {/* Current Exchange Rate */}
-        <div className="card" style={{ padding: 'var(--space-5)' }}>
-          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)', fontWeight: 600, marginBottom: 4 }}>
-            سعر الصرف المعتمد
+        <div className={styles.metricCard}>
+          <div className={styles.metricHeader}>
+            <span className={styles.metricLabel}>سعر الصرف المعتمد</span>
+            <Coins size={18} className={styles.metricIcon} />
           </div>
-          <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 900, color: 'var(--color-navy)' }}>
-            {exchange_rate.rate_sdg} <span style={{ fontSize: 'var(--text-xs)', fontWeight: 600 }}>جنيه/درهم</span>
+          <div className={styles.metricValue}>
+            {exchange_rate.rate_sdg || 650} ج.س
           </div>
-          <div style={{ fontSize: '11px', color: 'var(--color-slate-400)', marginTop: 4 }}>
-            مدة تثبيت السعر: {price_lock_hours} ساعات
-          </div>
+          <span className={styles.metricSub}>لكل 1 درهم إماراتي</span>
         </div>
 
-        {/* Low Stock Alerts Count */}
-        <div className="card" style={{ padding: 'var(--space-5)' }}>
-          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)', fontWeight: 600, marginBottom: 4 }}>
-            أجهزة أوشكت على النفاد
+        <div className={styles.metricCard}>
+          <div className={styles.metricHeader}>
+            <span className={styles.metricLabel}>مدة تثبيت السعر</span>
+            <Clock size={18} className={styles.metricIcon} />
           </div>
-          <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 900, color: low_stock_products.length > 0 ? 'var(--color-danger)' : 'var(--color-success)' }}>
-            {low_stock_products.length}
-          </div>
-          <div style={{ fontSize: '11px', color: 'var(--color-slate-400)', marginTop: 4 }}>
-            كمية المخزون 2 أو أقل
-          </div>
+          <div className={styles.metricValue}>{price_lock_hours} ساعات</div>
+          <span className={styles.metricSub}>مهلة التحويل ورفع الإشعار</span>
         </div>
-      </div>
+      </section>
 
-      {/* Orders Breakdown by Status */}
-      <div className="card" style={{ marginBottom: 'var(--space-6)' }}>
-        <div className="card-header">
-          <h3 style={{ margin: 0, fontSize: 'var(--text-base)' }}>حالات طلبات المتجر</h3>
-          <Link to="/admin/orders" style={{ fontSize: 'var(--text-xs)', fontWeight: 700 }}>
-            عرض كل الطلبات ←
-          </Link>
-        </div>
-        <div style={{ padding: 'var(--space-5)' }}>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-              gap: 'var(--space-3)',
-            }}
-          >
-            {Object.entries(orders_by_status).map(([status, count]) => {
-              const info = getOrderStatusInfo(status);
-              return (
-                <Link
-                  key={status}
-                  to={`/admin/orders?status=${status}`}
-                  style={{
-                    backgroundColor: 'var(--color-slate-50)',
-                    border: '1px solid var(--color-slate-200)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: 'var(--space-3)',
-                    textAlign: 'center',
-                    textDecoration: 'none',
-                    color: 'inherit',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <span style={{ fontSize: '1.25rem', marginBottom: 2 }}>{info.icon}</span>
-                  <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-600)', marginBottom: 4 }}>{info.label}</span>
-                  <span style={{ fontSize: 'var(--text-lg)', fontWeight: 800, color: 'var(--color-navy)' }}>{count}</span>
-                </Link>
-              );
-            })}
+      {/* Two Column Grid */}
+      <div className={styles.sectionGrid}>
+        {/* Orders by Status */}
+        <section className={styles.card} aria-label="الطلبات حسب الحالة">
+          <div className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>حالات الطلبات الحالية</h2>
+            <Link to="/admin/orders" style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--color-royal-blue)' }}>
+              عرض كل الطلبات ←
+            </Link>
           </div>
-        </div>
-      </div>
+          <div className={styles.cardBody}>
+            <div className={styles.statusList}>
+              {Object.entries(orders_by_status).map(([statusKey, count]) => {
+                const info = getOrderStatusInfo(statusKey);
+                return (
+                  <div key={statusKey} className={styles.statusRow}>
+                    <Tag variant={info.variant}>{info.label}</Tag>
+                    <span className={styles.statusCount}>{count}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
 
-      {/* Low Stock Inventory Alerts Table */}
-      {low_stock_products.length > 0 && (
-        <div className="card">
-          <div className="card-header">
-            <h3 style={{ margin: 0, fontSize: 'var(--text-base)', color: 'var(--color-danger)' }}>
-              تنبيهات المخزون المنخفض
-            </h3>
-            <Link to="/admin/products" style={{ fontSize: 'var(--text-xs)', fontWeight: 700 }}>
+        {/* Low Stock Products */}
+        <section className={styles.card} aria-label="تنبيهات المخزون المنخفض">
+          <div className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>تنبيهات انخفاض المخزون</h2>
+            <Link to="/admin/products" style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--color-royal-blue)' }}>
               إدارة المخزون ←
             </Link>
           </div>
-          <div className="table-container" style={{ border: 'none', borderRadius: 0 }}>
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>معرف الجهاز</th>
-                  <th>اسم الجهاز / المنتج</th>
-                  <th>النوع</th>
-                  <th>الكمية المتبقية</th>
-                  <th>الإجراء</th>
-                </tr>
-              </thead>
-              <tbody>
-                {low_stock_products.map((item) => (
-                  <tr key={item.id}>
-                    <td className="font-mono">#{item.id}</td>
-                    <td style={{ fontWeight: 700, color: 'var(--color-navy)' }}>{item.name}</td>
-                    <td>{getProductTypeLabel(item.type)}</td>
-                    <td>
-                      <Badge variant={item.stock_quantity === 0 ? 'danger' : 'warning'}>
-                        {item.stock_quantity === 0 ? 'نفد (0)' : `${item.stock_quantity} فقط`}
-                      </Badge>
-                    </td>
-                    <td>
-                      <Link to={`/admin/products/${item.id}/edit`}>
-                        <Button variant="outline" size="sm">
-                          تعديل المخزون
-                        </Button>
+          <div className={styles.cardBody}>
+            {low_stock_products.length === 0 ? (
+              <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)', margin: 0 }}>
+                المخزون متوفر لكافة الأجهزة
+              </p>
+            ) : (
+              <div className={styles.lowStockList}>
+                {low_stock_products.map((prod) => (
+                  <div key={prod.id} className={styles.lowStockItem}>
+                    <div>
+                      <Link to={`/admin/products/${prod.id}/edit`} className={styles.lowStockName}>
+                        {prod.name}
                       </Link>
-                    </td>
-                  </tr>
+                      <div style={{ fontSize: '11px', color: 'var(--color-slate-400)' }}>
+                        {getProductTypeLabel(prod.type)}
+                      </div>
+                    </div>
+                    <span className={styles.lowStockQty}>
+                      متبقي: {prod.stock_quantity}
+                    </span>
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        </section>
+      </div>
     </div>
   );
 }

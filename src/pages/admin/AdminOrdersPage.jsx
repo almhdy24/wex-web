@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { RefreshCw, FileText } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { formatSdg, formatDate, getOrderStatusInfo } from '../../utils/formatters';
-import Badge from '../../components/common/Badge';
+import Tag from '../../components/common/Tag';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import Select from '../../components/common/Select';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import { TableSkeleton } from '../../components/common/Skeleton';
+import styles from './AdminCommon.module.css';
 
 export default function AdminOrdersPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -35,7 +37,6 @@ export default function AdminOrdersPage() {
       setOrders(res.data || []);
       setMeta(res.meta || null);
 
-      // Sync URL
       const nextParams = {};
       if (status) nextParams.status = status;
       if (deliveryType) nextParams.delivery_type = deliveryType;
@@ -43,7 +44,7 @@ export default function AdminOrdersPage() {
       if (page > 1) nextParams.page = page;
       setSearchParams(nextParams, { replace: true });
     } catch (err) {
-      setError(err.message || 'فشل تحميل قائمة الطلبات');
+      setError(err.message || 'الاتصال ضعيف. حاول تاني.');
     } finally {
       setLoading(false);
     }
@@ -68,95 +69,103 @@ export default function AdminOrdersPage() {
   };
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-6)', flexWrap: 'wrap', gap: 'var(--space-3)' }}>
-        <div>
-          <h1 style={{ fontSize: 'var(--text-xl)', marginBottom: 4 }}>إدارة طلبات المتجر</h1>
-          <p style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)', margin: 0 }}>
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <div className={styles.titleInfo}>
+          <h1 className={styles.title}>إدارة طلبات المتجر</h1>
+          <p className={styles.subtitle}>
             {meta?.total !== undefined ? `إجمالي الطلبات: ${meta.total}` : 'متابعة كافة طلبات الشراء'}
           </p>
         </div>
 
         <Button variant="outline" size="sm" onClick={fetchOrders}>
-          🔄 تحديث
+          <RefreshCw size={14} />
+          <span>تحديث</span>
         </Button>
-      </div>
+      </header>
+
+      {/* Brand graphic divider */}
+      <div className={styles.titleDivider} aria-hidden="true" />
 
       {/* Filter Toolbar */}
-      <div className="card" style={{ padding: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
-        <form onSubmit={handleSearchSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--space-3)', alignItems: 'flex-end' }}>
+      <div className={styles.toolbarCard}>
+        <form onSubmit={handleSearchSubmit} className={styles.toolbarForm}>
           <Input
-            label="بحث برقم الطلب أو الهاتف أو العميل"
+            label="بحث بالرقم أو الهاتف أو الاسم"
             placeholder="WEX-..."
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            style={{ marginBottom: 0 }}
           />
 
           <Select
             label="تصفية حسب الحالة"
             value={status}
-            onChange={(e) => { setStatus(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setStatus(e.target.value);
+              setPage(1);
+            }}
             options={[
-              { value: '', label: 'جميع الحالات' },
+              { value: '', label: 'كافة الحالات' },
               { value: 'pending_payment', label: 'بانتظار الدفع' },
               { value: 'payment_review', label: 'مراجعة إشعار الدفع' },
               { value: 'confirmed', label: 'مؤكد' },
-              { value: 'ready_for_pickup', label: 'جاهز للاستلام بالمحل' },
+              { value: 'ready_for_pickup', label: 'جاهز للاستلام' },
               { value: 'out_for_delivery', label: 'جاري التوصيل' },
-              { value: 'completed', label: 'مكتمل' },
+              { value: 'completed', label: 'مكتمل ومستلم' },
               { value: 'cancelled', label: 'ملغي' },
-              { value: 'expired', label: 'منتهي الصلاحية' },
+              { value: 'expired', label: 'انتهت فترة الحجز' },
             ]}
-            style={{ marginBottom: 0 }}
           />
 
           <Select
-            label="نوع الاستلام"
+            label="طريقة الاستلام"
             value={deliveryType}
-            onChange={(e) => { setDeliveryType(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setDeliveryType(e.target.value);
+              setPage(1);
+            }}
             options={[
               { value: '', label: 'الكل' },
               { value: 'pickup', label: 'استلام من المحل' },
               { value: 'delivery', label: 'توصيل' },
             ]}
-            style={{ marginBottom: 0 }}
           />
 
           <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-            <Button type="submit" variant="primary" style={{ flex: 1 }}>
-              بحث
+            <Button type="submit" variant="primary" size="md">
+              تطبيق
             </Button>
-            <Button type="button" variant="outline" onClick={handleResetFilters}>
-              إعادة ضبط
+            <Button type="button" variant="ghost" size="md" onClick={handleResetFilters}>
+              مسح
             </Button>
           </div>
         </form>
       </div>
 
-      {/* Orders Table */}
       {error ? (
         <ErrorState message={error} onRetry={fetchOrders} />
       ) : loading ? (
-        <TableSkeleton rows={8} cols={6} />
+        <TableSkeleton rows={8} cols={7} />
       ) : orders.length === 0 ? (
         <EmptyState
-          title="لم يتم العثور على أي طلبات"
-          description="جرب تغيير معايير البحث أو اختيار حالة طلبات أخرى."
+          title="لا توجد طلبات مطابقة"
+          description="جرب البحث بكلمات مختلفة أو إزالة الفلاتر."
+          actionLabel="مسح الفلاتر"
+          onAction={handleResetFilters}
         />
       ) : (
-        <div className="card">
-          <div className="table-container" style={{ border: 'none', borderRadius: 0 }}>
-            <table className="table table-row-hover">
+        <div className={styles.card}>
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
               <thead>
                 <tr>
                   <th>رقم الطلب</th>
                   <th>العميل</th>
                   <th>الهاتف</th>
-                  <th>طريقة الاستلام</th>
-                  <th>المبلغ الإجمالي</th>
+                  <th>النوع</th>
                   <th>الحالة</th>
-                  <th>تاريخ الإنشاء</th>
+                  <th>المبلغ</th>
+                  <th>التاريخ</th>
                   <th>الإجراء</th>
                 </tr>
               </thead>
@@ -165,28 +174,20 @@ export default function AdminOrdersPage() {
                   const statusInfo = getOrderStatusInfo(o.status);
                   return (
                     <tr key={o.order_number}>
-                      <td className="en-text" style={{ fontWeight: 700, color: 'var(--color-navy)' }}>
-                        #{o.order_number}
-                      </td>
-                      <td style={{ fontWeight: 600 }}>{o.user_name || o.customer_name || 'عميل المتجر'}</td>
-                      <td className="en-text">{o.contact_phone}</td>
-                      <td>{o.delivery_type === 'pickup' ? 'استلام بالمحل' : 'توصيل'}</td>
-                      <td style={{ fontWeight: 800, color: 'var(--color-royal-blue)' }}>
-                        {formatSdg(o.total_sdg)}
-                      </td>
+                      <td className={styles.orderNumber}>#{o.order_number}</td>
+                      <td>{o.user_name || o.customer_name || 'عميل'}</td>
+                      <td dir="ltr">{o.contact_phone}</td>
+                      <td>{o.delivery_type === 'pickup' ? 'استلام' : 'توصيل'}</td>
                       <td>
-                        <Badge variant={statusInfo.variant}>
-                          <span>{statusInfo.icon}</span>
-                          <span>{statusInfo.label}</span>
-                        </Badge>
+                        <Tag variant={statusInfo.variant}>{statusInfo.label}</Tag>
                       </td>
-                      <td style={{ fontSize: '11px', color: 'var(--color-slate-500)' }}>
-                        {formatDate(o.created_at)}
-                      </td>
+                      <td className={styles.totalPrice}>{formatSdg(o.total_sdg)}</td>
+                      <td className={styles.dateText}>{formatDate(o.created_at)}</td>
                       <td>
                         <Link to={`/admin/orders/${o.order_number}`}>
-                          <Button variant="secondary" size="sm">
-                            إدارة الطلب
+                          <Button variant="ghost" size="sm">
+                            <FileText size={14} />
+                            <span>عرض</span>
                           </Button>
                         </Link>
                       </td>
@@ -197,19 +198,28 @@ export default function AdminOrdersPage() {
             </table>
           </div>
 
-          {/* Pagination */}
           {meta && meta.total_pages > 1 && (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 'var(--space-3)', padding: 'var(--space-4)', borderTop: '1px solid var(--color-slate-100)' }}>
-              <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+            <nav className={styles.pagination} aria-label="تنقل الصفحات">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => p - 1)}
+              >
                 السابق
               </Button>
-              <span style={{ fontSize: 'var(--text-sm)', color: 'var(--color-slate-600)' }}>
+              <span className={styles.pageCount}>
                 صفحة {meta.page} من {meta.total_pages}
               </span>
-              <Button variant="outline" size="sm" disabled={page >= meta.total_pages} onClick={() => setPage((p) => p + 1)}>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page >= meta.total_pages}
+                onClick={() => setPage((p) => p + 1)}
+              >
                 التالي
               </Button>
-            </div>
+            </nav>
           )}
         </div>
       )}

@@ -1,18 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { ArrowRight, Clock, CheckCircle2, Check, X } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { formatSdg, formatDate, getOrderStatusInfo, getProofStatusInfo } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
-import Badge from '../../components/common/Badge';
+import Tag from '../../components/common/Tag';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import Modal from '../../components/common/Modal';
 import ErrorState from '../../components/common/ErrorState';
 import { Skeleton } from '../../components/common/Skeleton';
+import styles from './AdminOrderDetailPage.module.css';
 
 export default function AdminOrderDetailPage() {
   const { orderNumber } = useParams();
-  const navigate = useNavigate();
   const { success, error: toastError } = useToast();
 
   const [order, setOrder] = useState(null);
@@ -35,7 +36,7 @@ export default function AdminOrderDetailPage() {
   // Payment Proof Review Modal
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [selectedProof, setSelectedProof] = useState(null);
-  const [reviewAction, setReviewAction] = useState('approve'); // 'approve' | 'reject'
+  const [reviewAction, setReviewAction] = useState('approve');
   const [reviewNote, setReviewNote] = useState('');
   const [reviewing, setReviewing] = useState(false);
   const [proofImageBlobUrl, setProofImageBlobUrl] = useState(null);
@@ -48,7 +49,7 @@ export default function AdminOrderDetailPage() {
       const res = await adminApi.getOrderDetail(orderNumber);
       setOrder(res.data);
     } catch (err) {
-      setError(err.message || 'فشل تحميل بيانات الطلب');
+      setError(err.message || 'الاتصال ضعيف. حاول تاني.');
     } finally {
       if (showLoading) setLoading(false);
     }
@@ -58,7 +59,6 @@ export default function AdminOrderDetailPage() {
     loadOrder(true);
   }, [orderNumber]);
 
-  // Handle Loading Proof Image for modal review
   const openProofReview = async (proof, action) => {
     setSelectedProof(proof);
     setReviewAction(action);
@@ -72,13 +72,12 @@ export default function AdminOrderDetailPage() {
       const url = URL.createObjectURL(blob);
       setProofImageBlobUrl(url);
     } catch {
-      // image failed to stream
+      toastError('تعذر تحميل ملف الإشعار');
     } finally {
       setLoadingProofImage(false);
     }
   };
 
-  // Submit Status Update
   const handleStatusSubmit = async (e) => {
     e.preventDefault();
     if (!newStatus) return;
@@ -91,41 +90,40 @@ export default function AdminOrderDetailPage() {
         courier_name: courierName.trim() || undefined,
         courier_phone: courierPhone.trim() || undefined,
       });
-      success('تم تحديث حالة الطلب بنجاح');
+      success('تم تحديث حالة الطلب');
       setStatusModalOpen(false);
       setStatusNote('');
       setCourierName('');
       setCourierPhone('');
       loadOrder(false);
     } catch (err) {
-      toastError(err.message || 'فشل تحديث حالة الطلب');
+      toastError(err.message || 'فشل تحديث الحالة. حاول تاني.');
     } finally {
       setUpdatingStatus(false);
     }
   };
 
-  // Submit Lock Extension
-  const handleLockSubmit = async (e) => {
+  const handleExtendLock = async (e) => {
     e.preventDefault();
     setExtendingLock(true);
-
     try {
-      await adminApi.extendLock(orderNumber, lockHours);
+      await adminApi.extendPriceLock(orderNumber, Number(lockHours));
       success(`تم تمديد حجز السعر بنجاح لمدة ${lockHours} ساعات`);
       setLockModalOpen(false);
       loadOrder(false);
     } catch (err) {
-      toastError(err.message || 'فشل تمديد حجز السعر');
+      toastError(err.message || 'فشل تمديد الحجز');
     } finally {
       setExtendingLock(false);
     }
   };
 
-  // Submit Payment Proof Review
-  const handleReviewSubmit = async (e) => {
+  const handleProofReviewSubmit = async (e) => {
     e.preventDefault();
+    if (!selectedProof) return;
+
     if (reviewAction === 'reject' && !reviewNote.trim()) {
-      toastError('سبب رفض إشعار التحويل مطلوب');
+      toastError('يرجى كتابة سبب الرفض');
       return;
     }
 
@@ -135,11 +133,11 @@ export default function AdminOrderDetailPage() {
         action: reviewAction,
         note: reviewNote.trim() || undefined,
       });
-      success(reviewAction === 'approve' ? 'تم اعتماد إشعار التحويل وتأكيد الطلب' : 'تم رفض الإشعار وتحديث الطلب');
+      success(reviewAction === 'approve' ? 'تم اعتماد التحويل وتأكيد الطلب' : 'تم رفض الإشعار');
       setReviewModalOpen(false);
       loadOrder(false);
     } catch (err) {
-      toastError(err.message || 'فشل مراجعة الإشعار');
+      toastError(err.message || 'فشل تنفيذ الإجراء');
     } finally {
       setReviewing(false);
     }
@@ -147,328 +145,273 @@ export default function AdminOrderDetailPage() {
 
   if (loading) {
     return (
-      <div>
-        <Skeleton height="36px" width="300px" style={{ marginBottom: 'var(--space-4)' }} />
-        <Skeleton height="160px" borderRadius="var(--radius-lg)" style={{ marginBottom: 'var(--space-6)' }} />
-        <Skeleton height="320px" borderRadius="var(--radius-lg)" />
+      <div className={styles.container}>
+        <Skeleton height="36px" width="40%" />
+        <div style={{ height: 16 }} />
+        <Skeleton height="260px" borderRadius="var(--radius-lg)" />
       </div>
     );
   }
 
   if (error || !order) {
-    return <ErrorState message={error || 'تعذر تحميل بيانات الطلب'} onRetry={() => loadOrder(true)} />;
+    return (
+      <div className={styles.container}>
+        <ErrorState
+          title="تعذر العثور على الطلب"
+          message={error || 'رقم الطلب غير صحيح.'}
+        />
+      </div>
+    );
   }
 
   const statusInfo = getOrderStatusInfo(order.status);
-
-  // Compute allowed transitions based on OrderStateMachine
-  const getAllowedTransitions = () => {
-    switch (order.status) {
-      case 'confirmed':
-        return [
-          { value: 'ready_for_pickup', label: 'جاهز للاستلام بالمحل (Ready for Pickup)' },
-          { value: 'out_for_delivery', label: 'جاري التوصيل مع المندوب (Out for Delivery)' },
-          { value: 'cancelled', label: 'إلغاء الطلب (Cancel)' },
-        ];
-      case 'ready_for_pickup':
-        return [
-          { value: 'completed', label: 'تم التسليم بنجاح (Completed)' },
-          { value: 'cancelled', label: 'إلغاء الطلب (Cancel)' },
-        ];
-      case 'out_for_delivery':
-        return [
-          { value: 'completed', label: 'تم التسليم بنجاح (Completed)' },
-          { value: 'cancelled', label: 'إلغاء الطلب (Cancel)' },
-        ];
-      default:
-        return [];
-    }
-  };
-
-  const allowedTransitions = getAllowedTransitions();
+  const isPending = order.status === 'pending_payment';
 
   return (
-    <div>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-6)', flexWrap: 'wrap', gap: 'var(--space-3)' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 4 }}>
-            <Link to="/admin/orders" style={{ fontSize: 'var(--text-xs)', fontWeight: 600 }}>
-              ← العودة لقائمة الطلبات
-            </Link>
-          </div>
-          <h1 className="en-text" style={{ fontSize: 'var(--text-2xl)', color: 'var(--color-navy)', margin: 0 }}>
-            #{order.order_number}
-          </h1>
-          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)', marginTop: 4 }}>
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <div className={styles.titleInfo}>
+          <Link
+            to="/admin/orders"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4,
+              fontSize: 'var(--text-xs)',
+              color: 'var(--color-slate-500)',
+              textDecoration: 'none',
+              marginBottom: 4,
+            }}
+          >
+            <ArrowRight size={14} />
+            <span>العودة لقائمة الطلبات</span>
+          </Link>
+          <h1 className={styles.orderNumber}>#{order.order_number}</h1>
+          <span className={styles.orderDate}>
             تاريخ الإنشاء: {formatDate(order.created_at)}
-          </div>
+          </span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
-          <Badge variant={statusInfo.variant} style={{ fontSize: '13px', padding: '6px 14px' }}>
-            <span>{statusInfo.icon}</span>
-            <span>{statusInfo.label}</span>
-          </Badge>
+        <div className={styles.headerActions}>
+          <Tag variant={statusInfo.variant}>{statusInfo.label}</Tag>
 
-          {allowedTransitions.length > 0 && (
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => {
-                setNewStatus(allowedTransitions[0].value);
-                setStatusModalOpen(true);
-              }}
-            >
-              ⚙️ تحديث الحالة
-            </Button>
-          )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setNewStatus(order.status);
+              setStatusModalOpen(true);
+            }}
+          >
+            <CheckCircle2 size={14} />
+            <span>تحديث الحالة</span>
+          </Button>
 
-          {order.status === 'pending_payment' && (
+          {isPending && (
             <Button
               variant="outline"
               size="sm"
               onClick={() => setLockModalOpen(true)}
             >
-              ⏳ تمديد حجز السعر
+              <Clock size={14} />
+              <span>تمديد حجز السعر</span>
             </Button>
           )}
         </div>
-      </div>
+      </header>
 
-      {/* Overview Cards Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-5)', marginBottom: 'var(--space-6)' }}>
-        {/* Customer Information */}
-        <div className="card">
-          <div className="card-header">
-            <h3 style={{ margin: 0, fontSize: 'var(--text-base)' }}>بيانات العميل</h3>
-          </div>
-          <div className="card-body" style={{ fontSize: 'var(--text-sm)', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-            <div>
-              <span style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)' }}>الاسم: </span>
-              <strong>{order.customer?.name || order.user_name || 'عميل'}</strong>
+      {/* Brand graphic: thin divider under admin page title */}
+      <div className={styles.titleDivider} aria-hidden="true" />
+
+      <div className={styles.grid}>
+        {/* Main Column */}
+        <div>
+          {/* Order Items */}
+          <section className={styles.card} aria-label="المنتجات">
+            <div className={styles.cardHeader}>
+              <h2 className={styles.cardTitle}>المنتجات والأجهزة المطلوبة</h2>
             </div>
-            <div>
-              <span style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)' }}>البريد الإلكتروني: </span>
-              <span className="en-text">{order.customer?.email || '—'}</span>
+            <div className={styles.tableWrapper}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>الجهاز</th>
+                    <th>سعر القطعة</th>
+                    <th>الكمية</th>
+                    <th>المجموع</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {order.items?.map((item) => (
+                    <tr key={item.id}>
+                      <td>
+                        <strong>{item.product_name}</strong>
+                      </td>
+                      <td>{formatSdg(item.unit_price_sdg)}</td>
+                      <td>{item.quantity}</td>
+                      <td>{formatSdg(item.subtotal_sdg)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            <div>
-              <span style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)' }}>رقم هاتف التواصل: </span>
-              <span className="en-text" style={{ fontWeight: 700 }}>{order.contact_phone}</span>
-            </div>
-            {order.customer_notes && (
-              <div>
-                <span style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)' }}>ملاحظات العميل: </span>
-                <span style={{ color: 'var(--color-slate-700)' }}>{order.customer_notes}</span>
+
+            <div className={styles.tableFooter}>
+              <div className={styles.footerRow}>
+                <span>المجموع الفرعي:</span>
+                <span>{formatSdg(order.subtotal_sdg)}</span>
               </div>
-            )}
-          </div>
+              {order.discount_sdg > 0 && (
+                <div className={styles.footerRow} style={{ color: 'var(--color-success)' }}>
+                  <span>خصم التطبيق:</span>
+                  <span>-{formatSdg(order.discount_sdg)}</span>
+                </div>
+              )}
+              <div className={styles.footerRow}>
+                <span>رسوم التوصيل:</span>
+                <span>
+                  {order.delivery_fee_sdg === 0 ? 'مجاناً' : formatSdg(order.delivery_fee_sdg)}
+                </span>
+              </div>
+              <div className={styles.footerTotalRow}>
+                <span>المبلغ الإجمالي المثبت:</span>
+                <span className={styles.totalSdg}>{formatSdg(order.total_sdg)}</span>
+              </div>
+            </div>
+          </section>
+
+          {/* Payment Proofs */}
+          <section className={styles.card} aria-label="إشعارات التحويل">
+            <div className={styles.cardHeader}>
+              <h2 className={styles.cardTitle}>إشعارات الدفع والتحويل البنكي</h2>
+            </div>
+            <div className={styles.cardBody}>
+              {!order.proofs || order.proofs.length === 0 ? (
+                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)', margin: 0 }}>
+                  لم يتم رفع أي إشعار تحويل لهذا الطلب حتى الآن.
+                </p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                  {order.proofs.map((proof) => {
+                    const proofStatus = getProofStatusInfo(proof.status);
+                    return (
+                      <div
+                        key={proof.id}
+                        style={{
+                          padding: 'var(--space-3)',
+                          borderRadius: 'var(--radius-md)',
+                          backgroundColor: 'var(--color-slate-50)',
+                          border: '1px solid var(--color-border-subtle)',
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                          <span style={{ fontSize: '11px', color: 'var(--color-slate-500)' }}>
+                            تاريخ الرفع: {formatDate(proof.created_at)}
+                          </span>
+                          <Tag variant={proofStatus.variant}>{proofStatus.label}</Tag>
+                        </div>
+
+                        {proof.sender_name && (
+                          <div style={{ fontSize: '12px' }}>اسم المحوّل: <strong>{proof.sender_name}</strong></div>
+                        )}
+                        {proof.reference_number && (
+                          <div style={{ fontSize: '12px' }} dir="ltr">الرقم المرجعي: <strong>{proof.reference_number}</strong></div>
+                        )}
+
+                        <div style={{ marginTop: 'var(--space-2)', display: 'flex', gap: 'var(--space-2)' }}>
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={() => openProofReview(proof, 'approve')}
+                          >
+                            <Check size={14} />
+                            <span>مراجعة واعتماد</span>
+                          </Button>
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            onClick={() => openProofReview(proof, 'reject')}
+                          >
+                            <X size={14} />
+                            <span>رفض</span>
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </section>
         </div>
 
-        {/* Delivery Details */}
-        <div className="card">
-          <div className="card-header">
-            <h3 style={{ margin: 0, fontSize: 'var(--text-base)' }}>بيانات التسليم والشحن</h3>
-          </div>
-          <div className="card-body" style={{ fontSize: 'var(--text-sm)', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-            <div>
-              <span style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)' }}>نوع الاستلام: </span>
-              <strong>{order.delivery_type === 'pickup' ? 'استلام من المحل (مول الواحة - أم درمان)' : 'توصيل للعنوان'}</strong>
+        {/* Sidebar Column */}
+        <div>
+          {/* Customer & Delivery */}
+          <section className={styles.card} aria-label="بيانات العميل">
+            <div className={styles.cardHeader}>
+              <h2 className={styles.cardTitle}>بيانات العميل والتسليم</h2>
             </div>
-            {order.delivery_type === 'delivery' && (
-              <>
-                {order.shipping_zone && (
+            <div className={styles.cardBody}>
+              <div className={styles.infoList}>
+                <div>
+                  <span className={styles.infoLabel}>العميل: </span>
+                  <strong>{order.user_name || order.customer_name || 'عميل'}</strong>
+                </div>
+                <div>
+                  <span className={styles.infoLabel}>الهاتف: </span>
+                  <span dir="ltr"><strong>{order.contact_phone}</strong></span>
+                </div>
+                <div>
+                  <span className={styles.infoLabel}>طريقة الاستلام: </span>
+                  <span>{order.delivery_type === 'pickup' ? 'استلام من المحل' : 'توصيل للعنوان'}</span>
+                </div>
+                {order.delivery_type === 'delivery' && (
                   <div>
-                    <span style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)' }}>الولاية: </span>
-                    <span>{order.shipping_zone.state_name_ar}</span>
+                    <span className={styles.infoLabel}>العنوان: </span>
+                    <span>{order.delivery_address}</span>
                   </div>
                 )}
-                <div>
-                  <span style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)' }}>العنوان التفصيلي: </span>
-                  <span>{order.delivery_address}</span>
-                </div>
-              </>
-            )}
-            {order.courier_name && (
-              <div>
-                <span style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)' }}>مندوب التوصيل: </span>
-                <strong>{order.courier_name}</strong> ({order.courier_phone})
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Payment Proofs Review Section */}
-      {order.proofs && order.proofs.length > 0 && (
-        <div className="card" style={{ marginBottom: 'var(--space-6)' }}>
-          <div className="card-header">
-            <h3 style={{ margin: 0, fontSize: 'var(--text-base)' }}>
-              إشعارات التحويل البنكي المرفوعة ({order.proofs.length})
-            </h3>
-          </div>
-          <div className="card-body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-            {order.proofs.map((proof) => {
-              const pStatus = getProofStatusInfo(proof.status);
-              return (
-                <div
-                  key={proof.id}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: 'var(--space-4)',
-                    backgroundColor: 'var(--color-slate-50)',
-                    borderRadius: 'var(--radius-lg)',
-                    border: '1px solid var(--color-slate-200)',
-                    flexWrap: 'wrap',
-                    gap: 'var(--space-3)',
-                  }}
-                >
+                {order.customer_notes && (
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 4 }}>
-                      <Badge variant={pStatus.variant}>{pStatus.label}</Badge>
-                      <span style={{ fontSize: '11px', color: 'var(--color-slate-500)' }}>
-                        تاريخ الرفع: {formatDate(proof.created_at)}
-                      </span>
-                    </div>
-                    {proof.sender_name && (
-                      <div style={{ fontSize: '12px' }}>اسم المحوّل: <strong>{proof.sender_name}</strong></div>
-                    )}
-                    {proof.reference_number && (
-                      <div style={{ fontSize: '12px' }}>الرقم المرجعي: <span className="en-text font-mono">{proof.reference_number}</span></div>
-                    )}
-                    {proof.reviewer_note && (
-                      <div style={{ fontSize: '12px', color: 'var(--color-danger)', marginTop: 2 }}>
-                        ملاحظة المراجع: {proof.reviewer_note}
-                      </div>
-                    )}
+                    <span className={styles.infoLabel}>ملاحظات العميل: </span>
+                    <span>{order.customer_notes}</span>
                   </div>
-
-                  <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => openProofReview(proof, 'view')}
-                    >
-                      👁️ معاينة الإشعار
-                    </Button>
-                    {proof.status === 'pending' && (
-                      <>
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          onClick={() => openProofReview(proof, 'approve')}
-                        >
-                          ✓ قبول واعتماد
-                        </Button>
-                        <Button
-                          variant="danger-outline"
-                          size="sm"
-                          onClick={() => openProofReview(proof, 'reject')}
-                        >
-                          ✕ رفض الإشعار
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Order Line Items Table */}
-      <div className="card" style={{ marginBottom: 'var(--space-6)' }}>
-        <div className="card-header">
-          <h3 style={{ margin: 0, fontSize: 'var(--text-base)' }}>المنتجات والأجهزة المحجوزة</h3>
-        </div>
-        <div className="table-container" style={{ border: 'none', borderRadius: 0 }}>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>اسم الجهاز</th>
-                <th>سعر الوحدة</th>
-                <th>الكمية</th>
-                <th>المجموع بالجنيه</th>
-              </tr>
-            </thead>
-            <tbody>
-              {order.items?.map((item) => (
-                <tr key={item.id}>
-                  <td>
-                    <div style={{ fontWeight: 700, color: 'var(--color-navy)' }}>{item.product_name}</div>
-                    {item.specs_snapshot && (
-                      <div className="en-text" style={{ fontSize: '11px', color: 'var(--color-slate-500)' }}>
-                        {item.specs_snapshot.cpu} | {item.specs_snapshot.ram} | {item.specs_snapshot.storage}
-                      </div>
-                    )}
-                  </td>
-                  <td>{formatSdg(item.unit_price_sdg)}</td>
-                  <td style={{ fontWeight: 600 }}>{item.quantity}</td>
-                  <td style={{ fontWeight: 700, color: 'var(--color-royal-blue)' }}>
-                    {formatSdg(item.subtotal_sdg)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Order Calculations Footer */}
-        <div style={{ padding: 'var(--space-4) var(--space-5)', backgroundColor: 'var(--color-slate-50)', borderTop: '1px solid var(--color-slate-100)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 'var(--text-xs)' }}>
-            <span style={{ color: 'var(--color-slate-600)' }}>المجموع الفرعي:</span>
-            <span>{formatSdg(order.subtotal_sdg)}</span>
-          </div>
-          {order.discount_sdg > 0 && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 'var(--text-xs)', color: 'var(--color-success)' }}>
-              <span>خصم التطبيق:</span>
-              <span>-{formatSdg(order.discount_sdg)}</span>
+                )}
+              </div>
             </div>
+          </section>
+
+          {/* Timeline */}
+          {order.events && order.events.length > 0 && (
+            <section className={styles.card} aria-label="المسار">
+              <div className={styles.cardHeader}>
+                <h2 className={styles.cardTitle}>مسار المراحل</h2>
+              </div>
+              <div className={styles.cardBody}>
+                <div className={styles.timeline}>
+                  {order.events.map((evt) => (
+                    <div key={evt.id} className={styles.timelineItem}>
+                      <div className={styles.timelineDot} />
+                      <span className={styles.timelineStatus}>
+                        {evt.status_ar || evt.new_status}
+                      </span>
+                      <span className={styles.timelineDate}>
+                        {formatDate(evt.created_at)}
+                      </span>
+                      {evt.note && (
+                        <span className={styles.timelineNote}>{evt.note}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
           )}
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 'var(--text-xs)' }}>
-            <span style={{ color: 'var(--color-slate-600)' }}>رسوم التوصيل:</span>
-            <span>{order.delivery_fee_sdg === 0 ? 'مجاناً' : formatSdg(order.delivery_fee_sdg)}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '2px dashed var(--color-slate-200)', fontSize: 'var(--text-lg)', fontWeight: 800, color: 'var(--color-royal-blue)' }}>
-            <span>الإجمالي:</span>
-            <span>{formatSdg(order.total_sdg)}</span>
-          </div>
         </div>
       </div>
 
-      {/* Audit Events Timeline */}
-      {order.events && order.events.length > 0 && (
-        <div className="card">
-          <div className="card-header">
-            <h3 style={{ margin: 0, fontSize: 'var(--text-base)' }}>سجل الأحداث والعمليات</h3>
-          </div>
-          <div className="card-body">
-            <div className="timeline">
-              {order.events.map((evt) => (
-                <div key={evt.id} className="timeline-item">
-                  <div className="timeline-dot" />
-                  <div style={{ fontWeight: 700, fontSize: 'var(--text-sm)', color: 'var(--color-navy)' }}>
-                    {evt.status_ar || evt.new_status}
-                  </div>
-                  <div style={{ fontSize: '11px', color: 'var(--color-slate-400)' }}>
-                    {formatDate(evt.created_at)}
-                  </div>
-                  {evt.note && (
-                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-600)', marginTop: 2 }}>
-                      {evt.note}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal: Update Order Status */}
+      {/* Modal: Status Update */}
       <Modal
         isOpen={statusModalOpen}
         onClose={() => setStatusModalOpen(false)}
@@ -478,40 +421,51 @@ export default function AdminOrderDetailPage() {
             <Button variant="ghost" onClick={() => setStatusModalOpen(false)}>
               إلغاء
             </Button>
-            <Button variant="primary" loading={updatingStatus} onClick={handleStatusSubmit}>
+            <Button
+              variant="primary"
+              loading={updatingStatus}
+              onClick={handleStatusSubmit}
+            >
               حفظ التحديث
             </Button>
           </>
         }
       >
-        <form onSubmit={handleStatusSubmit}>
-          <div className="form-group">
-            <label className="form-label form-label-required">الحالة الجديدة للطلب</label>
+        <form onSubmit={handleStatusSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+          <div>
+            <label style={{ fontSize: 'var(--text-xs)', fontWeight: 600, display: 'block', marginBottom: 4 }}>
+              الحالة الجديدة
+            </label>
             <select
-              className="form-select"
               value={newStatus}
               onChange={(e) => setNewStatus(e.target.value)}
-              required
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--color-border)',
+                fontFamily: 'inherit',
+              }}
             >
-              {allowedTransitions.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
-                </option>
-              ))}
+              <option value="pending_payment">بانتظار الدفع</option>
+              <option value="payment_review">مراجعة إشعار الدفع</option>
+              <option value="confirmed">تم تأكيد الطلب</option>
+              <option value="ready_for_pickup">جاهز للاستلام بالمحل</option>
+              <option value="out_for_delivery">جاري التوصيل مع المندوب</option>
+              <option value="completed">مكتمل ومستلم</option>
+              <option value="cancelled">إلغاء الطلب</option>
             </select>
           </div>
 
           {newStatus === 'out_for_delivery' && (
             <>
               <Input
-                label="اسم مندوب التوصيل (اختياري)"
-                placeholder="مثال: عثمان خالد"
+                label="اسم المندوب"
                 value={courierName}
                 onChange={(e) => setCourierName(e.target.value)}
               />
               <Input
-                label="رقم هاتف المندوب (اختياري)"
-                placeholder="09..."
+                label="هاتف المندوب"
                 value={courierPhone}
                 onChange={(e) => setCourierPhone(e.target.value)}
                 dir="ltr"
@@ -519,15 +473,11 @@ export default function AdminOrderDetailPage() {
             </>
           )}
 
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">ملاحظة إدارية / سبب التغيير (اختياري)</label>
-            <textarea
-              className="form-textarea"
-              placeholder="اكتب ملاحظة تسجل في مسار أحداث الطلب..."
-              value={statusNote}
-              onChange={(e) => setStatusNote(e.target.value)}
-            />
-          </div>
+          <Input
+            label="ملاحظة إدارية داخلية (اختياري)"
+            value={statusNote}
+            onChange={(e) => setStatusNote(e.target.value)}
+          />
         </form>
       </Modal>
 
@@ -535,98 +485,87 @@ export default function AdminOrderDetailPage() {
       <Modal
         isOpen={lockModalOpen}
         onClose={() => setLockModalOpen(false)}
-        title="تمديد حجز السعر"
+        title="تمديد حجز سعر الصرف"
         footer={
           <>
             <Button variant="ghost" onClick={() => setLockModalOpen(false)}>
               إلغاء
             </Button>
-            <Button variant="primary" loading={extendingLock} onClick={handleLockSubmit}>
-              تأكيد التمديد
+            <Button
+              variant="primary"
+              loading={extendingLock}
+              onClick={handleExtendLock}
+            >
+              تمديد المهلة
             </Button>
           </>
         }
       >
-        <form onSubmit={handleLockSubmit}>
-          <div className="form-group">
-            <label className="form-label form-label-required">ساعات التمديد الإضافية (1 - 72 ساعة)</label>
-            <input
-              type="number"
-              min={1}
-              max={72}
-              value={lockHours}
-              onChange={(e) => setLockHours(e.target.value)}
-              className="form-input"
-              required
-            />
-            <span className="form-hint">سيتم تمديد وقت انتهاء صلاحية سعر الصرف المجمّد لهذا الطلب</span>
-          </div>
+        <form onSubmit={handleExtendLock}>
+          <label style={{ fontSize: 'var(--text-xs)', fontWeight: 600, display: 'block', marginBottom: 4 }}>
+            ساعات التمديد الإضافية
+          </label>
+          <input
+            type="number"
+            min={1}
+            max={72}
+            value={lockHours}
+            onChange={(e) => setLockHours(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--color-border)',
+              fontFamily: 'inherit',
+            }}
+          />
         </form>
       </Modal>
 
-      {/* Modal: Review Payment Proof */}
+      {/* Modal: Review Proof */}
       <Modal
         isOpen={reviewModalOpen}
         onClose={() => setReviewModalOpen(false)}
-        title={reviewAction === 'view' ? 'معاينة إشعار التحويل البنكي' : reviewAction === 'approve' ? 'اعتماد إشعار التحويل وتأكيد الطلب' : 'رفض إشعار التحويل'}
-        maxWidth="600px"
+        title={reviewAction === 'approve' ? 'اعتماد الإشعار' : 'رفض الإشعار'}
         footer={
           <>
             <Button variant="ghost" onClick={() => setReviewModalOpen(false)}>
-              إغلاق
+              إلغاء
             </Button>
-            {reviewAction !== 'view' && (
-              <Button
-                variant={reviewAction === 'approve' ? 'primary' : 'danger'}
-                loading={reviewing}
-                onClick={handleReviewSubmit}
-              >
-                {reviewAction === 'approve' ? 'تأكيد القبول والاعتماد' : 'تأكيد الرفض'}
-              </Button>
-            )}
+            <Button
+              variant={reviewAction === 'approve' ? 'primary' : 'danger'}
+              loading={reviewing}
+              disabled={loadingProofImage || reviewing}
+              onClick={handleProofReviewSubmit}
+            >
+              تأكيد القرار
+            </Button>
           </>
         }
       >
-        <div>
-          {/* Streamed Image Display */}
-          <div style={{ textAlign: 'center', marginBottom: 'var(--space-4)', backgroundColor: 'var(--color-slate-100)', borderRadius: 'var(--radius-md)', padding: 'var(--space-2)', minHeight: 220, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+          <div style={{ textAlign: 'center', backgroundColor: 'var(--color-slate-100)', padding: 'var(--space-3)', borderRadius: 'var(--radius-md)', minHeight: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {loadingProofImage ? (
-              <div style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)' }}>جاري تحميل صورة الإشعار الآمنة...</div>
+              <span>جاري تحميل ملف الإشعار...</span>
             ) : proofImageBlobUrl ? (
               <img
                 src={proofImageBlobUrl}
-                alt="إشعار بنكك"
-                style={{ maxWidth: '100%', maxHeight: 380, objectFit: 'contain' }}
+                alt="إشعار"
+                style={{ maxWidth: '100%', maxHeight: 320, objectFit: 'contain' }}
               />
             ) : (
-              <div style={{ color: 'var(--color-danger)', fontSize: 'var(--text-xs)' }}>تعذر تحميل ملف الإشعار</div>
+              <span style={{ color: 'var(--color-danger)' }}>تعذر تحميل الصورة</span>
             )}
           </div>
 
-          {selectedProof && (
-            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-600)', marginBottom: 'var(--space-3)' }}>
-              <div>المحوّل: <strong>{selectedProof.sender_name || 'غير محدد'}</strong></div>
-              <div>الرقم المرجعي: <span className="font-mono">{selectedProof.reference_number || 'غير محدد'}</span></div>
-            </div>
-          )}
-
           {reviewAction === 'reject' && (
-            <div className="form-group" style={{ marginBottom: 0 }}>
-              <label className="form-label form-label-required">سبب الرفض (سيظهر للعميل)</label>
-              <textarea
-                className="form-textarea"
-                placeholder="مثال: المبلغ غير مطابق، أو الصورة غير واضحة..."
-                value={reviewNote}
-                onChange={(e) => setReviewNote(e.target.value)}
-                required
-              />
-            </div>
-          )}
-
-          {reviewAction === 'approve' && (
-            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-success)', backgroundColor: 'var(--color-success-bg)', padding: 'var(--space-3)', borderRadius: 'var(--radius-md)' }}>
-              ✓ بالاعتماد، سيتم تحويل حالة الطلب إلى <strong>مؤكد (confirmed)</strong> وإشعار العميل فوراً.
-            </div>
+            <Input
+              label="سبب الرفض (إلزامي)"
+              value={reviewNote}
+              onChange={(e) => setReviewNote(e.target.value)}
+              placeholder="مثال: المبلغ غير مطابق، الإشعار غير واضح..."
+              required
+            />
           )}
         </div>
       </Modal>

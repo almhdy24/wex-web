@@ -1,14 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { Coins, Check, RefreshCw } from 'lucide-react';
 import { adminApi } from '../../api/admin';
-import { formatSdg, formatAed, formatDate } from '../../utils/formatters';
+import { formatDate } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
+import Button from '../../components/common/Button';
+import Input from '../../components/common/Input';
 import Modal from '../../components/common/Modal';
-import Skeleton from '../../components/common/Skeleton';
+import { TableSkeleton } from '../../components/common/Skeleton';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
+import styles from './AdminCommon.module.css';
 
 export default function AdminRatesPage() {
-  const { showToast } = useToast();
+  const { success, error: toastError } = useToast();
   const [rates, setRates] = useState([]);
   const [currentRate, setCurrentRate] = useState(null);
   const [meta, setMeta] = useState({ page: 1, per_page: 20, total: 0, total_pages: 1 });
@@ -48,7 +52,7 @@ export default function AdminRatesPage() {
     e.preventDefault();
     const val = Number(newRateInput);
     if (!val || val <= 0) {
-      showToast('يرجى إدخال سعر صرف صحيح أكبر من الصفر', 'error');
+      toastError('يرجى إدخال سعر صرف صحيح أكبر من الصفر');
       return;
     }
     setConfirmModal({ open: true, submitting: false });
@@ -59,195 +63,184 @@ export default function AdminRatesPage() {
     try {
       setConfirmModal((prev) => ({ ...prev, submitting: true }));
       await adminApi.updateRate(val);
-      showToast('تم تحديث سعر الصرف بنجاح', 'success');
+      success('تم تحديث سعر الصرف بنجاح');
       setConfirmModal({ open: false, submitting: false });
       setNewRateInput('');
       setPage(1);
       fetchRates();
     } catch (err) {
-      showToast(err.message || 'فشل في تحديث سعر الصرف', 'error');
+      toastError(err.message || 'فشل تحديث سعر الصرف');
       setConfirmModal((prev) => ({ ...prev, submitting: false }));
     }
   };
 
   return (
-    <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <h1 className="admin-page-title">إدارة أسعار الصرف (AED ↔ SDG)</h1>
-          <p className="admin-page-subtitle">
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <div className={styles.titleInfo}>
+          <h1 className={styles.title}>إدارة أسعار الصرف (AED ↔ SDG)</h1>
+          <p className={styles.subtitle}>
             تحديث سعر صرف الدرهم الإماراتي مقابل الجنيه السوداني وتتبع التغيرات التاريخية
           </p>
         </div>
-      </div>
 
-      {/* Current Rate Card & Update Form */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '20px',
-          marginBottom: '24px',
-        }}
-      >
-        <div className="card" style={{ borderTop: '4px solid var(--wex-cyan)' }}>
-          <span className="text-muted text-sm font-semibold">سعر الصرف الحالي النشط</span>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', margin: '14px 0' }}>
-            <span style={{ fontSize: '36px', fontWeight: '800', color: 'var(--wex-navy)' }}>
-              1 AED =
-            </span>
-            <span style={{ fontSize: '36px', fontWeight: '800', color: 'var(--wex-royal)' }}>
-              {currentRate ? `${Number(currentRate).toLocaleString('en-US')} SDG` : '—'}
-            </span>
+        <Button variant="outline" size="sm" onClick={fetchRates}>
+          <RefreshCw size={14} />
+          <span>تحديث</span>
+        </Button>
+      </header>
+
+      {/* Brand graphic divider */}
+      <div className={styles.titleDivider} aria-hidden="true" />
+
+      {/* Current Rate & Update Form */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-4)' }}>
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>سعر الصرف الحالي النشط</h2>
+            <Coins size={18} style={{ color: 'var(--color-royal-blue)' }} />
           </div>
-          <p className="text-muted text-xs">
-            يتم احتساب جميع أسعار البيع في المتجر بالجنيه السوداني تلقائياً وفق هذا السعر.
-          </p>
+          <div className={styles.cardBody}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-2)' }}>
+              <span style={{ fontSize: 'var(--text-xl)', fontWeight: 800, color: 'var(--color-navy)' }}>
+                1 درهم =
+              </span>
+              <span style={{ fontSize: 'var(--text-3xl)', fontWeight: 800, color: 'var(--color-royal-blue)', fontVariantNumeric: 'tabular-nums' }}>
+                {currentRate ? `${Number(currentRate).toLocaleString('en-US')} جنيه` : '—'}
+              </span>
+            </div>
+            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)', margin: 'var(--space-2) 0 0' }}>
+              تعتمد كافة أسعار المنتجات المعروضة بالمتجر على هذا السعر الحالي.
+            </p>
+          </div>
         </div>
 
-        <div className="card">
-          <h2 className="admin-section-heading mb-2">تحديث سعر الصرف</h2>
-          <div className="alert alert-warning mb-3" style={{ padding: '8px 12px', fontSize: '13px' }}>
-            <strong>تنبيه:</strong> تحديث سعر الصرف ينعكس فورياً على جميع المنتجات المعروضة في المتجر.
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>تحديث سعر الصرف</h2>
           </div>
-          <form onSubmit={handleUpdateClick} style={{ display: 'flex', gap: '10px' }}>
-            <input
-              type="number"
-              min="1"
-              step="1"
-              placeholder="أدخل السعر الجديد (مثال: 850)"
-              value={newRateInput}
-              onChange={(e) => setNewRateInput(e.target.value)}
-              className="form-control"
-              required
-            />
-            <button type="submit" className="btn btn-primary" style={{ whiteSpace: 'nowrap' }}>
-              تحديث السعر
-            </button>
-          </form>
+          <div className={styles.cardBody}>
+            <form onSubmit={handleUpdateClick} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+              <Input
+                label="سعر الصرف الجديد (جنيه لكل درهم)"
+                type="number"
+                placeholder="مثال: 660"
+                min="1"
+                step="any"
+                value={newRateInput}
+                onChange={(e) => setNewRateInput(e.target.value)}
+                required
+                dir="ltr"
+                hint="يتم تطبيقه فوراً على جميع الأجهزة في المتجر"
+              />
+
+              <Button type="submit" variant="primary" size="md">
+                <Check size={16} />
+                <span>حفظ السعر الجديد</span>
+              </Button>
+            </form>
+          </div>
         </div>
       </div>
 
-      {/* Historical Rates Table */}
-      <div className="card p-0">
-        <div className="p-4 border-bottom">
-          <h2 className="admin-section-heading mb-0">سجل التغييرات السابقة لأسعار الصرف</h2>
+      {/* Rate History Table */}
+      <div className={styles.card}>
+        <div className={styles.cardHeader}>
+          <h2 className={styles.cardTitle}>سجل التغيرات التاريخية لسعر الصرف</h2>
         </div>
 
         {loading ? (
-          <div className="p-4">
-            <Skeleton height="40px" className="mb-2" />
-            <Skeleton height="40px" className="mb-2" />
-            <Skeleton height="40px" />
-          </div>
+          <TableSkeleton rows={5} cols={3} />
         ) : error ? (
-          <div className="p-4">
-            <ErrorState message={error} onRetry={fetchRates} />
-          </div>
+          <ErrorState message={error} onRetry={fetchRates} />
         ) : rates.length === 0 ? (
-          <div className="p-4">
-            <EmptyState title="لا يوجد سجل سابق" description="لم يتم تسجيل أي تعديلات على سعر الصرف بعد." />
-          </div>
+          <EmptyState
+            title="لا توجد بيانات سابقة"
+            description="لم يتم تسجيل أي تغيرات سابقة في أسعار الصرف."
+          />
         ) : (
-          <div className="table-responsive">
-            <table className="admin-table">
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
               <thead>
                 <tr>
-                  <th style={{ width: '80px' }}>#</th>
-                  <th>سعر الصرف (1 AED)</th>
-                  <th>تاريخ التعديل</th>
-                  <th>المسؤول عن التعديل</th>
+                  <th>تاريخ التحديث</th>
+                  <th>سعر الصرف (SDG)</th>
+                  <th>بواسطة</th>
                 </tr>
               </thead>
               <tbody>
-                {rates.map((r, index) => {
-                  const rateVal = r.rate_sdg || r.rate;
-                  return (
-                    <tr key={r.id || index}>
-                      <td className="text-muted text-center">#{r.id || index + 1}</td>
-                      <td className="font-semibold text-navy">
-                        {rateVal ? `${Number(rateVal).toLocaleString('en-US')} ج.س` : '—'}
-                      </td>
-                      <td className="text-muted">{formatDate(r.created_at)}</td>
-                      <td>
-                        <span className="badge badge-secondary">
-                          {r.created_by_name || r.user_name || r.user?.name || 'مدير النظام'}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {rates.map((r, i) => (
+                  <tr key={r.id || i}>
+                    <td className={styles.dateText}>{formatDate(r.created_at)}</td>
+                    <td className={styles.totalPrice}>
+                      1 AED = {Number(r.rate_sdg || r.rate).toLocaleString('en-US')} SDG
+                    </td>
+                    <td>{r.creator_name || r.user_name || 'النظام'}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         )}
+
+        {meta.total_pages > 1 && (
+          <nav className={styles.pagination} aria-label="تنقل الصفحات">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page <= 1}
+              onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+            >
+              السابق
+            </Button>
+            <span className={styles.pageCount}>
+              صفحة {meta.page} من {meta.total_pages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page >= meta.total_pages}
+              onClick={() => setPage((prev) => Math.min(meta.total_pages, prev + 1))}
+            >
+              التالي
+            </Button>
+          </nav>
+        )}
       </div>
 
-      {/* Pagination */}
-      {meta.total_pages > 1 && (
-        <div className="admin-pagination mt-4">
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm"
-            disabled={page <= 1}
-            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-          >
-            السابق
-          </button>
-          <span className="pagination-info">
-            صفحة {meta.page} من {meta.total_pages}
-          </span>
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm"
-            disabled={page >= meta.total_pages}
-            onClick={() => setPage((prev) => Math.min(meta.total_pages, prev + 1))}
-          >
-            التالي
-          </button>
-        </div>
-      )}
-
       {/* Confirmation Modal */}
-      {confirmModal.open && (
-        <Modal
-          isOpen={confirmModal.open}
-          onClose={() => setConfirmModal({ open: false, submitting: false })}
-          title="تأكيد تغيير سعر الصرف"
-        >
-          <div className="p-2">
-            <p className="mb-3">
-              هل أنت متأكد من تغيير سعر الصرف إلى:{' '}
-              <strong className="text-royal font-bold" style={{ fontSize: '18px' }}>
-                1 AED = {newRateInput} SDG
-              </strong>
-              ؟
-            </p>
-            <p className="text-muted text-sm mb-4">
-              سيتم إعادة حساب أسعار جميع الأجهزة في المتجر فوراً، ولن تتأثر الطلبات التي تم إنشاؤها وقفل
-              سعرها مسبقاً.
-            </p>
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                disabled={confirmModal.submitting}
-                onClick={() => setConfirmModal({ open: false, submitting: false })}
-              >
-                إلغاء
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                disabled={confirmModal.submitting}
-                onClick={handleConfirmSubmit}
-              >
-                {confirmModal.submitting ? 'جاري الحفظ...' : 'تأكيد التحديث'}
-              </button>
-            </div>
-          </div>
-        </Modal>
-      )}
+      <Modal
+        isOpen={confirmModal.open}
+        onClose={() => setConfirmModal({ open: false, submitting: false })}
+        title="تأكيد تحديث سعر الصرف"
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => setConfirmModal({ open: false, submitting: false })}
+            >
+              إلغاء
+            </Button>
+            <Button
+              variant="primary"
+              loading={confirmModal.submitting}
+              onClick={handleConfirmSubmit}
+            >
+              تأكيد التحديث
+            </Button>
+          </>
+        }
+      >
+        <p style={{ color: 'var(--color-slate-700)', fontSize: 'var(--text-sm)', lineHeight: 1.6, margin: 0 }}>
+          هل أنت متأكد من رغبتك في تحديث سعر الصرف المعتمد إلى:
+          <br />
+          <strong style={{ color: 'var(--color-royal-blue)', fontSize: 'var(--text-lg)', fontVariantNumeric: 'tabular-nums' }}>
+            1 AED = {Number(newRateInput).toLocaleString('en-US')} SDG
+          </strong>؟
+          <br />
+          سيتم تحديث أسعار كافة الأجهزة المعروضة في المتجر فوراً.
+        </p>
+      </Modal>
     </div>
   );
 }

@@ -1,16 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Plus, Edit, Trash2, Check, X } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { formatAed, formatSdg, resolveImageUrl, formatCondition } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
 import Modal from '../../components/common/Modal';
-import Badge from '../../components/common/Badge';
-import Skeleton from '../../components/common/Skeleton';
+import Tag from '../../components/common/Tag';
+import Button from '../../components/common/Button';
+import Input from '../../components/common/Input';
+import Select from '../../components/common/Select';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
+import { TableSkeleton } from '../../components/common/Skeleton';
+import styles from './AdminCommon.module.css';
 
 export default function AdminProductsPage() {
-  const { showToast } = useToast();
+  const { success, error: toastError } = useToast();
   const [products, setProducts] = useState([]);
   const [meta, setMeta] = useState({ page: 1, per_page: 20, total: 0, total_pages: 1 });
   const [loading, setLoading] = useState(true);
@@ -26,7 +31,7 @@ export default function AdminProductsPage() {
   const [deleteModal, setDeleteModal] = useState({ open: false, product: null, loading: false });
 
   // Quick stock edit state
-  const [stockEditing, setStockEditing] = useState({}); // { [productId]: value }
+  const [stockEditing, setStockEditing] = useState({});
   const [stockSaving, setStockSaving] = useState({});
 
   const fetchProducts = async () => {
@@ -47,7 +52,7 @@ export default function AdminProductsPage() {
         setMeta(res.meta);
       }
     } catch (err) {
-      setError(err.message || 'فشل في تحميل قائمة المنتجات');
+      setError(err.message || 'الاتصال ضعيف. حاول تاني.');
     } finally {
       setLoading(false);
     }
@@ -69,7 +74,7 @@ export default function AdminProductsPage() {
     try {
       setStockSaving((prev) => ({ ...prev, [id]: true }));
       await adminApi.updateStock(id, newStock);
-      showToast('تم تحديث المخزون بنجاح', 'success');
+      success('تم تحديث المخزون');
       setProducts((prev) =>
         prev.map((p) => (p.id === id ? { ...p, stock_quantity: Number(newStock) } : p))
       );
@@ -79,7 +84,7 @@ export default function AdminProductsPage() {
         return copy;
       });
     } catch (err) {
-      showToast(err.message || 'فشل تحديث المخزون', 'error');
+      toastError(err.message || 'فشل تحديث المخزون. حاول تاني.');
     } finally {
       setStockSaving((prev) => ({ ...prev, [id]: false }));
     }
@@ -90,11 +95,11 @@ export default function AdminProductsPage() {
     try {
       setDeleteModal((prev) => ({ ...prev, loading: true }));
       await adminApi.deleteProduct(deleteModal.product.id);
-      showToast('تم حذف المنتج بنجاح', 'success');
+      success('تم حذف المنتج بنجاح');
       setDeleteModal({ open: false, product: null, loading: false });
       fetchProducts();
     } catch (err) {
-      showToast(err.message || 'فشل في حذف المنتج', 'error');
+      toastError(err.message || 'فشل حذف المنتج');
       setDeleteModal((prev) => ({ ...prev, loading: false }));
     }
   };
@@ -108,302 +113,331 @@ export default function AdminProductsPage() {
       case 'accessory':
         return 'ملحق';
       default:
-        return t;
+        return t || 'جهاز';
     }
   };
 
   return (
-    <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <h1 className="admin-page-title">إدارة المنتجات والأجهزة</h1>
-          <p className="admin-page-subtitle">عرض وإضافة وتعديل الأجهزة ومراقبة المخزون</p>
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <div className={styles.titleInfo}>
+          <h1 className={styles.title}>إدارة المنتجات والأجهزة</h1>
+          <p className={styles.subtitle}>
+            عرض وإضافة وتعديل الأجهزة ومراقبة المخزون
+          </p>
         </div>
-        <Link to="/admin/products/new" className="btn btn-primary">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          إضافة جهاز جديد
+        <Link to="/admin/products/new">
+          <Button variant="primary" size="md">
+            <Plus size={16} />
+            <span>إضافة جهاز جديد</span>
+          </Button>
         </Link>
-      </div>
+      </header>
+
+      {/* Brand graphic divider */}
+      <div className={styles.titleDivider} aria-hidden="true" />
 
       {/* Filter and Search Bar */}
-      <div className="card admin-filter-bar mb-4">
-        <form onSubmit={handleSearchSubmit} className="admin-filter-form">
-          <div className="filter-item search-item">
-            <input
-              type="text"
-              placeholder="ابحث بالاسم أو الموديل..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="form-control"
-            />
-          </div>
+      <div className={styles.toolbarCard}>
+        <form onSubmit={handleSearchSubmit} className={styles.toolbarForm}>
+          <Input
+            placeholder="ابحث بالاسم أو الموديل..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
-          <div className="filter-item">
-            <select
-              value={typeFilter}
-              onChange={(e) => {
-                setTypeFilter(e.target.value);
-                setPage(1);
-              }}
-              className="form-control"
-            >
-              <option value="">جميع الأنواع</option>
-              <option value="laptop">لابتوبات</option>
-              <option value="phone">هواتف</option>
-              <option value="accessory">ملحقات</option>
-            </select>
-          </div>
+          <Select
+            value={typeFilter}
+            onChange={(e) => {
+              setTypeFilter(e.target.value);
+              setPage(1);
+            }}
+            options={[
+              { value: '', label: 'جميع الأنواع' },
+              { value: 'laptop', label: 'لابتوبات' },
+              { value: 'phone', label: 'هواتف' },
+              { value: 'accessory', label: 'ملحقات' },
+            ]}
+          />
 
-          <div className="filter-item">
-            <select
-              value={activeFilter}
-              onChange={(e) => {
-                setActiveFilter(e.target.value);
-                setPage(1);
-              }}
-              className="form-control"
-            >
-              <option value="">جميع الحالات</option>
-              <option value="1">معروض للبيع (نشط)</option>
-              <option value="0">معطل / غير معروض</option>
-            </select>
-          </div>
+          <Select
+            value={activeFilter}
+            onChange={(e) => {
+              setActiveFilter(e.target.value);
+              setPage(1);
+            }}
+            options={[
+              { value: '', label: 'جميع الحالات' },
+              { value: '1', label: 'معروض للبيع (نشط)' },
+              { value: '0', label: 'غير معروض' },
+            ]}
+          />
 
-          <button type="submit" className="btn btn-secondary">
+          <Button type="submit" variant="primary" size="md">
             بحث
-          </button>
+          </Button>
         </form>
       </div>
 
       {/* Main Content */}
       {loading ? (
-        <div className="card">
-          <Skeleton height="50px" className="mb-2" />
-          <Skeleton height="50px" className="mb-2" />
-          <Skeleton height="50px" className="mb-2" />
-          <Skeleton height="50px" />
-        </div>
+        <TableSkeleton rows={8} cols={7} />
       ) : error ? (
         <ErrorState message={error} onRetry={fetchProducts} />
       ) : products.length === 0 ? (
         <EmptyState
           title="لم يتم العثور على أجهزة"
-          description="لا توجد منتجات تطابق معايير البحث الحالية."
+          description="لا توجد أجهزة تطابق معايير البحث الحالية."
         />
       ) : (
-        <div className="card p-0 table-responsive">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th style={{ width: '60px' }}>الصورة</th>
-                <th>اسم الجهاز</th>
-                <th>النوع / الحالة</th>
-                <th>السعر (AED)</th>
-                <th>السعر التقديري (SDG)</th>
-                <th>المخزون الحالي</th>
-                <th>حالة العرض</th>
-                <th style={{ width: '130px', textAlign: 'center' }}>الإجراءات</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((p) => {
-                const isEditingThisStock = stockEditing[p.id] !== undefined;
-                return (
-                  <tr key={p.id}>
-                    <td>
-                      <img
-                        src={resolveImageUrl(p.primary_image || p.image_path || (p.images && p.images[0]?.thumb_path))}
-                        alt={p.name}
-                        className="admin-product-thumb"
-                        onError={(e) => {
-                          e.target.src = '/assets/images/placeholder.svg';
-                        }}
-                      />
-                    </td>
-                    <td>
-                      <div className="admin-product-name-cell">
-                        <Link to={`/products/${p.slug}`} target="_blank" className="admin-product-title">
-                          {p.name}
-                        </Link>
-                        <span className="admin-product-sub">
-                          {p.brand_name ? `${p.brand_name} • ` : ''}
-                          {p.category_name || ''}
-                        </span>
-                      </div>
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                        <span className="badge badge-secondary">{getTypeLabel(p.type)}</span>
-                        <span className="badge badge-outline">{formatCondition(p.condition)}</span>
-                      </div>
-                    </td>
-                    <td className="font-semibold text-navy">
-                      {formatAed(p.price_aed)}
-                    </td>
-                    <td className="font-semibold text-royal">
-                      {p.price_sdg ? formatSdg(p.price_sdg) : '—'}
-                    </td>
-                    <td>
-                      {isEditingThisStock ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <input
-                            type="number"
-                            min="0"
-                            value={stockEditing[p.id]}
-                            onChange={(e) =>
-                              setStockEditing({ ...stockEditing, [p.id]: e.target.value })
-                            }
-                            className="form-control form-control-sm"
-                            style={{ width: '70px', padding: '4px 8px' }}
-                          />
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-primary"
-                            disabled={stockSaving[p.id]}
-                            onClick={() => handleQuickStockSave(p.id)}
-                          >
-                            حفظ
-                          </button>
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-secondary"
-                            onClick={() => {
-                              const copy = { ...stockEditing };
-                              delete copy[p.id];
-                              setStockEditing(copy);
+        <div className={styles.card}>
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th style={{ width: '60px' }}>الصورة</th>
+                  <th>اسم الجهاز</th>
+                  <th>النوع / الحالة</th>
+                  <th>السعر (AED)</th>
+                  <th>السعر (SDG)</th>
+                  <th>المخزون الحالي</th>
+                  <th>الحالة</th>
+                  <th style={{ width: '130px', textAlign: 'center' }}>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                {products.map((p) => {
+                  const isEditingThisStock = stockEditing[p.id] !== undefined;
+                  const thumb = resolveImageUrl(
+                    p.primary_image || p.image_path || (p.images && p.images[0]?.thumb_path)
+                  );
+                  return (
+                    <tr key={p.id}>
+                      <td>
+                        <img
+                          src={thumb}
+                          alt={p.name}
+                          style={{
+                            width: 44,
+                            height: 44,
+                            objectFit: 'contain',
+                            borderRadius: 'var(--radius-sm)',
+                            backgroundColor: 'var(--color-white)',
+                            border: '1px solid var(--color-border-subtle)',
+                          }}
+                          onError={(e) => {
+                            e.target.src = '/favicon.svg';
+                          }}
+                        />
+                      </td>
+                      <td>
+                        <div>
+                          <Link
+                            to={`/products/${p.slug}`}
+                            target="_blank"
+                            style={{
+                              fontWeight: 700,
+                              color: 'var(--color-navy)',
+                              textDecoration: 'none',
+                              fontSize: 'var(--text-sm)',
                             }}
                           >
-                            إلغاء
-                          </button>
+                            {p.name}
+                          </Link>
+                          <div style={{ fontSize: '11px', color: 'var(--color-slate-400)' }}>
+                            {p.brand_name ? `${p.brand_name} · ` : ''}
+                            {p.category_name || ''}
+                          </div>
                         </div>
-                      ) : (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span
-                            className={
-                              p.stock_quantity <= 0
-                                ? 'text-danger font-bold'
-                                : p.stock_quantity <= 2
-                                ? 'text-warning font-bold'
-                                : 'font-semibold'
-                            }
-                          >
-                            {p.stock_quantity} قطعة
-                          </span>
-                          <button
-                            type="button"
-                            className="btn-icon-link"
-                            title="تعديل سريع للمخزون"
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                          <Tag variant="neutral">{getTypeLabel(p.type)}</Tag>
+                          <Tag variant="info">{formatCondition(p.condition)}</Tag>
+                        </div>
+                      </td>
+                      <td style={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
+                        {formatAed(p.price_aed)}
+                      </td>
+                      <td className={styles.totalPrice}>
+                        {p.price_sdg ? formatSdg(p.price_sdg) : '—'}
+                      </td>
+                      <td>
+                        {isEditingThisStock ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <input
+                              type="number"
+                              min="0"
+                              value={stockEditing[p.id]}
+                              onChange={(e) =>
+                                setStockEditing({ ...stockEditing, [p.id]: e.target.value })
+                              }
+                              style={{
+                                width: '60px',
+                                padding: '4px 6px',
+                                borderRadius: 'var(--radius-sm)',
+                                border: '1px solid var(--color-border)',
+                                fontSize: 'var(--text-xs)',
+                              }}
+                            />
+                            <button
+                              type="button"
+                              disabled={stockSaving[p.id]}
+                              onClick={() => handleQuickStockSave(p.id)}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                color: 'var(--color-success)',
+                                cursor: 'pointer',
+                                padding: 2,
+                              }}
+                              aria-label="حفظ المخزون"
+                            >
+                              <Check size={16} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const copy = { ...stockEditing };
+                                delete copy[p.id];
+                                setStockEditing(copy);
+                              }}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                color: 'var(--color-slate-400)',
+                                cursor: 'pointer',
+                                padding: 2,
+                              }}
+                              aria-label="إلغاء تعديل المخزون"
+                            >
+                              <X size={16} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span
+                              style={{
+                                fontWeight: 700,
+                                fontVariantNumeric: 'tabular-nums',
+                                color:
+                                  p.stock_quantity <= 0
+                                    ? 'var(--color-danger)'
+                                    : p.stock_quantity <= 2
+                                    ? 'var(--color-warning-text)'
+                                    : 'var(--color-navy)',
+                              }}
+                            >
+                              {p.stock_quantity}
+                            </span>
+                            <button
+                              type="button"
+                              title="تعديل سريع للمخزون"
+                              onClick={() =>
+                                setStockEditing({ ...stockEditing, [p.id]: p.stock_quantity })
+                              }
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                color: 'var(--color-slate-400)',
+                                cursor: 'pointer',
+                                padding: 2,
+                              }}
+                            >
+                              <Edit size={12} />
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                      <td>
+                        {Number(p.is_active) === 1 ? (
+                          <Tag variant="success">معروض</Tag>
+                        ) : (
+                          <Tag variant="warning">غير معروض</Tag>
+                        )}
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
+                          <Link to={`/admin/products/${p.id}/edit`}>
+                            <Button variant="ghost" size="sm">
+                              <Edit size={14} />
+                            </Button>
+                          </Link>
+                          <Button
+                            variant="danger"
+                            size="sm"
                             onClick={() =>
-                              setStockEditing({ ...stockEditing, [p.id]: p.stock_quantity })
+                              setDeleteModal({ open: true, product: p, loading: false })
                             }
                           >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                            </svg>
-                          </button>
+                            <Trash2 size={14} />
+                          </Button>
                         </div>
-                      )}
-                    </td>
-                    <td>
-                      {Number(p.is_active) === 1 ? (
-                        <Badge variant="success">معروض</Badge>
-                      ) : (
-                        <Badge variant="warning">غير معروض</Badge>
-                      )}
-                    </td>
-                    <td style={{ textAlign: 'center' }}>
-                      <div className="admin-actions-cell">
-                        <Link
-                          to={`/admin/products/${p.id}/edit`}
-                          className="btn btn-sm btn-secondary"
-                          title="تعديل الجهاز"
-                        >
-                          تعديل
-                        </Link>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-danger"
-                          title="حذف الجهاز"
-                          onClick={() => setDeleteModal({ open: true, product: p, loading: false })}
-                        >
-                          حذف
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
 
-      {/* Pagination */}
-      {meta.total_pages > 1 && (
-        <div className="admin-pagination mt-4">
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm"
-            disabled={page <= 1}
-            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-          >
-            السابق
-          </button>
-          <span className="pagination-info">
-            صفحة {meta.page} من {meta.total_pages} (الإجمالي: {meta.total} جهاز)
-          </span>
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm"
-            disabled={page >= meta.total_pages}
-            onClick={() => setPage((prev) => Math.min(meta.total_pages, prev + 1))}
-          >
-            التالي
-          </button>
+          {meta.total_pages > 1 && (
+            <nav className={styles.pagination} aria-label="تنقل الصفحات">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page <= 1}
+                onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+              >
+                السابق
+              </Button>
+              <span className={styles.pageCount}>
+                صفحة {meta.page} من {meta.total_pages} (الإجمالي: {meta.total} جهاز)
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page >= meta.total_pages}
+                onClick={() => setPage((prev) => Math.min(meta.total_pages, prev + 1))}
+              >
+                التالي
+              </Button>
+            </nav>
+          )}
         </div>
       )}
 
       {/* Delete Confirmation Modal */}
-      {deleteModal.open && (
-        <Modal
-          isOpen={deleteModal.open}
-          onClose={() => setDeleteModal({ open: false, product: null, loading: false })}
-          title="تأكيد حذف الجهاز"
-        >
-          <div className="p-2">
-            <p className="mb-4">
-              هل أنت متأكد من رغبتك في حذف الجهاز:
-              <br />
-              <strong className="text-navy">{deleteModal.product?.name}</strong>؟
-            </p>
-            <p className="text-muted text-sm mb-4">
-              سيتم إزالة الجهاز وصوره من المتجر بشكل نهائي.
-            </p>
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                disabled={deleteModal.loading}
-                onClick={() => setDeleteModal({ open: false, product: null, loading: false })}
-              >
-                إلغاء
-              </button>
-              <button
-                type="button"
-                className="btn btn-danger"
-                disabled={deleteModal.loading}
-                onClick={handleDeleteConfirm}
-              >
-                {deleteModal.loading ? 'جاري الحذف...' : 'تأكيد الحذف'}
-              </button>
-            </div>
-          </div>
-        </Modal>
-      )}
+      <Modal
+        isOpen={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false, product: null, loading: false })}
+        title="تأكيد حذف الجهاز"
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => setDeleteModal({ open: false, product: null, loading: false })}
+            >
+              إلغاء
+            </Button>
+            <Button
+              variant="danger"
+              loading={deleteModal.loading}
+              onClick={handleDeleteConfirm}
+            >
+              تأكيد الحذف
+            </Button>
+          </>
+        }
+      >
+        <p style={{ color: 'var(--color-slate-700)', fontSize: 'var(--text-sm)', lineHeight: 1.6, margin: 0 }}>
+          هل أنت متأكد من رغبتك في حذف الجهاز:
+          <br />
+          <strong>{deleteModal.product?.name}</strong>؟
+          <br />
+          سيتم إزالة الجهاز وصوره من المتجر بشكل نهائي.
+        </p>
+      </Modal>
     </div>
   );
 }

@@ -1,17 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { Eye, Edit, Check } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { useAuth } from '../../context/AuthContext';
 import { formatDate, formatSdg } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
 import Modal from '../../components/common/Modal';
-import Badge from '../../components/common/Badge';
-import Skeleton from '../../components/common/Skeleton';
+import Tag from '../../components/common/Tag';
+import Button from '../../components/common/Button';
+import Input from '../../components/common/Input';
+import Select from '../../components/common/Select';
+import { TableSkeleton } from '../../components/common/Skeleton';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
+import styles from './AdminCommon.module.css';
 
 export default function AdminUsersPage() {
   const { user: currentAdmin } = useAuth();
-  const { showToast } = useToast();
+  const { success, error: toastError } = useToast();
 
   const [users, setUsers] = useState([]);
   const [meta, setMeta] = useState({ page: 1, per_page: 20, total: 0, total_pages: 1 });
@@ -53,7 +58,7 @@ export default function AdminUsersPage() {
         setMeta(res.meta);
       }
     } catch (err) {
-      setError(err.message || 'فشل في تحميل قائمة المستخدمين');
+      setError(err.message || 'الاتصال ضعيف. حاول تاني.');
     } finally {
       setLoading(false);
     }
@@ -75,7 +80,7 @@ export default function AdminUsersPage() {
       const res = await adminApi.getUser(id);
       setDetailsModal({ open: true, user: res.data, loading: false });
     } catch (err) {
-      showToast(err.message || 'فشل في تحميل بيانات المستخدم', 'error');
+      toastError(err.message || 'فشل في تحميل بيانات المستخدم');
       setDetailsModal({ open: false, user: null, loading: false });
     }
   };
@@ -95,114 +100,82 @@ export default function AdminUsersPage() {
     try {
       setRoleModal((prev) => ({ ...prev, submitting: true }));
       await adminApi.updateUserRole(roleModal.user.id, roleModal.newRole);
-      showToast('تم تحديث دور المستخدم بنجاح', 'success');
+      success('تم تحديث دور المستخدم بنجاح');
       setRoleModal({ open: false, user: null, newRole: 'customer', submitting: false });
       setUsers((prev) =>
         prev.map((u) => (u.id === roleModal.user.id ? { ...u, role: roleModal.newRole } : u))
       );
     } catch (err) {
-      showToast(err.message || 'فشل في تحديث الدور', 'error');
+      toastError(err.message || 'فشل في تحديث الدور');
+    } finally {
       setRoleModal((prev) => ({ ...prev, submitting: false }));
     }
   };
 
-  const handleToggleStatus = async (u) => {
-    const nextStatus = !u.is_active;
-    const confirmMsg = nextStatus
-      ? `هل ترغب في إعادة تفعيل حساب: ${u.name || u.email}؟`
-      : `هل أنت متأكد من تعطيل حساب: ${u.name || u.email}؟`;
-
-    if (!window.confirm(confirmMsg)) return;
-
-    try {
-      await adminApi.updateUserStatus(u.id, nextStatus);
-      showToast(nextStatus ? 'تم تفعيل الحساب' : 'تم تعطيل الحساب', 'success');
-      setUsers((prev) =>
-        prev.map((item) => (item.id === u.id ? { ...item, is_active: nextStatus } : item))
-      );
-    } catch (err) {
-      showToast(err.message || 'فشل تغيير حالة الحساب', 'error');
-    }
-  };
-
-  const getRoleBadge = (role) => {
-    switch (role) {
-      case 'admin':
-        return <Badge variant="danger">مدير نظام (Admin)</Badge>;
-      case 'staff':
-        return <Badge variant="primary">موظف (Staff)</Badge>;
-      case 'customer':
-      default:
-        return <Badge variant="secondary">عميل (Customer)</Badge>;
-    }
+  const roleMap = {
+    admin: { label: 'مدير عام', variant: 'warning' },
+    staff: { label: 'موظف متجر', variant: 'info' },
+    customer: { label: 'عميل', variant: 'neutral' },
   };
 
   return (
-    <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <h1 className="admin-page-title">إدارة المستخدمين والصلاحيات</h1>
-          <p className="admin-page-subtitle">حسابات العملاء، طاقم العمل، والمديرين وإحصائيات مشترياتهم</p>
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <div className={styles.titleInfo}>
+          <h1 className={styles.title}>إدارة المستخدمين والصلاحيات</h1>
+          <p className={styles.subtitle}>
+            عرض العملاء والموظفين وإدارة أدوار الحسابات وتاريخ الطلبات
+          </p>
         </div>
-      </div>
+      </header>
 
-      {/* Filter and Search Bar */}
-      <div className="card admin-filter-bar mb-4">
-        <form onSubmit={handleSearchSubmit} className="admin-filter-form">
-          <div className="filter-item search-item">
-            <input
-              type="text"
-              placeholder="ابحث بالاسم، البريد أو الهاتف..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="form-control"
-            />
-          </div>
+      {/* Brand graphic divider */}
+      <div className={styles.titleDivider} aria-hidden="true" />
 
-          <div className="filter-item">
-            <select
-              value={roleFilter}
-              onChange={(e) => {
-                setRoleFilter(e.target.value);
-                setPage(1);
-              }}
-              className="form-control"
-            >
-              <option value="">جميع الأدوار</option>
-              <option value="customer">عملاء</option>
-              <option value="staff">طاقم عمل (Staff)</option>
-              <option value="admin">مدير نظام (Admin)</option>
-            </select>
-          </div>
+      {/* Search Toolbar */}
+      <div className={styles.toolbarCard}>
+        <form onSubmit={handleSearchSubmit} className={styles.toolbarForm}>
+          <Input
+            placeholder="ابحث بالاسم، البريد، أو الهاتف..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
-          <div className="filter-item">
-            <select
-              value={activeFilter}
-              onChange={(e) => {
-                setActiveFilter(e.target.value);
-                setPage(1);
-              }}
-              className="form-control"
-            >
-              <option value="">جميع الحالات</option>
-              <option value="1">حساب نشط</option>
-              <option value="0">حساب معطل</option>
-            </select>
-          </div>
+          <Select
+            value={roleFilter}
+            onChange={(e) => {
+              setRoleFilter(e.target.value);
+              setPage(1);
+            }}
+            options={[
+              { value: '', label: 'جميع الأدوار' },
+              { value: 'admin', label: 'مدير عام' },
+              { value: 'staff', label: 'موظف متجر' },
+              { value: 'customer', label: 'عميل' },
+            ]}
+          />
 
-          <button type="submit" className="btn btn-secondary">
+          <Select
+            value={activeFilter}
+            onChange={(e) => {
+              setActiveFilter(e.target.value);
+              setPage(1);
+            }}
+            options={[
+              { value: '', label: 'جميع الحالات' },
+              { value: '1', label: 'حساب نشط' },
+              { value: '0', label: 'حساب معطل' },
+            ]}
+          />
+
+          <Button type="submit" variant="primary" size="md">
             بحث
-          </button>
+          </Button>
         </form>
       </div>
 
-      {/* Main Table */}
       {loading ? (
-        <div className="card">
-          <Skeleton height="50px" className="mb-2" />
-          <Skeleton height="50px" className="mb-2" />
-          <Skeleton height="50px" />
-        </div>
+        <TableSkeleton rows={8} cols={6} />
       ) : error ? (
         <ErrorState message={error} onRetry={fetchUsers} />
       ) : users.length === 0 ? (
@@ -211,244 +184,191 @@ export default function AdminUsersPage() {
           description="لا يوجد مستخدمون يطابقون معايير البحث الحالية."
         />
       ) : (
-        <div className="card p-0 table-responsive">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th style={{ width: '80px' }}>#</th>
-                <th>الاسم</th>
-                <th>البريد الإلكتروني</th>
-                <th>الهاتف</th>
-                <th>الدور والصلاحية</th>
-                <th>حالة الحساب</th>
-                <th>تاريخ الانضمام</th>
-                <th style={{ width: '160px', textAlign: 'center' }}>الإجراءات</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((u) => {
-                const isSelf = currentAdmin && currentAdmin.id === u.id;
-                return (
-                  <tr key={u.id}>
-                    <td className="text-muted text-center">#{u.id}</td>
-                    <td>
-                      <button
-                        type="button"
-                        className="btn-link font-semibold text-navy p-0 border-0 bg-transparent text-start"
-                        onClick={() => handleOpenDetails(u.id)}
-                      >
-                        {u.name || 'مستخدم بدون اسم'}
-                      </button>
-                      {isSelf && <span className="badge badge-outline text-xs ms-1">أنت</span>}
-                    </td>
-                    <td dir="ltr" style={{ textAlign: 'right' }}>
-                      {u.email}
-                    </td>
-                    <td dir="ltr" style={{ textAlign: 'right' }}>
-                      {u.phone || '—'}
-                    </td>
-                    <td>{getRoleBadge(u.role)}</td>
-                    <td>
-                      {u.is_active ? (
-                        <Badge variant="success">نشط</Badge>
-                      ) : (
-                        <Badge variant="warning">معطل</Badge>
-                      )}
-                    </td>
-                    <td className="text-muted text-sm">{formatDate(u.created_at)}</td>
-                    <td style={{ textAlign: 'center' }}>
-                      <div className="admin-actions-cell">
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-secondary"
-                          onClick={() => handleOpenDetails(u.id)}
-                          title="عرض تفاصيل المستخدم"
-                        >
-                          تفاصيل
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline"
-                          disabled={isSelf}
-                          onClick={() => handleOpenRoleModal(u)}
-                          title={isSelf ? 'لا يمكنك تغيير صلاحياتك بنفسك' : 'تغيير الدور والصلاحيات'}
-                        >
-                          الدور
-                        </button>
-                        <button
-                          type="button"
-                          className={`btn btn-sm ${u.is_active ? 'btn-danger' : 'btn-success'}`}
-                          disabled={isSelf}
-                          onClick={() => handleToggleStatus(u)}
-                          title={isSelf ? 'لا يمكنك تعطيل حسابك' : u.is_active ? 'تعطيل الحساب' : 'تفعيل الحساب'}
-                        >
-                          {u.is_active ? 'تعطيل' : 'تفعيل'}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div className={styles.card}>
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>الاسم</th>
+                  <th>البريد الإلكتروني</th>
+                  <th>الهاتف</th>
+                  <th>الدور</th>
+                  <th>الحالة</th>
+                  <th>تاريخ التسجيل</th>
+                  <th style={{ width: '130px', textAlign: 'center' }}>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((u) => {
+                  const role = roleMap[u.role] || { label: u.role, variant: 'neutral' };
+                  const isSelf = currentAdmin?.id === u.id;
+                  return (
+                    <tr key={u.id}>
+                      <td>
+                        <strong>{u.name || 'عميل'}</strong>
+                        {isSelf && (
+                          <span style={{ fontSize: '10px', color: 'var(--color-royal-blue)', marginInlineStart: 6 }}>
+                            (حسابك الحالي)
+                          </span>
+                        )}
+                      </td>
+                      <td dir="ltr">{u.email}</td>
+                      <td dir="ltr">{u.phone || '—'}</td>
+                      <td>
+                        <Tag variant={role.variant}>{role.label}</Tag>
+                      </td>
+                      <td>
+                        {u.is_active ? (
+                          <Tag variant="success">نشط</Tag>
+                        ) : (
+                          <Tag variant="danger">معطل</Tag>
+                        )}
+                      </td>
+                      <td className={styles.dateText}>{formatDate(u.created_at)}</td>
+                      <td style={{ textAlign: 'center' }}>
+                        <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            title="عرض تفاصيل المستخدم"
+                            onClick={() => handleOpenDetails(u.id)}
+                          >
+                            <Eye size={14} />
+                          </Button>
+
+                          {!isSelf && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              title="تعديل الدور"
+                              onClick={() => handleOpenRoleModal(u)}
+                            >
+                              <Edit size={14} />
+                            </Button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {meta.total_pages > 1 && (
+            <nav className={styles.pagination} aria-label="تنقل الصفحات">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page <= 1}
+                onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+              >
+                السابق
+              </Button>
+              <span className={styles.pageCount}>
+                صفحة {meta.page} من {meta.total_pages} (الإجمالي: {meta.total} مستخدم)
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page >= meta.total_pages}
+                onClick={() => setPage((prev) => Math.min(meta.total_pages, prev + 1))}
+              >
+                التالي
+              </Button>
+            </nav>
+          )}
         </div>
       )}
 
-      {/* Pagination */}
-      {meta.total_pages > 1 && (
-        <div className="admin-pagination mt-4">
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm"
-            disabled={page <= 1}
-            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-          >
-            السابق
-          </button>
-          <span className="pagination-info">
-            صفحة {meta.page} من {meta.total_pages} (الإجمالي: {meta.total} مستخدم)
-          </span>
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm"
-            disabled={page >= meta.total_pages}
-            onClick={() => setPage((prev) => Math.min(meta.total_pages, prev + 1))}
-          >
-            التالي
-          </button>
-        </div>
-      )}
+      {/* Role Change Modal */}
+      <Modal
+        isOpen={roleModal.open}
+        onClose={() => setRoleModal((prev) => ({ ...prev, open: false }))}
+        title="تعديل دور المستخدم"
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => setRoleModal((prev) => ({ ...prev, open: false }))}
+            >
+              إلغاء
+            </Button>
+            <Button
+              variant="primary"
+              loading={roleModal.submitting}
+              onClick={handleRoleSubmit}
+            >
+              <Check size={16} />
+              <span>حفظ الدور</span>
+            </Button>
+          </>
+        }
+      >
+        <form onSubmit={handleRoleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-navy)', margin: 0 }}>
+            تعديل صلاحيات المستخدم: <strong>{roleModal.user?.name}</strong> ({roleModal.user?.email})
+          </p>
+
+          <Select
+            label="الدور الوظيفي"
+            value={roleModal.newRole}
+            onChange={(e) => setRoleModal((prev) => ({ ...prev, newRole: e.target.value }))}
+            options={[
+              { value: 'customer', label: 'عميل (شراء وتصفح فقط)' },
+              { value: 'staff', label: 'موظف متجر (إدارة الطلبات والمنتجات)' },
+              { value: 'admin', label: 'مدير عام (صلاحيات كاملة على النظام)' },
+            ]}
+          />
+        </form>
+      </Modal>
 
       {/* User Details Modal */}
-      {detailsModal.open && (
-        <Modal
-          isOpen={detailsModal.open}
-          onClose={() => setDetailsModal({ open: false, user: null, loading: false })}
-          title="تفاصيل الملف الشخصي للمستخدم"
-        >
-          {detailsModal.loading ? (
-            <div className="p-3">
-              <Skeleton height="30px" className="mb-2" />
-              <Skeleton height="30px" className="mb-2" />
-              <Skeleton height="100px" />
-            </div>
-          ) : detailsModal.user ? (
-            <div className="p-2">
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                  gap: '16px',
-                  marginBottom: '20px',
-                }}
-              >
-                <div>
-                  <span className="text-muted text-xs font-semibold">الاسم</span>
-                  <p className="font-bold text-navy">{detailsModal.user.name || 'بدون اسم'}</p>
-                </div>
-                <div>
-                  <span className="text-muted text-xs font-semibold">البريد الإلكتروني</span>
-                  <p dir="ltr" className="font-semibold text-start">{detailsModal.user.email}</p>
-                </div>
-                <div>
-                  <span className="text-muted text-xs font-semibold">رقم الهاتف</span>
-                  <p dir="ltr" className="text-start">{detailsModal.user.phone || '—'}</p>
-                </div>
-                <div>
-                  <span className="text-muted text-xs font-semibold">الصلاحية</span>
-                  <div className="mt-1">{getRoleBadge(detailsModal.user.role)}</div>
-                </div>
-                <div>
-                  <span className="text-muted text-xs font-semibold">تاريخ الانضمام</span>
-                  <p>{formatDate(detailsModal.user.created_at)}</p>
-                </div>
-                <div>
-                  <span className="text-muted text-xs font-semibold">آخر تسجيل دخول</span>
-                  <p>{detailsModal.user.last_login_at ? formatDate(detailsModal.user.last_login_at) : '—'}</p>
+      <Modal
+        isOpen={detailsModal.open}
+        onClose={() => setDetailsModal({ open: false, user: null, loading: false })}
+        title="تفاصيل المستخدم"
+      >
+        {detailsModal.loading ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+            <div style={{ height: 20, backgroundColor: 'var(--color-slate-100)', borderRadius: 4 }} />
+            <div style={{ height: 20, backgroundColor: 'var(--color-slate-100)', borderRadius: 4 }} />
+          </div>
+        ) : detailsModal.user ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', fontSize: 'var(--text-sm)' }}>
+            <div>الاسم: <strong>{detailsModal.user.name || 'عميل'}</strong></div>
+            <div>البريد: <strong dir="ltr">{detailsModal.user.email}</strong></div>
+            <div>الهاتف: <strong dir="ltr">{detailsModal.user.phone || 'غير مسجل'}</strong></div>
+            <div>الدور: <Tag variant={roleMap[detailsModal.user.role]?.variant}>{roleMap[detailsModal.user.role]?.label}</Tag></div>
+            <div>تاريخ الانضمام: <span>{formatDate(detailsModal.user.created_at)}</span></div>
+
+            {detailsModal.user.orders && detailsModal.user.orders.length > 0 && (
+              <div style={{ marginTop: 'var(--space-3)', borderTop: '1px solid var(--color-border-subtle)', paddingTop: 'var(--space-2)' }}>
+                <div style={{ fontWeight: 700, marginBottom: 'var(--space-2)' }}>سجل الطلبات الأخير:</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                  {detailsModal.user.orders.map((o) => (
+                    <div
+                      key={o.order_number}
+                      style={{
+                        padding: 'var(--space-2) var(--space-3)',
+                        borderRadius: 'var(--radius-md)',
+                        backgroundColor: 'var(--color-slate-50)',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        fontSize: 'var(--text-xs)',
+                      }}
+                    >
+                      <span dir="ltr">#{o.order_number}</span>
+                      <span style={{ fontWeight: 700 }}>{formatSdg(o.total_sdg)}</span>
+                      <span>{formatDate(o.created_at)}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-
-              {/* Purchasing Stats */}
-              <div className="card bg-light p-3" style={{ border: '1px solid var(--wex-border)' }}>
-                <h3 className="font-bold text-navy mb-2" style={{ fontSize: '15px' }}>
-                  إحصائيات المشتريات والطلبات
-                </h3>
-                <div style={{ display: 'flex', gap: '24px' }}>
-                  <div>
-                    <span className="text-muted text-xs">إجمالي الطلبات:</span>
-                    <p className="font-bold text-royal" style={{ fontSize: '18px' }}>
-                      {detailsModal.user.orders_count || 0} طلب
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-muted text-xs">إجمالي الإنفاق المؤكد:</span>
-                    <p className="font-bold text-royal" style={{ fontSize: '18px' }}>
-                      {formatSdg(detailsModal.user.total_spent_sdg || 0)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4" style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setDetailsModal({ open: false, user: null, loading: false })}
-                >
-                  إغلاق
-                </button>
-              </div>
-            </div>
-          ) : null}
-        </Modal>
-      )}
-
-      {/* Change Role Modal */}
-      {roleModal.open && (
-        <Modal
-          isOpen={roleModal.open}
-          onClose={() => setRoleModal({ open: false, user: null, newRole: 'customer', submitting: false })}
-          title="تعديل صلاحيات ودور المستخدم"
-        >
-          <form onSubmit={handleRoleSubmit} className="p-2">
-            <p className="mb-3">
-              تعديل صلاحيات المستخدم: <strong>{roleModal.user?.name || roleModal.user?.email}</strong>
-            </p>
-
-            <div className="form-group mb-4">
-              <label className="form-label required">اختر الصلاحية الجديدة</label>
-              <select
-                value={roleModal.newRole}
-                onChange={(e) => setRoleModal({ ...roleModal, newRole: e.target.value })}
-                className="form-control"
-                required
-              >
-                <option value="customer">عميل (Customer) — تصفح وشراء الطلبات فقط</option>
-                <option value="staff">طاقم عمل (Staff) — إدارة الطلبات ومراجعة إشعارات الدفع</option>
-                <option value="admin">مدير نظام (Admin) — تحكم كامل وإعدادات المتجر</option>
-              </select>
-            </div>
-
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                disabled={roleModal.submitting}
-                onClick={() => setRoleModal({ open: false, user: null, newRole: 'customer', submitting: false })}
-              >
-                إلغاء
-              </button>
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={roleModal.submitting}
-              >
-                {roleModal.submitting ? 'جاري الحفظ...' : 'تحديث الصلاحية'}
-              </button>
-            </div>
-          </form>
-        </Modal>
-      )}
+            )}
+          </div>
+        ) : null}
+      </Modal>
     </div>
   );
 }

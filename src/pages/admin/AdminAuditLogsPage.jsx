@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { Eye, RefreshCw } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { formatDate } from '../../utils/formatters';
 import Modal from '../../components/common/Modal';
-import Skeleton from '../../components/common/Skeleton';
+import Tag from '../../components/common/Tag';
+import Button from '../../components/common/Button';
+import Input from '../../components/common/Input';
+import Select from '../../components/common/Select';
+import { TableSkeleton } from '../../components/common/Skeleton';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
+import styles from './AdminCommon.module.css';
 
 export default function AdminAuditLogsPage() {
   const [logs, setLogs] = useState([]);
@@ -37,7 +43,7 @@ export default function AdminAuditLogsPage() {
         setMeta(res.meta);
       }
     } catch (err) {
-      setError(err.message || 'فشل في تحميل سجل العمليات');
+      setError(err.message || 'الاتصال ضعيف. حاول تاني.');
     } finally {
       setLoading(false);
     }
@@ -47,205 +53,221 @@ export default function AdminAuditLogsPage() {
     fetchLogs();
   }, [page, actionFilter, entityFilter]);
 
-  const handleActionBadge = (action) => {
-    if (action.includes('delete')) return 'badge badge-danger';
-    if (action.includes('update') || action.includes('review') || action.includes('status')) return 'badge badge-primary';
-    if (action.includes('create')) return 'badge badge-success';
-    return 'badge badge-secondary';
+  const getActionVariant = (action) => {
+    if (action.includes('delete')) return 'danger';
+    if (action.includes('update') || action.includes('review') || action.includes('status')) return 'info';
+    if (action.includes('create') || action.includes('approve')) return 'success';
+    return 'neutral';
   };
 
   return (
-    <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <h1 className="admin-page-title">سجل العمليات الإدارية (Audit Trail)</h1>
-          <p className="admin-page-subtitle">
-            تتبع كافة الإجراءات والقرارات التي تم اتخاذها في لوحة التحكم وتاريخها وهوية الفاعل
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <div className={styles.titleInfo}>
+          <h1 className={styles.title}>سجل العمليات الإدارية (Audit Trail)</h1>
+          <p className={styles.subtitle}>
+            تتبع كافة الإجراءات والقرارات التي تم اتخاذها في لوحة التحكم وتاريخها
           </p>
         </div>
-      </div>
 
-      {/* Filters */}
-      <div className="card admin-filter-bar mb-4">
-        <div className="admin-filter-form">
-          <div className="filter-item">
-            <select
-              value={entityFilter}
-              onChange={(e) => {
-                setEntityFilter(e.target.value);
-                setPage(1);
-              }}
-              className="form-control"
-            >
-              <option value="">جميع الكيانات</option>
-              <option value="orders">الطلبات (Orders)</option>
-              <option value="payment_proofs">إشعارات الدفع (Proofs)</option>
-              <option value="products">الأجهزة والمنتجات (Products)</option>
-              <option value="settings">إعدادات المتجر (Settings)</option>
-              <option value="rates">أسعار الصرف (Rates)</option>
-              <option value="users">المستخدمين (Users)</option>
-              <option value="shipping_zones">مناطق التوصيل (Shipping Zones)</option>
-            </select>
-          </div>
+        <Button variant="outline" size="sm" onClick={fetchLogs}>
+          <RefreshCw size={14} />
+          <span>تحديث</span>
+        </Button>
+      </header>
 
-          <div className="filter-item search-item">
-            <input
-              type="text"
-              placeholder="فلترة بنوع الإجراء (مثال: approve, update_status)..."
-              value={actionFilter}
-              onChange={(e) => {
-                setActionFilter(e.target.value);
-                setPage(1);
-              }}
-              className="form-control"
-            />
-          </div>
+      {/* Brand graphic divider */}
+      <div className={styles.titleDivider} aria-hidden="true" />
+
+      {/* Filters Toolbar */}
+      <div className={styles.toolbarCard}>
+        <div className={styles.toolbarForm}>
+          <Select
+            label="الكيان"
+            value={entityFilter}
+            onChange={(e) => {
+              setEntityFilter(e.target.value);
+              setPage(1);
+            }}
+            options={[
+              { value: '', label: 'جميع الكيانات' },
+              { value: 'orders', label: 'الطلبات (Orders)' },
+              { value: 'payment_proofs', label: 'إشعارات الدفع (Proofs)' },
+              { value: 'products', label: 'الأجهزة والمنتجات (Products)' },
+              { value: 'settings', label: 'إعدادات المتجر (Settings)' },
+              { value: 'rates', label: 'أسعار الصرف (Rates)' },
+              { value: 'users', label: 'المستخدمين (Users)' },
+              { value: 'shipping_zones', label: 'مناطق التوصيل (Shipping Zones)' },
+            ]}
+          />
+
+          <Input
+            label="نوع الإجراء"
+            placeholder="مثال: approve, update_status..."
+            value={actionFilter}
+            onChange={(e) => {
+              setActionFilter(e.target.value);
+              setPage(1);
+            }}
+          />
         </div>
       </div>
 
-      {/* Main Table */}
       {loading ? (
-        <div className="card">
-          <Skeleton height="50px" className="mb-2" />
-          <Skeleton height="50px" className="mb-2" />
-          <Skeleton height="50px" />
-        </div>
+        <TableSkeleton rows={10} cols={6} />
       ) : error ? (
         <ErrorState message={error} onRetry={fetchLogs} />
       ) : logs.length === 0 ? (
         <EmptyState
-          title="لا توجد سجلات مطابقة"
-          description="لم يتم العثور على أي إجراءات مسجلة بهذه الفلاتر."
+          title="لا توجد عمليات مسجلة"
+          description="لم يتم تسجيل أي عمليات تطابق معايير التصفية الحالية."
         />
       ) : (
-        <div className="card p-0 table-responsive">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th style={{ width: '70px' }}>#</th>
-                <th>نوع الإجراء</th>
-                <th>الكيان / المعرف</th>
-                <th>المستخدم المسؤول</th>
-                <th>عنوان IP</th>
-                <th>التاريخ والوقت</th>
-                <th style={{ width: '90px', textAlign: 'center' }}>التفاصيل</th>
-              </tr>
-            </thead>
-            <tbody>
-              {logs.map((log) => (
-                <tr key={log.id}>
-                  <td className="text-muted text-center">#{log.id}</td>
-                  <td>
-                    <span className={handleActionBadge(log.action)}>{log.action}</span>
-                  </td>
-                  <td>
-                    <span className="font-semibold">{log.entity}</span>
-                    {log.entity_id ? ` #${log.entity_id}` : ''}
-                  </td>
-                  <td>
-                    {log.user ? (
-                      <div>
-                        <span className="font-semibold text-navy">{log.user.name || 'مستخدم'}</span>
-                        <span className="text-muted text-xs block">{log.user.email}</span>
-                      </div>
-                    ) : (
-                      <span className="text-muted">نظام آلي (System)</span>
-                    )}
-                  </td>
-                  <td dir="ltr" style={{ textAlign: 'right' }}>
-                    <code>{log.ip_address || '—'}</code>
-                  </td>
-                  <td className="text-muted text-sm">{formatDate(log.created_at)}</td>
-                  <td style={{ textAlign: 'center' }}>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-secondary"
-                      onClick={() => setDetailsModal({ open: true, log })}
-                    >
-                      عرض
-                    </button>
-                  </td>
+        <div className={styles.card}>
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>التاريخ والوقت</th>
+                  <th>المستخدم / الموظف</th>
+                  <th>الإجراء</th>
+                  <th>الكيان المستهدف</th>
+                  <th>المعرف</th>
+                  <th>عنوان IP</th>
+                  <th style={{ width: '60px', textAlign: 'center' }}>التفاصيل</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {logs.map((log) => (
+                  <tr key={log.id}>
+                    <td className={styles.dateText}>{formatDate(log.created_at)}</td>
+                    <td>
+                      <div>
+                        <strong>{log.user_name || 'النظام'}</strong>
+                        {log.user_email && (
+                          <div style={{ fontSize: '11px', color: 'var(--color-slate-400)' }} dir="ltr">
+                            {log.user_email}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td>
+                      <Tag variant={getActionVariant(log.action)}>{log.action}</Tag>
+                    </td>
+                    <td><strong>{log.entity_type}</strong></td>
+                    <td dir="ltr">{log.entity_id || '—'}</td>
+                    <td dir="ltr" style={{ fontSize: '11px', color: 'var(--color-slate-500)' }}>
+                      {log.ip_address || '—'}
+                    </td>
+                    <td style={{ textAlign: 'center' }}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setDetailsModal({ open: true, log })}
+                      >
+                        <Eye size={14} />
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-      {/* Pagination */}
-      {meta.total_pages > 1 && (
-        <div className="admin-pagination mt-4">
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm"
-            disabled={page <= 1}
-            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-          >
-            السابق
-          </button>
-          <span className="pagination-info">
-            صفحة {meta.page} من {meta.total_pages} (الإجمالي: {meta.total} سجل)
-          </span>
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm"
-            disabled={page >= meta.total_pages}
-            onClick={() => setPage((prev) => Math.min(meta.total_pages, prev + 1))}
-          >
-            التالي
-          </button>
+          {meta.total_pages > 1 && (
+            <nav className={styles.pagination} aria-label="تنقل الصفحات">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page <= 1}
+                onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+              >
+                السابق
+              </Button>
+              <span className={styles.pageCount}>
+                صفحة {meta.page} من {meta.total_pages} (الإجمالي: {meta.total} سجل)
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page >= meta.total_pages}
+                onClick={() => setPage((prev) => Math.min(meta.total_pages, prev + 1))}
+              >
+                التالي
+              </Button>
+            </nav>
+          )}
         </div>
       )}
 
       {/* Details Modal */}
-      {detailsModal.open && detailsModal.log && (
-        <Modal
-          isOpen={detailsModal.open}
-          onClose={() => setDetailsModal({ open: false, log: null })}
-          title={`تفاصيل العملية #${detailsModal.log.id}`}
-        >
-          <div className="p-2">
-            <div className="mb-3">
-              <span className="text-muted text-xs">نوع الإجراء:</span>
-              <p className="font-bold">{detailsModal.log.action}</p>
+      <Modal
+        isOpen={detailsModal.open}
+        onClose={() => setDetailsModal({ open: false, log: null })}
+        title="تفاصيل العملية والبيانات"
+        footer={
+          <Button variant="ghost" onClick={() => setDetailsModal({ open: false, log: null })}>
+            إغلاق
+          </Button>
+        }
+      >
+        {detailsModal.log && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', fontSize: 'var(--text-xs)' }}>
+            <div>
+              <strong>الإجراء:</strong> {detailsModal.log.action} على {detailsModal.log.entity_type} (معرف: {detailsModal.log.entity_id})
             </div>
-            <div className="mb-3">
-              <span className="text-muted text-xs">الكيان والمعرف:</span>
-              <p className="font-semibold">
-                {detailsModal.log.entity} #{detailsModal.log.entity_id || '—'}
-              </p>
+            <div>
+              <strong>الوقت:</strong> {formatDate(detailsModal.log.created_at)}
             </div>
-            <div className="mb-3">
-              <span className="text-muted text-xs">بيانات التغييرات (Payload / Changes):</span>
-              <pre
-                style={{
-                  background: '#f8f9fa',
-                  padding: '12px',
-                  borderRadius: '6px',
-                  maxHeight: '260px',
-                  overflowY: 'auto',
-                  direction: 'ltr',
-                  textAlign: 'left',
-                  fontSize: '12px',
-                }}
-              >
-                {typeof detailsModal.log.details === 'object'
-                  ? JSON.stringify(detailsModal.log.details, null, 2)
-                  : String(detailsModal.log.details || 'لا توجد تفاصيل إضافية')}
-              </pre>
+            <div>
+              <strong>المستخدم:</strong> {detailsModal.log.user_name || 'النظام'} ({detailsModal.log.user_email || '—'})
             </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => setDetailsModal({ open: false, log: null })}
-              >
-                إغلاق
-              </button>
+            <div>
+              <strong>IP:</strong> <span dir="ltr">{detailsModal.log.ip_address}</span>
             </div>
+
+            {detailsModal.log.old_values && (
+              <div>
+                <div style={{ fontWeight: 700, marginBottom: 4 }}>القيم السابقة:</div>
+                <pre
+                  dir="ltr"
+                  style={{
+                    backgroundColor: 'var(--color-slate-100)',
+                    padding: 'var(--space-2)',
+                    borderRadius: 'var(--radius-md)',
+                    overflowX: 'auto',
+                    fontSize: '11px',
+                  }}
+                >
+                  {typeof detailsModal.log.old_values === 'string'
+                    ? detailsModal.log.old_values
+                    : JSON.stringify(detailsModal.log.old_values, null, 2)}
+                </pre>
+              </div>
+            )}
+
+            {detailsModal.log.new_values && (
+              <div>
+                <div style={{ fontWeight: 700, marginBottom: 4 }}>القيم الجديدة:</div>
+                <pre
+                  dir="ltr"
+                  style={{
+                    backgroundColor: 'var(--color-slate-100)',
+                    padding: 'var(--space-2)',
+                    borderRadius: 'var(--radius-md)',
+                    overflowX: 'auto',
+                    fontSize: '11px',
+                  }}
+                >
+                  {typeof detailsModal.log.new_values === 'string'
+                    ? detailsModal.log.new_values
+                    : JSON.stringify(detailsModal.log.new_values, null, 2)}
+                </pre>
+              </div>
+            )}
           </div>
-        </Modal>
-      )}
+        )}
+      </Modal>
     </div>
   );
 }

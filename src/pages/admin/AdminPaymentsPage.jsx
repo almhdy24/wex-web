@@ -1,14 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Check, X, RefreshCw, FileText } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { formatSdg, formatDate } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
-import Badge from '../../components/common/Badge';
 import Modal from '../../components/common/Modal';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import { TableSkeleton } from '../../components/common/Skeleton';
+import styles from './AdminPaymentsPage.module.css';
+
+const CANNED_REJECTION_NOTES = [
+  'الإشعار غير واضح',
+  'المبلغ لا يطابق المطلوب',
+  'رقم الإشعار غير صحيح',
+];
 
 export default function AdminPaymentsPage() {
   const [orders, setOrders] = useState([]);
@@ -33,7 +40,7 @@ export default function AdminPaymentsPage() {
       const res = await adminApi.getOrders({ status: 'payment_review', per_page: 50 });
       setOrders(res.data || []);
     } catch (err) {
-      setError(err.message || 'فشل تحميل قائمة إشعارات الدفع');
+      setError(err.message || 'الاتصال ضعيف. حاول تاني.');
     } finally {
       setLoading(false);
     }
@@ -51,7 +58,6 @@ export default function AdminPaymentsPage() {
     setLoadingProofImage(true);
     setProofImageBlobUrl(null);
 
-    // Fetch full order to get latest proof ID
     try {
       const orderRes = await adminApi.getOrderDetail(orderItem.order_number);
       const proofs = orderRes.data?.proofs || [];
@@ -63,18 +69,18 @@ export default function AdminPaymentsPage() {
         setProofImageBlobUrl(URL.createObjectURL(blob));
       }
     } catch {
-      toastError('تعذر تحميل بيانات الإشعار');
+      toastError('تعذر تحميل ملف الإشعار');
     } finally {
       setLoadingProofImage(false);
     }
   };
 
   const handleReviewSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!selectedOrder || !selectedProof) return;
 
     if (reviewAction === 'reject' && !reviewNote.trim()) {
-      toastError('يرجى كتابة سبب رفض الإشعار');
+      toastError('يرجى تحديد سبب الرفض');
       return;
     }
 
@@ -84,30 +90,34 @@ export default function AdminPaymentsPage() {
         action: reviewAction,
         note: reviewNote.trim() || undefined,
       });
-      success(reviewAction === 'approve' ? 'تم اعتماد التحويل وتأكيد الطلب' : 'تم رفض الإشعار وتحديث الطلب');
+      success(reviewAction === 'approve' ? 'تم اعتماد التحويل وتأكيد الطلب' : 'تم رفض الإشعار');
       setReviewModalOpen(false);
       fetchPendingPayments();
     } catch (err) {
-      toastError(err.message || 'فشل تنفيذ الإجراء');
+      toastError(err.message || 'فشل تنفيذ الإجراء. حاول تاني.');
     } finally {
       setReviewing(false);
     }
   };
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-6)', flexWrap: 'wrap', gap: 'var(--space-3)' }}>
-        <div>
-          <h1 style={{ fontSize: 'var(--text-xl)', marginBottom: 4 }}>مراجعة إشعارات الدفع والتحويلات</h1>
-          <p style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)', margin: 0 }}>
-            مطابقة إشعارات تطبيق بنكك واعتماد الطلبات المؤكدة
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <div className={styles.titleInfo}>
+          <h1 className={styles.pageTitle}>مراجعة إشعارات الدفع والتحويلات</h1>
+          <p className={styles.pageSubtitle}>
+            مطابقة إشعارات تطبيق بنكك واعتماد الطلبات
           </p>
         </div>
 
         <Button variant="outline" size="sm" onClick={fetchPendingPayments}>
-          🔄 تحديث القائمة
+          <RefreshCw size={14} />
+          <span>تحديث القائمة</span>
         </Button>
-      </div>
+      </header>
+
+      {/* Brand Graphic: thin divider under admin page title */}
+      <div className={styles.titleDivider} aria-hidden="true" />
 
       {error ? (
         <ErrorState message={error} onRetry={fetchPendingPayments} />
@@ -116,12 +126,12 @@ export default function AdminPaymentsPage() {
       ) : orders.length === 0 ? (
         <EmptyState
           title="لا توجد إشعارات تنتظر المراجعة"
-          description="تمت مراجعة جميع إشعارات التحويل البنكي المرفوعة من العملاء بنجاح."
+          description="تمت مراجعة جميع إشعارات التحويل البنكي المرفوعة من العملاء."
         />
       ) : (
-        <div className="card">
-          <div className="table-container" style={{ border: 'none', borderRadius: 0 }}>
-            <table className="table table-row-hover">
+        <div className={styles.card}>
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
               <thead>
                 <tr>
                   <th>رقم الطلب</th>
@@ -135,36 +145,33 @@ export default function AdminPaymentsPage() {
               <tbody>
                 {orders.map((o) => (
                   <tr key={o.order_number}>
-                    <td className="en-text" style={{ fontWeight: 700, color: 'var(--color-navy)' }}>
-                      #{o.order_number}
-                    </td>
-                    <td style={{ fontWeight: 600 }}>{o.user_name || o.customer_name || 'عميل'}</td>
-                    <td className="en-text">{o.contact_phone}</td>
-                    <td style={{ fontWeight: 800, color: 'var(--color-royal-blue)' }}>
-                      {formatSdg(o.total_sdg)}
-                    </td>
-                    <td style={{ fontSize: '11px', color: 'var(--color-slate-500)' }}>
-                      {formatDate(o.created_at)}
-                    </td>
+                    <td className={styles.orderNumber}>#{o.order_number}</td>
+                    <td>{o.user_name || o.customer_name || 'عميل'}</td>
+                    <td dir="ltr">{o.contact_phone}</td>
+                    <td className={styles.totalPrice}>{formatSdg(o.total_sdg)}</td>
+                    <td className={styles.dateText}>{formatDate(o.created_at)}</td>
                     <td>
-                      <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                      <div className={styles.rowActions}>
                         <Button
                           variant="primary"
                           size="sm"
                           onClick={() => openReviewModal(o, 'approve')}
                         >
-                          ✓ مراجعة واعتماد
+                          <Check size={14} />
+                          <span>اعتماد</span>
                         </Button>
                         <Button
-                          variant="danger-outline"
+                          variant="danger"
                           size="sm"
                           onClick={() => openReviewModal(o, 'reject')}
                         >
-                          ✕ رفض
+                          <X size={14} />
+                          <span>رفض</span>
                         </Button>
                         <Link to={`/admin/orders/${o.order_number}`}>
                           <Button variant="ghost" size="sm">
-                            التفاصيل
+                            <FileText size={14} />
+                            <span>التفاصيل</span>
                           </Button>
                         </Link>
                       </div>
@@ -177,12 +184,12 @@ export default function AdminPaymentsPage() {
         </div>
       )}
 
-      {/* Review Modal */}
+      {/* Split-View Review Modal */}
       <Modal
         isOpen={reviewModalOpen}
         onClose={() => setReviewModalOpen(false)}
         title={reviewAction === 'approve' ? 'اعتماد إشعار التحويل البنكي' : 'رفض إشعار التحويل البنكي'}
-        maxWidth="600px"
+        maxWidth="800px"
         footer={
           <>
             <Button variant="ghost" onClick={() => setReviewModalOpen(false)}>
@@ -191,57 +198,113 @@ export default function AdminPaymentsPage() {
             <Button
               variant={reviewAction === 'approve' ? 'primary' : 'danger'}
               loading={reviewing}
-              disabled={loadingProofImage || !selectedProof}
+              disabled={loadingProofImage || !selectedProof || reviewing}
               onClick={handleReviewSubmit}
             >
-              {reviewAction === 'approve' ? 'تأكيد الاعتماد وتحويل الطلب إلى مؤكد' : 'تأكيد الرفض'}
+              {reviewAction === 'approve' ? 'تأكيد الاعتماد' : 'تأكيد الرفض'}
             </Button>
           </>
         }
       >
-        <div>
-          {/* Order Details Header */}
-          {selectedOrder && (
-            <div style={{ backgroundColor: 'var(--color-slate-50)', padding: 'var(--space-3)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-4)', fontSize: 'var(--text-xs)' }}>
-              <div>طلب رقم: <strong className="en-text">#{selectedOrder.order_number}</strong></div>
-              <div>المبلغ المطلوب: <strong style={{ color: 'var(--color-royal-blue)' }}>{formatSdg(selectedOrder.total_sdg)}</strong></div>
-            </div>
-          )}
-
-          {/* Proof Image View */}
-          <div style={{ textAlign: 'center', backgroundColor: 'var(--color-slate-100)', borderRadius: 'var(--radius-md)', padding: 'var(--space-3)', minHeight: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--space-4)' }}>
+        <div className={styles.splitView}>
+          {/* Left / First Pane: Receipt Image Preview */}
+          <div className={styles.imagePreviewPane}>
             {loadingProofImage ? (
-              <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)' }}>جاري تحميل ملف الإشعار من الخادم...</div>
+              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)' }}>
+                جاري تحميل ملف الإشعار...
+              </span>
             ) : proofImageBlobUrl ? (
               <img
                 src={proofImageBlobUrl}
-                alt="إشعار بنكك"
-                style={{ maxWidth: '100%', maxHeight: 360, objectFit: 'contain' }}
+                alt="إشعار التحويل"
+                className={styles.receiptImg}
               />
             ) : (
-              <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-danger)' }}>تعذر تحميل ملف الإشعار</div>
+              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-danger)' }}>
+                تعذر تحميل ملف الإشعار
+              </span>
             )}
           </div>
 
-          {selectedProof && (
-            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-600)', marginBottom: 'var(--space-3)' }}>
-              <div>صاحب الحساب المحوّل: <strong>{selectedProof.sender_name || 'غير محدد'}</strong></div>
-              <div>الرقم المرجعي للإشعار: <span className="font-mono">{selectedProof.reference_number || 'غير محدد'}</span></div>
-            </div>
-          )}
+          {/* Right / Second Pane: Order Details & Actions */}
+          <div className={styles.detailsPane}>
+            {selectedOrder && (
+              <div className={styles.summaryBox}>
+                <div>
+                  طلب رقم: <strong>#{selectedOrder.order_number}</strong>
+                </div>
+                <div>
+                  المبلغ المطلوب: <strong>{formatSdg(selectedOrder.total_sdg)}</strong>
+                </div>
+                <div>
+                  العميل: <strong>{selectedOrder.user_name || selectedOrder.customer_name || 'عميل'}</strong>
+                </div>
+                <div>
+                  هاتف التواصل: <span dir="ltr">{selectedOrder.contact_phone}</span>
+                </div>
+              </div>
+            )}
 
-          {reviewAction === 'reject' && (
-            <div className="form-group" style={{ marginBottom: 0 }}>
-              <label className="form-label form-label-required">سبب الرفض (إلزامي للإرسال للعميل)</label>
-              <textarea
-                className="form-textarea"
-                placeholder="اكتب سبب الرفض بوضوح (مثلاً: المبلغ غير مطابق، الرقم المرجعي غير مسجل...)"
-                value={reviewNote}
-                onChange={(e) => setReviewNote(e.target.value)}
-                required
-              />
+            {selectedProof && (
+              <div className={styles.summaryBox}>
+                <div>
+                  صاحب الحساب المحوّل: <strong>{selectedProof.sender_name || 'غير محدد'}</strong>
+                </div>
+                <div>
+                  الرقم المرجعي للإشعار: <strong dir="ltr">{selectedProof.reference_number || 'غير محدد'}</strong>
+                </div>
+              </div>
+            )}
+
+            {/* Toggle Action */}
+            <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+              <Button
+                variant={reviewAction === 'approve' ? 'primary' : 'outline'}
+                size="sm"
+                onClick={() => setReviewAction('approve')}
+              >
+                اعتماد
+              </Button>
+              <Button
+                variant={reviewAction === 'reject' ? 'danger' : 'outline'}
+                size="sm"
+                onClick={() => setReviewAction('reject')}
+              >
+                رفض
+              </Button>
             </div>
-          )}
+
+            {reviewAction === 'reject' && (
+              <div className={styles.cannedNotesSection}>
+                <label className={styles.cannedNotesLabel} htmlFor="review_note_input">
+                  سبب الرفض (إلزامي):
+                </label>
+
+                {/* Canned note quick chips */}
+                <div className={styles.cannedChips}>
+                  {CANNED_REJECTION_NOTES.map((note) => (
+                    <button
+                      key={note}
+                      type="button"
+                      className={styles.cannedChip}
+                      onClick={() => setReviewNote(note)}
+                    >
+                      {note}
+                    </button>
+                  ))}
+                </div>
+
+                <textarea
+                  id="review_note_input"
+                  className={styles.textarea}
+                  placeholder="اكتب سبب الرفض بالتفصيل..."
+                  value={reviewNote}
+                  onChange={(e) => setReviewNote(e.target.value)}
+                  required
+                />
+              </div>
+            )}
+          </div>
         </div>
       </Modal>
     </div>

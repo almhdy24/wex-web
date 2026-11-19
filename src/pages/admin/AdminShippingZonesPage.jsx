@@ -1,15 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { Truck, Plus, Edit, Trash2, Check } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { formatSdg } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
 import Modal from '../../components/common/Modal';
-import Badge from '../../components/common/Badge';
-import Skeleton from '../../components/common/Skeleton';
+import Tag from '../../components/common/Tag';
+import Button from '../../components/common/Button';
+import Input from '../../components/common/Input';
+import { TableSkeleton } from '../../components/common/Skeleton';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
+import styles from './AdminCommon.module.css';
 
 export default function AdminShippingZonesPage() {
-  const { showToast } = useToast();
+  const { success, error: toastError } = useToast();
   const [zones, setZones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -37,7 +41,7 @@ export default function AdminShippingZonesPage() {
       const res = await adminApi.getShippingZones();
       setZones(res.data || []);
     } catch (err) {
-      setError(err.message || 'فشل في تحميل مناطق التوصيل');
+      setError(err.message || 'الاتصال ضعيف. حاول تاني.');
     } finally {
       setLoading(false);
     }
@@ -79,7 +83,7 @@ export default function AdminShippingZonesPage() {
     e.preventDefault();
     const { state_name_ar, fee_sdg, is_active } = editModal.formData;
     if (!state_name_ar.trim()) {
-      showToast('يرجى إدخال اسم الولاية أو المنطقة', 'error');
+      toastError('يرجى إدخال اسم الولاية أو المنطقة');
       return;
     }
 
@@ -93,15 +97,16 @@ export default function AdminShippingZonesPage() {
       setEditModal((prev) => ({ ...prev, submitting: true }));
       if (editModal.isEdit) {
         await adminApi.updateShippingZone(editModal.id, payload);
-        showToast('تم تحديث منطقة التوصيل بنجاح', 'success');
+        success('تم تحديث منطقة التوصيل بنجاح');
       } else {
         await adminApi.createShippingZone(payload);
-        showToast('تمت إضافة منطقة التوصيل بنجاح', 'success');
+        success('تمت إضافة منطقة التوصيل بنجاح');
       }
       setEditModal((prev) => ({ ...prev, open: false }));
       fetchZones();
     } catch (err) {
-      showToast(err.message || 'حدث خطأ أثناء حفظ منطقة التوصيل', 'error');
+      toastError(err.message || 'فشل حفظ منطقة التوصيل');
+    } finally {
       setEditModal((prev) => ({ ...prev, submitting: false }));
     }
   };
@@ -111,208 +116,196 @@ export default function AdminShippingZonesPage() {
     try {
       setDeleteModal((prev) => ({ ...prev, loading: true }));
       await adminApi.deleteShippingZone(deleteModal.zone.id);
-      showToast('تم حذف منطقة التوصيل بنجاح', 'success');
+      success('تم حذف منطقة التوصيل');
       setDeleteModal({ open: false, zone: null, loading: false });
       fetchZones();
     } catch (err) {
-      showToast(err.message || 'فشل في حذف منطقة التوصيل', 'error');
+      toastError(err.message || 'فشل حذف منطقة التوصيل');
       setDeleteModal((prev) => ({ ...prev, loading: false }));
     }
   };
 
   return (
-    <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <h1 className="admin-page-title">مناطق ورسوم التوصيل بالولايات</h1>
-          <p className="admin-page-subtitle">
-            تحديد تكلفة الشحن بالجنيه السوداني لكل ولاية أو مدينة وتفعيل التوصيل
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <div className={styles.titleInfo}>
+          <h1 className={styles.title}>إدارة مناطق ورسوم التوصيل</h1>
+          <p className={styles.subtitle}>
+            تحديد تكلفة الشحن لكل ولاية سودانية والتحكم في إتاحة التوصيل
           </p>
         </div>
-        <button type="button" className="btn btn-primary" onClick={openAddModal}>
-          + إضافة منطقة توصيل
-        </button>
-      </div>
+        <Button variant="primary" size="md" onClick={openAddModal}>
+          <Plus size={16} />
+          <span>إضافة ولاية / منطقة</span>
+        </Button>
+      </header>
+
+      {/* Brand graphic divider */}
+      <div className={styles.titleDivider} aria-hidden="true" />
 
       {loading ? (
-        <div className="card">
-          <Skeleton height="50px" className="mb-2" />
-          <Skeleton height="50px" className="mb-2" />
-          <Skeleton height="50px" />
-        </div>
+        <TableSkeleton rows={6} cols={4} />
       ) : error ? (
         <ErrorState message={error} onRetry={fetchZones} />
       ) : zones.length === 0 ? (
         <EmptyState
-          title="لا توجد مناطق توصيل"
-          description="أضف ولايات السودان ورسوم التوصيل المقابلة لتفعيل خيارات الشحن للعملاء."
+          title="لا توجد مناطق توصيل مسجلة"
+          description="أضف ولايات ومناطق التوصيل ورسومها ليتمكن العملاء من اختيار التوصيل عند إتمام الطلب."
+          actionLabel="إضافة منطقة جديدة"
+          onAction={openAddModal}
         />
       ) : (
-        <div className="card p-0 table-responsive">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th style={{ width: '80px' }}>#</th>
-                <th>الولاية / المنطقة</th>
-                <th>رسوم التوصيل (SDG)</th>
-                <th>حالة التوصيل</th>
-                <th style={{ width: '130px', textAlign: 'center' }}>الإجراءات</th>
-              </tr>
-            </thead>
-            <tbody>
-              {zones.map((zone) => (
-                <tr key={zone.id}>
-                  <td className="text-muted text-center">#{zone.id}</td>
-                  <td className="font-semibold text-navy">{zone.state_name_ar}</td>
-                  <td className="font-semibold text-royal">
-                    {formatSdg(zone.fee_sdg)}
-                  </td>
-                  <td>
-                    {zone.is_active ? (
-                      <Badge variant="success">متاح للتوصيل</Badge>
-                    ) : (
-                      <Badge variant="warning">متوقف مؤقتاً</Badge>
-                    )}
-                  </td>
-                  <td style={{ textAlign: 'center' }}>
-                    <div className="admin-actions-cell">
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-secondary"
-                        onClick={() => openEditModal(zone)}
-                      >
-                        تعديل
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-danger"
-                        onClick={() => setDeleteModal({ open: true, zone, loading: false })}
-                      >
-                        حذف
-                      </button>
-                    </div>
-                  </td>
+        <div className={styles.card}>
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>الولاية / المنطقة</th>
+                  <th>رسوم التوصيل (SDG)</th>
+                  <th>حالة التوصيل</th>
+                  <th style={{ width: '130px', textAlign: 'center' }}>الإجراءات</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {zones.map((z) => (
+                  <tr key={z.id}>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                        <Truck size={16} style={{ color: 'var(--color-royal-blue)' }} />
+                        <strong>{z.state_name_ar}</strong>
+                      </div>
+                    </td>
+                    <td className={styles.totalPrice}>{formatSdg(z.fee_sdg)}</td>
+                    <td>
+                      {z.is_active ? (
+                        <Tag variant="success">متاح للشحن</Tag>
+                      ) : (
+                        <Tag variant="warning">متوقف مؤقتاً</Tag>
+                      )}
+                    </td>
+                    <td style={{ textAlign: 'center' }}>
+                      <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
+                        <Button variant="ghost" size="sm" onClick={() => openEditModal(z)}>
+                          <Edit size={14} />
+                        </Button>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => setDeleteModal({ open: true, zone: z, loading: false })}
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
       {/* Add / Edit Modal */}
-      {editModal.open && (
-        <Modal
-          isOpen={editModal.open}
-          onClose={() => setEditModal((prev) => ({ ...prev, open: false }))}
-          title={editModal.isEdit ? 'تعديل منطقة التوصيل' : 'إضافة منطقة توصيل جديدة'}
-        >
-          <form onSubmit={handleFormSubmit} className="p-2">
-            <div className="form-group mb-3">
-              <label className="form-label required">اسم الولاية أو المنطقة</label>
-              <input
-                type="text"
-                value={editModal.formData.state_name_ar}
-                onChange={(e) =>
-                  setEditModal({
-                    ...editModal,
-                    formData: { ...editModal.formData, state_name_ar: e.target.value },
-                  })
-                }
-                placeholder="مثال: ولاية الخرطوم (أم درمان - بحري - الخرطوم)"
-                className="form-control"
-                required
-              />
-            </div>
+      <Modal
+        isOpen={editModal.open}
+        onClose={() => setEditModal((prev) => ({ ...prev, open: false }))}
+        title={editModal.isEdit ? 'تعديل منطقة التوصيل' : 'إضافة ولاية / منطقة توصيل جديدة'}
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => setEditModal((prev) => ({ ...prev, open: false }))}
+            >
+              إلغاء
+            </Button>
+            <Button
+              variant="primary"
+              loading={editModal.submitting}
+              onClick={handleFormSubmit}
+            >
+              <Check size={16} />
+              <span>{editModal.isEdit ? 'حفظ التعديلات' : 'إضافة المنطقة'}</span>
+            </Button>
+          </>
+        }
+      >
+        <form onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+          <Input
+            label="اسم الولاية أو المنطقة"
+            placeholder="مثال: ولاية الخرطوم (أم درمان، بحري، الخرطوم)"
+            value={editModal.formData.state_name_ar}
+            onChange={(e) =>
+              setEditModal((prev) => ({
+                ...prev,
+                formData: { ...prev.formData, state_name_ar: e.target.value },
+              }))
+            }
+            required
+          />
 
-            <div className="form-group mb-3">
-              <label className="form-label required">رسوم التوصيل بالجنيه السوداني (SDG)</label>
-              <input
-                type="number"
-                min="0"
-                step="100"
-                value={editModal.formData.fee_sdg}
-                onChange={(e) =>
-                  setEditModal({
-                    ...editModal,
-                    formData: { ...editModal.formData, fee_sdg: e.target.value },
-                  })
-                }
-                placeholder="مثال: 5000"
-                className="form-control"
-                required
-              />
-            </div>
+          <Input
+            label="رسوم التوصيل بالجنيه السوداني (SDG)"
+            type="number"
+            min="0"
+            step="100"
+            dir="ltr"
+            placeholder="مثال: 3000"
+            value={editModal.formData.fee_sdg}
+            onChange={(e) =>
+              setEditModal((prev) => ({
+                ...prev,
+                formData: { ...prev.formData, fee_sdg: e.target.value },
+              }))
+            }
+            required
+          />
 
-            <div className="form-group mb-4">
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={editModal.formData.is_active}
-                  onChange={(e) =>
-                    setEditModal({
-                      ...editModal,
-                      formData: { ...editModal.formData, is_active: e.target.checked },
-                    })
-                  }
-                />
-                <span className="font-semibold">تفعيل التوصيل لهذه المنطقة</span>
-              </label>
-            </div>
-
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                disabled={editModal.submitting}
-                onClick={() => setEditModal((prev) => ({ ...prev, open: false }))}
-              >
-                إلغاء
-              </button>
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={editModal.submitting}
-              >
-                {editModal.submitting ? 'جاري الحفظ...' : editModal.isEdit ? 'حفظ التعديلات' : 'إضافة المنطقة'}
-              </button>
-            </div>
-          </form>
-        </Modal>
-      )}
+          <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', cursor: 'pointer', fontSize: 'var(--text-sm)', marginTop: 4 }}>
+            <input
+              type="checkbox"
+              checked={editModal.formData.is_active}
+              onChange={(e) =>
+                setEditModal((prev) => ({
+                  ...prev,
+                  formData: { ...prev.formData, is_active: e.target.checked },
+                }))
+              }
+              style={{ accentColor: 'var(--color-royal-blue)' }}
+            />
+            <span>التوصيل متاح ونشط لهذه المنطقة</span>
+          </label>
+        </form>
+      </Modal>
 
       {/* Delete Confirmation Modal */}
-      {deleteModal.open && (
-        <Modal
-          isOpen={deleteModal.open}
-          onClose={() => setDeleteModal({ open: false, zone: null, loading: false })}
-          title="تأكيد حذف منطقة التوصيل"
-        >
-          <div className="p-2">
-            <p className="mb-4">
-              هل أنت متأكد من رغبتك في حذف منطقة التوصيل:{' '}
-              <strong className="text-navy">{deleteModal.zone?.state_name_ar}</strong>؟
-            </p>
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                disabled={deleteModal.loading}
-                onClick={() => setDeleteModal({ open: false, zone: null, loading: false })}
-              >
-                إلغاء
-              </button>
-              <button
-                type="button"
-                className="btn btn-danger"
-                disabled={deleteModal.loading}
-                onClick={handleDeleteConfirm}
-              >
-                {deleteModal.loading ? 'جاري الحذف...' : 'تأكيد الحذف'}
-              </button>
-            </div>
-          </div>
-        </Modal>
-      )}
+      <Modal
+        isOpen={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false, zone: null, loading: false })}
+        title="تأكيد حذف منطقة التوصيل"
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => setDeleteModal({ open: false, zone: null, loading: false })}
+            >
+              إلغاء
+            </Button>
+            <Button
+              variant="danger"
+              loading={deleteModal.loading}
+              onClick={handleDeleteConfirm}
+            >
+              تأكيد الحذف
+            </Button>
+          </>
+        }
+      >
+        <p style={{ color: 'var(--color-slate-700)', fontSize: 'var(--text-sm)', lineHeight: 1.6, margin: 0 }}>
+          هل أنت متأكد من رغبتك في حذف منطقة التوصيل:
+          <br />
+          <strong>{deleteModal.zone?.state_name_ar}</strong>؟
+        </p>
+      </Modal>
     </div>
   );
 }
