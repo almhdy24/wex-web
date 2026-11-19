@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Mail, ArrowLeft } from 'lucide-react';
 import { authApi } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
+import styles from './Auth.module.css';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -64,7 +66,7 @@ export default function LoginPage() {
       const res = await authApi.googleSignIn(response.credential);
       const { user, access_token, refresh_token } = res.data;
       loginWithSession(user, access_token, refresh_token);
-      success(`مرحباً بك مجدداً يا ${user.name}`);
+      success(`أهلاً بك يا ${user.name}`);
       navigate(from, { replace: true });
     } catch (err) {
       setErrorMsg(err.message || 'فشل تسجيل الدخول عبر حساب جوجل');
@@ -91,7 +93,7 @@ export default function LoginPage() {
         state: { from: location.state?.from },
       });
     } catch (err) {
-      const msg = err.errors?.email || err.message || 'تعذر إرسال رمز التحقق';
+      const msg = err.errors?.email || err.message || 'الاتصال ضعيف. حاول تاني.';
       setErrorMsg(msg);
       toastError(msg);
     } finally {
@@ -100,128 +102,71 @@ export default function LoginPage() {
   };
 
   return (
-    <div
-      className="container"
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 'var(--space-12) var(--space-4)',
-        minHeight: '70vh',
-      }}
-    >
-      <div
-        className="card"
-        style={{
-          width: '100%',
-          maxWidth: 440,
-          padding: 'var(--space-8) var(--space-6)',
-        }}
-      >
-        <div style={{ textAlign: 'center', marginBottom: 'var(--space-6)' }}>
-          <div
-            style={{
-              width: 52,
-              height: 52,
-              borderRadius: 'var(--radius-lg)',
-              backgroundColor: 'var(--color-navy)',
-              color: 'var(--color-white)',
-              fontSize: '1.75rem',
-              fontWeight: 800,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto var(--space-3)',
-              border: '2px solid var(--color-royal-blue)',
-            }}
-          >
-            W
-          </div>
-          <h1 style={{ fontSize: 'var(--text-xl)', marginBottom: 'var(--space-1)' }}>
-            تسجيل الدخول إلى ويكس تكنولوجي
-          </h1>
-          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-slate-500)', margin: 0 }}>
-            سجّل دخولك بدون كلمات مرور لمتابعة طلباتك وتثبيت الأسعار
+    <div className={styles.container}>
+      <div className={styles.authCard}>
+        {/* Slanted ribbon brand graphic at top of card */}
+        <div className={styles.ribbonDecoration} aria-hidden="true" />
+
+        <header className={styles.cardHeader}>
+          <img
+            src="/logo.svg"
+            alt="Wex Technology"
+            className={styles.brandLogo}
+          />
+          <h1 className={styles.cardTitle}>تسجيل الدخول</h1>
+          <p className={styles.cardSubtitle}>
+            سجّل دخولك لمتابعة طلباتك وتثبيت الأسعار
           </p>
-        </div>
+        </header>
 
-        {errorMsg && (
-          <div
-            style={{
-              backgroundColor: 'var(--color-danger-bg)',
-              color: 'var(--color-danger)',
-              border: '1px solid var(--color-danger-border)',
-              padding: 'var(--space-3)',
-              borderRadius: 'var(--radius-md)',
-              fontSize: 'var(--text-sm)',
-              marginBottom: 'var(--space-4)',
-              textAlign: 'center',
-            }}
-          >
-            {errorMsg}
-          </div>
-        )}
+        {errorMsg && <div className={styles.errorAlert}>{errorMsg}</div>}
 
-        {/* Google Sign-in */}
-        {googleClientId ? (
-          <div style={{ marginBottom: 'var(--space-5)' }}>
-            <div id="google-btn-container" style={{ minHeight: 44 }} />
+        {/* 1. Google Sign-in First & Largest if configured */}
+        {googleClientId && (
+          <div className={styles.googleWrapper}>
+            <div id="google-btn-container" className={styles.googleBtnContainer} />
             {googleLoading && (
-              <div style={{ textAlign: 'center', marginTop: 'var(--space-2)', fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)' }}>
+              <div className={styles.googleStatus}>
                 جاري التحقق من حساب جوجل...
               </div>
             )}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                margin: 'var(--space-5) 0',
-                color: 'var(--color-slate-400)',
-                fontSize: 'var(--text-xs)',
-              }}
-            >
-              <div style={{ flex: 1, height: 1, backgroundColor: 'var(--color-slate-200)' }} />
-              <span style={{ padding: '0 var(--space-3)' }}>أو عبر البريد الإلكتروني</span>
-              <div style={{ flex: 1, height: 1, backgroundColor: 'var(--color-slate-200)' }} />
+            <div className={styles.divider}>
+              <div className={styles.dividerLine} />
+              <span className={styles.dividerText}>أو بالبريد الإلكتروني</span>
+              <div className={styles.dividerLine} />
             </div>
           </div>
-        ) : null}
+        )}
 
-        {/* Email OTP Form */}
-        <form onSubmit={handleEmailSubmit}>
+        {/* 2. Email OTP Form */}
+        <form onSubmit={handleEmailSubmit} className={styles.form}>
           <Input
             label="البريد الإلكتروني"
             type="email"
-            placeholder="example@domain.com"
+            placeholder="name@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
             dir="ltr"
-            hint="سنرسل لك رمز تحقق مكوّن من 6 أرقام بدون الحاجة لكلمة سر"
+            icon={<Mail size={16} />}
+            hint="بنرسل ليك رمز تحقق من 6 أرقام بدون كلمة سر"
           />
 
           <Button
             type="submit"
             variant="primary"
+            size="lg"
             block
             loading={loading}
-            style={{ marginTop: 'var(--space-4)' }}
+            disabled={loading}
           >
-            إرسال رمز التحقق (OTP)
+            <span>إرسال رمز التحقق</span>
+            <ArrowLeft size={16} />
           </Button>
         </form>
 
-        <div
-          style={{
-            marginTop: 'var(--space-6)',
-            paddingTop: 'var(--space-4)',
-            borderTop: '1px solid var(--color-slate-100)',
-            textAlign: 'center',
-            fontSize: 'var(--text-xs)',
-            color: 'var(--color-slate-500)',
-          }}
-        >
-          بالتسجيل فإنك توافق على سياسة الخصوصية وشروط حجز الأسعار في متجر ويكس تكنولوجي.
+        <div className={styles.footerNote}>
+          بالتسجيل فإنك توافق على شروط الخدمة وتثبيت الأسعار في متجر ويكس تكنولوجي.
         </div>
       </div>
     </div>

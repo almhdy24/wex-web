@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Store, Truck, Lock, ArrowLeft } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -9,14 +10,15 @@ import { formatSdg } from '../../utils/formatters';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import Select from '../../components/common/Select';
+import styles from './CheckoutPage.module.css';
 
 export default function CheckoutPage() {
-  const { items, clearCart, totalItems, estimatedSubtotalSdg } = useCart();
+  const { items, clearCart, estimatedSubtotalSdg } = useCart();
   const { user } = useAuth();
   const { success, error: toastError } = useToast();
   const navigate = useNavigate();
 
-  const [orderType, setOrderType] = useState('pickup'); // 'pickup' | 'delivery'
+  const [orderType, setOrderType] = useState('pickup');
   const [shippingZones, setShippingZones] = useState([]);
   const [selectedZoneId, setSelectedZoneId] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState('');
@@ -25,17 +27,16 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
 
-  // Redirect if cart is empty
   useEffect(() => {
     if (items.length === 0) {
       navigate('/cart', { replace: true });
     }
   }, [items, navigate]);
 
-  // Load active shipping zones
   useEffect(() => {
     let isMounted = true;
-    productsApi.getShippingZones()
+    productsApi
+      .getShippingZones()
       .then((res) => {
         if (!isMounted) return;
         setShippingZones(res.data || []);
@@ -44,20 +45,21 @@ export default function CheckoutPage() {
         }
       })
       .catch(() => {});
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const selectedZone = shippingZones.find((z) => String(z.id) === String(selectedZoneId));
   const deliveryFee = orderType === 'delivery' && selectedZone ? selectedZone.fee_sdg : 0;
-  // Estimated final total before server app discount (3%)
   const estimatedDiscount = Math.round(estimatedSubtotalSdg * 0.03);
   const estimatedTotal = Math.max(0, estimatedSubtotalSdg - estimatedDiscount + deliveryFee);
 
   const handleSubmitOrder = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
+    if (submitting) return;
     setErrors({});
 
-    // Validate phone
     if (!contactPhone.trim()) {
       setErrors({ contact_phone: 'رقم الهاتف للتواصل مطلوب' });
       return;
@@ -104,43 +106,37 @@ export default function CheckoutPage() {
       if (err.errors) {
         setErrors(err.errors);
       }
-      toastError(err.message || 'فشل تقديم الطلب');
+      toastError(err.message || 'فشل تقديم الطلب. حاول تاني.');
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="container" style={{ padding: 'var(--space-8) var(--space-4)', maxWidth: 960 }}>
-      <div style={{ marginBottom: 'var(--space-6)' }}>
-        <h1 style={{ marginBottom: 'var(--space-1)' }}>إتمام الطلب وتثبيت السعر</h1>
-        <p style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-sm)', margin: 0 }}>
-          حدد طريقة الاستلام وأكمل بياناتك لحجز الأجهزة وتجميد سعر الصرف لمدة 4 ساعات
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>إتمام الطلب وتثبيت السعر</h1>
+        <p className={styles.subtitle}>
+          حدد طريقة الاستلام وأكمل بياناتك لحجز الأجهزة وتجميد السعر لمدة 4 ساعات
         </p>
-      </div>
+      </header>
 
       <form onSubmit={handleSubmitOrder}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 'var(--space-6)' }}>
-          {/* Order Details Column */}
-          <div style={{ gridColumn: 'span 7' }} className="checkout-form-col">
-            {/* Step 1: Delivery Option */}
-            <div className="card" style={{ padding: 'var(--space-5)', marginBottom: 'var(--space-5)' }}>
-              <h3 style={{ fontSize: 'var(--text-base)', marginBottom: 'var(--space-4)' }}>
-                1. طريقة الاستلام
-              </h3>
+        <div className={styles.layoutGrid}>
+          {/* Steps column */}
+          <div className={styles.formCol}>
+            {/* Step 1: Delivery Method */}
+            <div className={styles.stepCard}>
+              <h2 className={styles.stepHeading}>
+                <span className={styles.stepNumber}>1</span>
+                <span>طريقة الاستلام</span>
+              </h2>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
+              <div className={styles.deliveryOptions}>
                 <label
-                  style={{
-                    border: `2px solid ${orderType === 'pickup' ? 'var(--color-royal-blue)' : 'var(--color-slate-200)'}`,
-                    borderRadius: 'var(--radius-lg)',
-                    padding: 'var(--space-4)',
-                    cursor: 'pointer',
-                    backgroundColor: orderType === 'pickup' ? 'var(--color-ice-blue-alt)' : 'var(--color-white)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 'var(--space-1)',
-                  }}
+                  className={`${styles.optionCard} ${
+                    orderType === 'pickup' ? styles.optionCardSelected : ''
+                  }`}
                 >
                   <input
                     type="radio"
@@ -148,27 +144,21 @@ export default function CheckoutPage() {
                     value="pickup"
                     checked={orderType === 'pickup'}
                     onChange={() => setOrderType('pickup')}
-                    style={{ position: 'absolute', opacity: 0 }}
+                    className={styles.radioInput}
                   />
-                  <div style={{ fontWeight: 700, color: 'var(--color-navy)', fontSize: 'var(--text-sm)' }}>
-                    🏪 استلام من المحل
+                  <div className={styles.optionTitle}>
+                    <Store size={18} />
+                    <span>استلام من المحل</span>
                   </div>
-                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)' }}>
-                    مول الواحة، أم درمان (بدون رسوم توصيل)
+                  <div className={styles.optionDesc}>
+                    مول الواحة، أم درمان (مجاناً)
                   </div>
                 </label>
 
                 <label
-                  style={{
-                    border: `2px solid ${orderType === 'delivery' ? 'var(--color-royal-blue)' : 'var(--color-slate-200)'}`,
-                    borderRadius: 'var(--radius-lg)',
-                    padding: 'var(--space-4)',
-                    cursor: 'pointer',
-                    backgroundColor: orderType === 'delivery' ? 'var(--color-ice-blue-alt)' : 'var(--color-white)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 'var(--space-1)',
-                  }}
+                  className={`${styles.optionCard} ${
+                    orderType === 'delivery' ? styles.optionCardSelected : ''
+                  }`}
                 >
                   <input
                     type="radio"
@@ -176,24 +166,26 @@ export default function CheckoutPage() {
                     value="delivery"
                     checked={orderType === 'delivery'}
                     onChange={() => setOrderType('delivery')}
-                    style={{ position: 'absolute', opacity: 0 }}
+                    className={styles.radioInput}
                   />
-                  <div style={{ fontWeight: 700, color: 'var(--color-navy)', fontSize: 'var(--text-sm)' }}>
-                    🚚 توصيل وشحن
+                  <div className={styles.optionTitle}>
+                    <Truck size={18} />
+                    <span>توصيل وشحن</span>
                   </div>
-                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)' }}>
-                    إلى أم درمان وكافة ولايات السودان
+                  <div className={styles.optionDesc}>
+                    إلى أم درمان والولايات المتاحة
                   </div>
                 </label>
               </div>
             </div>
 
-            {/* Step 2: Shipping specifics if Delivery */}
+            {/* Step 2: Delivery address (if delivery selected) */}
             {orderType === 'delivery' && (
-              <div className="card" style={{ padding: 'var(--space-5)', marginBottom: 'var(--space-5)' }}>
-                <h3 style={{ fontSize: 'var(--text-base)', marginBottom: 'var(--space-4)' }}>
-                  2. منطقة التوصيل والعنوان
-                </h3>
+              <div className={styles.stepCard}>
+                <h2 className={styles.stepHeading}>
+                  <span className={styles.stepNumber}>2</span>
+                  <span>منطقة التوصيل والعنوان</span>
+                </h2>
 
                 <Select
                   label="الولاية / منطقة التوصيل"
@@ -209,38 +201,58 @@ export default function CheckoutPage() {
 
                 <Input
                   label="عنوان التوصيل بالتفصيل"
-                  placeholder="مثال: أم درمان - حي الملازمين - شارع الشفيع - منزل 14"
+                  placeholder="مثال: أم درمان - حي الملازمين - شارع الشفيع"
                   value={deliveryAddress}
                   onChange={(e) => setDeliveryAddress(e.target.value)}
                   required
                   error={errors.delivery_address}
-                  hint="يرجى كتابة أقرب معلم أو اسم الشارع بدقة"
+                  hint="يرجى ذكر أقرب معلم أو اسم الشارع بدقة"
                 />
               </div>
             )}
 
-            {/* Step 3: Contact & Notes */}
-            <div className="card" style={{ padding: 'var(--space-5)' }}>
-              <h3 style={{ fontSize: 'var(--text-base)', marginBottom: 'var(--space-4)' }}>
-                {orderType === 'delivery' ? '3. بيانات التواصل' : '2. بيانات التواصل'}
-              </h3>
+            {/* Step 3: Contact Phone & Notes */}
+            <div className={styles.stepCard}>
+              <h2 className={styles.stepHeading}>
+                <span className={styles.stepNumber}>
+                  {orderType === 'delivery' ? 3 : 2}
+                </span>
+                <span>بيانات التواصل</span>
+              </h2>
 
-              <Input
-                label="رقم هاتف التواصل للتأكيد"
-                placeholder="0912345678 أو 01..."
-                value={contactPhone}
-                onChange={(e) => setContactPhone(e.target.value)}
-                required
-                dir="ltr"
-                error={errors.contact_phone}
-                hint="رقم سوداني فعال للتواصل معك لتسليم الطلب وتأكيد التحويل"
-              />
+              <div className={styles.phoneFieldWrapper}>
+                <label className={styles.fieldHint} htmlFor="contact_phone">
+                  رقم الهاتف للتواصل (مطلوب)
+                </label>
+                <input
+                  id="contact_phone"
+                  type="tel"
+                  inputMode="tel"
+                  dir="ltr"
+                  placeholder="0912345678"
+                  value={contactPhone}
+                  onChange={(e) => setContactPhone(e.target.value)}
+                  className={styles.phoneInput}
+                  required
+                />
+                {errors.contact_phone && (
+                  <span className={styles.fieldError}>
+                    {errors.contact_phone}
+                  </span>
+                )}
+                <span className={styles.fieldHint}>
+                  رقم سوداني فعال للتواصل معك لتسليم الطلب وتأكيد التحويل
+                </span>
+              </div>
 
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">ملاحظات إضافية على الطلب (اختياري)</label>
+              <div>
+                <label className={styles.fieldHint} htmlFor="customer_notes">
+                  ملاحظات إضافية على الطلب (اختياري)
+                </label>
                 <textarea
-                  className="form-textarea"
-                  placeholder="مثال: يرجى تنزيل برامج الأوفيس مسبقاً، أو موعد الاتصال المفضل..."
+                  id="customer_notes"
+                  className={styles.textarea}
+                  placeholder="أي ملاحظات بخصوص موعد التسليم أو متطلبات إضافية..."
                   value={customerNotes}
                   onChange={(e) => setCustomerNotes(e.target.value)}
                   maxLength={500}
@@ -249,70 +261,48 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Order Summary & Submit Column */}
-          <div style={{ gridColumn: 'span 5' }} className="checkout-summary-col">
-            <div className="card" style={{ padding: 'var(--space-5)', position: 'sticky', top: 'calc(var(--header-height) + 16px)' }}>
-              <h3 style={{ fontSize: 'var(--text-base)', marginBottom: 'var(--space-4)' }}>
-                ملخص الطلب
-              </h3>
+          {/* Summary column */}
+          <aside className={styles.summaryCol}>
+            <div className={styles.summaryCard}>
+              <h2 className={styles.summaryTitle}>ملخص الطلب</h2>
 
-              {/* Items preview */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', maxHeight: 220, overflowY: 'auto', marginBottom: 'var(--space-4)' }}>
+              <div className={styles.itemsPreview}>
                 {items.map((item) => (
-                  <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--text-xs)', borderBottom: '1px solid var(--color-slate-100)', paddingBottom: 'var(--space-1)' }}>
-                    <span style={{ fontWeight: 600, color: 'var(--color-navy)', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div key={item.id} className={styles.itemPreviewRow}>
+                    <span className={styles.itemPreviewName}>
                       {item.quantity}x {item.name}
                     </span>
-                    <span style={{ fontWeight: 700 }}>{formatSdg((item.price_sdg || 0) * item.quantity)}</span>
+                    <span className={styles.itemPreviewPrice}>
+                      {formatSdg((item.price_sdg || 0) * item.quantity)}
+                    </span>
                   </div>
                 ))}
               </div>
 
-              {/* Calculations breakdown */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-2)', fontSize: 'var(--text-sm)' }}>
-                <span style={{ color: 'var(--color-slate-600)' }}>المجموع الفرعي:</span>
-                <span style={{ fontWeight: 600 }}>{formatSdg(estimatedSubtotalSdg)}</span>
+              <div className={styles.calcRow}>
+                <span>المجموع الفرعي:</span>
+                <span>{formatSdg(estimatedSubtotalSdg)}</span>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-2)', fontSize: 'var(--text-sm)', color: 'var(--color-success)' }}>
+              <div className={styles.discountRow}>
                 <span>خصم التطبيق (3%):</span>
                 <span>-{formatSdg(estimatedDiscount)}</span>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-3)', fontSize: 'var(--text-sm)' }}>
-                <span style={{ color: 'var(--color-slate-600)' }}>رسوم التوصيل:</span>
-                <span style={{ fontWeight: 600 }}>{deliveryFee === 0 ? 'مجاناً (استلام)' : formatSdg(deliveryFee)}</span>
+              <div className={styles.calcRow}>
+                <span>رسوم التوصيل:</span>
+                <span>
+                  {deliveryFee === 0 ? 'مجاناً (استلام)' : formatSdg(deliveryFee)}
+                </span>
               </div>
 
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  paddingTop: 'var(--space-3)',
-                  borderTop: '2px solid var(--color-slate-200)',
-                  marginBottom: 'var(--space-5)',
-                  fontSize: 'var(--text-base)',
-                  fontWeight: 800,
-                  color: 'var(--color-royal-blue)',
-                }}
-              >
+              <div className={styles.calcTotalRow}>
                 <span>المبلغ الإجمالي التقريبي:</span>
-                <span>{formatSdg(estimatedTotal)}</span>
+                <span className={styles.totalSdg}>{formatSdg(estimatedTotal)}</span>
               </div>
 
-              <div
-                style={{
-                  backgroundColor: 'var(--color-warning-bg)',
-                  border: '1px solid var(--color-warning-border)',
-                  color: 'var(--color-warning)',
-                  padding: 'var(--space-3)',
-                  borderRadius: 'var(--radius-md)',
-                  fontSize: 'var(--text-xs)',
-                  lineHeight: 1.6,
-                  marginBottom: 'var(--space-4)',
-                }}
-              >
-                🔒 <strong>تثبيت السعر:</strong> فور الضغط على تأكيد الطلب، سيتم خصم الكميات من المخزن وتثبيت سعر الصرف لمدة 4 ساعات لإتاحة الوقت للتحويل عبر تطبيق بنكك.
+              <div className={styles.lockNotice}>
+                السعر بالدرهم وبيتغير مع الصرف. بنثبته ليك بعد الطلب مباشرة لمدة 4 ساعات.
               </div>
 
               <Button
@@ -321,21 +311,38 @@ export default function CheckoutPage() {
                 size="lg"
                 block
                 loading={submitting}
+                disabled={submitting}
+                className={styles.desktopSubmitBtn}
               >
-                تأكيد الطلب وتثبيت السعر الآن
+                <Lock size={18} />
+                <span>تثبيت السعر وإتمام الطلب</span>
               </Button>
             </div>
+          </aside>
+        </div>
+
+        {/* Sticky Mobile CTA Bar */}
+        <div className={styles.mobileStickyCta}>
+          <div className={styles.mobileTotalInfo}>
+            <span className={styles.mobileTotalLabel}>المبلغ التقريبي</span>
+            <span className={styles.mobileTotalValue}>
+              {formatSdg(estimatedTotal)}
+            </span>
           </div>
+
+          <Button
+            type="submit"
+            variant="primary"
+            size="md"
+            loading={submitting}
+            disabled={submitting}
+            className={styles.mobileSubmitBtn}
+          >
+            <span>إتمام الطلب</span>
+            <ArrowLeft size={16} />
+          </Button>
         </div>
       </form>
-
-      <style>{`
-        @media (max-width: 768px) {
-          .checkout-form-col, .checkout-summary-col {
-            grid-column: 1 / -1 !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }

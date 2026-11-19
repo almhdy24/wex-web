@@ -23,10 +23,11 @@
   - `CatalogPage` + `CatalogPage.module.css`: mobile bottom `Sheet` filter drawer with count badge, desktop sticky sidebar filter card, URL param synchronization, sort dropdown, skeleton loading state, "ما لقينا أجهزة بالمواصفات دي" honest empty state with filter reset, and pagination.
   - `ProductDetailPage` + `ProductDetailPage.module.css`: image gallery with thumbnail selector and click-to-zoom modal, clean 2-column specs definition list (`<dl>`, `<dt>`, `<dd>`), warranty line mapped from API, exchange rate volatility note ("السعر بالدرهم وبيتغير مع الصرف. بنثبته ليك بعد الطلب."), compatible accessories section, and sticky mobile bottom action bar.
   - Lint, test suite (24 tests), and production build verified.
-- [ ] **Redesign Phase 4: Cart, Checkout & Sign-In**
-  - Cart: compact list, quantity stepper, clear summary, "السلة فاضية".
-  - Checkout: one-page 3-step layout (pickup/delivery, Sudan phone input, price lock notice, double-submit protection).
-  - Sign-in: Google button, 6-box OTP input (autofocus, paste fill, 60s timer, Sudanese friendly copy).
+- [x] **Redesign Phase 4: Cart, Checkout & Sign-In**
+  - `CartPage` + `CartPage.module.css`: compact responsive rows, quantity stepper with limits, running subtotal calculation, honest "السلة فاضية" empty state, sticky desktop summary card, clear item removal.
+  - `CheckoutPage` + `CheckoutPage.module.css`: 1-page 3-step streamlined checkout (Pickup vs Delivery selection, delivery zone fees, Sudan telephone input with `inputMode="tel"`, customer notes, price freeze notice, double-submit protection, and sticky mobile CTA bar).
+  - `LoginPage` & `VerifyOtpPage` + `Auth.module.css`: brand ribbon decoration at top of card, Google Sign-In placed first and largest, 6-box numeric OTP input with autofocus, digit-advance, backspace navigation, paste-fill, auto-submit, 60s live countdown timer, and prompt for new user registration.
+  - Verified with zero inline styles, zero forbidden words, zero emojis, clean lint, 24 unit tests, and production build.
 - [ ] **Redesign Phase 5: Customer Operations**
   - Order Detail: live tabular countdown with warning under 30 min, Bankak card with CopyFields, client-side receipt image compression (target < 1MB), timeline, WhatsApp support.
   - Orders list, notifications, account with CSS Modules and zero inline styles.
