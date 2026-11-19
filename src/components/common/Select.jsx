@@ -1,51 +1,75 @@
 import React from 'react';
+import { ChevronDown } from 'lucide-react';
+import styles from './Select.module.css';
 
 export default function Select({
-  label,
+  id,
   name,
+  label,
   value,
   onChange,
   options = [],
   placeholder,
-  error,
-  hint,
   required = false,
   disabled = false,
+  error,
+  helperText,
   className = '',
-  ...props
+  children,
+  ...rest
 }) {
-  const selectId = name || `select-${Math.random().toString(36).substring(2, 9)}`;
+  const selectId = id || name;
+
+  const selectClasses = [
+    styles.select,
+    error ? styles.hasError : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
-    <div className={`form-group ${className}`}>
+    <div className={styles.wrapper}>
       {label && (
-        <label
-          htmlFor={selectId}
-          className={`form-label ${required ? 'form-label-required' : ''}`}
-        >
+        <label htmlFor={selectId} className={styles.label}>
           {label}
+          {required && <span className={styles.required}>*</span>}
         </label>
       )}
-      <select
-        id={selectId}
-        name={name}
-        value={value}
-        onChange={onChange}
-        required={required}
-        disabled={disabled}
-        className={`form-select ${error ? 'is-invalid' : ''}`}
-        aria-invalid={error ? 'true' : 'false'}
-        {...props}
-      >
-        {placeholder && <option value="">{placeholder}</option>}
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-      {error && <span className="form-error" role="alert">{error}</span>}
-      {!error && hint && <span className="form-hint">{hint}</span>}
+
+      <div className={styles.selectBox}>
+        <select
+          id={selectId}
+          name={name}
+          value={value}
+          onChange={onChange}
+          required={required}
+          disabled={disabled}
+          aria-invalid={Boolean(error)}
+          className={selectClasses}
+          {...rest}
+        >
+          {placeholder && <option value="">{placeholder}</option>}
+          {options.length > 0
+            ? options.map((opt) => (
+                <option key={opt.value} value={opt.value} disabled={opt.disabled}>
+                  {opt.label}
+                </option>
+              ))
+            : children}
+        </select>
+        <span className={styles.arrow} aria-hidden="true">
+          <ChevronDown size={18} strokeWidth={1.75} />
+        </span>
+      </div>
+
+      {error ? (
+        <span className={styles.errorText} role="alert">
+          {error}
+        </span>
+      ) : helperText ? (
+        <span className={styles.helperText}>{helperText}</span>
+      ) : null}
     </div>
   );
 }

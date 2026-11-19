@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import { ToastContainer } from '../components/common/Toast';
 
 const ToastContext = createContext(null);
 
@@ -20,31 +21,18 @@ export function ToastProvider({ children }) {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
+  const showToast = useCallback((msg, type = 'info', duration) => {
+    addToast(msg, type, duration);
+  }, [addToast]);
+
   const success = useCallback((msg, duration) => addToast(msg, 'success', duration), [addToast]);
   const error = useCallback((msg, duration) => addToast(msg, 'error', duration), [addToast]);
   const info = useCallback((msg, duration) => addToast(msg, 'info', duration), [addToast]);
 
   return (
-    <ToastContext.Provider value={{ addToast, removeToast, success, error, info }}>
+    <ToastContext.Provider value={{ addToast, removeToast, showToast, success, error, info }}>
       {children}
-      <div className="toast-container" aria-live="polite" aria-atomic="true">
-        {toasts.map((toast) => (
-          <div
-            key={toast.id}
-            className={`toast toast-${toast.type}`}
-            onClick={() => removeToast(toast.id)}
-            role="status"
-            style={{ cursor: 'pointer' }}
-          >
-            <span aria-hidden="true">
-              {toast.type === 'success' && '✓'}
-              {toast.type === 'error' && '✕'}
-              {toast.type === 'info' && 'ℹ'}
-            </span>
-            <span style={{ flex: 1 }}>{toast.message}</span>
-          </div>
-        ))}
-      </div>
+      <ToastContainer toasts={toasts} onDismiss={removeToast} />
     </ToastContext.Provider>
   );
 }

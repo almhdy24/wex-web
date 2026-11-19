@@ -2,7 +2,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081
 const HOST_BASE = API_BASE_URL.replace(/\/api\/v1\/?$/, '');
 
 /**
- * Format integer SDG amount with thousand separators
+ * Format integer SDG amount with thousand separators in Western digits (0-9)
  */
 export function formatSdg(amount) {
   if (amount === undefined || amount === null || isNaN(amount)) {
@@ -12,7 +12,7 @@ export function formatSdg(amount) {
 }
 
 /**
- * Format integer AED amount
+ * Format integer AED amount in Western digits (0-9)
  */
 export function formatAed(amount) {
   if (amount === undefined || amount === null || isNaN(amount)) {
@@ -22,19 +22,19 @@ export function formatAed(amount) {
 }
 
 /**
- * Format ISO 8601 UTC timestamp to readable Arabic date
+ * Format ISO 8601 UTC timestamp to readable Arabic date with Western digits
  */
 export function formatDate(isoString) {
   if (!isoString) return '';
   try {
     const d = new Date(isoString);
-    return new Intl.DateTimeFormat('ar-SD', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(d);
+    // Use Western digits format
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${year}/${month}/${day} - ${hours}:${minutes}`;
   } catch {
     return isoString;
   }
@@ -57,28 +57,28 @@ export function getStockStatusInfo(status) {
 }
 
 /**
- * Order status label and semantic badge mapping
+ * Order status label and semantic badge mapping (NO emojis)
  */
 export function getOrderStatusInfo(status) {
   switch (status) {
     case 'pending_payment':
-      return { label: 'بانتظار الدفع', variant: 'warning', icon: '⏳' };
+      return { label: 'بانتظار الدفع', variant: 'warning' };
     case 'payment_review':
-      return { label: 'مراجعة إشعار الدفع', variant: 'info', icon: '🔍' };
+      return { label: 'مراجعة إشعار الدفع', variant: 'info' };
     case 'confirmed':
-      return { label: 'تم تأكيد الطلب', variant: 'success', icon: '✓' };
+      return { label: 'تم تأكيد الطلب', variant: 'success' };
     case 'ready_for_pickup':
-      return { label: 'جاهز للاستلام بالمحل', variant: 'info', icon: '🏪' };
+      return { label: 'جاهز للاستلام بالمحل', variant: 'info' };
     case 'out_for_delivery':
-      return { label: 'جاري التوصيل مع المندوب', variant: 'info', icon: '🚚' };
+      return { label: 'جاري التوصيل مع المندوب', variant: 'info' };
     case 'completed':
-      return { label: 'مكتمل ومستلم', variant: 'success', icon: '🎉' };
+      return { label: 'مكتمل ومستلم', variant: 'success' };
     case 'cancelled':
-      return { label: 'ملغي', variant: 'danger', icon: '✕' };
+      return { label: 'ملغي', variant: 'danger' };
     case 'expired':
-      return { label: 'انتهت فترة الحجز', variant: 'danger', icon: '⏰' };
+      return { label: 'انتهت فترة الحجز', variant: 'danger' };
     default:
-      return { label: status || 'غير معروف', variant: 'neutral', icon: '•' };
+      return { label: status || 'غير معروف', variant: 'neutral' };
   }
 }
 
@@ -90,7 +90,7 @@ export function getProofStatusInfo(status) {
     case 'pending':
       return { label: 'قيد المراجعة', variant: 'warning' };
     case 'approved':
-      return { label: 'مقبول ومعتمد', variant: 'success' };
+      return { label: 'معتمد', variant: 'success' };
     case 'rejected':
       return { label: 'مرفوض', variant: 'danger' };
     default:
@@ -99,16 +99,21 @@ export function getProofStatusInfo(status) {
 }
 
 /**
- * Condition label mapping
+ * Condition label mapping - Honest Sudanese Arabic terms
  */
 export function getConditionLabel(condition) {
   switch (condition) {
+    case 'brand_new':
     case 'new':
-      return 'جديد بالكرتونة';
+      return 'جديد';
+    case 'open_box':
+      return 'كرتونة مفتوحة';
+    case 'refurbished':
+      return 'مجدد';
     case 'used_imported':
-      return 'وارد دبي (مستعمل أصلي)';
+    case 'used':
     default:
-      return condition || 'أصلي';
+      return 'مستعمل استيراد';
   }
 }
 
@@ -120,18 +125,18 @@ export function getProductTypeLabel(type) {
     case 'laptop':
       return 'لابتوب';
     case 'phone':
-      return 'هاتف ذكي';
+      return 'هاتف';
     case 'accessory':
-      return 'إكسسوار';
+      return 'ملحق';
     default:
-      return type || 'منتج';
+      return type || 'جهاز';
   }
 }
 
 /**
  * Resolve product image URL with fallback SVG placeholder
  */
-export function getProductImageUrl(path, thumb = false) {
+export function getProductImageUrl(path, _thumb = false) {
   if (!path) {
     return '/favicon.svg';
   }

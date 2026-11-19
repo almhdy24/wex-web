@@ -1,4 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { X } from 'lucide-react';
+import styles from './Modal.module.css';
 
 export default function Modal({
   isOpen,
@@ -6,21 +8,29 @@ export default function Modal({
   title,
   children,
   footer,
-  maxWidth = '540px'
+  maxWidth = '540px',
+  className = '',
 }) {
+  const dialogRef = useRef(null);
+
   useEffect(() => {
+    if (!isOpen) return;
+
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === 'Escape') {
         onClose();
       }
     };
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      window.addEventListener('keydown', handleKeyDown);
-    }
+
+    document.addEventListener('keydown', handleKeyDown);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    dialogRef.current?.focus();
+
     return () => {
-      document.body.style.overflow = 'unset';
-      window.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = originalOverflow;
     };
   }, [isOpen, onClose]);
 
@@ -28,33 +38,39 @@ export default function Modal({
 
   return (
     <div
-      className="modal-backdrop"
+      className={styles.backdrop}
       onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-title"
+      role="presentation"
     >
       <div
-        className="modal-dialog"
-        style={{ maxWidth }}
+        ref={dialogRef}
+        tabIndex={-1}
+        className={`${styles.dialog} ${className}`}
+        style={maxWidth !== '540px' ? { maxWidth } : undefined}
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={title ? 'modal-title' : undefined}
       >
-        <div className="modal-header">
-          <h3 id="modal-title" style={{ margin: 0 }}>{title}</h3>
-          <button
-            type="button"
-            className="btn btn-ghost btn-sm"
-            onClick={onClose}
-            aria-label="إغلاق النافذة"
-            style={{ fontSize: '1.25rem', padding: '4px 8px', minHeight: 'unset' }}
-          >
-            ✕
-          </button>
-        </div>
-        <div className="modal-body">
-          {children}
-        </div>
-        {footer && <div className="modal-footer">{footer}</div>}
+        {title && (
+          <div className={styles.header}>
+            <h2 id="modal-title" className={styles.title}>
+              {title}
+            </h2>
+            <button
+              type="button"
+              className={styles.closeBtn}
+              onClick={onClose}
+              aria-label="إغلاق النافذة"
+            >
+              <X size={20} strokeWidth={1.75} />
+            </button>
+          </div>
+        )}
+
+        <div className={styles.content}>{children}</div>
+
+        {footer && <div className={styles.footer}>{footer}</div>}
       </div>
     </div>
   );

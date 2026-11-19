@@ -1,36 +1,30 @@
 import React from 'react';
+import { AlertCircle, RotateCcw } from 'lucide-react';
 import Button from './Button';
+import styles from './ErrorState.module.css';
 
 export default function ErrorState({
-  title = 'حدث خطأ في تحميل البيانات',
-  message = 'تعذر الاتصال بالخادم أو حدث خطأ غير متوقع. يرجى إعادة المحاولة.',
-  onRetry
+  title = 'حصل خطأ في التحميل',
+  message = 'الاتصال ضعيف. حاول تاني.',
+  onRetry,
+  className = '',
 }) {
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 'var(--space-10) var(--space-4)',
-        textAlign: 'center',
-        background: 'var(--color-danger-bg)',
-        borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--color-danger-border)',
-        margin: 'var(--space-4) 0'
-      }}
-    >
-      <div style={{ fontSize: '2.5rem', marginBottom: 'var(--space-2)' }} aria-hidden="true">
-        ⚠️
+    <div className={`${styles.wrapper} ${className}`} role="alert">
+      <div className={styles.iconBox} aria-hidden="true">
+        <AlertCircle size={26} strokeWidth={1.75} />
       </div>
-      <h3 style={{ color: 'var(--color-danger)', marginBottom: 'var(--space-2)' }}>{title}</h3>
-      <p style={{ maxWidth: '440px', color: 'var(--color-slate-700)', marginBottom: onRetry ? 'var(--space-4)' : 0 }}>
-        {message}
-      </p>
+      <h3 className={styles.title}>{title}</h3>
+      <p className={styles.message}>{message}</p>
       {onRetry && (
-        <Button variant="danger" size="sm" onClick={onRetry}>
-          إعادة المحاولة
+        <Button
+          variant="secondary"
+          size="sm"
+          icon={RotateCcw}
+          onClick={onRetry}
+          className={styles.retryBtn}
+        >
+          حاول تاني
         </Button>
       )}
     </div>

@@ -1,6 +1,46 @@
 # Wex Technology Web - Project Progress Tracker
 
-## (a) Project Phases and Completion Status
+## Redesign & Hardening Track (Branch: redesign)
+
+- [x] **Redesign Phase 1: Design System & Base Components**
+  - Self-hosted Tajawal font weights (400, 500, 700, 800) via `@fontsource/tajawal` with Arabic and Latin woff2 preloaded in `index.html`. Removed Cairo/Inter.
+  - Refactored `tokens.css` with exact brand guide colors (Navy `#061A55`, Royal `#0B3FBF`, Vivid `#1E6BFF`, Cyan `#00B7FF` accent, Ice `#EAF3FF`, White `#FFFFFF`), 12px card radius, 10px input/button radius, 1px slate-200 borders, and restrained floating shadows.
+  - Implemented base components as CSS Modules: `Button`, `Input`, `Select`, `Chip`, `Tag` / `Badge`, `Card`, `Sheet`, `Modal`, `Toast`, `Skeleton`, `EmptyState`, `Countdown`, `CopyField`.
+  - Installed `lucide-react` (stroke 1.75, size 20) and removed emojis from base components and formatters.
+  - Deleted dead CSS (`mockup.css`).
+  - Set up ESLint with `eslint-plugin-jsx-a11y` and `eslint-plugin-react`.
+  - All 24 unit tests passing, production build verified.
+- [ ] **Redesign Phase 2: Layout & Navigation**
+  - Header: logo (min 120px), search field (inline on desktop, icon-expand on mobile), notification bell with dot, cart counter.
+  - Rate strip: "الدرهم اليوم 650 جنيه" + timestamp. Removed dark top banner.
+  - Mobile bottom navigation (4 tabs: الرئيسية، المتجر، طلباتي، حسابي) with Lucide icons.
+  - Plain footer: address (مول الواحة - الشهداء - أم درمان), hours, phone, WhatsApp.
+  - Global ErrorBoundary and updated 404 page with CSS Modules.
+- [ ] **Redesign Phase 3: Storefront & Catalog**
+  - Home: search field, category chips, "وصل جديد" grid, "ملحقات" row, 3-step "كيف تطلب", shop info block.
+  - Shared ProductCard: 4:3 image, 2-line name, single spec line, condition tag, large SDG price + small AED, stock badge if low.
+  - Catalog: mobile bottom sheet filters, desktop sidebar, URL sync, sort, skeletons, empty state, "عرض المزيد" pagination.
+  - Product Page: gallery with zoom, specs definition list, warranty text from API, accessories row, sticky mobile bottom action bar.
+- [ ] **Redesign Phase 4: Cart, Checkout & Sign-In**
+  - Cart: compact list, quantity stepper, clear summary, "السلة فاضية".
+  - Checkout: one-page 3-step layout (pickup/delivery, Sudan phone input, price lock notice, double-submit protection).
+  - Sign-in: Google button, 6-box OTP input (autofocus, paste fill, 60s timer, Sudanese friendly copy).
+- [ ] **Redesign Phase 5: Customer Operations**
+  - Order Detail: live tabular countdown with warning under 30 min, Bankak card with CopyFields, client-side receipt image compression (target < 1MB), timeline, WhatsApp support.
+  - Orders list, notifications, account with CSS Modules and zero inline styles.
+- [ ] **Redesign Phase 6: Admin Redesign**
+  - Split-view payment review (receipt preview/zoom alongside details, one-click approve/reject with canned notes).
+  - Orders table, products form with specs builder, rates management with confirmation dialog.
+- [ ] **Redesign Phase 7: Copy, A11y & Performance Pass**
+  - Complete copy review eliminating all forbidden words.
+  - React.lazy for routes, admin chunk segregation, LCP preloads.
+- [ ] **Redesign Phase 8: Final Audit & Verification**
+  - Automated grep checks: zero inline styles, zero emojis, zero forbidden words, zero Cairo.
+  - Full lint, test, build verification and documentation updates.
+
+---
+
+## (a) Initial Project Phases (Completed on main)
 
 - [x] **Phase 0: Inspection and Contract**
   - Inspected backend routes, controllers, entities, services, models, and tests.

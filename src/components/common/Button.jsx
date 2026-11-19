@@ -1,42 +1,44 @@
 import React from 'react';
+import styles from './Button.module.css';
 
+// Reusable Button atom with CSS Modules and 44px min touch target
 export default function Button({
   children,
   variant = 'primary',
   size = 'md',
-  block = false,
+  fullWidth = false,
   loading = false,
   disabled = false,
   type = 'button',
-  icon = null,
+  icon: Icon,
   className = '',
   onClick,
-  ...props
+  ...rest
 }) {
-  const variantClass = `btn-${variant}`;
-  const sizeClass = size === 'sm' ? 'btn-sm' : size === 'lg' ? 'btn-lg' : '';
-  const blockClass = block ? 'btn-block' : '';
+  const classNames = [
+    styles.button,
+    styles[variant] || styles.primary,
+    styles[size] || styles.md,
+    fullWidth ? styles.fullWidth : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <button
       type={type}
-      className={`btn ${variantClass} ${sizeClass} ${blockClass} ${className}`}
+      className={classNames}
       disabled={disabled || loading}
-      aria-disabled={disabled || loading}
       onClick={onClick}
-      {...props}
+      {...rest}
     >
       {loading ? (
-        <>
-          <span className="spinner" aria-hidden="true" />
-          <span>{children}</span>
-        </>
-      ) : (
-        <>
-          {icon && <span className="btn-icon-wrapper" aria-hidden="true">{icon}</span>}
-          <span>{children}</span>
-        </>
-      )}
+        <span className={styles.spinner} aria-hidden="true" />
+      ) : Icon ? (
+        <Icon size={18} strokeWidth={1.75} aria-hidden="true" />
+      ) : null}
+      <span>{children}</span>
     </button>
   );
 }

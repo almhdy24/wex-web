@@ -1,40 +1,22 @@
 import React from 'react';
-import Button from './Button';
+import { PackageOpen } from 'lucide-react';
+import styles from './EmptyState.module.css';
 
 export default function EmptyState({
+  icon: Icon = PackageOpen,
   title = 'لا توجد بيانات',
-  description = 'لم نتمكن من العثور على أي نتائج في هذا القسم حالياً.',
-  icon = '📦',
-  actionLabel,
-  onAction
+  description,
+  action,
+  className = '',
 }) {
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 'var(--space-12) var(--space-4)',
-        textAlign: 'center',
-        background: 'var(--color-white)',
-        borderRadius: 'var(--radius-lg)',
-        border: '1px dashed var(--color-slate-300)',
-        margin: 'var(--space-4) 0'
-      }}
-    >
-      <div style={{ fontSize: '3rem', marginBottom: 'var(--space-3)' }} aria-hidden="true">
-        {icon}
+    <div className={`${styles.wrapper} ${className}`}>
+      <div className={styles.iconBox} aria-hidden="true">
+        <Icon size={28} strokeWidth={1.75} />
       </div>
-      <h3 style={{ marginBottom: 'var(--space-2)' }}>{title}</h3>
-      <p style={{ maxWidth: '420px', color: 'var(--color-slate-500)', marginBottom: actionLabel ? 'var(--space-5)' : 0 }}>
-        {description}
-      </p>
-      {actionLabel && onAction && (
-        <Button variant="primary" onClick={onAction}>
-          {actionLabel}
-        </Button>
-      )}
+      <h3 className={styles.title}>{title}</h3>
+      {description && <p className={styles.description}>{description}</p>}
+      {action && <div className={styles.action}>{action}</div>}
     </div>
   );
 }

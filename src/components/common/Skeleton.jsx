@@ -1,15 +1,26 @@
 import React from 'react';
+import styles from './Skeleton.module.css';
 
-export function Skeleton({ width = '100%', height = '20px', borderRadius = 'var(--radius-sm)', className = '', style = {} }) {
+export function Skeleton({
+  variant = 'text',
+  width,
+  height,
+  borderRadius,
+  className = '',
+}) {
+  const variantClass = styles[variant] || styles.text;
+
+  // Truly dynamic dimension styles when explicit custom string provided
+  const dynamicStyle = (width || height || borderRadius) ? {
+    ...(width ? { width } : {}),
+    ...(height ? { height } : {}),
+    ...(borderRadius ? { borderRadius } : {}),
+  } : undefined;
+
   return (
     <div
-      className={`skeleton ${className}`}
-      style={{
-        width,
-        height,
-        borderRadius,
-        ...style
-      }}
+      className={`${styles.skeleton} ${variantClass} ${className}`}
+      style={dynamicStyle}
       aria-hidden="true"
     />
   );
@@ -17,26 +28,22 @@ export function Skeleton({ width = '100%', height = '20px', borderRadius = 'var(
 
 export function ProductCardSkeleton() {
   return (
-    <div className="card" style={{ padding: 'var(--space-4)' }}>
-      <Skeleton height="180px" borderRadius="var(--radius-md)" style={{ marginBottom: 'var(--space-3)' }} />
-      <Skeleton width="40%" height="14px" style={{ marginBottom: 'var(--space-2)' }} />
-      <Skeleton width="90%" height="20px" style={{ marginBottom: 'var(--space-2)' }} />
-      <Skeleton width="60%" height="14px" style={{ marginBottom: 'var(--space-4)' }} />
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Skeleton width="45%" height="24px" />
-        <Skeleton width="35%" height="36px" borderRadius="var(--radius-md)" />
-      </div>
+    <div className={styles.productCard} aria-hidden="true">
+      <Skeleton variant="card" className={styles.productImage} />
+      <Skeleton variant="text" className={styles.productSpec} />
+      <Skeleton variant="title" className={styles.productTitle} />
+      <Skeleton variant="title" className={styles.productPrice} />
     </div>
   );
 }
 
 export function TableSkeleton({ rows = 5, cols = 4 }) {
   return (
-    <div className="table-container" style={{ padding: 'var(--space-4)' }}>
+    <div className={styles.tableSkeleton} aria-hidden="true">
       {Array.from({ length: rows }).map((_, r) => (
-        <div key={r} style={{ display: 'flex', gap: 'var(--space-4)', padding: 'var(--space-3) 0', borderBottom: '1px solid var(--color-slate-100)' }}>
+        <div key={r} className={styles.tableRow}>
           {Array.from({ length: cols }).map((_, c) => (
-            <Skeleton key={c} width={`${100 / cols}%`} height="20px" />
+            <Skeleton key={c} variant="text" />
           ))}
         </div>
       ))}

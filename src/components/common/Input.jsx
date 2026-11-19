@@ -1,57 +1,88 @@
 import React from 'react';
+import styles from './Input.module.css';
 
 export default function Input({
-  label,
+  id,
   name,
+  label,
   type = 'text',
   value,
   onChange,
   placeholder,
-  error,
-  hint,
   required = false,
   disabled = false,
-  dir,
+  error,
+  helperText,
+  iconStart: IconStart,
+  iconEnd: IconEnd,
   className = '',
-  ...props
+  dir,
+  inputMode,
+  autoComplete,
+  ...rest
 }) {
-  const inputId = name || `input-${Math.random().toString(36).substring(2, 9)}`;
+  const inputId = id || name;
+
+  const inputClasses = [
+    styles.input,
+    error ? styles.hasError : '',
+    IconStart ? styles.hasIconStart : '',
+    IconEnd ? styles.hasIconEnd : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
-    <div className={`form-group ${className}`}>
+    <div className={styles.wrapper}>
       {label && (
-        <label
-          htmlFor={inputId}
-          className={`form-label ${required ? 'form-label-required' : ''}`}
-        >
+        <label htmlFor={inputId} className={styles.label}>
           {label}
+          {required && <span className={styles.required}>*</span>}
         </label>
       )}
-      <input
-        id={inputId}
-        name={name}
-        type={type}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        required={required}
-        disabled={disabled}
-        dir={dir}
-        className={`form-input ${error ? 'is-invalid' : ''}`}
-        aria-invalid={error ? 'true' : 'false'}
-        aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}
-        {...props}
-      />
-      {error && (
-        <span id={`${inputId}-error`} className="form-error" role="alert">
+
+      <div className={styles.inputBox}>
+        {IconStart && (
+          <span className={styles.iconStart}>
+            <IconStart size={18} strokeWidth={1.75} aria-hidden="true" />
+          </span>
+        )}
+
+        <input
+          id={inputId}
+          name={name}
+          type={type}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          required={required}
+          disabled={disabled}
+          dir={dir}
+          inputMode={inputMode}
+          autoComplete={autoComplete}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? `${inputId}-error` : helperText ? `${inputId}-desc` : undefined}
+          className={inputClasses}
+          {...rest}
+        />
+
+        {IconEnd && (
+          <span className={styles.iconEnd}>
+            <IconEnd size={18} strokeWidth={1.75} aria-hidden="true" />
+          </span>
+        )}
+      </div>
+
+      {error ? (
+        <span id={`${inputId}-error`} className={styles.errorText} role="alert">
           {error}
         </span>
-      )}
-      {!error && hint && (
-        <span id={`${inputId}-hint`} className="form-hint">
-          {hint}
+      ) : helperText ? (
+        <span id={`${inputId}-desc`} className={styles.helperText}>
+          {helperText}
         </span>
-      )}
+      ) : null}
     </div>
   );
 }

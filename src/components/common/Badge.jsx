@@ -1,14 +1,4 @@
-import React from 'react';
+import Tag from './Tag';
 
-export default function Badge({
-  children,
-  variant = 'neutral',
-  className = '',
-  ...props
-}) {
-  return (
-    <span className={`badge badge-${variant} ${className}`} {...props}>
-      {children}
-    </span>
-  );
-}
+export default Tag;
+export { Tag as Badge };
