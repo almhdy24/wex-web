@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="wexGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#061A55"/>
+      <stop offset="100%" stop-color="#0B3FBF"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#wexGrad)"/>
+  <path d="M26 40 L44 92 L58 56 L68 78 L84 40 L96 40 L76 92 L62 60 L50 92 L18 40 Z" fill="#FFFFFF"/>
+  <circle cx="96" cy="44" r="6" fill="#00B7FF"/>
+</svg>

@@ -1,0 +1,58 @@
+import React, { createContext, useContext, useState, useCallback } from 'react';
+
+const ToastContext = createContext(null);
+
+export function ToastProvider({ children }) {
+  const [toasts, setToasts] = useState([]);
+
+  const addToast = useCallback((message, type = 'info', durationMs = 4000) => {
+    const id = Date.now() + Math.random().toString(36).substring(2, 6);
+    setToasts((prev) => [...prev, { id, message, type }]);
+
+    if (durationMs > 0) {
+      setTimeout(() => {
+        setToasts((prev) => prev.filter((t) => t.id !== id));
+      }, durationMs);
+    }
+  }, []);
+
+  const removeToast = useCallback((id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  const success = useCallback((msg, duration) => addToast(msg, 'success', duration), [addToast]);
+  const error = useCallback((msg, duration) => addToast(msg, 'error', duration), [addToast]);
+  const info = useCallback((msg, duration) => addToast(msg, 'info', duration), [addToast]);
+
+  return (
+    <ToastContext.Provider value={{ addToast, removeToast, success, error, info }}>
+      {children}
+      <div className="toast-container" aria-live="polite" aria-atomic="true">
+        {toasts.map((toast) => (
+          <div
+            key={toast.id}
+            className={`toast toast-${toast.type}`}
+            onClick={() => removeToast(toast.id)}
+            role="status"
+            style={{ cursor: 'pointer' }}
+          >
+            <span aria-hidden="true">
+              {toast.type === 'success' && '✓'}
+              {toast.type === 'error' && '✕'}
+              {toast.type === 'info' && 'ℹ'}
+            </span>
+            <span style={{ flex: 1 }}>{toast.message}</span>
+          </div>
+        ))}
+      </div>
+    </ToastContext.Provider>
+  );
+}
+
+export function useToast() {
+  const ctx = useContext(ToastContext);
+  if (!ctx) {
+    throw new Error('useToast must be used within ToastProvider');
+  }
+  return ctx;
+}

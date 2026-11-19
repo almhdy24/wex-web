@@ -9,13 +9,16 @@
   - Verified product images (relative uploads path) and protected payment proof binary streaming.
   - Created `docs/API-CONTRACT.md` documenting verified contracts and discrepancies.
   - Created `PROGRESS.md`.
-- [ ] **Phase 1: Frontend Foundation**
-  - Initialize React + Vite project.
-  - Configure environment files (`.env`, `.env.example`).
-  - Establish React Router structure (storefront & admin routes, 404, offline).
-  - Design system tokens (`tokens.css`, `global.css`, `components.css`).
-  - RTL Arabic-first layout, typography, and responsive shells (`StoreLayout`, `AdminLayout`).
-  - Common components (Button, Input, Modal, Toast, Skeleton, Table, Badge).
+- [x] **Phase 1: Frontend Foundation**
+  - Initialized React 19 + Vite 8 in `~/projects/wex-web`.
+  - Configured portable npm scripts for Termux Android environment.
+  - Configured environment files (`.env`, `.env.example`).
+  - Established React Router structure with StoreLayout and AdminLayout.
+  - Implemented Arabic-first RTL design system tokens (`tokens.css`, `global.css`, `components.css`).
+  - Created shared components (Button, Input, Select, Modal, Badge, Skeleton, EmptyState, ErrorState).
+  - Implemented ToastContext and notifications provider.
+  - Configured PWA manifest with original Wex Technology brand icons.
+  - Production build and test runner verified (100% passing).
 - [ ] **Phase 2: API and Authentication**
   - Centralized API client with JWT refresh rotation and request deduplication.
   - AuthContext & session management.
@@ -108,4 +111,4 @@
 ---
 
 ## (h) Next Immediate Action
-- Proceed to Phase 1: Initialize Vite + React project in `~/projects/wex-web`, establish routing, design tokens, responsive RTL layouts, and common components.
+- Proceed to Phase 2: Centralized API client (`src/api/client.js`), token refresh rotation, AuthContext implementation, Google Auth & Email OTP sign-in, session management, and `/me` profile updates.
