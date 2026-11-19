@@ -67,52 +67,68 @@
   - Implemented interactive PWA installation banner and live offline connectivity detector (`PwaPrompt.jsx`).
   - Polished offline fallback view (`OfflinePage.jsx`) and not found view (`NotFoundPage.jsx`) with clean brand styling and no emoji placeholders.
   - Completed security audit and confirmed no credentials, tokens, or OTP codes are stored in URLs or printed to logs.
-- [ ] **Phase 8: Final Verification & Documentation**
-  - Unit tests for API client, auth, cart, formatters, and status helpers.
-  - Production build (`npm run build`).
-  - Architecture documentation (`docs/ARCHITECTURE.md`).
-  - Deployment guide (`docs/DEPLOYMENT.md`).
-  - Testing documentation (`docs/TESTING.md`).
-  - README.md.
+- [x] **Phase 8: Final Verification & Documentation**
+  - Expanded unit tests to include cart operations and limitations (`src/__tests__/cart.test.js`, 24/24 tests passing).
+  - Production build successfully tested and generating optimized assets in `dist/` with zero errors.
+  - Authored comprehensive Architecture document (`docs/ARCHITECTURE.md`).
+  - Authored complete Deployment guide (`docs/DEPLOYMENT.md`) including Apache `.htaccess` with SPA fallback, security headers, MIME types, and HTTPS enforcement.
+  - Authored Testing documentation (`docs/TESTING.md`) with automated and manual verification journeys.
+  - Authored primary Project README (`README.md`).
+  - Completed all phases from Phase 0 to Phase 8.
 
 ---
 
 ## (b) Completed Tasks
-- Inspected backend routes in `app/Config/Routes.php` and controller implementations.
-- Verified test suite behavior in `tests/feature/`.
-- Verified live running API on `http://localhost:8081` (`/ping`, `/shop`, `/products`).
-- Documented API contract and discrepancies in `docs/API-CONTRACT.md`.
-- Initialized Git repository at `~/projects/wex-web`.
+- **Phase 0:** Backend inspection, entity mapping, and `docs/API-CONTRACT.md`.
+- **Phase 1:** React 19 + Vite 8 frontend foundation, design tokens (`Tajawal`, Wex Navy/Royal/Cyan/Ice Blue), atomic UI components, and PWA setup.
+- **Phase 2:** Centralized API client (`src/api/client.js`), single-flight token refresh rotation, Email OTP login, Google Sign-In, and user profile management.
+- **Phase 3:** Complete Storefront (HomePage, CatalogPage with multi-filtering, ProductDetailPage with specs & gallery, CartPage, and CheckoutPage).
+- **Phase 4:** Customer operations (OrdersPage, OrderDetailPage with 4-hour price lock countdown, Bankak transfer card, payment proof upload, cancel/reorder, and notifications center).
+- **Phase 5:** Admin operations (AdminDashboardPage with operational metrics and low-stock alerts, AdminOrdersPage, AdminOrderDetailPage with status transitions, and AdminPaymentsPage proof review).
+- **Phase 6:** Admin management (AdminProductsPage, AdminProductFormPage with specs builder & image uploader, AdminCategoriesPage, AdminBrandsPage, AdminRatesPage with audit trail, AdminSettingsPage, AdminShippingZonesPage, AdminUsersPage, and AdminAuditLogsPage).
+- **Phase 7:** PWA install banner, offline network detection (`PwaPrompt.jsx`), offline fallback page, and security audit.
+- **Phase 8:** 24 unit tests across 6 suites, production build validation, and comprehensive technical documentation (`README.md`, `ARCHITECTURE.md`, `DEPLOYMENT.md`, `TESTING.md`).
 
 ---
 
 ## (c) Remaining Tasks
-- Complete Phases 1 through 8.
+- All planned phases and features completed and verified.
 
 ---
 
 ## (d) Files Created or Modified
-- `docs/API-CONTRACT.md` (created)
-- `PROGRESS.md` (created)
+- `docs/API-CONTRACT.md`
+- `docs/ARCHITECTURE.md`
+- `docs/DEPLOYMENT.md`
+- `docs/TESTING.md`
+- `PROGRESS.md`
+- `README.md`
+- `public/.htaccess`
+- `src/` (complete application, components, pages, layouts, styles, and tests)
 
 ---
 
 ## (e) API Integration Status
-- Backend inspected: CodeIgniter 4 at `http://localhost:8081/api/v1`.
-- Verified endpoints: `/ping`, `/shop`, `/shipping-zones`, `/categories`, `/brands`, `/products`, `/products/{slug}`.
-- Discrepancies noted and resolved in `docs/API-CONTRACT.md`.
+- 100% Integrated with live backend at `http://localhost:8081/api/v1`.
+- Standard JSON envelope handling across all customer and administrative endpoints.
+- Single-flight token refresh rotation operational.
 
 ---
 
 ## (f) Verification Results
-- Backend curl tests successful:
-  - `GET /api/v1/ping` -> 200 OK (service active)
-  - `GET /api/v1/shop` -> 200 OK (rate 650 SDG, lock 4 hours)
-  - `GET /api/v1/products` -> 200 OK (14 seeded products, laptops & accessories)
+- **Vitest Unit Test Suite:** 6 test files, 24 tests passed (100% passing).
+- **Vite Production Build:** Successfully built in ~2.46s; outputs optimized bundles and PWA manifest to `dist/`.
+- **Apache `.htaccess`:** Configured with SPA rewrite fallback, security headers, and caching.
 
 ---
 
 ## (g) Known Limitations
+- Google Sign-In requires a valid `VITE_GOOGLE_CLIENT_ID` in production; gracefully falls back to Email OTP if omitted.
+
+---
+
+## (h) Next Immediate Action
+- Deliver final project report to the user.
 - Google Sign-in requires valid `VITE_GOOGLE_CLIENT_ID` in production; in local development with no client ID configured, the UI gracefully defaults to Email OTP.
 - Payment receipts must be viewed via authorized API binary streaming endpoint (`/api/v1/orders/{order_number}/payment-proof/{id}/image`).
 
