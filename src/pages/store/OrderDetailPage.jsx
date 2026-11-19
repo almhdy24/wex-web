@@ -12,64 +12,8 @@ import CopyField from '../../components/common/CopyField';
 import Countdown from '../../components/common/Countdown';
 import ErrorState from '../../components/common/ErrorState';
 import { Skeleton } from '../../components/common/Skeleton';
+import { compressProofImage } from '../../utils/imageCompressor';
 import styles from './OrderDetailPage.module.css';
-
-/**
- * Client-side receipt image compression
- * Scales images down to max 1600px dimension, compresses at JPEG 0.8 to stay well under 1MB
- */
-async function compressProofImage(file) {
-  // If not an image or already small SVG/GIF, return as is
-  if (!file.type.startsWith('image/')) return file;
-
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        let { width, height } = img;
-        const maxDim = 1600;
-
-        if (width > maxDim || height > maxDim) {
-          if (width > height) {
-            height = Math.round((height * maxDim) / width);
-            width = maxDim;
-          } else {
-            width = Math.round((width * maxDim) / height);
-            height = maxDim;
-          }
-        }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-
-        canvas.toBlob(
-          (blob) => {
-            if (!blob) {
-              resolve(file);
-              return;
-            }
-            const cleanName = file.name.replace(/\.[^.]+$/, '.jpg');
-            const compressedFile = new File([blob], cleanName, {
-              type: 'image/jpeg',
-              lastModified: Date.now(),
-            });
-            resolve(compressedFile);
-          },
-          'image/jpeg',
-          0.8
-        );
-      };
-      img.onerror = () => resolve(file);
-      img.src = e.target.result;
-    };
-    reader.onerror = () => resolve(file);
-    reader.readAsDataURL(file);
-  });
-}
 
 export default function OrderDetailPage() {
   const { orderNumber } = useParams();

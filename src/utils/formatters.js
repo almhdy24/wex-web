@@ -149,3 +149,28 @@ export function getProductImageUrl(path, _thumb = false) {
 
 export const resolveImageUrl = getProductImageUrl;
 export const formatCondition = getConditionLabel;
+
+/**
+ * Calculate time left until target ISO date
+ */
+export function calculateTimeLeft(targetDate) {
+  if (!targetDate) return { totalMs: 0, hours: 0, minutes: 0, seconds: 0, expired: true };
+  const diff = new Date(targetDate).getTime() - Date.now();
+  if (diff <= 0) {
+    return { totalMs: 0, hours: 0, minutes: 0, seconds: 0, expired: true };
+  }
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+  return { totalMs: diff, hours, minutes, seconds, expired: false };
+}
+
+/**
+ * Format remaining time components into tabular hh:mm:ss
+ */
+export function formatCountdown(hours, minutes, seconds, expired = false) {
+  if (expired) return '00:00:00';
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+}
+

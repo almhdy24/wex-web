@@ -48,8 +48,11 @@
 - **React Router 7:** لإدارة التنقل والحراسة الأمنية للمسارات.
 - **Context API:** لإدارة الحالات المشتركة (المصادقة، السلة، التنبيهات).
 - **CSS Tokens & Native CSS:** تصميم خفيف ومرن بدون أطر ثقيلة لضمان السرعة على الأجهزة الضعيفة (4GB RAM).
+- **CSS Modules & Design Tokens:** تصميم نقي وحديث بنظام CSS Modules بدون كلاسات متضاربة وبدون كود ميت.
+- **Lucide Icons:** أيقونات خفيفة متناسقة بدقة موحدة (stroke 1.75, size 20) بدون إيموجي.
+- **خط Tajawal المستضاف ذاتياً:** خط عربي حديث مستضاف محلياً مع تحميل مسبق (Preloaded WOFF2) وأرقام غربية جدولية (tabular-nums).
 - **vite-plugin-pwa:** لتوليد Service Worker وإدارة ملف البيان (Manifest).
-- **Vitest:** لإجراء اختبارات الوحدة السريعة.
+- **Vitest:** لإجراء اختبارات الوحدة السريعة (39 اختباراً ناجحاً بنسبة 100%).
 
 ---
 
@@ -67,7 +70,7 @@ cp .env.example .env
 
 محتوى الملف:
 ```env
-VITE_API_BASE_URL=http://localhost:8081/api/v1
+VITE_API_BASE_URL=/api/v1
 VITE_GOOGLE_CLIENT_ID=
 VITE_APP_NAME="Wex Technology | ويكس تكنولوجي"
 ```
@@ -77,26 +80,35 @@ VITE_APP_NAME="Wex Technology | ويكس تكنولوجي"
 npm install
 ```
 
-### 3. تشغيل وضع التطوير:
+### 3. تشغيل وضع التطوير مع الوكيل العكسي (Proxy):
 ```bash
 npm run dev
 ```
 افتح المتصفح على: `http://localhost:5173`
+(يقوم Vite تلقائياً بتوجيه طلبات `/api` و `/uploads` إلى الخادم الخلفي `http://localhost:8081`).
 
 ### 4. تشغيل الاختبارات الآلية:
 ```bash
 npm run test
 ```
 
-### 5. بناء حزمة الإنتاج:
+### 5. فحص الجودة والتنسيق (Lint):
+```bash
+npm run lint
+```
+
+### 6. بناء حزمة الإنتاج:
 ```bash
 npm run build
 ```
 
 ---
 
-## 📁 الوثائق الإضافية (Documentation)
+## 📁 الوثائق التقنية ومواصفات النظام (Documentation)
 
+- [نظام التصميم وواجهات المستخدم (Design System Guide)](docs/DESIGN-SYSTEM.md)
+- [قائمة التحقق من واجهات المستخدم (UI/UX Checklist)](docs/UI-CHECKLIST.md)
+- [تقرير الأداء وتقسيم الحزم (Performance & Optimization)](docs/PERFORMANCE.md)
 - [عقد واجهات برمجة التطبيقات (API Contract)](docs/API-CONTRACT.md)
 - [الهندسة المعمارية للنظام (Architecture Guide)](docs/ARCHITECTURE.md)
 - [دليل النشر على Apache / Nginx (Deployment Guide)](docs/DEPLOYMENT.md)

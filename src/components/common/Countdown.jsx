@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, AlertTriangle } from 'lucide-react';
+import { calculateTimeLeft, formatCountdown } from '../../utils/formatters';
 import styles from './Countdown.module.css';
 
 export default function Countdown({
@@ -9,18 +10,6 @@ export default function Countdown({
   onExpire,
 }) {
   const [timeLeft, setTimeLeft] = useState(() => calculateTimeLeft(expiresAt));
-
-  function calculateTimeLeft(targetDate) {
-    if (!targetDate) return { totalMs: 0, hours: 0, minutes: 0, seconds: 0, expired: true };
-    const diff = new Date(targetDate).getTime() - Date.now();
-    if (diff <= 0) {
-      return { totalMs: 0, hours: 0, minutes: 0, seconds: 0, expired: true };
-    }
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-    return { totalMs: diff, hours, minutes, seconds, expired: false };
-  }
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -39,10 +28,7 @@ export default function Countdown({
   const progressPercent = Math.max(0, Math.min(100, (timeLeft.totalMs / totalDurationMs) * 100));
   const isUnder30Min = !timeLeft.expired && timeLeft.totalMs < 30 * 60 * 1000;
 
-  const pad = (n) => String(n).padStart(2, '0');
-  const formattedTime = timeLeft.expired
-    ? '00:00:00'
-    : `${pad(timeLeft.hours)}:${pad(timeLeft.minutes)}:${pad(timeLeft.seconds)}`;
+  const formattedTime = formatCountdown(timeLeft.hours, timeLeft.minutes, timeLeft.seconds, timeLeft.expired);
 
   const bannerClass = [
     styles.banner,
