@@ -103,9 +103,14 @@ export const ar = {
 
   splash: {
     title: 'ويكس تكنولوجي',
-    subtitle: 'حواسيب وإلكترونيات بأم درمان',
-    location: 'مول الواحة - الشهداء',
-    skip: 'تخطي والدخول',
+    brandEn: 'WEX TECHNOLOGY',
+    subtitle: 'أجهزة الحواسيب المحمولة والإلكترونيات',
+    subtitleEn: 'Laptops & Technology Solutions',
+    location: 'أم درمان · مول الواحة',
+    locationEn: 'Omdurman · Al Waha Mall',
+    initializing: 'جاري تهيئة المتجر...',
+    skip: 'متابعة إلى المتجر',
+    ariaLabel: 'شاشة تحميل متجر ويكس تكنولوجي',
   },
 
   priceNotice: {

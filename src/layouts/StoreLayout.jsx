@@ -28,18 +28,30 @@ import styles from './StoreLayout.module.css';
 
 export default function StoreLayout() {
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const { isDesktop } = useViewport();
   const { success: toastSuccess, info: toastInfo } = useToast();
 
   const [showSplash, setShowSplash] = useState(() => {
     try {
+      // Do not interrupt transaction / deep-link flows (checkout, cart, auth, direct orders)
+      const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+      if (
+        pathname === '/checkout' ||
+        pathname === '/cart' ||
+        pathname === '/login' ||
+        pathname.startsWith('/auth') ||
+        pathname.startsWith('/orders/')
+      ) {
+        return false;
+      }
       return !sessionStorage.getItem('wex_splash_shown');
     } catch {
       return false;
     }
   });
 
+  const [shopLoading, setShopLoading] = useState(true);
   const [activeOrderCount, setActiveOrderCount] = useState(0);
   const [unreadCount, setUnreadCount] = useState(0);
   const [shopInfo, setShopInfo] = useState(null);
@@ -169,7 +181,12 @@ export default function StoreLayout() {
           setShopInfo(res.data);
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        if (isMounted) {
+          setShopLoading(false);
+        }
+      });
 
     api.get('/announcements')
       .then((res) => {
@@ -183,6 +200,8 @@ export default function StoreLayout() {
       isMounted = false;
     };
   }, []);
+
+  const isAppReady = !authLoading && !shopLoading;
 
   // Scroll Restoration / Keep-Alive Scroll Position
   useEffect(() => {
@@ -213,7 +232,12 @@ export default function StoreLayout() {
     return (
       <div className={styles.desktopShell}>
         <a href="#main-content" className={styles.skipLink}>انتقل إلى المحتوى الرئيسي</a>
-        {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
+        {showSplash && (
+          <SplashScreen
+            isReady={isAppReady}
+            onFinish={() => setShowSplash(false)}
+          />
+        )}
 
         <DesktopHeader onOpenCart={() => setIsCartDrawerOpen(true)} />
         {shopInfo && shopInfo.orders_enabled === false && (
@@ -253,7 +277,12 @@ export default function StoreLayout() {
   return (
     <div className={styles.desktopViewport}>
       <a href="#main-content" className={styles.skipLink}>انتقل إلى المحتوى الرئيسي</a>
-      {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
+      {showSplash && (
+        <SplashScreen
+          isReady={isAppReady}
+          onFinish={() => setShowSplash(false)}
+        />
+      )}
 
       <div className={styles.appShell} style={{ '--bottom-offset': bottomOffset }}>
         <AppBar

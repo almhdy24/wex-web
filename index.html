@@ -19,10 +19,46 @@
     <link rel="preload" href="/fonts/tajawal-arabic-700-normal.woff2" as="font" type="font/woff2" crossorigin />
     <!-- Logo Preload for fast LCP -->
     <link rel="preload" href="/assets/logo.png" as="image" />
+
+    <!-- Zero-flicker instant brand boot styling -->
+    <style>
+      :root {
+        --wex-navy: #061A55;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+        background-color: #061A55;
+        color: #FFFFFF;
+        font-family: 'Tajawal', system-ui, -apple-system, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      #root {
+        min-height: 100vh;
+        min-height: 100dvh;
+      }
+    </style>
   </head>
   <body>
     <a href="#main-content" class="skip-link">انتقل إلى المحتوى الأساسي</a>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Pre-hydration brand fallback: seamlessly replaced once React hydrates -->
+      <div id="wex-preboot" style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#061A55;color:#FFFFFF;z-index:9999;user-select:none;">
+        <svg width="68" height="68" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="margin-bottom:16px;border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,0.35);">
+          <defs>
+            <linearGradient id="preGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#0B3FBF"/>
+              <stop offset="100%" stop-color="#1E6BFF"/>
+            </linearGradient>
+          </defs>
+          <rect width="128" height="128" rx="28" fill="url(#preGrad)"/>
+          <path d="M26 40 L44 92 L58 56 L68 78 L84 40 L96 40 L76 92 L62 60 L50 92 L18 40 Z" fill="#FFFFFF"/>
+          <circle cx="96" cy="44" r="6" fill="#00B7FF"/>
+        </svg>
+        <span style="font-size:11px;font-weight:700;letter-spacing:2px;color:#00B7FF;text-transform:uppercase;margin-bottom:4px;">WEX TECHNOLOGY</span>
+        <span style="font-size:20px;font-weight:800;color:#FFFFFF;">ويكس تكنولوجي</span>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
