@@ -519,5 +519,26 @@ Calm, trustworthy, production-ready UI/UX tailored for Sudanese customers and el
   - Authored detailed verification matrix in `docs/UI-CHECKLIST.md` across 6 responsive breakpoints (360px, 390px, 768px, 1024px, 1280px, 1536px), desktop feature matrix, and universal UX rules.
   - Completed Double Check the Double Check: verified clean ESLint (0 errors, 0 warnings), 100% Vitest pass rate (16 test files, 77/77 tests), and clean production build under initial budgets (JS 128.53 kB <= 170 kB gzip, CSS 12.39 kB <= 45 kB gzip).
 
+---
+
+# Admin Redesign Track (Branch `admin-ux`)
+
+Ground-up redesign of the administration panel tailored for store operators and retail staff under Sudanese mobile network conditions and dual usage (smartphone one-hand + desktop PC).
+
+- [x] **Phase 0: Admin Audit, Comprehensive Plan & API Gaps Analysis**
+  - Audited all existing admin pages, routes, controllers, and styles.
+  - Authored `docs/API-GAPS.md` detailing backend limitations (payments queue, global search, product duplication, bulk actions, rate impact preview, live push) and explicit client-side workarounds.
+  - Authored `docs/ADMIN-PLAN.md` documenting screen-by-screen responsive layouts across Phone (< 768px), Tablet (768-1023px), and Desktop (>= 1024px), including loading, empty, and error states.
+  - Verification: 0 lint errors, 16 test files and 77 tests passing (100%), production build clean.
+- [ ] **Phase 1: Admin Shell and Primitives Foundation**
+- [ ] **Phase 2: Today Dashboard & Payments Review Queue**
+- [ ] **Phase 3: Orders List & Order Detail with Next-Step Actions**
+- [ ] **Phase 4: Products List & Multi-Section Product Form**
+- [ ] **Phase 5: Exchange Rate, Settings & Shipping Zones**
+- [ ] **Phase 6: Users, Audit Log, Role-Based Navigation & Login Redirect**
+- [ ] **Phase 7: Polish (A11y, Idle Timer, Admin PWA Manifest, Error Recovery)**
+- [ ] **Phase 8: Tests, Documentation & Final Double Check Verification**
+
+
 
 
