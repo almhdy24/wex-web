@@ -67,9 +67,10 @@ export default function VerifyOtpPage() {
         const { user, access_token, refresh_token } = res.data;
         loginWithSession(user, access_token, refresh_token);
         success(`أهلاً بك يا ${user.name}`);
+        const customerTarget = (from && !from.startsWith('/login') && !from.startsWith('/auth')) ? from : '/';
         const target = (user.role === 'admin' || user.role === 'staff')
           ? (from !== '/' && from.startsWith('/admin') ? from : '/admin')
-          : from;
+          : customerTarget;
         navigate(target, { replace: true });
       } catch (err) {
         if (err.errors?.name) {
@@ -241,7 +242,10 @@ export default function VerifyOtpPage() {
           </button>
         </form>
 
-        <Link to="/login" className={styles.backLink}>
+        <Link
+          to={from && from !== '/' ? `/login?returnTo=${encodeURIComponent(from)}` : '/login'}
+          className={styles.backLink}
+        >
           <ArrowRight size={14} />
           <span>تغيير البريد الإلكتروني</span>
         </Link>

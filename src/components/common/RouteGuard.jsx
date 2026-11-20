@@ -83,12 +83,24 @@ export function GuestRoute({ children }) {
   }
 
   if (isAuthenticated) {
+    const searchReturnTo = new URLSearchParams(location.search).get('returnTo');
+    const rawFrom =
+      typeof location.state?.from === 'string'
+        ? location.state.from
+        : location.state?.from?.pathname;
+    const target = rawFrom || searchReturnTo || null;
+
     if (user?.role === 'admin' || user?.role === 'staff') {
-      const from = location.state?.from?.pathname || '/admin';
-      return <Navigate to={from.startsWith('/admin') ? from : '/admin'} replace />;
+      const adminTarget = target && target.startsWith('/admin') ? target : '/admin';
+      return <Navigate to={adminTarget} replace />;
     }
-    const from = location.state?.from?.pathname || '/';
-    return <Navigate to={from} replace />;
+
+    // Customer: Never redirect back to login or verify page; redirect to intended target or '/'
+    const safeTarget =
+      target && !target.startsWith('/login') && !target.startsWith('/auth')
+        ? target
+        : '/';
+    return <Navigate to={safeTarget} replace />;
   }
 
   return children;

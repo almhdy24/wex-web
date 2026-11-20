@@ -8,6 +8,9 @@ import { AuthContext } from '../context/AuthContext';
 import CartPage from '../pages/store/CartPage';
 import CheckoutPage from '../pages/store/CheckoutPage';
 import PendingOrderBanner from '../components/common/PendingOrderBanner';
+import { GuestRoute } from '../components/common/RouteGuard';
+import AppBar from '../components/common/AppBar';
+import BottomTabBar from '../components/common/BottomTabBar';
 
 const mockItem = {
   id: 1,
@@ -110,6 +113,132 @@ describe('Cart & Checkout System Unit Tests', () => {
       expect(html).toContain('رقم هاتف التواصل والواتساب:');
       expect(html).toContain('مراجعة الطلب');
       expect(html).toContain('الإجمالي المطلوب تحويله:');
+    });
+
+    it('renders guest shopping notice banner when unauthenticated', () => {
+      const html = renderHtml(<CheckoutPage />, {
+        isAuthenticated: false,
+        user: null,
+      });
+
+      expect(html).toContain('تسوق سريع ومريح');
+      expect(html).toContain('تسجيل الدخول مسبقاً');
+      expect(html).toContain('الدخول والتثبيت');
+    });
+  });
+
+  describe('GuestRoute & Purchase Navigation Continuity', () => {
+    it('renders login children when unauthenticated', () => {
+      const markup = renderToStaticMarkup(
+        <MemoryRouter initialEntries={['/login']}>
+          <AuthContext.Provider value={{ user: null, isAuthenticated: false, loading: false }}>
+            <GuestRoute>
+              <div>صفحة الدخول للزائر</div>
+            </GuestRoute>
+          </AuthContext.Provider>
+        </MemoryRouter>
+      );
+
+      expect(markup).toContain('صفحة الدخول للزائر');
+    });
+
+    it('redirects authenticated user to intended returnTo destination instead of home', () => {
+      let capturedElement = null;
+      function TestWrapper() {
+        capturedElement = GuestRoute({ children: <div>صفحة الدخول</div> });
+        return null;
+      }
+
+      renderToStaticMarkup(
+        <MemoryRouter initialEntries={['/login?returnTo=/checkout']}>
+          <AuthContext.Provider
+            value={{
+              user: { id: 1, name: 'أحمد', role: 'customer' },
+              isAuthenticated: true,
+              loading: false,
+            }}
+          >
+            <TestWrapper />
+          </AuthContext.Provider>
+        </MemoryRouter>
+      );
+
+      expect(capturedElement).not.toBeNull();
+      expect(capturedElement.props.to).toBe('/checkout');
+      expect(capturedElement.props.replace).toBe(true);
+    });
+
+    it('redirects authenticated user with string state.from to intended checkout target', () => {
+      let capturedElement = null;
+      function TestWrapper() {
+        capturedElement = GuestRoute({ children: <div>صفحة الدخول</div> });
+        return null;
+      }
+
+      renderToStaticMarkup(
+        <MemoryRouter initialEntries={[{ pathname: '/login', state: { from: '/checkout' } }]}>
+          <AuthContext.Provider
+            value={{
+              user: { id: 1, name: 'أحمد', role: 'customer' },
+              isAuthenticated: true,
+              loading: false,
+            }}
+          >
+            <TestWrapper />
+          </AuthContext.Provider>
+        </MemoryRouter>
+      );
+
+      expect(capturedElement).not.toBeNull();
+      expect(capturedElement.props.to).toBe('/checkout');
+      expect(capturedElement.props.replace).toBe(true);
+    });
+
+    it('redirects authenticated admin to admin panel instead of customer checkout', () => {
+      let capturedElement = null;
+      function TestWrapper() {
+        capturedElement = GuestRoute({ children: <div>صفحة الدخول</div> });
+        return null;
+      }
+
+      renderToStaticMarkup(
+        <MemoryRouter initialEntries={['/login?returnTo=/checkout']}>
+          <AuthContext.Provider
+            value={{
+              user: { id: 1, name: 'المدير', role: 'admin' },
+              isAuthenticated: true,
+              loading: false,
+            }}
+          >
+            <TestWrapper />
+          </AuthContext.Provider>
+        </MemoryRouter>
+      );
+
+      expect(capturedElement).not.toBeNull();
+      expect(capturedElement.props.to).toBe('/admin');
+    });
+  });
+
+  describe('Storefront Header & Navigation Distraction Prevention', () => {
+    it('AppBar does not render distracting notifications button during shopping funnel', () => {
+      const html = renderHtml(
+        <AppBar title="إتمام الطلب" showNotifications={false} showCart={false} />
+      );
+
+      expect(html).not.toContain('to="/notifications"');
+      expect(html).not.toContain('app-bar-cart-btn');
+    });
+
+    it('BottomTabBar displays unread badge on Account tab', () => {
+      const html = renderHtml(
+        <BottomTabBar activeOrderCount={2} unreadCount={3} />
+      );
+
+      expect(html).toContain('حسابي');
+      expect(html).toContain('3');
+      expect(html).toContain('طلباتي');
+      expect(html).toContain('2');
     });
   });
 

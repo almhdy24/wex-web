@@ -37,10 +37,10 @@ export default function CheckoutPage() {
   const { success, error: toastError, info: toastInfo } = useToast();
   const navigate = useNavigate();
 
-  // Load draft values if present
+  // Load draft values if present (check localStorage first, then sessionStorage)
   const [draft] = useState(() => {
     try {
-      const saved = sessionStorage.getItem(DRAFT_STORAGE_KEY);
+      const saved = localStorage.getItem(DRAFT_STORAGE_KEY) || sessionStorage.getItem(DRAFT_STORAGE_KEY);
       return saved ? JSON.parse(saved) : {};
     } catch {
       return {};
@@ -70,29 +70,35 @@ export default function CheckoutPage() {
 
   const isOrdersDisabled = shopInfo?.orders_enabled === false;
 
-  // Sync draft to sessionStorage
+  // Autofill contact phone if empty when user authenticates
+  useEffect(() => {
+    if (user?.phone && !contactPhone) {
+      setContactPhone(user.phone);
+    }
+  }, [user?.phone, contactPhone]);
+
+  // Sync draft to both localStorage and sessionStorage
   useEffect(() => {
     try {
-      sessionStorage.setItem(
-        DRAFT_STORAGE_KEY,
-        JSON.stringify({
-          orderType,
-          selectedZoneId,
-          deliveryAddress,
-          contactPhone,
-          customerNotes,
-        })
-      );
+      const draftData = JSON.stringify({
+        orderType,
+        selectedZoneId,
+        deliveryAddress,
+        contactPhone,
+        customerNotes,
+      });
+      localStorage.setItem(DRAFT_STORAGE_KEY, draftData);
+      sessionStorage.setItem(DRAFT_STORAGE_KEY, draftData);
     } catch {
       // ignore storage errors
     }
   }, [orderType, selectedZoneId, deliveryAddress, contactPhone, customerNotes]);
 
   useEffect(() => {
-    if (items.length === 0) {
+    if (items.length === 0 && !submitting) {
       navigate('/cart', { replace: true });
     }
-  }, [items, navigate]);
+  }, [items, navigate, submitting]);
 
   useEffect(() => {
     let isMounted = true;
@@ -190,6 +196,7 @@ export default function CheckoutPage() {
       const createdOrder = res.data;
       clearCart();
       try {
+        localStorage.removeItem(DRAFT_STORAGE_KEY);
         sessionStorage.removeItem(DRAFT_STORAGE_KEY);
       } catch {
         // storage cleanup
@@ -247,6 +254,26 @@ export default function CheckoutPage() {
             {isOrdersDisabled && (
               <div style={{ marginBottom: 'var(--space-4)' }}>
                 <OrdersDisabledBanner message={shopInfo?.orders_disabled_message} />
+              </div>
+            )}
+
+            {!isAuthenticated && (
+              <div className={styles.guestNoticeCard}>
+                <div className={styles.guestNoticeContent}>
+                  <span className={styles.guestNoticeTitle}>تسوق سريع ومريح</span>
+                  <p className={styles.guestNoticeText}>
+                    أدخل بيانات الاستلام والتواصل، وعند الضغط على زر التثبيت ستسجل بريدك بخطوة واحدة لحفظ طلبك وتثبيت السعر.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className={styles.guestLoginBtn}
+                  onClick={() => {
+                    navigate('/login?returnTo=/checkout', { state: { from: '/checkout' } });
+                  }}
+                >
+                  تسجيل الدخول مسبقاً
+                </button>
               </div>
             )}
 

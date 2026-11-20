@@ -4,7 +4,7 @@ import { prefetchRoute } from '../../utils/prefetch';
 import { ar } from '../../content/ar';
 import styles from './BottomTabBar.module.css';
 
-export default function BottomTabBar({ activeOrderCount = 0 }) {
+export default function BottomTabBar({ activeOrderCount = 0, unreadCount = 0 }) {
   const location = useLocation();
   const path = location.pathname;
 
@@ -54,6 +54,7 @@ export default function BottomTabBar({ activeOrderCount = 0 }) {
       id: 'account',
       to: '/account',
       label: ar.navigation.account,
+      badge: unreadCount > 0 ? (unreadCount > 9 ? '9+' : unreadCount) : null,
       icon: (
         <svg className={styles.navIcon} viewBox="0 0 24 24" aria-hidden="true">
           <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />

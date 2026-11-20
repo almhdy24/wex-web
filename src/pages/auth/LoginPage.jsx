@@ -66,9 +66,10 @@ export default function LoginPage() {
       const { user, access_token, refresh_token } = res.data;
       loginWithSession(user, access_token, refresh_token);
       success(`أهلاً بك يا ${user.name}`);
+      const customerTarget = (from && !from.startsWith('/login') && !from.startsWith('/auth')) ? from : '/';
       const target = (user.role === 'admin' || user.role === 'staff')
         ? (from !== '/' && from.startsWith('/admin') ? from : '/admin')
-        : from;
+        : customerTarget;
       navigate(target, { replace: true });
     } catch (err) {
       setErrorMsg(err.message || 'فشل تسجيل الدخول عبر حساب جوجل');
@@ -91,7 +92,7 @@ export default function LoginPage() {
     try {
       const res = await authApi.requestEmailOtp(email.trim());
       success(res.message || 'تم إرسال رمز التحقق إلى بريدك الإلكتروني');
-      navigate(`/auth/verify?email=${encodeURIComponent(email.trim())}`, {
+      navigate(`/auth/verify?email=${encodeURIComponent(email.trim())}&returnTo=${encodeURIComponent(from)}`, {
         state: { from },
       });
     } catch (err) {

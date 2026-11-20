@@ -262,6 +262,8 @@ export default function StoreLayout() {
           showBack={routeInfo.showBack}
           backTo={routeInfo.backTo}
           unreadCount={unreadCount}
+          showNotifications={false}
+          showCart={location.pathname !== '/checkout'}
         />
         {shopInfo && shopInfo.orders_enabled === false && (
           <div style={{ paddingInline: 'var(--space-4)' }}>
@@ -292,7 +294,7 @@ export default function StoreLayout() {
         </main>
 
         {!hideBottomNav && !isKeyboardOpen && (
-          <BottomTabBar activeOrderCount={activeOrderCount} />
+          <BottomTabBar activeOrderCount={activeOrderCount} unreadCount={unreadCount} />
         )}
 
         <CompareTray />
