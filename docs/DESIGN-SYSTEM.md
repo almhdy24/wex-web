@@ -121,7 +121,7 @@ The storefront architecture utilizes **three responsive layout tiers** sharing t
 - **Never mention reference currency or exchange rate:** Never show `AED`, `د.إ`, `درهم`, `دولار`, or the numerical exchange rate on any customer-facing screen, card, or notification. Reference currency and exchange rates are strictly business-private and admin-only.
 - **SDG Only:** All customer pricing is displayed exclusively in Sudanese Pounds (`ج.س` / SDG): `price_sdg`, `unit_price_sdg`, `line_total_sdg`, `subtotal_sdg`, `discount_sdg`, `delivery_fee_sdg`, and `total_sdg`.
 - **Reusable Customer Notice:** When informing customers about market price fluctuations, use exclusively the standard reusable notice:
-  *"الأسعار بتتغير مع تقلب سعر الصرف. بعد الطلب بنثبت ليك السعر لمدة {N} ساعات تحول فيها."*
+  *"الأسعار تتغيّر مع تقلّب سعر الصرف. عند إتمام الطلب نثبّت لك السعر لمدة {N} ساعات لتتمكّن من التحويل."*
 - **Price Lock Presentation:** Locked orders display only `السعر مثبت: {total} ج.س` and `ينتهي التثبيت الساعة {HH:MM}`. Any "locked rate" or "سعر الصرف المحجوز" is strictly forbidden on customer screens.
 
 ---
@@ -140,6 +140,8 @@ All UI formatting across storefront and administration is centralized in `src/ut
 | `formatMoney(amount, currency)` | `safeFormatters.js` | General money formatter with custom currency suffix. |
 | `formatDateSafe(isoString, fallback, includeTime)` | `safeFormatters.js` | Formats ISO timestamps in Africa/Khartoum timezone (UTC+2) with Western digits. |
 | `errorMapper(error)` | `errorMapper.js` | Maps HTTP statuses (400, 401, 403, 404, 409, 413, 422, 429, 500, 502, 503, 504, 0/network) to structured Arabic messages, titles, and retry hints. |
+| `formatSpecValue(val)` / `<SpecValue>` | `formatSpecValue.js` | Normalizes technical specs with non-breaking spaces `\u00A0` between numbers and units (`GB`, `TB`, `GHz`, `"`, `W`) and enforces LTR direction `<bdi dir="ltr">`. |
+| `<LatinText>` | `LatinText.jsx` | Wraps Latin product names, CPU models, and codes in `<bdi dir="ltr">` preventing RTL stray quote and punctuation flips. |
 
 ---
 

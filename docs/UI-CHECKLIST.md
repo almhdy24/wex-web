@@ -90,3 +90,21 @@ This checklist confirms adherence to the design rules, performance budgets, resp
 | **Automated Test Suites** | All 24 test files | 100% test pass rate across 128 unit tests. | **PASSED** |
 | **Bundle Size Check** | Production Build | Initial JS 138.31 kB gzip (<= 170 kB budget); CSS 13.91 kB gzip (<= 45 kB budget). | **PASSED** |
 
+---
+
+## 6. Hotfix & Storefront Hardening Verification Matrix
+
+| Area / Feature | Component / Script | Expected Behavior | Verification Status |
+| :--- | :--- | :--- | :--- |
+| **Translation Integrity** | `scripts/check-i18n.mjs` | Scans all code files in `src/`, verifies 100% coverage in `ar.js` and `admin.ar.js`; fails build on any missing key; throws in dev/test; returns safe empty string in production (never leaks raw dot keys). | **PASSED (0 missing keys)** |
+| **Toast Queue & Dedupe** | `ToastContext.jsx`, `Toast.jsx` | Queue with max 2 visible toasts; deduplication within 2-second window (updates in place without stacking duplicates); timer auto-dismiss (4s default, 6s with action, 8s error); pause on hover/focus/touch; swipe dismiss. | **PASSED** |
+| **Toast Anatomy & A11y** | `Toast.jsx`, `Toast.module.css` | Semantic icons with distinct color AND shape (`CheckCircle2` success, `AlertCircle` error, `AlertTriangle` warning, `Info` info); bold title; detail line; action button; 44px close target; animated progress bar; `role="status"` vs `role="alert"`; `--bottom-offset` layering above navigation bars. | **PASSED** |
+| **Bidi Text Safety** | `LatinText.jsx`, `formatSpecValue.js` | Product names and Latin specs wrapped in `<bdi dir="ltr">`; non-breaking space `\u00A0` between numbers and units (`GB`, `TB`, `GHz`, `"`, `W`); zero quote/punctuation flips in RTL. | **PASSED** |
+| **Compare Store** | `CompareContext.jsx` | Max 3 items; strict same-type enforcement; cross-tab synchronization via storage events; informative warning on 4th item with "إدارة المقارنة" action; undoable remove toast. | **PASSED** |
+| **Floating Compare Tray** | `CompareTray.jsx` | Appears when `>= 1` item in compare; hidden on checkout/orders/admin/compare; displays thumbnails, remove buttons, counter, "قارن الآن" CTA, and "مسح". | **PASSED** |
+| **Compare Matrix Table** | `ComparePage.jsx` | Side-by-side comparison table; sticky spec label column; horizontal snap scroll on mobile; "إظهار الفروق فقط" toggle; neutral "الأقل سعرًا" badge; "+ إضافة جهاز" slot; clean empty state. | **PASSED** |
+| **Card & Page Controls** | `ProductCard.jsx`, `ProductDetailPage.jsx` | Compare toggle with `aria-pressed`, proper icon and label; equal 48px height CTA buttons; Arabic-first document titles (`ويكس تكنولوجي \| {اسم الصفحة}`); numeric quantity stepper. | **PASSED** |
+| **All Test Suites** | All 30 test files | 100% test pass rate across 165 unit tests (0 failures). | **PASSED** |
+| **Production Build** | `npm run build` | Initial JS 151.53 kB gzip (<= 170 kB budget). | **PASSED** |
+
+
