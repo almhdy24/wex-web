@@ -413,7 +413,15 @@ Calm, trustworthy, production-ready UI/UX tailored for Sudanese customers and el
   - Authored comprehensive screen-by-screen breakdown in `docs/RESPONSIVE-MAP.md` covering all 10+ storefront routes across all three tiers with loading/empty/error/offline states.
   - Fixed copy leftovers: updated search placeholder in `HomePage.jsx` and `ar.js` to "شاحن حاسوب", renamed hero slide badge to "ثبّت السعر عند الطلب", verified zero forbidden words and zero AED/rate leakage.
   - Verification: 0 lint errors, 11 test files and 51 tests passing, production build 121.48 kB gzip initial JS.
-- [ ] **Phase 1: Layout Tiers Foundation & Overlay Primitives**
+- [x] **Phase 1: Layout Tiers Foundation & Overlay Primitives**
+  - Created `src/hooks/useViewport.js`: Lightweight matchMedia-based 3-tier viewport hook (`isMobile` <640px, `isTablet` 640-1023px, `isDesktop` >=1024px, `tier`).
+  - Created `src/components/common/Drawer.jsx` & `Drawer.module.css`: Accessible side drawer with focus trap, body scroll lock, Esc key handler, and transform-only slide animation from end/start.
+  - Created `src/components/common/Popover.jsx` & `Popover.module.css`: Anchored floating dropdown with click-outside detection, Esc key dismissal, transform-scale entrance animation, and start/center/end alignments.
+  - Created `src/components/common/Dialog.jsx`: Adaptive dialog primitive rendering bottom `Sheet` on mobile and centered `Modal` (max 560px) on tablet and desktop.
+  - Created `src/components/common/ScrollToTop.jsx` & `ScrollToTop.module.css`: Floating smooth scroll-to-top button appearing after 500px scroll threshold with accessible label and transform animation.
+  - Added responsive layout tokens to `src/styles/tokens.css` (`--tablet-max-width`, `--desktop-max-width`, `--desktop-header-height`, `--desktop-top-bar-height`, `--desktop-side-padding`).
+  - Created `src/__tests__/viewport.test.jsx`: 10 unit tests covering overlay primitives and viewport detection.
+  - Verification: 0 lint errors, 12 test files and 61 tests passing (100%), production build 121.47 kB gzip initial JS, 7.81 kB gzip global CSS.
 - [ ] **Phase 2: Desktop Header/Footer, Search Dropdown, Notifications Popover, Account Menu, Cart Drawer**
 - [ ] **Phase 3: Desktop Home & Catalog Layouts with Hover States**
 - [ ] **Phase 4: Product Page (Gallery Zoom, Buy Box, Tabs), Compare, Favorites, Recently Viewed, Share**

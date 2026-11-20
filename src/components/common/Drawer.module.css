@@ -1,0 +1,123 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 26, 85, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex;
+  animation: fadeIn var(--motion-base, 250ms) var(--ease-standard) forwards;
+  will-change: opacity;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.drawer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: min(var(--drawer-width, 420px), 90vw);
+  background: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 16px 40px rgba(6, 26, 85, 0.22);
+  outline: none;
+  z-index: 201;
+  will-change: transform;
+}
+
+/* End position: left side in RTL (start of drawer slide is -100%) */
+.drawerEnd {
+  left: 0;
+  right: auto;
+  animation: slideInFromEnd var(--motion-base, 250ms) var(--ease-standard) forwards;
+}
+
+/* Start position: right side in RTL */
+.drawerStart {
+  right: 0;
+  left: auto;
+  animation: slideInFromStart var(--motion-base, 250ms) var(--ease-standard) forwards;
+}
+
+@keyframes slideInFromEnd {
+  from {
+    transform: translate3d(-100%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slideInFromStart {
+  from {
+    transform: translate3d(100%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.header {
+  height: 64px;
+  min-height: 64px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--wex-gray-200, #E2E8F0);
+  background: #FFFFFF;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-lg, 1.125rem);
+  font-weight: 700;
+  color: var(--wex-navy, #061A55);
+}
+
+.closeBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full, 9999px);
+  border: none;
+  background: var(--wex-ice, #EAF3FF);
+  color: var(--wex-navy, #061A55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform var(--motion-fast, 150ms) var(--ease-standard),
+              background-color var(--motion-fast, 150ms) var(--ease-standard);
+}
+
+.closeBtn:hover {
+  background: var(--wex-gray-200, #E2E8F0);
+}
+
+.closeBtn:active {
+  transform: scale(0.92);
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 20px;
+}
+
+:global(html[data-motion="reduced"]) .backdrop,
+:global(html[data-motion="reduced"]) .drawer,
+:global(html[data-motion="reduced"]) .drawerEnd,
+:global(html[data-motion="reduced"]) .drawerStart {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}

@@ -1,0 +1,75 @@
+.popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  width: min(var(--popover-width, 320px), 90vw);
+  background-color: #FFFFFF;
+  border-radius: var(--radius-lg, 20px);
+  border: 1px solid rgba(11, 63, 191, 0.1);
+  box-shadow: 0 12px 32px rgba(6, 26, 85, 0.14), 0 2px 6px rgba(6, 26, 85, 0.04);
+  padding: 12px;
+  z-index: 150;
+  outline: none;
+  overflow: hidden;
+  will-change: transform, opacity;
+  animation: popoverFadeIn var(--motion-fast, 150ms) var(--ease-standard) forwards;
+}
+
+/* In RTL:
+   alignStart = pinned to start of container (right: 0)
+   alignEnd   = pinned to end of container (left: 0)
+   alignCenter = centered horizontally
+*/
+.alignStart {
+  right: 0;
+  left: auto;
+  transform-origin: top right;
+}
+
+.alignEnd {
+  left: 0;
+  right: auto;
+  transform-origin: top left;
+}
+
+.alignCenter {
+  left: 50%;
+  right: auto;
+  transform: translate3d(-50%, 0, 0);
+  transform-origin: top center;
+}
+
+@keyframes popoverFadeIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -6px, 0) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.alignCenter {
+  animation-name: popoverFadeInCenter;
+}
+
+@keyframes popoverFadeInCenter {
+  from {
+    opacity: 0;
+    transform: translate3d(-50%, -6px, 0) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(-50%, 0, 0) scale(1);
+  }
+}
+
+:global(html[data-motion="reduced"]) .popover {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+:global(html[data-motion="reduced"]) .alignCenter {
+  transform: translate3d(-50%, 0, 0) !important;
+}

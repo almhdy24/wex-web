@@ -130,8 +130,13 @@
   --space-12: 3rem;         /* 48px */
   --space-16: 4rem;         /* 64px */
 
-  /* App Shell Dimensions */
+  /* App Shell Dimensions & Responsive Tiers */
   --app-shell-max-width: 480px;
+  --tablet-max-width: 768px;
+  --desktop-max-width: 1240px;
+  --desktop-header-height: 72px;
+  --desktop-top-bar-height: 36px;
+  --desktop-side-padding: clamp(24px, 4vw, 48px);
   --app-bar-height: 56px;
   --bottom-tab-height: 56px;
   --touch-target: 44px;

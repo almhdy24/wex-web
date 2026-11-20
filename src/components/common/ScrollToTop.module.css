@@ -1,0 +1,56 @@
+.scrollBtn {
+  position: fixed;
+  bottom: 32px;
+  left: 32px; /* in RTL, end side */
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full, 9999px);
+  background: var(--wex-grad-brand, linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 50%, #00B7FF 100%));
+  color: #FFFFFF;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(11, 63, 191, 0.35);
+  z-index: 95;
+  transition: transform var(--motion-fast, 150ms) var(--ease-standard),
+              box-shadow var(--motion-fast, 150ms) var(--ease-standard);
+  animation: scrollFadeIn var(--motion-base, 250ms) var(--ease-standard) forwards;
+  will-change: transform, opacity;
+}
+
+@media (max-width: 640px) {
+  .scrollBtn {
+    bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+    left: 16px;
+    width: 42px;
+    height: 42px;
+  }
+}
+
+.scrollBtn:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 12px 28px rgba(11, 63, 191, 0.45);
+}
+
+.scrollBtn:active {
+  transform: translateY(0) scale(0.95);
+}
+
+@keyframes scrollFadeIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+:global(html[data-motion="reduced"]) .scrollBtn {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
