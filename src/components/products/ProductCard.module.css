@@ -69,6 +69,38 @@
   line-height: 1.2;
 }
 
+/* Favorite Button (Top Start) */
+.favBtn {
+  position: absolute;
+  top: 10px;
+  inset-inline-start: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full, 9999px);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(11, 63, 191, 0.08);
+  color: var(--wex-gray-400, #94A3B8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 6;
+  transition: transform var(--motion-fast, 150ms) var(--ease-standard),
+              color var(--motion-fast, 150ms) var(--ease-standard);
+}
+
+.favBtn:hover {
+  transform: scale(1.1);
+  color: var(--wex-danger, #EF4444);
+}
+
+.favBtnActive {
+  color: var(--wex-danger, #EF4444);
+  background: #FFFFFF;
+}
+
 /* 4:3 Aspect Ratio Image Container on Ice-to-White Gradient */
 .imageContainer {
   width: 100%;

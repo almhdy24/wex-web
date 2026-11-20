@@ -4,6 +4,8 @@ import { router } from './router';
 import { ToastProvider } from '../context/ToastContext';
 import { AuthProvider } from '../context/AuthContext';
 import { CartProvider } from '../context/CartContext';
+import { FavoritesProvider } from '../context/FavoritesContext';
+import { CompareProvider } from '../context/CompareContext';
 import ErrorBoundary from '../components/common/ErrorBoundary';
 
 export default function App() {
@@ -12,7 +14,11 @@ export default function App() {
       <ToastProvider>
         <AuthProvider>
           <CartProvider>
-            <RouterProvider router={router} />
+            <FavoritesProvider>
+              <CompareProvider>
+                <RouterProvider router={router} />
+              </CompareProvider>
+            </FavoritesProvider>
           </CartProvider>
         </AuthProvider>
       </ToastProvider>

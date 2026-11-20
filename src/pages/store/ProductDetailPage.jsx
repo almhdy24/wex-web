@@ -9,11 +9,17 @@ import {
   Check,
   Maximize2,
   X,
+  Share2,
+  GitCompare,
+  Heart,
+  Truck,
 } from 'lucide-react';
 import { productsApi } from '../../api/products';
 import { formatSdg, getProductImageUrl, getConditionLabel } from '../../utils/formatters';
-import PriceNotice, { formatPricesUpdatedAt } from '../../components/common/PriceNotice';
+import PriceNotice from '../../components/common/PriceNotice';
 import { useCart } from '../../context/CartContext';
+import { useCompare } from '../../context/CompareContext';
+import { useFavorites } from '../../context/FavoritesContext';
 import { useToast } from '../../context/ToastContext';
 import { t } from '../../content/ar';
 import LaptopSvg from '../../components/common/LaptopSvg';
@@ -22,15 +28,20 @@ import { Skeleton } from '../../components/common/Skeleton';
 import ProductCard from '../../components/products/ProductCard';
 import styles from './ProductDetailPage.module.css';
 
+const RECENTLY_VIEWED_KEY = 'wex_recently_viewed';
+
 export default function ProductDetailPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { addItem } = useCart();
+  const { addToCompare, isInCompare } = useCompare();
+  const { toggleFavorite, isFavorite } = useFavorites();
   const { success } = useToast();
 
   const [product, setProduct] = useState(null);
   const [shopInfo, setShopInfo] = useState(null);
   const [relatedAccessories, setRelatedAccessories] = useState([]);
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [imageError, setImageError] = useState(false);
   const [quantity, setQuantity] = useState(1);
@@ -38,8 +49,10 @@ export default function ProductDetailPage() {
   const [error, setError] = useState(null);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
+  const [activeTab, setActiveTab] = useState('specs'); // 'specs' | 'warranty'
   const heroImgRef = useRef(null);
 
+  // Load product data
   useEffect(() => {
     let isMounted = true;
     setLoading(true);
@@ -60,6 +73,9 @@ export default function ProductDetailPage() {
         setShopInfo(shopRes?.data || null);
         const accessList = accessRes?.data || [];
         setRelatedAccessories(accessList.filter((a) => a.id !== data.id).slice(0, 4));
+
+        // Save to recently viewed
+        saveToRecentlyViewed(data);
       })
       .catch((err) => {
         if (!isMounted) return;
@@ -69,15 +85,70 @@ export default function ProductDetailPage() {
         if (isMounted) setLoading(false);
       });
 
+    // Load existing recently viewed
+    try {
+      const raw = localStorage.getItem(RECENTLY_VIEWED_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setRecentlyViewed(parsed.filter((p) => p.slug !== slug && String(p.id) !== String(slug)).slice(0, 4));
+      }
+    } catch {
+      // Storage unavailable
+    }
+
     return () => {
       isMounted = false;
     };
   }, [slug]);
 
+  // Keyboard navigation for image gallery
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!product) return;
+      const imagesList = (product.images && product.images.length > 0)
+        ? product.images
+        : (product.image ? [product.image] : []);
+      if (imagesList.length <= 1) return;
+
+      if (e.key === 'ArrowRight') {
+        setSelectedImageIndex((prev) => (prev - 1 + imagesList.length) % imagesList.length);
+      } else if (e.key === 'ArrowLeft') {
+        setSelectedImageIndex((prev) => (prev + 1) % imagesList.length);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [product]);
+
+  const saveToRecentlyViewed = (prod) => {
+    if (!prod || !prod.id) return;
+    try {
+      const raw = localStorage.getItem(RECENTLY_VIEWED_KEY);
+      const list = raw ? JSON.parse(raw) : [];
+      const filtered = list.filter((p) => p.id !== prod.id);
+      const updated = [
+        {
+          id: prod.id,
+          name: prod.name,
+          slug: prod.slug,
+          price_sdg: prod.price_sdg,
+          image: prod.image,
+          brand: prod.brand,
+          condition: prod.condition,
+        },
+        ...filtered,
+      ].slice(0, 8);
+      localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(updated));
+    } catch {
+      // Storage unavailable
+    }
+  };
+
   if (loading) {
     return (
       <div className={styles.container}>
-        <Skeleton height="220px" borderRadius="var(--radius-xl)" />
+        <Skeleton height="280px" borderRadius="var(--radius-xl)" />
         <Skeleton width="80%" height="28px" />
         <Skeleton width="40%" height="20px" />
         <Skeleton height="110px" borderRadius="var(--radius-lg)" />
@@ -103,6 +174,8 @@ export default function ProductDetailPage() {
     product.stock_status === 'out_of_stock' ||
     (product.stock_quantity !== undefined && product.stock_quantity <= 0);
   const priceLockHours = shopInfo?.lock_hours || shopInfo?.price_lock_hours || 4;
+  const inCompare = isInCompare(product.id);
+  const inFav = isFavorite(product.id);
 
   const images = (product.images && product.images.length > 0)
     ? product.images
@@ -119,7 +192,7 @@ export default function ProductDetailPage() {
       try {
         navigator.vibrate(8);
       } catch {
-        // Ignore haptics errors on unsupported devices
+        // Ignore haptics
       }
     }
 
@@ -169,6 +242,34 @@ export default function ProductDetailPage() {
     navigate('/checkout');
   };
 
+  // Web Share API with WhatsApp / Clipboard fallback
+  const handleShare = async () => {
+    const shareData = {
+      title: product.name,
+      text: `${product.name} بسعر ${formatSdg(product.price_sdg)} في ويكس تكنولوجي`,
+      url: window.location.href,
+    };
+
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch {
+        // User dismissed
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      success('تم نسخ رابط الجهاز للمشاركة');
+    } catch {
+      window.open(
+        `https://wa.me/?text=${encodeURIComponent(`${shareData.text} ${shareData.url}`)}`,
+        '_blank'
+      );
+    }
+  };
+
   // Specs map
   const specList = [];
   if (product.specs && typeof product.specs === 'object') {
@@ -200,7 +301,6 @@ export default function ProductDetailPage() {
     if (product.screen_size) specList.push({ key: 'مقاس الشاشة', val: product.screen_size });
   }
 
-  // Warranty
   specList.push({
     key: t('product.warranty'),
     val: product.warranty_text || (product.condition === 'new' ? 'ضمان معتمد لمدة سنة' : t('product.warrantyDefault')),
@@ -209,144 +309,296 @@ export default function ProductDetailPage() {
 
   return (
     <div className={styles.container}>
-      {/* 1. Hero Image Card with Gallery & Tap to Zoom */}
-      <div className={styles.heroImageCard}>
-        <div className={styles.imageBox} ref={heroImgRef}>
-          {displayImage && !imageError ? (
-            <img
-              src={displayImage}
-              alt={product.name}
-              className={styles.heroImg}
-              onError={() => setImageError(true)}
-            />
-          ) : (
-            <div className={styles.svgContainer}>
-              <LaptopSvg
-                silhouette={product.silhouette || 'modern'}
-                accentColor={product.accent_color || '#1E6BFF'}
-              />
-            </div>
-          )}
+      {/* 2-Column Product Main Section (Gallery + Buy Box) */}
+      <div className={styles.productLayoutGrid}>
+        {/* Gallery Column */}
+        <div className={styles.galleryColumn}>
+          <div className={styles.heroImageCard}>
+            <div className={styles.imageBox} ref={heroImgRef}>
+              {displayImage && !imageError ? (
+                <img
+                  src={displayImage}
+                  alt={product.name}
+                  className={styles.heroImg}
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                <div className={styles.svgContainer}>
+                  <LaptopSvg
+                    silhouette={product.silhouette || 'modern'}
+                    accentColor={product.accent_color || '#1E6BFF'}
+                  />
+                </div>
+              )}
 
-          {displayImage && !imageError && (
-            <button
-              type="button"
-              className={styles.zoomBtn}
-              onClick={() => setIsZoomOpen(true)}
-              aria-label="تكبير الصورة"
-            >
-              <Maximize2 size={16} />
-            </button>
-          )}
+              {displayImage && !imageError && (
+                <button
+                  type="button"
+                  className={styles.zoomBtn}
+                  onClick={() => setIsZoomOpen(true)}
+                  aria-label="تكبير الصورة"
+                  title="تكبير الصورة"
+                >
+                  <Maximize2 size={18} />
+                </button>
+              )}
+            </div>
+
+            {/* Gallery Thumbnails Strip */}
+            {images.length > 1 && (
+              <div className={styles.galleryThumbs} role="tablist" aria-label="صور المنتج">
+                {images.map((img, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    role="tab"
+                    aria-selected={selectedImageIndex === idx}
+                    onClick={() => setSelectedImageIndex(idx)}
+                    className={`${styles.thumbBtn} ${selectedImageIndex === idx ? styles.thumbBtnActive : ''}`}
+                    aria-label={`عرض الصورة ${idx + 1}`}
+                  >
+                    <img
+                      src={getProductImageUrl(img.path || img)}
+                      alt={`${product.name} ${idx + 1}`}
+                      className={styles.thumbImg}
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Thumbnail Dots/Strip if multiple images */}
-        {images.length > 1 && (
-          <div className={styles.galleryThumbs} role="tablist" aria-label="صور المنتج">
-            {images.map((img, idx) => (
-              <button
-                key={idx}
-                type="button"
-                role="tab"
-                aria-selected={selectedImageIndex === idx}
-                onClick={() => setSelectedImageIndex(idx)}
-                className={`${styles.thumbDot} ${selectedImageIndex === idx ? styles.thumbDotActive : ''}`}
-                aria-label={`صورة ${idx + 1}`}
+        {/* Buy Box Column */}
+        <div className={styles.buyBoxColumn}>
+          <div className={styles.buyBoxCard}>
+            {/* Badges Row */}
+            <div className={styles.badgeRow}>
+              {condition && <span className={styles.chipCondition}>{condition}</span>}
+              {product.brand && (
+                <span className={styles.chipBrand}>
+                  {product.brand.name || product.brand}
+                </span>
+              )}
+            </div>
+
+            {/* Product Title */}
+            <h1 className={styles.productTitle}>{product.name}</h1>
+            {product.subtitle || product.short_description ? (
+              <p className={styles.productSubtitle}>
+                {product.subtitle || product.short_description}
+              </p>
+            ) : null}
+
+            {/* Price Row (SDG Only - Western digits & Tabular numerals) */}
+            <div className={styles.priceContainer}>
+              <div className={styles.priceLabel}>السعر بالجنيه السوداني:</div>
+              <div className={styles.priceSdg}>
+                {formatSdg(product.price_sdg)}
+              </div>
+            </div>
+
+            {/* Price Notice */}
+            <div className={styles.priceNoticeWrapper}>
+              <PriceNotice
+                variant="short"
+                lockHours={priceLockHours}
+                pricesUpdatedAt={shopInfo?.prices_updated_at}
               />
+            </div>
+
+            {/* Quantity Stepper & Actions */}
+            <div className={styles.purchaseControls}>
+              <div className={styles.qtyRow}>
+                <span className={styles.qtyLabel}>الكمية المطلوبة:</span>
+                <div className={styles.qtyControls} aria-label="اختيار الكمية">
+                  <button
+                    type="button"
+                    className={styles.qtyBtn}
+                    disabled={quantity <= 1 || isOutOfStock}
+                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                    aria-label="تقليل"
+                  >
+                    <Minus size={14} />
+                  </button>
+                  <span className={styles.qtyNum}>{quantity}</span>
+                  <button
+                    type="button"
+                    className={styles.qtyBtn}
+                    disabled={quantity >= 10 || isOutOfStock}
+                    onClick={() => setQuantity((q) => Math.min(10, q + 1))}
+                    aria-label="زيادة"
+                  >
+                    <Plus size={14} />
+                  </button>
+                </div>
+              </div>
+
+              <div className={styles.mainButtonsRow}>
+                <button
+                  type="button"
+                  className={`${styles.cartBtn} ${isAdded ? styles.cartBtnAdded : ''}`}
+                  onClick={handleAddToCart}
+                  disabled={isOutOfStock}
+                  title={isAdded ? t('product.addedToCart') : t('product.addToCart')}
+                >
+                  {isAdded ? <Check size={18} /> : <ShoppingCart size={18} />}
+                  <span>{isAdded ? t('product.addedToCart') : t('product.addToCart')}</span>
+                </button>
+
+                <button
+                  type="button"
+                  className={styles.buyNowBtn}
+                  onClick={handleInstantOrder}
+                  disabled={isOutOfStock}
+                >
+                  <span>{isOutOfStock ? t('product.outOfStockBadge') : 'اطلب الآن وثبّت السعر'}</span>
+                  <Check size={18} />
+                </button>
+              </div>
+
+              {/* Utility Actions: Share, Compare, Favorite */}
+              <div className={styles.secondaryActions}>
+                <button
+                  type="button"
+                  className={styles.actionPillBtn}
+                  onClick={handleShare}
+                  aria-label="مشاركة رابط الجهاز"
+                >
+                  <Share2 size={16} />
+                  <span>مشاركة</span>
+                </button>
+
+                <button
+                  type="button"
+                  className={`${styles.actionPillBtn} ${inCompare ? styles.actionPillActive : ''}`}
+                  onClick={() => addToCompare(product)}
+                  aria-label="إضافة للمقارنة"
+                >
+                  <GitCompare size={16} />
+                  <span>{inCompare ? 'في المقارنة' : 'مقارنة'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  className={`${styles.actionPillBtn} ${inFav ? styles.actionPillActive : ''}`}
+                  onClick={() => toggleFavorite(product)}
+                  aria-label={inFav ? 'في المفضلة' : 'إضافة للمفضلة'}
+                >
+                  <Heart size={16} fill={inFav ? '#EF4444' : 'none'} color={inFav ? '#EF4444' : 'currentColor'} />
+                  <span>{inFav ? 'في المفضلة' : 'حفظ'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Guarantees Strip */}
+            <div className={styles.guaranteeStrip}>
+              <div className={styles.guaranteeCol}>
+                <ShieldCheck size={17} className={styles.guarIcon} />
+                <span>فحص واختبار كامل لكل قطعة</span>
+              </div>
+              <div className={styles.guaranteeCol}>
+                <MapPin size={17} className={styles.guarIcon} />
+                <span>استلام فوري من مول الواحة</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs Section: Specifications vs Warranty */}
+      <div className={styles.tabsSection}>
+        <div className={styles.tabNav} role="tablist">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'specs'}
+            className={`${styles.tabBtn} ${activeTab === 'specs' ? styles.tabBtnActive : ''}`}
+            onClick={() => setActiveTab('specs')}
+          >
+            المواصفات التقنية
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'warranty'}
+            className={`${styles.tabBtn} ${activeTab === 'warranty' ? styles.tabBtnActive : ''}`}
+            onClick={() => setActiveTab('warranty')}
+          >
+            الضمان والاستلام
+          </button>
+        </div>
+
+        <div className={styles.tabPanel}>
+          {activeTab === 'specs' ? (
+            <div className={styles.specsTable}>
+              {specList.map((spec, idx) => (
+                <div key={idx} className={styles.specTableRow}>
+                  <div className={styles.specTableKey}>{spec.key}</div>
+                  <div className={spec.highlight ? styles.specTableValHighlight : styles.specTableVal}>
+                    {spec.val}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className={styles.warrantyPanel}>
+              <div className={styles.policyCard}>
+                <div className={styles.policyRow}>
+                  <ShieldCheck size={20} className={styles.policyIcon} />
+                  <div>
+                    <h4 className={styles.policyTitle}>سياسة الضمان المعتمد</h4>
+                    <p className={styles.policyText}>
+                      جميع أجهزتنا تخضع لعملية فحص شاملة للمكونات الداخلية، البطارية، الشاشة، والمنافذ.
+                      نمنحك فترة تجربة وفحص تمتد لـ 3 أشهر للأجهزة المستعملة استيراد، وسنة كاملة للأجهزة الجديدة.
+                    </p>
+                  </div>
+                </div>
+
+                <div className={styles.policyRow}>
+                  <MapPin size={20} className={styles.policyIcon} />
+                  <div>
+                    <h4 className={styles.policyTitle}>الاستلام والمعاينة المباشرة</h4>
+                    <p className={styles.policyText}>
+                      يمكنك تشغيل الجهاز وتجربته بنفسك بمقرنا في مول الواحة بأم درمان قبل سداد أي مبلغ.
+                    </p>
+                  </div>
+                </div>
+
+                <div className={styles.policyRow}>
+                  <Truck size={20} className={styles.policyIcon} />
+                  <div>
+                    <h4 className={styles.policyTitle}>التوصيل الآمن داخل الخرطوم والولايات</h4>
+                    <p className={styles.policyText}>
+                      نوفر شحنًا موثوقًا مع مندوبنا المعتمد لجميع مناطق أم درمان وبحري والخرطوم مع تسليم إشعار رسمي.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Compatible Accessories Rail */}
+      {relatedAccessories.length > 0 && (
+        <section className={styles.extraRailSection} aria-label="ملحقات متوافقة">
+          <h3 className={styles.extraRailTitle}>يكمل جهازك</h3>
+          <div className={styles.extraRailGrid}>
+            {relatedAccessories.map((acc, idx) => (
+              <ProductCard key={acc.id} product={acc} index={idx} />
             ))}
           </div>
-        )}
+        </section>
+      )}
 
-        {/* Condition & Brand Badges */}
-        <div className={styles.badgeRow}>
-          {condition && <span className={styles.chipCondition}>{condition}</span>}
-          {product.brand && (
-            <span className={styles.chipBrand}>
-              {product.brand.name || product.brand}
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* 2. Product Name & Subtitle */}
-      <div className={styles.nameSection}>
-        <h1 className={styles.productTitle}>{product.name}</h1>
-        {product.subtitle || product.short_description ? (
-          <p className={styles.productSubtitle}>
-            {product.subtitle || product.short_description}
-          </p>
-        ) : null}
-      </div>
-
-      {/* 3. Price Box (SDG Only - No Reference Currency, No Rate) */}
-      <div className={`${styles.priceBox} wex-ribbon-subtle`}>
-        <div className={styles.priceRow}>
-          <div>
-            <div className={styles.priceLabel}>السعر بالجنيه:</div>
-            <div className={styles.priceSdg}>
-              <span>{formatSdg(product.price_sdg)}</span>
-            </div>
-          </div>
-          {shopInfo?.prices_updated_at && (
-            <div className={styles.lastUpdateLine}>
-              {t('priceNotice.pricesUpdatedAt', { time: formatPricesUpdatedAt(shopInfo.prices_updated_at) })}
-            </div>
-          )}
-        </div>
-
-        <div className={styles.priceNoticeWrapper}>
-          <PriceNotice
-            variant="full"
-            lockHours={priceLockHours}
-            pricesUpdatedAt={shopInfo?.prices_updated_at}
-          />
-        </div>
-      </div>
-
-      {/* 4. Specs Table Card */}
-      <div className={styles.specsCard}>
-        <h2 className={styles.specsTitle}>{t('product.specifications')}</h2>
-        <div className={styles.specsList}>
-          {specList.map((spec, idx) => (
-            <div key={idx} className={styles.specRow}>
-              <span className={styles.specKey}>{spec.key}:</span>
-              <span className={spec.highlight ? styles.specValHighlight : styles.specVal}>
-                {spec.val}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* 5. Store Notes & Inspection Policy */}
-      <div className={styles.notesCard}>
-        <h3 className={styles.notesTitle}>ملاحظات عن الجهاز:</h3>
-        <p className={styles.notesText}>
-          {product.description ||
-            'جهاز بحالة ممتازة تم اختباره والتأكد من أداء المعالج والبطارية والشاشة والمنافذ بالكامل.'}
-        </p>
-
-        <div className={styles.guaranteeRow}>
-          <div className={styles.guaranteeItem}>
-            <ShieldCheck size={16} className={styles.guaranteeIcon} />
-            <span>معاينة وفحص مباشر قبل الدفع في المحل</span>
-          </div>
-          <div className={styles.guaranteeItem}>
-            <MapPin size={16} className={styles.guaranteeIcon} />
-            <span>استلام من مول الواحة — أم درمان أو توصيل مباشر</span>
-          </div>
-        </div>
-      </div>
-
-      {/* 6. "يكمل جهازك" Accessories Rail (if available) */}
-      {relatedAccessories.length > 0 && (
-        <section className={styles.accessoriesSection} aria-label="ملحقات متوافقة">
-          <h3 className={styles.accessoriesTitle}>يكمل جهازك</h3>
-          <div className={styles.accessoriesRail}>
-            {relatedAccessories.map((acc, idx) => (
-              <div key={acc.id} className={styles.accCardWrap}>
-                <ProductCard product={acc} index={idx} />
-              </div>
+      {/* Recently Viewed Rail */}
+      {recentlyViewed.length > 0 && (
+        <section className={styles.extraRailSection} aria-label="شاهدتها مؤخرًا">
+          <h3 className={styles.extraRailTitle}>شاهدتها مؤخرًا</h3>
+          <div className={styles.extraRailGrid}>
+            {recentlyViewed.map((item, idx) => (
+              <ProductCard key={item.id} product={item} index={idx} />
             ))}
           </div>
         </section>
@@ -354,7 +606,12 @@ export default function ProductDetailPage() {
 
       {/* Zoom Modal */}
       {isZoomOpen && displayImage && (
-        <div className={styles.zoomModalBackdrop} onClick={() => setIsZoomOpen(false)} role="dialog" aria-modal="true">
+        <div
+          className={styles.zoomModalBackdrop}
+          onClick={() => setIsZoomOpen(false)}
+          role="dialog"
+          aria-modal="true"
+        >
           <button
             type="button"
             className={styles.zoomCloseBtn}
@@ -372,60 +629,52 @@ export default function ProductDetailPage() {
         </div>
       )}
 
-      {/* Bottom spacer so content doesn't hide behind sticky action bar */}
+      {/* Bottom spacer on mobile */}
       <div className={styles.bottomSpacer} />
 
-      {/* 7. Sticky Bottom Action Bar */}
-      <div className={styles.stickyActionBar}>
-        <div className={styles.actionLeft}>
-          <div className={styles.qtyControls} aria-label="اختيار الكمية">
-            <button
-              type="button"
-              className={styles.qtyBtn}
-              disabled={quantity <= 1 || isOutOfStock}
-              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-              aria-label="تقليل"
-            >
-              <Minus size={14} />
-            </button>
-            <span className={styles.qtyNum}>{quantity}</span>
-            <button
-              type="button"
-              className={styles.qtyBtn}
-              disabled={quantity >= 10 || isOutOfStock}
-              onClick={() => setQuantity((q) => Math.min(10, q + 1))}
-              aria-label="زيادة"
-            >
-              <Plus size={14} />
-            </button>
-          </div>
-
+      {/* Sticky Bottom Action Bar (Mobile Only) */}
+      <div className={styles.mobileStickyActionBar}>
+        <div className={styles.mobileQtyControls}>
           <button
             type="button"
-            className={`${styles.cartBtn} ${isAdded ? styles.cartBtnAdded : ''}`}
-            onClick={handleAddToCart}
-            disabled={isOutOfStock}
-            title={isAdded ? t('product.addedToCart') : t('product.addToCart')}
-            aria-label={isAdded ? t('product.addedToCart') : t('product.addToCart')}
+            className={styles.qtyBtn}
+            disabled={quantity <= 1 || isOutOfStock}
+            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+            aria-label="تقليل"
           >
-            {isAdded ? <Check size={18} /> : <ShoppingCart size={18} />}
+            <Minus size={14} />
+          </button>
+          <span className={styles.qtyNum}>{quantity}</span>
+          <button
+            type="button"
+            className={styles.qtyBtn}
+            disabled={quantity >= 10 || isOutOfStock}
+            onClick={() => setQuantity((q) => Math.min(10, q + 1))}
+            aria-label="زيادة"
+          >
+            <Plus size={14} />
           </button>
         </div>
 
         <button
           type="button"
-          className={`${styles.orderNowBtn} btn-vivid`}
+          className={`${styles.mobileCartBtn} ${isAdded ? styles.cartBtnAdded : ''}`}
+          onClick={handleAddToCart}
+          disabled={isOutOfStock}
+          title={isAdded ? t('product.addedToCart') : t('product.addToCart')}
+          aria-label={isAdded ? t('product.addedToCart') : t('product.addToCart')}
+        >
+          {isAdded ? <Check size={18} /> : <ShoppingCart size={18} />}
+        </button>
+
+        <button
+          type="button"
+          className={styles.mobileOrderBtn}
           onClick={handleInstantOrder}
           disabled={isOutOfStock}
         >
-          {isOutOfStock ? (
-            <span>{t('product.outOfStockBadge')}</span>
-          ) : (
-            <>
-              <Check size={18} />
-              <span>{t('checkout.submitOrderButton')}</span>
-            </>
-          )}
+          <span>{isOutOfStock ? t('product.outOfStockBadge') : 'اطلب وثبّت السعر'}</span>
+          <Check size={18} />
         </button>
       </div>
     </div>

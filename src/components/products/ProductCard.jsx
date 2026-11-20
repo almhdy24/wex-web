@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Check } from 'lucide-react';
+import { ShoppingCart, Check, Heart } from 'lucide-react';
 import { formatSdg, getProductImageUrl, getConditionLabel } from '../../utils/formatters';
 import { useCart } from '../../context/CartContext';
+import { useFavorites } from '../../context/FavoritesContext';
 import { useToast } from '../../context/ToastContext';
 import { t } from '../../content/ar';
 import LaptopSvg from '../common/LaptopSvg';
@@ -34,6 +35,7 @@ function getQuickSpecs(product) {
 
 export default function ProductCard({ product, index = 0 }) {
   const { addItem } = useCart();
+  const { toggleFavorite, isFavorite } = useFavorites();
   const { success } = useToast();
   const [imageError, setImageError] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
@@ -41,6 +43,7 @@ export default function ProductCard({ product, index = 0 }) {
 
   if (!product) return null;
 
+  const fav = isFavorite(product.id);
   const condition = getConditionLabel(product.condition);
   const isOutOfStock = product.stock_status === 'out_of_stock' || (product.stock_quantity !== undefined && product.stock_quantity <= 0);
   const isLowStock = !isOutOfStock && ((product.stock_quantity > 0 && product.stock_quantity <= 3) || product.stock_status === 'low_stock');
@@ -110,6 +113,21 @@ export default function ProductCard({ product, index = 0 }) {
       style={{ '--i': index }}
     >
       <Link to={`/products/${product.slug || product.id}`} className={styles.cardLink}>
+        {/* Favorite Button */}
+        <button
+          type="button"
+          className={`${styles.favBtn} ${fav ? styles.favBtnActive : ''}`}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleFavorite(product);
+          }}
+          aria-label={fav ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}
+          title={fav ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}
+        >
+          <Heart size={15} fill={fav ? '#EF4444' : 'none'} />
+        </button>
+
         {/* Condition Badge (Top End in RTL) */}
         {condition && (
           <span className={styles.cardBadge}>

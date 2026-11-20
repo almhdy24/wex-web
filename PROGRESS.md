@@ -454,7 +454,20 @@ Calm, trustworthy, production-ready UI/UX tailored for Sudanese customers and el
   - Enhanced `ProductCard.module.css`:
     - Smooth hover elevation (`translateY(-4px)` with soft navy shadow and blue border accent) active only on pointer/hover devices.
   - Verification: 0 lint errors, 13 test files and 65 tests passing (100%), production build 131.13 kB gzip initial JS, 11.76 kB gzip global CSS.
-- [ ] **Phase 4: Product Page (Gallery Zoom, Buy Box, Tabs), Compare, Favorites, Recently Viewed, Share**
+- [x] **Phase 4: Product Page (Gallery Zoom, Buy Box, Tabs), Compare, Favorites, Recently Viewed, Share**
+  - Created `src/context/CompareContext.jsx` & `src/context/FavoritesContext.jsx` with localStorage persistence and safe fallback defaults for isolated unit tests.
+  - Enhanced `ProductCard.jsx`: added floating favorite heart button with active state and toast confirmation.
+  - Created `src/pages/store/FavoritesPage.jsx` (`/favorites`): clean view of customer favorites with quick-add to cart and empty state pointing to catalog.
+  - Created `src/pages/store/ComparePage.jsx` (`/compare`): side-by-side comparison table for up to 3 devices with highlighted spec differences, SDG prices, and direct add-to-cart actions.
+  - Upgraded `src/pages/store/ProductDetailPage.jsx` & `ProductDetailPage.module.css`:
+    - 2-column desktop layout: large interactive gallery at start + sticky buy box at end.
+    - Gallery thumbnail strip with keyboard navigation and hover zoom lens preview.
+    - Buy box: bold SDG tabular price, condition chip, stock status, quantity stepper, add-to-cart, buy-now, compare toggle, and native Web Share API with clipboard/WhatsApp fallback.
+    - Specs & Warranty tabs (`المواصفات`, `الضمان والاستلام`) with structured specs table.
+    - Compatible accessories rail ("يكمل جهازك") and "شاهدت مؤخرًا" recently viewed rail powered by localStorage.
+  - Created `src/__tests__/compare-favorites.test.jsx`: 4 unit tests covering favorites and compare mechanisms.
+  - Verification: 0 lint errors, 14 test files and 69 tests passing (100%), production build 126.64 kB gzip initial JS, 11.76 kB gzip global CSS.
+- [ ] **Phase 5: Cart Page, Checkout Two-Column Layout, Guest Flow & Pending Order Banner**
 - [ ] **Phase 5: Cart Page, Checkout Two-Column Layout, Guest Flow & Pending Order Banner**
 - [ ] **Phase 6: Order Detail & Orders Desktop Layouts, Receipt Drag/Paste, Account/Notifications, FAQ Page**
 - [ ] **Phase 7: General UX Pass: Forms, Undo, Error Recovery, Prefetch, Blur-up & A11y**

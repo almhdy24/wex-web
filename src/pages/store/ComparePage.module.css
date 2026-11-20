@@ -1,0 +1,277 @@
+.container {
+  width: 100%;
+  max-width: var(--desktop-max-width, 1240px);
+  margin: 0 auto;
+  padding: 16px 14px 60px;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.title {
+  margin: 0 0 6px;
+  font-size: var(--text-2xl, 1.5rem);
+  font-weight: 800;
+  color: var(--wex-navy, #061A55);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--wex-gray-600, #475569);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.clearBtn {
+  padding: 8px 16px;
+  border-radius: var(--radius-md, 14px);
+  background: var(--wex-ice, #EAF3FF);
+  border: 1px solid rgba(11, 63, 191, 0.12);
+  color: var(--wex-royal, #0B3FBF);
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color var(--motion-fast, 150ms) var(--ease-standard);
+}
+
+.clearBtn:hover {
+  background: rgba(11, 63, 191, 0.15);
+}
+
+.addMoreBtn {
+  padding: 8px 18px;
+  border-radius: var(--radius-md, 14px);
+  background: var(--wex-grad-brand, linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 50%, #00B7FF 100%));
+  color: #FFFFFF;
+  text-decoration: none;
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 700;
+}
+
+/* Empty State */
+.emptyBox {
+  background: #FFFFFF;
+  border-radius: var(--radius-xl, 28px);
+  border: 1px solid var(--wex-ice, #EAF3FF);
+  padding: 60px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(6, 26, 85, 0.04);
+}
+
+.emptyIconCircle {
+  width: 90px;
+  height: 90px;
+  border-radius: var(--radius-full, 9999px);
+  background: var(--wex-ice, #EAF3FF);
+  color: var(--wex-royal, #0B3FBF);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.emptyTitle {
+  margin: 0 0 10px;
+  font-size: var(--text-xl, 1.25rem);
+  font-weight: 800;
+  color: var(--wex-navy, #061A55);
+}
+
+.emptyDesc {
+  margin: 0 0 28px;
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--wex-gray-600, #475569);
+  max-width: 440px;
+  line-height: var(--leading-relaxed, 1.7);
+}
+
+.browseBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  border-radius: var(--radius-md, 14px);
+  background: var(--wex-grad-brand, linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 50%, #00B7FF 100%));
+  color: #FFFFFF;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: var(--text-sm, 0.875rem);
+  box-shadow: 0 8px 20px rgba(11, 63, 191, 0.28);
+}
+
+/* Table Wrapper */
+.tableWrapper {
+  background: #FFFFFF;
+  border-radius: var(--radius-lg, 20px);
+  border: 1px solid var(--wex-ice, #EAF3FF);
+  box-shadow: 0 8px 30px rgba(6, 26, 85, 0.04);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.compareTable {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 650px;
+  text-align: right;
+}
+
+.specHeaderCell {
+  width: 220px;
+  padding: 24px;
+  font-size: var(--text-base, 1rem);
+  font-weight: 800;
+  color: var(--wex-navy, #061A55);
+  border-bottom: 2px solid var(--wex-ice, #EAF3FF);
+  background: var(--wex-ice-light, #F4F8FE);
+}
+
+.productHeaderCell {
+  padding: 20px;
+  border-bottom: 2px solid var(--wex-ice, #EAF3FF);
+  border-right: 1px solid var(--wex-ice, #EAF3FF);
+  vertical-align: top;
+  width: calc((100% - 220px) / 3);
+}
+
+.productHeaderCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.removeBtn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full, 9999px);
+  border: none;
+  background: var(--wex-ice, #EAF3FF);
+  color: var(--wex-gray-600, #475569);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color var(--motion-fast, 150ms) var(--ease-standard);
+}
+
+.removeBtn:hover {
+  background: var(--wex-danger-bg, #FEF2F2);
+  color: var(--wex-danger, #EF4444);
+}
+
+.thumbBox {
+  width: 90px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.productName {
+  margin: 0 0 8px;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 700;
+  line-height: var(--leading-tight, 1.3);
+}
+
+.productLink {
+  color: var(--wex-navy, #061A55);
+  text-decoration: none;
+}
+
+.productLink:hover {
+  color: var(--wex-royal, #0B3FBF);
+}
+
+.productPrice {
+  font-size: var(--text-base, 1rem);
+  font-weight: 800;
+  color: var(--wex-royal, #0B3FBF);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 14px;
+}
+
+.addCartBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-md, 14px);
+  background: var(--wex-ice, #EAF3FF);
+  color: var(--wex-royal, #0B3FBF);
+  border: 1px solid rgba(11, 63, 191, 0.15);
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform var(--motion-fast, 150ms) var(--ease-standard),
+              background-color var(--motion-fast, 150ms) var(--ease-standard);
+}
+
+.addCartBtn:hover {
+  background: var(--wex-royal, #0B3FBF);
+  color: #FFFFFF;
+  transform: translateY(-2px);
+}
+
+.specLabelCell {
+  padding: 16px 20px;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 700;
+  color: var(--wex-navy, #061A55);
+  border-bottom: 1px solid var(--wex-gray-200, #E2E8F0);
+  background: var(--wex-ice-light, #F4F8FE);
+}
+
+.labelWithTag {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.diffTag {
+  font-size: 10px;
+  font-weight: 700;
+  color: #D97706;
+  background: #FEF3C7;
+  padding: 2px 6px;
+  border-radius: var(--radius-xs, 4px);
+}
+
+.specValCell {
+  padding: 16px 20px;
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--wex-gray-800, #1E293B);
+  border-bottom: 1px solid var(--wex-gray-200, #E2E8F0);
+  border-right: 1px solid var(--wex-gray-200, #E2E8F0);
+}
+
+.differRow {
+  background: rgba(245, 158, 11, 0.04);
+}
