@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, Minus, Trash2, ArrowLeft, ArrowRight, AlertCircle } from 'lucide-react';
+import { Plus, Minus, Trash2, ArrowLeft, ArrowRight, AlertCircle, ShoppingBag, ShieldCheck } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { useToast } from '../../context/ToastContext';
 import { productsApi } from '../../api/products';
 import { formatSdg, getProductImageUrl } from '../../utils/formatters';
 import LaptopSvg from '../../components/common/LaptopSvg';
@@ -15,6 +16,7 @@ export default function CartPage() {
     items,
     updateQuantity,
     removeItem,
+    restoreItem,
     clearCart,
     totalItems,
     estimatedSubtotalSdg,
@@ -24,6 +26,7 @@ export default function CartPage() {
     confirmAllPriceChanges,
     hasUnconfirmedPriceChanges,
   } = useCart();
+  const { actionToast } = useToast();
   const navigate = useNavigate();
   const [shopInfo, setShopInfo] = useState(null);
   const [removingIds, setRemovingIds] = useState(new Set());
@@ -35,15 +38,23 @@ export default function CartPage() {
       .catch(() => {});
   }, [refreshCartPrices]);
 
-  const handleRemove = (id) => {
-    setRemovingIds((prev) => new Set([...prev, id]));
+  const handleRemove = (item) => {
+    setRemovingIds((prev) => new Set([...prev, item.id]));
     setTimeout(() => {
-      removeItem(id);
+      removeItem(item.id);
       setRemovingIds((prev) => {
         const next = new Set(prev);
-        next.delete(id);
+        next.delete(item.id);
         return next;
       });
+      actionToast(
+        `تم حذف "${item.name}" من السلة`,
+        {
+          label: 'تراجع',
+          onClick: () => restoreItem(item),
+        },
+        5000
+      );
     }, 220);
   };
 
@@ -66,156 +77,197 @@ export default function CartPage() {
 
   return (
     <div className={styles.container}>
-      {/* Header Bar */}
-      <div className={styles.topBar}>
-        <div>
-          <h1 className={styles.title}>سلة المشتريات</h1>
-          <span className={styles.subtitle}>{totalItems} أجهزة في السلة</span>
-        </div>
+      <div className={styles.cartLayout}>
+        {/* Main Column: Items List */}
+        <div className={styles.mainColumn}>
+          {/* Header Bar */}
+          <div className={styles.topBar}>
+            <div>
+              <h1 className={styles.title}>سلة المشتريات</h1>
+              <span className={styles.subtitle}>{totalItems} أجهزة في السلة</span>
+            </div>
 
-        <button type="button" onClick={clearCart} className={styles.clearBtn} title="إفراغ السلة">
-          <Trash2 size={14} />
-          <span>إفراغ</span>
-        </button>
-      </div>
+            <button type="button" onClick={clearCart} className={styles.clearBtn} title="إفراغ السلة">
+              <Trash2 size={14} />
+              <span>إفراغ السلة</span>
+            </button>
+          </div>
 
-      {/* Cart Items List */}
-      <div className={styles.itemsList}>
-        {items.map((item) => {
-          const imgUrl = getProductImageUrl(item.image?.thumb_path || item.image?.path);
-          const lineTotal = (item.price_sdg || 0) * item.quantity;
+          {/* Cart Items List */}
+          <div className={styles.itemsList}>
+            {items.map((item) => {
+              const imgUrl = getProductImageUrl(item.image?.thumb_path || item.image?.path);
+              const lineTotal = (item.price_sdg || 0) * item.quantity;
 
-          return (
-            <div
-              key={item.id}
-              className={`${styles.itemCard} ${removingIds.has(item.id) ? styles.itemCardRemoving : ''}`}
-            >
-              {/* Product Thumbnail */}
-              <div className={styles.thumbBox}>
-                {imgUrl ? (
-                  <img
-                    src={imgUrl}
-                    alt={item.name}
-                    className={styles.thumbImg}
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = '/favicon.svg';
-                    }}
-                  />
-                ) : (
-                  <LaptopSvg
-                    silhouette={item.silhouette || 'modern'}
-                    accentColor={item.accent_color || '#1E6BFF'}
-                  />
-                )}
-              </div>
-
-              {/* Product Details & Stepper */}
-              <div className={styles.itemDetails}>
-                <div className={styles.itemNameRow}>
-                  <Link to={`/products/${item.slug || item.id}`} className={styles.itemName}>
-                    {item.name}
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => handleRemove(item.id)}
-                    className={styles.removeBtn}
-                    aria-label={`حذف ${item.name}`}
-                  >
-                    <Trash2 size={15} />
-                  </button>
-                </div>
-
-                <div className={styles.itemPriceRow}>
-                  <div className={styles.priceCol}>
-                    <span className={styles.linePrice}>{formatSdg(lineTotal)}</span>
-                    {item.quantity > 1 && (
-                      <span className={styles.unitPrice}>({formatSdg(item.price_sdg)} للقطعة)</span>
+              return (
+                <div
+                  key={item.id}
+                  className={`${styles.itemCard} ${removingIds.has(item.id) ? styles.itemCardRemoving : ''}`}
+                >
+                  {/* Product Thumbnail */}
+                  <div className={styles.thumbBox}>
+                    {imgUrl ? (
+                      <img
+                        src={imgUrl}
+                        alt={item.name}
+                        className={styles.thumbImg}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = '/favicon.svg';
+                        }}
+                      />
+                    ) : (
+                      <LaptopSvg
+                        silhouette={item.silhouette || 'modern'}
+                        accentColor={item.accent_color || '#1E6BFF'}
+                      />
                     )}
                   </div>
 
-                  {/* Quantity Stepper */}
-                  <div className={styles.stepper} aria-label="الكمية">
-                    <button
-                      type="button"
-                      className={styles.stepBtn}
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      aria-label="تقليل"
-                    >
-                      <Minus size={13} />
-                    </button>
-                    <span className={styles.stepCount}>{item.quantity}</span>
-                    <button
-                      type="button"
-                      className={styles.stepBtn}
-                      disabled={item.quantity >= 10}
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      aria-label="زيادة"
-                    >
-                      <Plus size={13} />
-                    </button>
+                  {/* Product Details & Stepper */}
+                  <div className={styles.itemDetails}>
+                    <div className={styles.itemNameRow}>
+                      <Link to={`/products/${item.slug || item.id}`} className={styles.itemName}>
+                        {item.name}
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => handleRemove(item)}
+                        className={styles.removeBtn}
+                        aria-label={`حذف ${item.name}`}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+
+                    <div className={styles.itemPriceRow}>
+                      <div className={styles.priceCol}>
+                        <span className={styles.linePrice}>{formatSdg(lineTotal)}</span>
+                        {item.quantity > 1 && (
+                          <span className={styles.unitPrice}>({formatSdg(item.price_sdg)} للقطعة)</span>
+                        )}
+                      </div>
+
+                      {/* Quantity Stepper */}
+                      <div className={styles.stepper} aria-label="الكمية">
+                        <button
+                          type="button"
+                          className={styles.stepBtn}
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          aria-label="تقليل"
+                        >
+                          <Minus size={13} />
+                        </button>
+                        <span className={styles.stepCount}>{item.quantity}</span>
+                        <button
+                          type="button"
+                          className={styles.stepBtn}
+                          disabled={item.quantity >= 10}
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          aria-label="زيادة"
+                        >
+                          <Plus size={13} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Price Change Neutral Alert */}
+                    {priceChanges[item.id] && !priceChanges[item.id].confirmed && (
+                      <div className={styles.priceChangeBanner} role="alert">
+                        <AlertCircle size={15} className={styles.priceChangeIcon} />
+                        <div className={styles.priceChangeTextCol}>
+                          <span className={styles.priceChangeLabel}>تغير سعر هذا الجهاز</span>
+                          <span className={styles.priceChangeValues}>
+                            {formatSdg(priceChanges[item.id].old_price_sdg)} ← {formatSdg(priceChanges[item.id].new_price_sdg)}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => confirmPriceChange(item.id)}
+                          className={styles.confirmPriceBtn}
+                        >
+                          تأكيد السعر الجديد
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
+              );
+            })}
+          </div>
 
-                {/* Price Change Neutral Alert */}
-                {priceChanges[item.id] && !priceChanges[item.id].confirmed && (
-                  <div className={styles.priceChangeBanner} role="alert">
-                    <AlertCircle size={15} className={styles.priceChangeIcon} />
-                    <div className={styles.priceChangeTextCol}>
-                      <span className={styles.priceChangeLabel}>تغير سعر هذا الجهاز</span>
-                      <span className={styles.priceChangeValues}>
-                        {formatSdg(priceChanges[item.id].old_price_sdg)} ← {formatSdg(priceChanges[item.id].new_price_sdg)}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => confirmPriceChange(item.id)}
-                      className={styles.confirmPriceBtn}
-                    >
-                      تأكيد السعر الجديد
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Summary Card with 3% App Discount Preview */}
-      <div className={styles.summaryCard}>
-        <h3 className={styles.summaryTitle}>تفاصيل السعر التقديري:</h3>
-
-        <div className={styles.summaryRow}>
-          <span className={styles.summaryLabel}>المجموع المبدئي:</span>
-          <span className={styles.summaryVal}>{formatSdg(estimatedSubtotalSdg)}</span>
-        </div>
-
-        <div className={styles.discountRow}>
-          <span>خصم الطلب بالتطبيق (3%):</span>
-          <span className={styles.discountVal}>- {formatSdg(appDiscount)}</span>
-        </div>
-
-        <div className={styles.totalRow}>
-          <div>
-            <div className={styles.totalLabel}>الإجمالي التقديري:</div>
-            <div className={styles.totalVal}>{formatSdg(estimatedTotal)}</div>
+          <div className={styles.actionsFooter}>
+            <Link to="/products" className={styles.continueLink}>
+              <ArrowRight size={15} />
+              <span>إضافة أجهزة أو ملحقات أخرى إلى السلة</span>
+            </Link>
           </div>
         </div>
 
-        <div className={styles.noticeContainer}>
-          <PriceNotice variant="full" lockHours={lockHours} />
+        {/* Summary Column: Sticky on Desktop */}
+        <div className={styles.summaryColumn}>
+          <div className={styles.summaryCard}>
+            <h2 className={styles.summaryTitle}>ملخص السلة</h2>
+
+            <div className={styles.summaryRow}>
+              <span className={styles.summaryLabel}>المجموع المبدئي ({totalItems} أجهزة):</span>
+              <span className={styles.summaryVal}>{formatSdg(estimatedSubtotalSdg)}</span>
+            </div>
+
+            <div className={styles.discountRow}>
+              <span className={styles.discountLabel}>خصم الطلب بالتطبيق (3%):</span>
+              <span className={styles.discountVal}>- {formatSdg(appDiscount)}</span>
+            </div>
+
+            <div className={styles.totalDivider} />
+
+            <div className={styles.totalRow}>
+              <div>
+                <span className={styles.totalLabel}>الإجمالي التقديري:</span>
+                <span className={styles.totalSubtext}>شامل الخصم (لا يشمل التوصيل إن وُجد)</span>
+              </div>
+              <div className={styles.totalVal}>{formatSdg(estimatedTotal)}</div>
+            </div>
+
+            <div className={styles.noticeContainer}>
+              <PriceNotice variant="full" lockHours={lockHours} />
+            </div>
+
+            {/* Desktop Checkout CTA */}
+            <div className={styles.desktopCheckoutWrap}>
+              {hasUnconfirmedPriceChanges ? (
+                <button
+                  type="button"
+                  onClick={confirmAllPriceChanges}
+                  className={`${styles.desktopCheckoutBtn} ${styles.btnWarning}`}
+                >
+                  <AlertCircle size={18} />
+                  <span>تأكيد تحديث الأسعار للمتابعة</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => navigate('/checkout')}
+                  className={`${styles.desktopCheckoutBtn} ${styles.btnVivid}`}
+                >
+                  <ShoppingBag size={18} />
+                  <span>متابعة تثبيت السعر والطلب</span>
+                  <ArrowLeft size={16} />
+                </button>
+              )}
+            </div>
+
+            <div className={styles.securityBadge}>
+              <ShieldCheck size={16} className={styles.securityIcon} />
+              <span>تثبيت السعر مضمون بالكامل حتى اكتمال السداد بالبنك</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <Link to="/products" className={styles.continueLink}>
-        <ArrowRight size={14} />
-        <span>إضافة أجهزة أو ملحقات أخرى</span>
-      </Link>
-
       <div className={styles.bottomSpacer} />
 
-      {/* Sticky Bottom Checkout Bar (Above Safe Area) */}
+      {/* Sticky Bottom Checkout Bar (Phone/Tablet < 1024px only) */}
       <div className={styles.stickyBar}>
         <div className={styles.stickyInfo}>
           <span className={styles.stickyLabel}>المطلوب:</span>

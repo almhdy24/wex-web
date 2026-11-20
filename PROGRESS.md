@@ -467,8 +467,52 @@ Calm, trustworthy, production-ready UI/UX tailored for Sudanese customers and el
     - Compatible accessories rail ("يكمل جهازك") and "شاهدت مؤخرًا" recently viewed rail powered by localStorage.
   - Created `src/__tests__/compare-favorites.test.jsx`: 4 unit tests covering favorites and compare mechanisms.
   - Verification: 0 lint errors, 14 test files and 69 tests passing (100%), production build 126.64 kB gzip initial JS, 11.76 kB gzip global CSS.
-- [ ] **Phase 5: Cart Page, Checkout Two-Column Layout, Guest Flow & Pending Order Banner**
-- [ ] **Phase 5: Cart Page, Checkout Two-Column Layout, Guest Flow & Pending Order Banner**
+- [x] **Phase 5: Cart Page, Checkout Two-Column Layout, Guest Flow & Pending Order Banner**
+  - Enhanced `Toast.jsx`, `Toast.module.css`, and `ToastContext.jsx`: added action button support (`actionToast`), refined action styling, and set desktop positioning to bottom-start (`inset-inline-start: 32px`).
+  - Enhanced `CartContext.jsx`: added `restoreItem` to support 5-second undo restoration.
+  - Upgraded `CartPage.jsx` & `CartPage.module.css`:
+    - 2-column desktop layout: items list on start (65%) + sticky calculation summary on end (35%).
+    - 5-second undo snackbar on item removal ("تم حذف {item} من السلة" with "تراجع" button).
+    - Mobile sticky bottom checkout bar hidden on desktop; primary checkout action integrated directly into the sticky summary card.
+  - Upgraded `CheckoutPage.jsx` & `CheckoutPage.module.css`:
+    - 3-step progress indicator across top: (1) السلة, (2) بيانات الطلب (نشط), (3) تثبيت السعر والدفع.
+    - 2-column desktop layout: delivery selector & contact forms (60%) + sticky order review summary (40%) with PriceNotice and submit CTA.
+    - "ماذا بعد تثبيت السعر؟" next steps card explaining price-lock, Bankak transfer, and pickup/delivery.
+    - SessionStorage draft persistence across phone, delivery zone, address, and notes.
+  - Implemented Guest Checkout Flow:
+    - Opened `/checkout` to guests in `src/app/router.jsx`.
+    - If customer is unauthenticated at submit time, draft is preserved and user is redirected to `/login?returnTo=/checkout` without touching cart contents.
+    - Updated `LoginPage.jsx` and `VerifyOtpPage.jsx` to honor `returnTo` URL parameter and return user seamlessly to checkout.
+  - Created `PendingOrderBanner.jsx` & `PendingOrderBanner.module.css`:
+    - Persistent top banner across all viewports detecting active `pending_payment` orders.
+    - Live countdown timer, order number link to `/orders/{order_number}`, and session dismissal.
+    - Integrated into `StoreLayout.jsx`.
+  - Created `src/__tests__/cart-checkout.test.jsx`: 5 unit tests covering cart, checkout, and pending order banner.
+  - Verification: 0 lint errors, 15 test files and 74 tests passing (100%), production build 127.73 kB gzip initial JS, 12.33 kB gzip global CSS.
+- [ ] **Phase 6: Order Detail & Orders Desktop Layouts, Receipt Drag/Paste, Account/Notifications, FAQ Page**
+- [x] **Phase 5: Cart Page, Checkout Two-Column Layout, Guest Flow & Pending Order Banner**
+  - Enhanced `Toast.jsx`, `Toast.module.css`, and `ToastContext.jsx`: added action button support (`actionToast`), refined action styling, and set desktop positioning to bottom-start (`inset-inline-start: 32px`).
+  - Enhanced `CartContext.jsx`: added `restoreItem` to support 5-second undo restoration.
+  - Upgraded `CartPage.jsx` & `CartPage.module.css`:
+    - 2-column desktop layout: items list on start (65%) + sticky calculation summary on end (35%).
+    - 5-second undo snackbar on item removal ("تم حذف {item} من السلة" with "تراجع" button).
+    - Mobile sticky bottom checkout bar hidden on desktop; primary checkout action integrated directly into the sticky summary card.
+  - Upgraded `CheckoutPage.jsx` & `CheckoutPage.module.css`:
+    - 3-step progress indicator across top: (1) السلة, (2) بيانات الطلب (نشط), (3) تثبيت السعر والدفع.
+    - 2-column desktop layout: delivery selector & contact forms (60%) + sticky order review summary (40%) with PriceNotice and submit CTA.
+    - "ماذا بعد تثبيت السعر؟" next steps card explaining price-lock, Bankak transfer, and pickup/delivery.
+    - SessionStorage draft persistence across phone, delivery zone, address, and notes.
+  - Implemented Guest Checkout Flow:
+    - Opened `/checkout` to guests in `src/app/router.jsx`.
+    - If customer is unauthenticated at submit time, draft is preserved and user is redirected to `/login?returnTo=/checkout` without touching cart contents.
+    - Updated `LoginPage.jsx` and `VerifyOtpPage.jsx` to honor `returnTo` URL parameter and return user seamlessly to checkout.
+  - Created `PendingOrderBanner.jsx` & `PendingOrderBanner.module.css`:
+    - Persistent top banner across all viewports detecting active `pending_payment` orders.
+    - Live countdown timer, order number link to `/orders/{order_number}`, and session dismissal.
+    - Integrated into `StoreLayout.jsx`.
+  - Created `src/__tests__/cart-checkout.test.jsx`: 5 unit tests covering cart, checkout, and pending order banner.
+  - Verification: 0 lint errors, 15 test files and 74 tests passing (100%), production build 127.73 kB gzip initial JS, 12.33 kB gzip global CSS.
+- [ ] **Phase 6: Order Detail & Orders Desktop Layouts, Receipt Drag/Paste, Account/Notifications, FAQ Page**
 - [ ] **Phase 6: Order Detail & Orders Desktop Layouts, Receipt Drag/Paste, Account/Notifications, FAQ Page**
 - [ ] **Phase 7: General UX Pass: Forms, Undo, Error Recovery, Prefetch, Blur-up & A11y**
 - [ ] **Phase 8: Performance, Tests, Documentation Updates & Double Check Verification**

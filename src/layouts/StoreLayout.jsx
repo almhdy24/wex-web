@@ -8,6 +8,7 @@ import ScrollToTop from '../components/common/ScrollToTop';
 import DesktopHeader from '../components/desktop/DesktopHeader';
 import DesktopFooter from '../components/desktop/DesktopFooter';
 import CartDrawer from '../components/desktop/CartDrawer';
+import PendingOrderBanner from '../components/common/PendingOrderBanner';
 import { ordersApi } from '../api/orders';
 import { notificationsApi } from '../api/notifications';
 import { useAuth } from '../context/AuthContext';
@@ -147,6 +148,7 @@ export default function StoreLayout() {
         {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
 
         <DesktopHeader onOpenCart={() => setIsCartDrawerOpen(true)} />
+        <PendingOrderBanner />
 
         <main id="main-content" className={styles.desktopMain} tabIndex={-1}>
           <Outlet />
@@ -178,6 +180,7 @@ export default function StoreLayout() {
           backTo={routeInfo.backTo}
           unreadCount={unreadCount}
         />
+        <PendingOrderBanner />
 
         <main
           id="main-content"

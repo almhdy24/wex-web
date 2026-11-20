@@ -18,7 +18,8 @@ export default function LoginPage() {
   const location = useLocation();
 
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-  const from = location.state?.from?.pathname || '/';
+  const searchReturnTo = new URLSearchParams(location.search).get('returnTo');
+  const from = location.state?.from?.pathname || location.state?.from || searchReturnTo || '/';
 
   // Initialize Google Sign-in if configured
   useEffect(() => {
@@ -88,7 +89,7 @@ export default function LoginPage() {
       const res = await authApi.requestEmailOtp(email.trim());
       success(res.message || 'تم إرسال رمز التحقق إلى بريدك الإلكتروني');
       navigate(`/auth/verify?email=${encodeURIComponent(email.trim())}`, {
-        state: { from: location.state?.from },
+        state: { from },
       });
     } catch (err) {
       const msg = err.errors?.email || err.message || 'الاتصال ضعيف. حاول تاني.';

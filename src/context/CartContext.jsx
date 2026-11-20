@@ -84,6 +84,14 @@ export function CartProvider({ children }) {
     });
   };
 
+  const restoreItem = useCallback((item) => {
+    if (!item || !item.id) return;
+    setItems((prev) => {
+      if (prev.some((i) => i.id === item.id)) return prev;
+      return [...prev, item];
+    });
+  }, []);
+
   const clearCart = () => {
     setItems([]);
     setPriceChanges({});
@@ -195,6 +203,7 @@ export function CartProvider({ children }) {
       value={{
         items,
         addItem,
+        restoreItem,
         updateQuantity,
         removeItem,
         clearCart,

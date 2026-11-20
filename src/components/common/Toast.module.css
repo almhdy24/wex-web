@@ -57,6 +57,41 @@
   color: var(--color-navy);
 }
 
+.actionBtn {
+  background: var(--wex-ice, #EAF3FF);
+  color: var(--wex-vivid, #1E6BFF);
+  border: 1px solid rgba(30, 107, 255, 0.2);
+  border-radius: var(--radius-sm, 8px);
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--motion-fast, 150ms) var(--ease-standard),
+              transform var(--motion-fast, 150ms) var(--ease-standard);
+}
+
+.actionBtn:hover {
+  background: var(--wex-royal, #0B3FBF);
+  color: #FFFFFF;
+}
+
+.actionBtn:active {
+  transform: scale(0.96);
+}
+
+@media (min-width: 1024px) {
+  .container {
+    bottom: 32px;
+    left: auto;
+    right: auto;
+    inset-inline-start: 32px;
+    transform: none;
+    max-width: 440px;
+    width: auto;
+  }
+}
+
 /* Variant Accents */
 .success {
   border-inline-start: 4px solid var(--color-success);

@@ -22,6 +22,18 @@ export default function Toast({ toast, onDismiss }) {
         <Icon size={18} strokeWidth={1.75} aria-hidden="true" />
       </span>
       <span className={styles.message}>{toast.message}</span>
+      {toast.action && (
+        <button
+          type="button"
+          className={styles.actionBtn}
+          onClick={() => {
+            if (toast.action.onClick) toast.action.onClick();
+            onDismiss(toast.id);
+          }}
+        >
+          {toast.action.label}
+        </button>
+      )}
       <button
         type="button"
         className={styles.closeBtn}

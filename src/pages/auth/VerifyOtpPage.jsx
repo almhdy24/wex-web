@@ -24,7 +24,8 @@ export default function VerifyOtpPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = location.state?.from?.pathname || '/';
+  const searchReturnTo = new URLSearchParams(location.search).get('returnTo');
+  const from = location.state?.from?.pathname || location.state?.from || searchReturnTo || '/';
 
   // 60-second countdown
   useEffect(() => {
