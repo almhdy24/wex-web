@@ -15,12 +15,13 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { productsApi } from '../../api/products';
 import { api } from '../../api/client';
-import { formatSdg, getProductImageUrl } from '../../utils/formatters';
+import { formatSdg, getProductImageUrl, normalizeSudanPhone, isValidSudanPhone } from '../../utils/formatters';
 import LaptopSvg from '../../components/common/LaptopSvg';
 import PriceNotice from '../../components/common/PriceNotice';
 import styles from './CheckoutPage.module.css';
 
 const DRAFT_STORAGE_KEY = 'wex_checkout_draft';
+const SAVED_PHONE_KEY = 'wex_saved_contact_phone';
 
 export default function CheckoutPage() {
   const {
@@ -49,7 +50,18 @@ export default function CheckoutPage() {
   const [shippingZones, setShippingZones] = useState([]);
   const [selectedZoneId, setSelectedZoneId] = useState(draft.selectedZoneId || '');
   const [deliveryAddress, setDeliveryAddress] = useState(draft.deliveryAddress || '');
-  const [contactPhone, setContactPhone] = useState(draft.contactPhone || user?.phone || '');
+  const [contactPhone, setContactPhone] = useState(() => {
+    if (draft.contactPhone) return draft.contactPhone;
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem(SAVED_PHONE_KEY);
+        if (saved) return saved;
+      } catch {
+        // storage unavailable
+      }
+    }
+    return user?.phone || '';
+  });
   const [customerNotes, setCustomerNotes] = useState(draft.customerNotes || '');
   const [shopInfo, setShopInfo] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -119,10 +131,20 @@ export default function CheckoutPage() {
     setErrors({});
 
     // Validate phone
-    const cleanPhone = contactPhone.trim();
+    const cleanPhone = normalizeSudanPhone(contactPhone.trim());
     if (!cleanPhone) {
       setErrors({ contact_phone: 'رقم الهاتف للتواصل مطلوب' });
       return;
+    }
+    if (!isValidSudanPhone(cleanPhone)) {
+      setErrors({ contact_phone: 'يرجى إدخال رقم سوداني صحيح (يبدأ بـ 09 أو 01 ويتكون من 10 أرقام)' });
+      return;
+    }
+
+    try {
+      localStorage.setItem(SAVED_PHONE_KEY, cleanPhone);
+    } catch {
+      // storage unavailable
     }
 
     if (orderType === 'delivery') {

@@ -21,6 +21,7 @@ import { useAuth } from '../../context/AuthContext';
 import { productsApi } from '../../api/products';
 import { notificationsApi } from '../../api/notifications';
 import { formatSdg, formatDate } from '../../utils/formatters';
+import { prefetchRoute } from '../../utils/prefetch';
 import { ar } from '../../content/ar';
 import styles from './DesktopHeader.module.css';
 
@@ -241,6 +242,8 @@ export default function DesktopHeader({ onOpenCart }) {
             <NavLink
               to="/"
               end
+              onMouseEnter={() => prefetchRoute('/')}
+              onFocus={() => prefetchRoute('/')}
               className={({ isActive }) =>
                 `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`
               }
@@ -250,6 +253,8 @@ export default function DesktopHeader({ onOpenCart }) {
             <NavLink
               to="/products"
               end
+              onMouseEnter={() => prefetchRoute('/products')}
+              onFocus={() => prefetchRoute('/products')}
               className={({ isActive }) =>
                 `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`
               }
@@ -258,6 +263,8 @@ export default function DesktopHeader({ onOpenCart }) {
             </NavLink>
             <NavLink
               to="/products?category=accessories"
+              onMouseEnter={() => prefetchRoute('/products')}
+              onFocus={() => prefetchRoute('/products')}
               className={({ isActive }) =>
                 `${styles.navLink} ${isActive && location.search.includes('accessories') ? styles.navLinkActive : ''}`
               }
@@ -266,6 +273,8 @@ export default function DesktopHeader({ onOpenCart }) {
             </NavLink>
             <NavLink
               to="/orders"
+              onMouseEnter={() => prefetchRoute('/orders')}
+              onFocus={() => prefetchRoute('/orders')}
               className={({ isActive }) =>
                 `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`
               }

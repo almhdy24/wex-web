@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { prefetchRoute } from '../../utils/prefetch';
 import { ar } from '../../content/ar';
 import styles from './BottomTabBar.module.css';
 
@@ -75,6 +76,8 @@ export default function BottomTabBar({ activeOrderCount = 0 }) {
             key={tab.id}
             to={tab.to}
             end={tab.to === '/'}
+            onMouseEnter={() => prefetchRoute(tab.to)}
+            onTouchStart={() => prefetchRoute(tab.to)}
             className={({ isActive }) =>
               `${styles.navItem} ${isActive ? styles.active : ''}`
             }

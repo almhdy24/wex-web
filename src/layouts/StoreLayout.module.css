@@ -1,3 +1,23 @@
+.skipLink {
+  position: absolute;
+  top: -100px;
+  inset-inline-start: 16px;
+  background: var(--wex-royal, #0B3FBF);
+  color: #FFFFFF;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm, 8px);
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  z-index: 9999;
+  transition: top 150ms ease;
+}
+
+.skipLink:focus {
+  top: 16px;
+  outline: 3px solid var(--wex-cyan, #00B7FF);
+}
+
 /* Desktop Web Shell (>= 1024px) */
 .desktopShell {
   min-height: 100vh;

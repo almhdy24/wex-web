@@ -145,7 +145,7 @@ export const ar = {
     },
     categories: {
       laptops: 'حواسيب محمولة',
-      phones: 'هواتف ذكية',
+      phones: 'هواتف',
       accessories: 'ملحقات',
       conditionNew: 'جديد',
       conditionUsed: 'مستعمل استيراد',

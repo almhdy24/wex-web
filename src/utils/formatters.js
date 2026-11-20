@@ -174,3 +174,30 @@ export function formatCountdown(hours, minutes, seconds, expired = false) {
   return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 }
 
+/**
+ * Normalize and clean Sudanese mobile numbers
+ * Accepts: 0912345678, +249912345678, 249912345678, 0123456789
+ * Returns normalized 10-digit format (e.g. 0912345678)
+ */
+export function normalizeSudanPhone(input) {
+  if (!input) return '';
+  let cleaned = String(input).replace(/[^\d+]/g, '');
+  if (cleaned.startsWith('+249')) {
+    cleaned = '0' + cleaned.substring(4);
+  } else if (cleaned.startsWith('249')) {
+    cleaned = '0' + cleaned.substring(3);
+  } else if (cleaned.length === 9 && (cleaned.startsWith('9') || cleaned.startsWith('1'))) {
+    cleaned = '0' + cleaned;
+  }
+  return cleaned;
+}
+
+/**
+ * Validate Sudanese mobile number
+ * Valid formats start with 09 or 01, exactly 10 digits
+ */
+export function isValidSudanPhone(phone) {
+  const normalized = normalizeSudanPhone(phone);
+  return /^(09\d{8}|01\d{8})$/.test(normalized);
+}
+

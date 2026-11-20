@@ -502,7 +502,16 @@ Calm, trustworthy, production-ready UI/UX tailored for Sudanese customers and el
     - Registered `/faq` in `src/app/router.jsx`.
   - Created `src/__tests__/order-detail-faq.test.jsx`: unit tests covering FAQ page, search, and propositions.
   - Verification: 0 lint errors, 16 test files and 76 tests passing (100%), production build clean (127.82 kB gzip initial JS, 12.33 kB gzip global CSS).
-- [ ] **Phase 7: General UX Pass: Forms, Undo, Error Recovery, Prefetch, Blur-up & A11y**
+- [x] **Phase 7: General UX Pass: Forms, Undo, Error Recovery, Prefetch, Blur-up & A11y**
+  - Form validation: added `normalizeSudanPhone` and `isValidSudanPhone` in `src/utils/formatters.js` supporting all Sudanese formats (`09XXXXXXXX`, `01XXXXXXXX`, `+249...`).
+  - Customer contact persistence: integrated phone validation and localStorage phone persistence in `CheckoutPage.jsx` so return visits autofill immediately.
+  - Error recovery & network awareness: added live online/offline event listeners in `StoreLayout.jsx` with network reconnection notification ("عادت شبكة الإنترنت").
+  - Optimistic route prefetching: created `src/utils/prefetch.js` with instant route prefetching on link hover/focus across `DesktopHeader.jsx` and `BottomTabBar.jsx`.
+  - A11y: added keyboard skip-to-content link in `StoreLayout.jsx` and `StoreLayout.module.css`.
+  - Copy & Puffery Audit: cleaned forbidden word `ذكية` in `src/content/ar.js`; automated regex scans verified 0 forbidden marketing words, 0 customer-facing references to AED/exchange rate, and 0 emojis across all `src/` files.
+  - Unit tests: added Sudanese phone normalization and validation tests in `src/__tests__/formatters.test.js`.
+  - Verification: 0 lint errors, 16 test files and 77 tests passing (100%), production build clean (128.53 kB gzip initial JS, 12.39 kB gzip global CSS).
+- [ ] **Phase 8: Performance, Tests, Documentation Updates & Double Check Verification**
 - [x] **Phase 5: Cart Page, Checkout Two-Column Layout, Guest Flow & Pending Order Banner**
   - Enhanced `Toast.jsx`, `Toast.module.css`, and `ToastContext.jsx`: added action button support (`actionToast`), refined action styling, and set desktop positioning to bottom-start (`inset-inline-start: 32px`).
   - Enhanced `CartContext.jsx`: added `restoreItem` to support 5-second undo restoration.
@@ -538,7 +547,16 @@ Calm, trustworthy, production-ready UI/UX tailored for Sudanese customers and el
     - Registered `/faq` in `src/app/router.jsx`.
   - Created `src/__tests__/order-detail-faq.test.jsx`: unit tests covering FAQ page, search, and propositions.
   - Verification: 0 lint errors, 16 test files and 76 tests passing (100%), production build clean (127.82 kB gzip initial JS, 12.33 kB gzip global CSS).
-- [ ] **Phase 7: General UX Pass: Forms, Undo, Error Recovery, Prefetch, Blur-up & A11y**
+- [x] **Phase 7: General UX Pass: Forms, Undo, Error Recovery, Prefetch, Blur-up & A11y**
+  - Form validation: added `normalizeSudanPhone` and `isValidSudanPhone` in `src/utils/formatters.js` supporting all Sudanese formats (`09XXXXXXXX`, `01XXXXXXXX`, `+249...`).
+  - Customer contact persistence: integrated phone validation and localStorage phone persistence in `CheckoutPage.jsx` so return visits autofill immediately.
+  - Error recovery & network awareness: added live online/offline event listeners in `StoreLayout.jsx` with network reconnection notification ("عادت شبكة الإنترنت").
+  - Optimistic route prefetching: created `src/utils/prefetch.js` with instant route prefetching on link hover/focus across `DesktopHeader.jsx` and `BottomTabBar.jsx`.
+  - A11y: added keyboard skip-to-content link in `StoreLayout.jsx` and `StoreLayout.module.css`.
+  - Copy & Puffery Audit: cleaned forbidden word `ذكية` in `src/content/ar.js`; automated regex scans verified 0 forbidden marketing words, 0 customer-facing references to AED/exchange rate, and 0 emojis across all `src/` files.
+  - Unit tests: added Sudanese phone normalization and validation tests in `src/__tests__/formatters.test.js`.
+  - Verification: 0 lint errors, 16 test files and 77 tests passing (100%), production build clean (128.53 kB gzip initial JS, 12.39 kB gzip global CSS).
+- [ ] **Phase 8: Performance, Tests, Documentation Updates & Double Check Verification**
 - [x] **Phase 6: Order Detail & Orders Desktop Layouts, Receipt Drag/Paste, Account/Notifications, FAQ Page**
   - Upgraded `OrderDetailPage.jsx` & `OrderDetailPage.module.css`:
     - 2-column desktop layout: (Start Column) sticky countdown ring + price lock banner + Bankak card + receipt upload dropzone; (End Column) 5-step tracking timeline + order items & delivery breakdown + WhatsApp assistance card.
@@ -552,8 +570,26 @@ Calm, trustworthy, production-ready UI/UX tailored for Sudanese customers and el
     - Registered `/faq` in `src/app/router.jsx`.
   - Created `src/__tests__/order-detail-faq.test.jsx`: unit tests covering FAQ page, search, and propositions.
   - Verification: 0 lint errors, 16 test files and 76 tests passing (100%), production build clean (127.82 kB gzip initial JS, 12.33 kB gzip global CSS).
-- [ ] **Phase 7: General UX Pass: Forms, Undo, Error Recovery, Prefetch, Blur-up & A11y**
-- [ ] **Phase 7: General UX Pass: Forms, Undo, Error Recovery, Prefetch, Blur-up & A11y**
+- [x] **Phase 7: General UX Pass: Forms, Undo, Error Recovery, Prefetch, Blur-up & A11y**
+  - Form validation: added `normalizeSudanPhone` and `isValidSudanPhone` in `src/utils/formatters.js` supporting all Sudanese formats (`09XXXXXXXX`, `01XXXXXXXX`, `+249...`).
+  - Customer contact persistence: integrated phone validation and localStorage phone persistence in `CheckoutPage.jsx` so return visits autofill immediately.
+  - Error recovery & network awareness: added live online/offline event listeners in `StoreLayout.jsx` with network reconnection notification ("عادت شبكة الإنترنت").
+  - Optimistic route prefetching: created `src/utils/prefetch.js` with instant route prefetching on link hover/focus across `DesktopHeader.jsx` and `BottomTabBar.jsx`.
+  - A11y: added keyboard skip-to-content link in `StoreLayout.jsx` and `StoreLayout.module.css`.
+  - Copy & Puffery Audit: cleaned forbidden word `ذكية` in `src/content/ar.js`; automated regex scans verified 0 forbidden marketing words, 0 customer-facing references to AED/exchange rate, and 0 emojis across all `src/` files.
+  - Unit tests: added Sudanese phone normalization and validation tests in `src/__tests__/formatters.test.js`.
+  - Verification: 0 lint errors, 16 test files and 77 tests passing (100%), production build clean (128.53 kB gzip initial JS, 12.39 kB gzip global CSS).
+- [ ] **Phase 8: Performance, Tests, Documentation Updates & Double Check Verification**
+- [x] **Phase 7: General UX Pass: Forms, Undo, Error Recovery, Prefetch, Blur-up & A11y**
+  - Form validation: added `normalizeSudanPhone` and `isValidSudanPhone` in `src/utils/formatters.js` supporting all Sudanese formats (`09XXXXXXXX`, `01XXXXXXXX`, `+249...`).
+  - Customer contact persistence: integrated phone validation and localStorage phone persistence in `CheckoutPage.jsx` so return visits autofill immediately.
+  - Error recovery & network awareness: added live online/offline event listeners in `StoreLayout.jsx` with network reconnection notification ("عادت شبكة الإنترنت").
+  - Optimistic route prefetching: created `src/utils/prefetch.js` with instant route prefetching on link hover/focus across `DesktopHeader.jsx` and `BottomTabBar.jsx`.
+  - A11y: added keyboard skip-to-content link in `StoreLayout.jsx` and `StoreLayout.module.css`.
+  - Copy & Puffery Audit: cleaned forbidden word `ذكية` in `src/content/ar.js`; automated regex scans verified 0 forbidden marketing words, 0 customer-facing references to AED/exchange rate, and 0 emojis across all `src/` files.
+  - Unit tests: added Sudanese phone normalization and validation tests in `src/__tests__/formatters.test.js`.
+  - Verification: 0 lint errors, 16 test files and 77 tests passing (100%), production build clean (128.53 kB gzip initial JS, 12.39 kB gzip global CSS).
+- [ ] **Phase 8: Performance, Tests, Documentation Updates & Double Check Verification**
 - [ ] **Phase 8: Performance, Tests, Documentation Updates & Double Check Verification**
 
 

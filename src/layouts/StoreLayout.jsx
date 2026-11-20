@@ -12,6 +12,7 @@ import PendingOrderBanner from '../components/common/PendingOrderBanner';
 import { ordersApi } from '../api/orders';
 import { notificationsApi } from '../api/notifications';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { useViewport } from '../hooks/useViewport';
 import { ar } from '../content/ar';
 import styles from './StoreLayout.module.css';
@@ -20,6 +21,7 @@ export default function StoreLayout() {
   const location = useLocation();
   const { isAuthenticated } = useAuth();
   const { isDesktop } = useViewport();
+  const { success: toastSuccess, info: toastInfo } = useToast();
 
   const [showSplash, setShowSplash] = useState(() => {
     try {
@@ -37,6 +39,25 @@ export default function StoreLayout() {
   const prevPathRef = useRef(location.pathname);
   const [navDirection, setNavDirection] = useState('forward');
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+
+  // Network connection status listeners
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleOnline = () => {
+      toastSuccess('عادت شبكة الإنترنت');
+    };
+    const handleOffline = () => {
+      toastInfo('الاتصال بالإنترنت منقطع حالياً');
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [toastSuccess, toastInfo]);
 
   // Detect virtual on-screen keyboard via visualViewport (mobile/tablet only)
   useEffect(() => {
@@ -145,6 +166,7 @@ export default function StoreLayout() {
   if (isDesktop) {
     return (
       <div className={styles.desktopShell}>
+        <a href="#main-content" className={styles.skipLink}>انتقل إلى المحتوى الرئيسي</a>
         {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
 
         <DesktopHeader onOpenCart={() => setIsCartDrawerOpen(true)} />
@@ -170,6 +192,7 @@ export default function StoreLayout() {
   // PHONE & TABLET APP SHELL (< 1024px)
   return (
     <div className={styles.desktopViewport}>
+      <a href="#main-content" className={styles.skipLink}>انتقل إلى المحتوى الرئيسي</a>
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
 
       <div className={styles.appShell}>
