@@ -1,6 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, RotateCcw, ArrowRight, ArrowLeft } from 'lucide-react';
+import {
+  Search,
+  RotateCcw,
+  ArrowRight,
+  ArrowLeft,
+  LayoutGrid,
+  List,
+  Filter,
+} from 'lucide-react';
 import { productsApi } from '../../api/products';
 import ProductCard from '../../components/products/ProductCard';
 import { ProductCardSkeleton } from '../../components/common/Skeleton';
@@ -20,6 +28,9 @@ export default function CatalogPage() {
   const [selectedBrand, setSelectedBrand] = useState(searchParams.get('brand') || 'all');
   const [selectedCondition, setSelectedCondition] = useState(searchParams.get('condition') || 'all');
   const [selectedSort, setSelectedSort] = useState(searchParams.get('sort') || 'newest');
+  const [pricePreset, setPricePreset] = useState(searchParams.get('price') || 'all');
+  const [inStockOnly, setInStockOnly] = useState(searchParams.get('in_stock') === '1');
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
   const [currentPage, setCurrentPage] = useState(Number(searchParams.get('page')) || 1);
 
   // Data states
@@ -62,6 +73,17 @@ export default function CatalogPage() {
     if (selectedCategory && selectedCategory !== 'all') params.category = selectedCategory;
     if (selectedBrand && selectedBrand !== 'all') params.brand = selectedBrand;
     if (selectedCondition && selectedCondition !== 'all') params.condition = selectedCondition;
+    if (inStockOnly) params.in_stock = 1;
+
+    // Price preset mapping (SDG only)
+    if (pricePreset === 'under-400k') {
+      params.max_price = 400000;
+    } else if (pricePreset === '400k-800k') {
+      params.min_price = 400000;
+      params.max_price = 800000;
+    } else if (pricePreset === 'over-800k') {
+      params.min_price = 800000;
+    }
 
     if (selectedSort === 'price-low') {
       params.sort = 'price_asc';
@@ -77,6 +99,8 @@ export default function CatalogPage() {
     if (selectedCategory && selectedCategory !== 'all') urlParams.category = selectedCategory;
     if (selectedBrand && selectedBrand !== 'all') urlParams.brand = selectedBrand;
     if (selectedCondition && selectedCondition !== 'all') urlParams.condition = selectedCondition;
+    if (pricePreset !== 'all') urlParams.price = pricePreset;
+    if (inStockOnly) urlParams.in_stock = '1';
     if (selectedSort !== 'newest') urlParams.sort = selectedSort;
     if (currentPage > 1) urlParams.page = currentPage;
 
@@ -91,7 +115,17 @@ export default function CatalogPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, query, selectedCategory, selectedBrand, selectedCondition, selectedSort, setSearchParams]);
+  }, [
+    currentPage,
+    query,
+    selectedCategory,
+    selectedBrand,
+    selectedCondition,
+    pricePreset,
+    inStockOnly,
+    selectedSort,
+    setSearchParams,
+  ]);
 
   useEffect(() => {
     loadProducts();
@@ -117,6 +151,8 @@ export default function CatalogPage() {
     setSelectedCategory('all');
     setSelectedBrand('all');
     setSelectedCondition('all');
+    setPricePreset('all');
+    setInStockOnly(false);
     setSelectedSort('newest');
     setCurrentPage(1);
   };
@@ -126,12 +162,14 @@ export default function CatalogPage() {
     query.trim() ||
     selectedCategory !== 'all' ||
     selectedBrand !== 'all' ||
-    selectedCondition !== 'all'
+    selectedCondition !== 'all' ||
+    pricePreset !== 'all' ||
+    inStockOnly
   );
 
   return (
     <div className={styles.container}>
-      {/* 1. In-Catalog Search Bar */}
+      {/* Mobile/Tablet In-Catalog Search Bar (hidden on desktop where top header search lives) */}
       <section className={styles.searchSection} aria-label={t('catalog.searchPlaceholder')}>
         <div className={styles.searchForm}>
           <input
@@ -146,7 +184,7 @@ export default function CatalogPage() {
         </div>
       </section>
 
-      {/* 2. Filter Bar 1: Categories & Conditions */}
+      {/* Mobile/Tablet Filter Bar 1: Categories & Conditions */}
       <section className={styles.filterScrollSection} aria-label="تصنيفات الأجهزة">
         <div className={styles.filterChipsScroll}>
           <button
@@ -186,7 +224,7 @@ export default function CatalogPage() {
         </div>
       </section>
 
-      {/* 3. Filter Bar 2: Brands & Compact Sort Dropdown */}
+      {/* Mobile/Tablet Filter Bar 2: Brands & Sort Dropdown */}
       <section className={styles.brandSortSection} aria-label="الماركات والترتيب">
         <div className={styles.filterChipsScroll}>
           <button
@@ -221,69 +259,259 @@ export default function CatalogPage() {
         </select>
       </section>
 
-      {/* Results Header Count & Reset */}
-      <div className={styles.resultsBar}>
-        <span className={styles.resultsCount}>
-          {loading ? 'جاري التحميل...' : t('catalog.resultsCount', { count: totalCount })}
-        </span>
-        {hasActiveFilters && (
-          <button type="button" onClick={handleResetFilters} className={styles.resetBtn}>
-            <RotateCcw size={12} />
-            <span>{t('catalog.resetFilters')}</span>
-          </button>
-        )}
-      </div>
+      {/* Main 2-Column Catalog Container (Sidebar + Results) */}
+      <div className={styles.catalogLayout}>
+        {/* Desktop Sticky Filter Sidebar */}
+        <aside className={styles.desktopSidebar} aria-label="تصفية الأجهزة">
+          <div className={styles.sidebarCard}>
+            <div className={styles.sidebarHeader}>
+              <div className={styles.sidebarTitleRow}>
+                <Filter size={18} className={styles.filterIcon} />
+                <h3 className={styles.sidebarTitle}>تصفية الأجهزة</h3>
+              </div>
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={handleResetFilters}
+                  className={styles.sidebarResetBtn}
+                  title={t('catalog.resetFilters')}
+                >
+                  <RotateCcw size={12} />
+                  <span>مسح الكل</span>
+                </button>
+              )}
+            </div>
 
-      {error && <ErrorState message={error} onRetry={loadProducts} />}
+            {/* Filter Section: Categories */}
+            <div className={styles.filterGroup}>
+              <h4 className={styles.groupHeading}>نوع الجهاز</h4>
+              <div className={styles.groupOptions}>
+                <button
+                  type="button"
+                  className={`${styles.sidebarChip} ${selectedCategory === 'all' ? styles.sidebarChipActive : ''}`}
+                  onClick={() => handleCategorySelect('all')}
+                >
+                  الكل
+                </button>
+                {categoriesList.map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    className={`${styles.sidebarChip} ${selectedCategory === cat.slug ? styles.sidebarChipActive : ''}`}
+                    onClick={() => handleCategorySelect(cat.slug)}
+                  >
+                    {cat.name_ar || cat.name}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-      {/* 4. Live 2-Column Product Grid with Staggered Fade-in */}
-      <div className={styles.productGrid}>
-        {loading ? (
-          Array.from({ length: 6 }).map((_, i) => <ProductCardSkeleton key={i} />)
-        ) : products.length > 0 ? (
-          products.map((prod, idx) => (
-            <ProductCard key={prod.id} product={prod} index={idx} />
-          ))
-        ) : !error ? (
-          <div className={styles.emptyContainer}>
-            <EmptyState
-              title={t('catalog.noResultsTitle')}
-              description={t('catalog.noResultsDesc')}
-              actionLabel={t('catalog.resetFilters')}
-              onAction={handleResetFilters}
-            />
+            {/* Filter Section: Condition */}
+            <div className={styles.filterGroup}>
+              <h4 className={styles.groupHeading}>حالة الجهاز</h4>
+              <div className={styles.groupOptions}>
+                <button
+                  type="button"
+                  className={`${styles.sidebarChip} ${selectedCondition === 'all' ? styles.sidebarChipActive : ''}`}
+                  onClick={() => { setSelectedCondition('all'); setCurrentPage(1); }}
+                >
+                  الكل
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.sidebarChip} ${selectedCondition === 'new' ? styles.sidebarChipActive : ''}`}
+                  onClick={() => { setSelectedCondition('new'); setCurrentPage(1); }}
+                >
+                  {t('home.categories.conditionNew')}
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.sidebarChip} ${selectedCondition === 'used' ? styles.sidebarChipActive : ''}`}
+                  onClick={() => { setSelectedCondition('used'); setCurrentPage(1); }}
+                >
+                  {t('home.categories.conditionUsed')}
+                </button>
+              </div>
+            </div>
+
+            {/* Filter Section: Brands */}
+            <div className={styles.filterGroup}>
+              <h4 className={styles.groupHeading}>الماركة</h4>
+              <div className={styles.brandOptionsList}>
+                <label className={styles.checkboxLabel}>
+                  <input
+                    type="radio"
+                    name="brand-filter"
+                    checked={selectedBrand === 'all'}
+                    onChange={() => handleBrandSelect('all')}
+                    className={styles.radioInput}
+                  />
+                  <span>كل الماركات</span>
+                </label>
+                {brandsList.map((brand) => (
+                  <label key={brand} className={styles.checkboxLabel}>
+                    <input
+                      type="radio"
+                      name="brand-filter"
+                      checked={selectedBrand === brand}
+                      onChange={() => handleBrandSelect(brand)}
+                      className={styles.radioInput}
+                    />
+                    <span>{brand}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Filter Section: Price Presets (SDG tabular) */}
+            <div className={styles.filterGroup}>
+              <h4 className={styles.groupHeading}>نطاق السعر (ج.س)</h4>
+              <div className={styles.groupOptions}>
+                {[
+                  { id: 'all', label: 'الكل' },
+                  { id: 'under-400k', label: 'أقل من 400,000 ج.س' },
+                  { id: '400k-800k', label: '400,000 — 800,000 ج.س' },
+                  { id: 'over-800k', label: 'أكثر من 800,000 ج.س' },
+                ].map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    className={`${styles.sidebarChip} ${pricePreset === preset.id ? styles.sidebarChipActive : ''}`}
+                    onClick={() => { setPricePreset(preset.id); setCurrentPage(1); }}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Filter Section: In-Stock Toggle */}
+            <div className={styles.filterGroup}>
+              <label className={styles.toggleLabel}>
+                <input
+                  type="checkbox"
+                  checked={inStockOnly}
+                  onChange={(e) => { setInStockOnly(e.target.checked); setCurrentPage(1); }}
+                  className={styles.checkboxInput}
+                />
+                <span className={styles.toggleText}>الأجهزة المتوفرة فقط</span>
+              </label>
+            </div>
           </div>
-        ) : null}
+        </aside>
+
+        {/* Results Column */}
+        <section className={styles.resultsColumn} aria-label="قائمة الأجهزة">
+          {/* Desktop Toolbar */}
+          <div className={styles.toolbar}>
+            <div className={styles.resultsCount}>
+              {loading ? (
+                <span>{t('common.loading')}</span>
+              ) : (
+                <span>{t('catalog.resultsCount', { count: totalCount })}</span>
+              )}
+            </div>
+
+            <div className={styles.toolbarControls}>
+              {/* Grid / List View Toggle */}
+              <div className={styles.viewToggleGroup}>
+                <button
+                  type="button"
+                  className={`${styles.viewBtn} ${viewMode === 'grid' ? styles.viewBtnActive : ''}`}
+                  onClick={() => setViewMode('grid')}
+                  aria-label="عرض شبكي"
+                  title="عرض شبكي"
+                >
+                  <LayoutGrid size={16} />
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.viewBtn} ${viewMode === 'list' ? styles.viewBtnActive : ''}`}
+                  onClick={() => setViewMode('list')}
+                  aria-label="عرض قائمة"
+                  title="عرض قائمة"
+                >
+                  <List size={16} />
+                </button>
+              </div>
+
+              {/* Sort Dropdown */}
+              <select
+                value={selectedSort}
+                onChange={(e) => { setSelectedSort(e.target.value); setCurrentPage(1); }}
+                className={styles.toolbarSortSelect}
+                aria-label={t('catalog.sortTitle')}
+              >
+                <option value="newest">{t('catalog.sortNewest')}</option>
+                <option value="price-low">{t('catalog.sortPriceAsc')}</option>
+                <option value="price-high">{t('catalog.sortPriceDesc')}</option>
+              </select>
+
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={handleResetFilters}
+                  className={styles.mobileResetBtn}
+                >
+                  <RotateCcw size={12} />
+                  <span>{t('catalog.resetFilters')}</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {error && <ErrorState message={error} onRetry={loadProducts} />}
+
+          {/* Product Grid / List */}
+          <div className={viewMode === 'list' ? styles.productList : styles.productGrid}>
+            {loading ? (
+              Array.from({ length: 6 }).map((_, i) => <ProductCardSkeleton key={i} />)
+            ) : products.length > 0 ? (
+              products.map((prod, idx) => (
+                <ProductCard key={prod.id} product={prod} index={idx} />
+              ))
+            ) : !error ? (
+              <div className={styles.emptyContainer}>
+                <EmptyState
+                  title={t('catalog.noResultsTitle')}
+                  description={t('catalog.noResultsDesc')}
+                  actionLabel={t('catalog.resetFilters')}
+                  onAction={handleResetFilters}
+                />
+              </div>
+            ) : null}
+          </div>
+
+          {/* Pagination */}
+          {meta && meta.last_page > 1 && (
+            <nav className={styles.pagination} aria-label="صفحات المنتجات">
+              <button
+                type="button"
+                disabled={currentPage <= 1}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                className={styles.pageBtn}
+              >
+                <ArrowRight size={16} />
+                <span>السابق</span>
+              </button>
+
+              <span className={styles.pageInfo}>
+                صفحة {currentPage} من {meta.last_page}
+              </span>
+
+              <button
+                type="button"
+                disabled={currentPage >= meta.last_page}
+                onClick={() => setCurrentPage((p) => Math.min(meta.last_page, p + 1))}
+                className={styles.pageBtn}
+              >
+                <span>التالي</span>
+                <ArrowLeft size={16} />
+              </button>
+            </nav>
+          )}
+        </section>
       </div>
-
-      {/* 5. Pagination Bar */}
-      {meta && meta.last_page > 1 && (
-        <nav className={styles.pagination} aria-label="صفحات المنتجات">
-          <button
-            type="button"
-            disabled={currentPage <= 1}
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            className={styles.pageBtn}
-          >
-            <ArrowRight size={16} />
-            <span>السابق</span>
-          </button>
-
-          <span className={styles.pageInfo}>
-            صفحة {currentPage} من {meta.last_page}
-          </span>
-
-          <button
-            type="button"
-            disabled={currentPage >= meta.last_page}
-            onClick={() => setCurrentPage((p) => Math.min(meta.last_page, p + 1))}
-            className={styles.pageBtn}
-          >
-            <span>التالي</span>
-            <ArrowLeft size={16} />
-          </button>
-        </nav>
-      )}
     </div>
   );
 }

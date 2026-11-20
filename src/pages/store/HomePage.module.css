@@ -795,6 +795,289 @@
   pointer-events: none;
 }
 
+/* Carousel Navigation Arrows */
+.carouselArrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full, 9999px);
+  background: rgba(6, 26, 85, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: transform var(--motion-fast, 150ms) var(--ease-standard),
+              background-color var(--motion-fast, 150ms) var(--ease-standard);
+}
+
+.carouselArrow:hover {
+  background: rgba(11, 63, 191, 0.9);
+  transform: translateY(-50%) scale(1.08);
+}
+
+.carouselArrow:active {
+  transform: translateY(-50%) scale(0.94);
+}
+
+.carouselArrowPrev {
+  right: 18px;
+}
+
+.carouselArrowNext {
+  left: 18px;
+}
+
+@media (min-width: 1024px) {
+  .carouselArrow {
+    display: flex;
+  }
+}
+
+/* Rail Header Actions & Scroll Navigation */
+.railHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.railNavArrows {
+  display: none;
+  align-items: center;
+  gap: 6px;
+}
+
+.railArrowBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full, 9999px);
+  background: var(--wex-white, #FFFFFF);
+  border: 1px solid var(--wex-gray-200, #E2E8F0);
+  color: var(--wex-navy, #061A55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color var(--motion-fast, 150ms) var(--ease-standard),
+              border-color var(--motion-fast, 150ms) var(--ease-standard),
+              transform var(--motion-fast, 150ms) var(--ease-standard);
+}
+
+.railArrowBtn:hover {
+  background: var(--wex-ice, #EAF3FF);
+  border-color: var(--wex-royal, #0B3FBF);
+  color: var(--wex-royal, #0B3FBF);
+  transform: scale(1.05);
+}
+
+.railArrowBtn:active {
+  transform: scale(0.92);
+}
+
+@media (min-width: 1024px) {
+  .railNavArrows {
+    display: flex;
+  }
+}
+
+/* Shop 2-Column Desktop Grid */
+.shopContentGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.shopInfoColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.shopMapColumn {
+  display: none;
+}
+
+.mapCardLink {
+  height: 100%;
+  min-height: 180px;
+  border-radius: var(--radius-md, 14px);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-decoration: none;
+  color: #FFFFFF;
+  position: relative;
+  overflow: hidden;
+  transition: background-color var(--motion-fast, 150ms) var(--ease-standard),
+              border-color var(--motion-fast, 150ms) var(--ease-standard);
+}
+
+.mapCardLink:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: var(--wex-cyan, #00B7FF);
+}
+
+.mapPinGraphic {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+}
+
+.mapPinIcon {
+  color: var(--wex-cyan, #00B7FF);
+}
+
+.mapPinLabel {
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.mapPinSub {
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--wex-gray-300, #CBD5E1);
+}
+
+.mapOpenHint {
+  margin-top: 14px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--wex-cyan, #00B7FF);
+  text-decoration: underline;
+}
+
+/* =========================================================================
+   Desktop Tier Overrides (>= 1024px)
+   ========================================================================= */
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 0 60px;
+    gap: 40px;
+  }
+
+  .greetingSection {
+    display: none; /* Managed by sticky desktop header */
+  }
+
+  /* Wide 2-Column Hero */
+  .heroSection {
+    min-height: 380px;
+    border-radius: var(--radius-xl, 28px);
+  }
+
+  .slidesContainer {
+    min-height: 380px;
+  }
+
+  .slide {
+    padding: 48px 64px;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    align-items: center;
+    gap: 48px;
+  }
+
+  .slideTitle {
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+
+  .slideDesc {
+    font-size: 16px;
+    max-width: 480px;
+    margin-bottom: 24px;
+    -webkit-line-clamp: 3;
+  }
+
+  .slideCta {
+    padding: 12px 24px;
+    font-size: 14px;
+  }
+
+  .slideVisual,
+  .slideVisualLock {
+    width: 220px;
+    height: 220px;
+  }
+
+  /* Horizontal Category Row */
+  .categoriesRow {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .catCard {
+    padding: 16px 20px;
+  }
+
+  .catName {
+    font-size: 14px;
+  }
+
+  /* Quick Actions Row */
+  .quickActionsGrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .actionTile {
+    padding: 16px;
+  }
+
+  /* 4-5 Visible Product Rail Cards */
+  .railTrack {
+    margin: 0;
+    padding-inline-start: 0;
+    padding-inline-end: 0;
+    gap: 18px;
+  }
+
+  .railCardWrapper {
+    flex: 0 0 250px;
+  }
+
+  /* "How to order" 4 Horizontal Steps */
+  .stepsList {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 24px;
+  }
+
+  /* 2-Column Shop Card */
+  .shopCard {
+    padding: 36px 44px;
+  }
+
+  .shopContentGrid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 36px;
+    align-items: center;
+  }
+
+  .shopMapColumn {
+    display: flex;
+    height: 100%;
+  }
+
+  /* Hide Floating WhatsApp FAB on Desktop */
+  .floatingWhatsapp {
+    display: none !important;
+  }
+}
+
 /* Reduced Motion Override */
 @media (prefers-reduced-motion: reduce) {
   .pulseDot {

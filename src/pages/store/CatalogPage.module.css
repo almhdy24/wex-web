@@ -155,16 +155,296 @@
   text-decoration: underline;
 }
 
-/* 3. Product Grid (Strictly 2 Columns) */
+/* 3. Catalog 2-Column Layout */
+.catalogLayout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.desktopSidebar {
+  display: none;
+}
+
+.resultsColumn {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Toolbar */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 2px;
+}
+
+.toolbarControls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.viewToggleGroup {
+  display: none;
+  align-items: center;
+  background: var(--wex-white, #FFFFFF);
+  border: 1px solid var(--wex-gray-200, #E2E8F0);
+  border-radius: var(--radius-sm, 8px);
+  padding: 2px;
+}
+
+.viewBtn {
+  width: 32px;
+  height: 30px;
+  border-radius: var(--radius-xs, 4px);
+  border: none;
+  background: transparent;
+  color: var(--wex-gray-400, #94A3B8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color var(--motion-fast, 150ms) var(--ease-standard),
+              background-color var(--motion-fast, 150ms) var(--ease-standard);
+}
+
+.viewBtn:hover {
+  color: var(--wex-navy, #061A55);
+}
+
+.viewBtnActive {
+  background: var(--wex-ice, #EAF3FF);
+  color: var(--wex-royal, #0B3FBF);
+}
+
+.toolbarSortSelect {
+  display: none;
+  padding: 7px 14px;
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 700;
+  border-radius: var(--radius-md, 14px);
+  background: var(--wex-white, #FFFFFF);
+  border: 1px solid var(--wex-gray-200, #E2E8F0);
+  color: var(--wex-navy, #061A55);
+  outline: none;
+  cursor: pointer;
+}
+
+.mobileResetBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  color: var(--wex-royal, #0B3FBF);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.mobileResetBtn:hover {
+  text-decoration: underline;
+}
+
+/* Product Grid */
 .productGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
-.emptyContainer {
-  grid-column: 1 / -1;
-  padding: 32px 16px;
+.productList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .productGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+}
+
+/* =========================================================================
+   Desktop Tier Overrides (>= 1024px)
+   ========================================================================= */
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 0 40px;
+    gap: 0;
+  }
+
+  .searchSection,
+  .filterScrollSection,
+  .brandSortSection {
+    display: none; /* Desktop uses sidebar & top header search */
+  }
+
+  .catalogLayout {
+    flex-direction: row;
+    gap: 32px;
+    align-items: flex-start;
+  }
+
+  /* Desktop Sticky Sidebar */
+  .desktopSidebar {
+    display: block;
+    width: 280px;
+    position: sticky;
+    top: calc(var(--desktop-header-height, 72px) + 24px);
+    flex-shrink: 0;
+  }
+
+  .sidebarCard {
+    background: #FFFFFF;
+    border-radius: var(--radius-lg, 20px);
+    border: 1px solid var(--wex-ice, #EAF3FF);
+    box-shadow: 0 4px 20px rgba(6, 26, 85, 0.04);
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .sidebarHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--wex-gray-200, #E2E8F0);
+  }
+
+  .sidebarTitleRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .filterIcon {
+    color: var(--wex-royal, #0B3FBF);
+  }
+
+  .sidebarTitle {
+    margin: 0;
+    font-size: var(--text-base, 1rem);
+    font-weight: 700;
+    color: var(--wex-navy, #061A55);
+  }
+
+  .sidebarResetBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--wex-ice, #EAF3FF);
+  border: none;
+  color: var(--wex-royal, #0B3FBF);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-full, 9999px);
+  transition: background-color var(--motion-fast, 150ms) var(--ease-standard);
+}
+
+.sidebarResetBtn:hover {
+  background: rgba(11, 63, 191, 0.15);
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.groupHeading {
+  margin: 0;
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 700;
+  color: var(--wex-gray-600, #475569);
+  text-transform: uppercase;
+}
+
+.groupOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sidebarChip {
+  padding: 5px 12px;
+  border-radius: var(--radius-full, 9999px);
+  background: var(--wex-ice-light, #F4F8FE);
+  border: 1px solid var(--wex-gray-200, #E2E8F0);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--wex-navy, #061A55);
+  cursor: pointer;
+  transition: background-color var(--motion-fast, 150ms) var(--ease-standard),
+              border-color var(--motion-fast, 150ms) var(--ease-standard),
+              color var(--motion-fast, 150ms) var(--ease-standard);
+}
+
+.sidebarChip:hover {
+  border-color: var(--wex-royal, #0B3FBF);
+  background: var(--wex-ice, #EAF3FF);
+}
+
+.sidebarChipActive {
+  background: var(--wex-navy, #061A55);
+  color: #FFFFFF;
+  border-color: var(--wex-navy, #061A55);
+}
+
+.brandOptionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checkboxLabel,
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--wex-navy, #061A55);
+  cursor: pointer;
+  user-select: none;
+}
+
+.radioInput,
+.checkboxInput {
+  accent-color: var(--wex-royal, #0B3FBF);
+  cursor: pointer;
+}
+
+/* Toolbar adjustments */
+.viewToggleGroup,
+.toolbarSortSelect {
+  display: flex;
+}
+
+.mobileResetBtn {
+  display: none;
+}
+
+/* Desktop Product Grid: 3-4 columns */
+.productGrid {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+@media (min-width: 1200px) {
+  .productGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
 }
 
 /* 4. Pagination */

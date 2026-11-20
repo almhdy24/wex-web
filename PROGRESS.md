@@ -438,8 +438,22 @@ Calm, trustworthy, production-ready UI/UX tailored for Sudanese customers and el
     - Clean tier switching: renders full web layout (`desktopShell`, container max-width 1240px, `DesktopHeader`, `DesktopFooter`, `ScrollToTop`) on `>= 1024px`, and phone/tablet `appShell` (expanding to 768px on tablet) on `< 1024px`.
   - Created `src/__tests__/desktop-shell.test.jsx`: 4 unit tests covering desktop header, footer, and cart drawer.
   - Verification: 0 lint errors, 13 test files and 65 tests passing (100%), production build 131.15 kB gzip initial JS, 11.76 kB gzip global CSS.
-- [ ] **Phase 3: Desktop Home & Catalog Layouts with Hover States**
-- [ ] **Phase 3: Desktop Home & Catalog Layouts with Hover States**
+- [x] **Phase 3: Desktop Home & Catalog Layouts with Hover States**
+  - Upgraded `HomePage.jsx` & `HomePage.module.css`:
+    - Wide 2-column hero: start column (headings, subtitle, CTA button, dots indicator) + end column (visual illustration with drifting brand ribbons & parallax); accessible desktop prev/next arrow buttons.
+    - Added desktop rail navigation: previous and next smooth scroll arrow buttons on all product rails (`newArrivals`, `studyLaptops`, `workLaptops`, `accessories`), 4-5 cards visible across the 1240px container.
+    - Category tiles and quick actions expanded into balanced desktop horizontal grids.
+    - "كيف تطلب": 4-step row connected with the ribbon motif.
+    - 2-column Shop block: contact & working hours on one side, interactive Google Maps card on the other.
+    - Removed floating WhatsApp FAB on desktop (handled by top strip and footer contact links).
+  - Upgraded `CatalogPage.jsx` & `CatalogPage.module.css`:
+    - 2-column desktop layout: sticky 280px filter sidebar at start (category options, condition filter, brand options, SDG price range presets, and in-stock toggle with "مسح الكل" action) + results column at end.
+    - Desktop results toolbar: item count, grid/list view toggle (`LayoutGrid` and `List` icons), and sort dropdown.
+    - Live URL parameter synchronization across all filters.
+    - Product grid adapts responsively: 2 columns on phone (< 640px), 3 columns on tablet (640-1023px), 3-4 columns on desktop (>= 1024px).
+  - Enhanced `ProductCard.module.css`:
+    - Smooth hover elevation (`translateY(-4px)` with soft navy shadow and blue border accent) active only on pointer/hover devices.
+  - Verification: 0 lint errors, 13 test files and 65 tests passing (100%), production build 131.13 kB gzip initial JS, 11.76 kB gzip global CSS.
 - [ ] **Phase 4: Product Page (Gallery Zoom, Buy Box, Tabs), Compare, Favorites, Recently Viewed, Share**
 - [ ] **Phase 5: Cart Page, Checkout Two-Column Layout, Guest Flow & Pending Order Banner**
 - [ ] **Phase 6: Order Detail & Orders Desktop Layouts, Receipt Drag/Paste, Account/Notifications, FAQ Page**

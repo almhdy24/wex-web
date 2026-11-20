@@ -15,6 +15,7 @@ import {
   Truck,
   Lock,
   ChevronRight,
+  ChevronLeft,
   ExternalLink,
 } from 'lucide-react';
 import { productsApi } from '../../api/products';
@@ -56,6 +57,22 @@ export default function HomePage() {
   const [isPaused, setIsPaused] = useState(false);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
+
+  // Rail scroll refs for desktop navigation
+  const railRef1 = useRef(null);
+  const railRef2 = useRef(null);
+  const railRef3 = useRef(null);
+  const railRef4 = useRef(null);
+
+  const scrollRail = (ref, direction) => {
+    if (!ref.current) return;
+    // In RTL, scrolling towards start is positive, towards end is negative
+    const delta = direction === 'next' ? -340 : 340;
+    ref.current.scrollBy({ left: delta, behavior: 'smooth' });
+  };
+
+  const handlePrevSlide = () => setActiveSlide((prev) => (prev - 1 + 3) % 3);
+  const handleNextSlide = () => setActiveSlide((prev) => (prev + 1) % 3);
 
   // Floating WhatsApp scroll behavior
   const [showWhatsappFab, setShowWhatsappFab] = useState(true);
@@ -324,6 +341,26 @@ export default function HomePage() {
             />
           ))}
         </div>
+
+        {/* Desktop Carousel Navigation Arrows */}
+        <button
+          type="button"
+          onClick={handlePrevSlide}
+          className={`${styles.carouselArrow} ${styles.carouselArrowPrev}`}
+          aria-label="الشريحة السابقة"
+          title="الشريحة السابقة"
+        >
+          <ChevronRight size={22} />
+        </button>
+        <button
+          type="button"
+          onClick={handleNextSlide}
+          className={`${styles.carouselArrow} ${styles.carouselArrowNext}`}
+          aria-label="الشريحة التالية"
+          title="الشريحة التالية"
+        >
+          <ChevronLeft size={22} />
+        </button>
       </section>
 
       {/* 4. Quick Actions Row (4 round icon tiles) */}
@@ -412,13 +449,35 @@ export default function HomePage() {
             <div>
               <h2 className={styles.sectionTitle}>{t('home.rails.newArrivals')}</h2>
             </div>
-            <Link to="/products?sort=newest" className={styles.viewAllLink}>
-              <span>{t('home.rails.viewAll')}</span>
-              <ChevronRight size={16} className={styles.viewAllArrow} />
-            </Link>
+            <div className={styles.railHeaderActions}>
+              <div className={styles.railNavArrows}>
+                <button
+                  type="button"
+                  className={styles.railArrowBtn}
+                  onClick={() => scrollRail(railRef1, 'prev')}
+                  aria-label="السابق"
+                  title="السابق"
+                >
+                  <ChevronRight size={18} />
+                </button>
+                <button
+                  type="button"
+                  className={styles.railArrowBtn}
+                  onClick={() => scrollRail(railRef1, 'next')}
+                  aria-label="التالي"
+                  title="التالي"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+              </div>
+              <Link to="/products?sort=newest" className={styles.viewAllLink}>
+                <span>{t('home.rails.viewAll')}</span>
+                <ChevronRight size={16} className={styles.viewAllArrow} />
+              </Link>
+            </div>
           </div>
 
-          <div className={styles.railTrack}>
+          <div ref={railRef1} className={styles.railTrack}>
             {loading ? (
               Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className={styles.railCardWrapper}>
@@ -443,13 +502,35 @@ export default function HomePage() {
             <div>
               <h2 className={styles.sectionTitle}>{t('home.rails.study')}</h2>
             </div>
-            <Link to="/products?category=budget" className={styles.viewAllLink}>
-              <span>{t('home.rails.viewAll')}</span>
-              <ChevronRight size={16} className={styles.viewAllArrow} />
-            </Link>
+            <div className={styles.railHeaderActions}>
+              <div className={styles.railNavArrows}>
+                <button
+                  type="button"
+                  className={styles.railArrowBtn}
+                  onClick={() => scrollRail(railRef2, 'prev')}
+                  aria-label="السابق"
+                  title="السابق"
+                >
+                  <ChevronRight size={18} />
+                </button>
+                <button
+                  type="button"
+                  className={styles.railArrowBtn}
+                  onClick={() => scrollRail(railRef2, 'next')}
+                  aria-label="التالي"
+                  title="التالي"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+              </div>
+              <Link to="/products?category=budget" className={styles.viewAllLink}>
+                <span>{t('home.rails.viewAll')}</span>
+                <ChevronRight size={16} className={styles.viewAllArrow} />
+              </Link>
+            </div>
           </div>
 
-          <div className={styles.railTrack}>
+          <div ref={railRef2} className={styles.railTrack}>
             {loading ? (
               Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className={styles.railCardWrapper}>
@@ -474,13 +555,35 @@ export default function HomePage() {
             <div>
               <h2 className={styles.sectionTitle}>{t('home.rails.work')}</h2>
             </div>
-            <Link to="/products?category=business" className={styles.viewAllLink}>
-              <span>{t('home.rails.viewAll')}</span>
-              <ChevronRight size={16} className={styles.viewAllArrow} />
-            </Link>
+            <div className={styles.railHeaderActions}>
+              <div className={styles.railNavArrows}>
+                <button
+                  type="button"
+                  className={styles.railArrowBtn}
+                  onClick={() => scrollRail(railRef3, 'prev')}
+                  aria-label="السابق"
+                  title="السابق"
+                >
+                  <ChevronRight size={18} />
+                </button>
+                <button
+                  type="button"
+                  className={styles.railArrowBtn}
+                  onClick={() => scrollRail(railRef3, 'next')}
+                  aria-label="التالي"
+                  title="التالي"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+              </div>
+              <Link to="/products?category=business" className={styles.viewAllLink}>
+                <span>{t('home.rails.viewAll')}</span>
+                <ChevronRight size={16} className={styles.viewAllArrow} />
+              </Link>
+            </div>
           </div>
 
-          <div className={styles.railTrack}>
+          <div ref={railRef3} className={styles.railTrack}>
             {loading ? (
               Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className={styles.railCardWrapper}>
@@ -505,13 +608,35 @@ export default function HomePage() {
             <div>
               <h2 className={styles.sectionTitle}>{t('home.rails.accessories')}</h2>
             </div>
-            <Link to="/products?category=accessories" className={styles.viewAllLink}>
-              <span>{t('home.rails.viewAll')}</span>
-              <ChevronRight size={16} className={styles.viewAllArrow} />
-            </Link>
+            <div className={styles.railHeaderActions}>
+              <div className={styles.railNavArrows}>
+                <button
+                  type="button"
+                  className={styles.railArrowBtn}
+                  onClick={() => scrollRail(railRef4, 'prev')}
+                  aria-label="السابق"
+                  title="السابق"
+                >
+                  <ChevronRight size={18} />
+                </button>
+                <button
+                  type="button"
+                  className={styles.railArrowBtn}
+                  onClick={() => scrollRail(railRef4, 'next')}
+                  aria-label="التالي"
+                  title="التالي"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+              </div>
+              <Link to="/products?category=accessories" className={styles.viewAllLink}>
+                <span>{t('home.rails.viewAll')}</span>
+                <ChevronRight size={16} className={styles.viewAllArrow} />
+              </Link>
+            </div>
           </div>
 
-          <div className={styles.railTrack}>
+          <div ref={railRef4} className={styles.railTrack}>
             {accessories.map((prod, idx) => (
               <div key={prod.id} className={styles.railCardWrapper}>
                 <ProductCard product={prod} index={idx} />
@@ -595,39 +720,61 @@ export default function HomePage() {
               <p className={styles.shopLocationHighlight}>مول الواحة — الشهداء — أم درمان</p>
             </div>
 
-            <div className={styles.shopDetails}>
-              <div className={styles.shopDetailRow}>
-                <MapPin size={18} className={styles.shopIcon} />
-                <span>{t('home.shopInfo.address')}</span>
-              </div>
-              <div className={styles.shopDetailRow}>
-                <Clock size={18} className={styles.shopIcon} />
-                <div>
-                  <p>{t('home.shopInfo.hours')}</p>
-                  <span className={styles.shopNote}>{t('home.shopInfo.openHoursNote')}</span>
+            <div className={styles.shopContentGrid}>
+              <div className={styles.shopInfoColumn}>
+                <div className={styles.shopDetails}>
+                  <div className={styles.shopDetailRow}>
+                    <MapPin size={18} className={styles.shopIcon} />
+                    <span>{t('home.shopInfo.address')}</span>
+                  </div>
+                  <div className={styles.shopDetailRow}>
+                    <Clock size={18} className={styles.shopIcon} />
+                    <div>
+                      <p>{t('home.shopInfo.hours')}</p>
+                      <span className={styles.shopNote}>{t('home.shopInfo.openHoursNote')}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.shopActions}>
+                  <a
+                    href="https://maps.google.com/?q=Al-Waha+Mall+Omdurman"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.shopMapBtn}
+                  >
+                    <ExternalLink size={16} />
+                    <span>{t('home.shopInfo.openMap')}</span>
+                  </a>
+                  <a
+                    href="https://wa.me/249912345678"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.shopWhatsappBtn}
+                  >
+                    <MessageCircle size={16} />
+                    <span>{t('home.shopInfo.whatsappChat')}</span>
+                  </a>
                 </div>
               </div>
-            </div>
 
-            <div className={styles.shopActions}>
-              <a
-                href="https://maps.google.com/?q=Al-Waha+Mall+Omdurman"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.shopMapBtn}
-              >
-                <ExternalLink size={16} />
-                <span>{t('home.shopInfo.openMap')}</span>
-              </a>
-              <a
-                href="https://wa.me/249912345678"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.shopWhatsappBtn}
-              >
-                <MessageCircle size={16} />
-                <span>{t('home.shopInfo.whatsappChat')}</span>
-              </a>
+              {/* Map Preview Card for Desktop */}
+              <div className={styles.shopMapColumn}>
+                <a
+                  href="https://maps.google.com/?q=Al-Waha+Mall+Omdurman"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.mapCardLink}
+                  aria-label="عرض موقع المحل في خرائط Google"
+                >
+                  <div className={styles.mapPinGraphic}>
+                    <MapPin size={36} className={styles.mapPinIcon} />
+                    <span className={styles.mapPinLabel}>مول الواحة — الطابق الأرضي</span>
+                    <span className={styles.mapPinSub}>الشهداء، أم درمان</span>
+                  </div>
+                  <span className={styles.mapOpenHint}>افتح في الخرائط</span>
+                </a>
+              </div>
             </div>
           </div>
         </section>
