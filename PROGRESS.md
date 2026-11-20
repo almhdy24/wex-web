@@ -301,3 +301,21 @@ Calm, trustworthy, production-ready UI/UX tailored for Sudanese customers and el
 - [x] `npm run build`: built in ~2.4s, zero errors.
 - [x] Customer-facing text audit: zero references to AED, dirham, or dollar; only generic fluctuation notice ("تقلب سعر الصرف") is permitted.
 
+---
+
+# Polish & Rich Motion Phase (Branch `polish-motion`)
+
+- [x] **Phase 0: UI & Copy Audit, Motion & Polish Master Plan**
+  - Audited existing UI and designed screen-by-screen modernization in `docs/POLISH-PLAN.md`.
+  - Built centralized Modern Standard Arabic (Fusha) dictionary in `src/content/ar.js` with `t(key, vars)` and `mapApiMessage(msg)`.
+  - Audited backend colloquial messages and documented recommendations in `docs/COPY-TODO-API.md`.
+- [ ] **Phase 1: Motion System Foundation & Tokens**
+- [ ] **Phase 2: App Shell & Global Component Polish**
+- [ ] **Phase 3: New Home Screen & Product Card**
+- [ ] **Phase 4: Catalog, Product Page, Search & Cart Flight Animation**
+- [ ] **Phase 5: Cart, Checkout, Price-Lock Ring, Receipt & Orders Flow**
+- [ ] **Phase 6: Responsiveness & Accessibility Audits**
+- [ ] **Phase 7: Copy Modernization Pass Across All Screens**
+- [ ] **Phase 8: Final Performance Benchmarks & Double Check Verification**
+
+
