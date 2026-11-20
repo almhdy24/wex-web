@@ -14,7 +14,15 @@
   cursor: pointer;
   white-space: nowrap;
   user-select: none;
-  transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+  transition: transform var(--motion-fast) var(--ease-standard), background-color var(--motion-fast), border-color var(--motion-fast), color var(--motion-fast);
+}
+
+.chip:active {
+  transform: scale(0.96);
+}
+
+:global(html[data-motion="reduced"]) .chip:active {
+  transform: none !important;
 }
 
 .chip:hover {

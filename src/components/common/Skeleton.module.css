@@ -1,7 +1,35 @@
 .skeleton {
   background-color: var(--color-slate-200);
   border-radius: var(--radius-sm);
-  animation: pulse 1.5s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translate3d(-100%, 0, 0);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 100%
+  );
+  animation: shimmer 1.6s infinite var(--ease-standard);
+  will-change: transform;
+}
+
+@keyframes shimmer {
+  to {
+    transform: translate3d(100%, 0, 0);
+  }
+}
+
+:global(html[data-motion="reduced"]) .skeleton::after,
+:global(html[data-motion="lite"]) .skeleton::after {
+  animation: none !important;
+  display: none !important;
 }
 
 .text {

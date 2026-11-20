@@ -7,6 +7,7 @@ import PwaPrompt from '../components/common/PwaPrompt';
 import { ordersApi } from '../api/orders';
 import { notificationsApi } from '../api/notifications';
 import { useAuth } from '../context/AuthContext';
+import { ar } from '../content/ar';
 import styles from './StoreLayout.module.css';
 
 export default function StoreLayout() {
@@ -24,21 +25,37 @@ export default function StoreLayout() {
   const [unreadCount, setUnreadCount] = useState(0);
   const viewportRef = useRef(null);
   const scrollPositions = useRef({});
+  const prevPathRef = useRef(location.pathname);
+  const [navDirection, setNavDirection] = useState('forward');
+
+  // Track navigation depth to determine RTL slide direction
+  useEffect(() => {
+    const current = location.pathname;
+    const previous = prevPathRef.current;
+
+    if (current !== previous) {
+      // Determine if navigating deeper or back
+      const depthOf = (p) => (p === '/' ? 0 : p.split('/').filter(Boolean).length);
+      const isDeeper = depthOf(current) >= depthOf(previous);
+      setNavDirection(isDeeper ? 'forward' : 'backward');
+      prevPathRef.current = current;
+    }
+  }, [location.pathname]);
 
   // Route title mapping for AppBar
   const getRouteInfo = (pathname) => {
-    if (pathname === '/') return { isHome: true, title: 'ويكس تكنولوجي' };
-    if (pathname === '/products') return { title: 'الأجهزة المتوفرة', showBack: true, backTo: '/' };
-    if (pathname.startsWith('/products/')) return { title: 'تفاصيل الجهاز', showBack: true, backTo: '/products' };
-    if (pathname === '/cart') return { title: 'سلة الشراء', showBack: true, backTo: '/products' };
-    if (pathname === '/checkout') return { title: 'إتمام الطلب وتثبيت السعر', showBack: true, backTo: '/cart' };
-    if (pathname === '/orders') return { title: 'سجل الطلبات', showBack: false };
-    if (pathname.startsWith('/orders/')) return { title: 'تثبيت السعر ومتابعة الطلب', showBack: true, backTo: '/orders' };
-    if (pathname === '/notifications') return { title: 'الإشعارات والتنبيهات', showBack: true, backTo: '/' };
-    if (pathname === '/account') return { title: 'حسابي وإعدادات التطبيق', showBack: false };
-    if (pathname === '/login') return { title: 'تسجيل الدخول', showBack: true, backTo: '/' };
-    if (pathname === '/auth/verify') return { title: 'تأكيد الرمز', showBack: true, backTo: '/login' };
-    return { title: 'ويكس تكنولوجي', showBack: true, backTo: '/' };
+    if (pathname === '/') return { isHome: true, title: ar.common.appName };
+    if (pathname === '/products') return { title: ar.catalog.title, showBack: true, backTo: '/' };
+    if (pathname.startsWith('/products/')) return { title: ar.product.specifications, showBack: true, backTo: '/products' };
+    if (pathname === '/cart') return { title: ar.cart.title, showBack: true, backTo: '/products' };
+    if (pathname === '/checkout') return { title: ar.checkout.title, showBack: true, backTo: '/cart' };
+    if (pathname === '/orders') return { title: ar.ordersList.title, showBack: false };
+    if (pathname.startsWith('/orders/')) return { title: ar.orderDetail.priceLockedNotice, showBack: true, backTo: '/orders' };
+    if (pathname === '/notifications') return { title: ar.notifications.title, showBack: true, backTo: '/' };
+    if (pathname === '/account') return { title: ar.account.title, showBack: false };
+    if (pathname === '/login') return { title: ar.auth.loginTitle, showBack: true, backTo: '/' };
+    if (pathname === '/auth/verify') return { title: ar.auth.verifyTitle, showBack: true, backTo: '/login' };
+    return { title: ar.common.appName, showBack: true, backTo: '/' };
   };
 
   const routeInfo = getRouteInfo(location.pathname);
@@ -58,6 +75,7 @@ export default function StoreLayout() {
       setUnreadCount(0);
       return;
     }
+
     let isMounted = true;
     ordersApi.getOrders({ status: 'pending_payment' })
       .then((res) => {
@@ -127,7 +145,14 @@ export default function StoreLayout() {
           className={styles.screensViewport}
           tabIndex={-1}
         >
-          <div className={styles.screenContent} key={location.pathname}>
+          <div
+            key={location.pathname}
+            className={
+              navDirection === 'forward'
+                ? styles.screenContentForward
+                : styles.screenContentBackward
+            }
+          >
             <Outlet />
           </div>
         </main>

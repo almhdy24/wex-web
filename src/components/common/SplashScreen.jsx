@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { ar } from '../../content/ar';
 import styles from './SplashScreen.module.css';
 
 export default function SplashScreen({ onFinish }) {
   const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
-    // Show splash for ~1.2s then fade out
+    // Show splash for ~1.3s then gracefully transition to home (max 1.4s)
     const timer = setTimeout(() => {
       handleClose();
-    }, 1200);
+    }, 1300);
 
     return () => clearTimeout(timer);
   }, []);
@@ -22,7 +23,7 @@ export default function SplashScreen({ onFinish }) {
         // ignore storage errors
       }
       if (onFinish) onFinish();
-    }, 250);
+    }, 200);
   };
 
   return (
@@ -37,10 +38,26 @@ export default function SplashScreen({ onFinish }) {
       <div className={styles.ribbonThree} aria-hidden="true" />
 
       <div className={styles.contentWrapper}>
+        {/* Rotating X Mark Motif */}
+        <svg
+          className={styles.xMarkMotif}
+          viewBox="0 0 40 40"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M8 8L32 32M32 8L8 32"
+            stroke="#00B7FF"
+            strokeWidth="5"
+            strokeLinecap="round"
+          />
+        </svg>
+
         <div className={styles.logoCard}>
           <img
             src="/assets/logo.png"
-            alt="Wex Technology"
+            alt={ar.common.appName}
             className={styles.logoImg}
             onError={(e) => {
               e.currentTarget.style.display = 'none';
@@ -49,17 +66,17 @@ export default function SplashScreen({ onFinish }) {
         </div>
 
         <div>
-          <p className={styles.locationText}>مول الواحة - الشهداء</p>
+          <p className={styles.locationText}>{ar.splash.location}</p>
         </div>
 
         <div className={styles.actionsArea}>
-          <div className={styles.spinner} aria-label="جاري التحميل..." />
+          <div className={styles.spinner} aria-label={ar.common.loading} />
           <button
             type="button"
             className={styles.skipBtn}
             onClick={handleClose}
           >
-            دخول المتجر ←
+            {ar.splash.skip}
           </button>
         </div>
       </div>

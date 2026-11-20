@@ -315,7 +315,18 @@ Calm, trustworthy, production-ready UI/UX tailored for Sudanese customers and el
   - Added user motion mode toggle in `AccountPage.jsx` ("الحركة: كاملة / مخففة / موقوفة").
   - Authored comprehensive motion specification and animation directory in `docs/MOTION.md`.
   - Created test suite `src/__tests__/motion.test.js`.
-- [ ] **Phase 2: App Shell & Global Component Polish**
+- [x] **Phase 2: App Shell & Global Component Polish**
+  - Upgraded `SplashScreen.jsx` & `SplashScreen.module.css`: slanted drifting ribbons, clip-path mask sweep logo reveal, rotating X mark motif, max 1.4s with tap-to-skip, Fusha copy.
+  - Refactored `BottomTabBar.jsx` & `BottomTabBar.module.css`: dynamic sliding pill indicator (`--active-index`), spring icon bounce on tab selection, Fusha labels, removed `transition: all`.
+  - Upgraded `AppBar.jsx` & `AppBar.module.css`: unread pulse dot on notification bell, cart count bump animation, `id="app-bar-cart-btn"` WAAPI target, Fusha labels.
+  - Upgraded `Toast.module.css`: slide-in transition, error shake keyframe, reduced-motion bypass.
+  - Upgraded `Sheet.jsx` & `Sheet.module.css`: spring-up slide entrance, touch drag-to-dismiss handle with dynamic transform, backdrop fade, Fusha close label.
+  - Upgraded `Button.jsx` & `Button.module.css`: active press scale, primary CTA idle sheen sweep every 6s on idle (disabled in lite/reduced).
+  - Upgraded `Skeleton.module.css`: hardware-accelerated transform-only shimmer sweep (`translate3d(-100%, 0, 0)` -> `translate3d(100%, 0, 0)`).
+  - Upgraded `StoreLayout.jsx` & `StoreLayout.module.css`: RTL direction-aware slide page transitions (`screenContentForward` from left `-14px` and `screenContentBackward` from right `+14px`), rotating X mark pull-to-refresh indicator.
+  - Upgraded `Card.module.css`, `Chip.module.css`, `Modal.module.css`, `Input.module.css`, `Select.module.css`: soft navy-tinted elevation, active press scale, removed `box-shadow` and `all` from transitions.
+  - Refactored `Countdown.jsx` & `Countdown.module.css`: transform-based `scaleX(var(--progress, 1))` with `transform-origin: right center` replacing `transition: width 1s linear`.
+  - Verification: 0 lint errors, 11 test files and 51 tests passed (100%), production build 121.23 kB gzip initial JS.
 - [ ] **Phase 3: New Home Screen & Product Card**
 - [ ] **Phase 4: Catalog, Product Page, Search & Cart Flight Animation**
 - [ ] **Phase 5: Cart, Checkout, Price-Lock Ring, Receipt & Orders Flow**

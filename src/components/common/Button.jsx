@@ -15,6 +15,8 @@ export default function Button({
   onClick,
   ...rest
 }) {
+  const isCta = variant === 'primary' || variant === 'vivid';
+
   const classNames = [
     styles.button,
     styles[variant] || styles.primary,
@@ -33,6 +35,9 @@ export default function Button({
       onClick={onClick}
       {...rest}
     >
+      {isCta && !disabled && !loading && (
+        <span className={styles.sheen} aria-hidden="true" />
+      )}
       {loading ? (
         <span className={styles.spinner} aria-hidden="true" />
       ) : Icon ? (

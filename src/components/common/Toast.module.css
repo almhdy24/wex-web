@@ -67,9 +67,21 @@
 
 .error {
   border-inline-start: 4px solid var(--color-danger);
+  animation: slideIn var(--motion-base, 250ms) var(--ease-standard), errorShake 350ms 250ms var(--ease-standard);
 }
 .error .icon {
   color: var(--color-danger);
+}
+
+@keyframes errorShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+:global(html[data-motion="reduced"]) .toast,
+:global(html[data-motion="reduced"]) .error {
+  animation: none !important;
 }
 
 .warning {

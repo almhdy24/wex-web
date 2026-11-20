@@ -89,7 +89,7 @@ export default function Countdown({
       <div className={styles.progressTrack} aria-hidden="true">
         <div
           className={barClass}
-          style={{ width: `${progressPercent}%` }}
+          style={{ '--progress': Math.max(0, Math.min(1, progressPercent / 100)) }}
         />
       </div>
     </div>

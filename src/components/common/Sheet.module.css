@@ -2,13 +2,14 @@
   position: fixed;
   inset: 0;
   background-color: rgba(6, 26, 85, 0.45);
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   z-index: 1000;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   padding: 0;
-  animation: fadeIn 150ms ease;
+  animation: fadeIn var(--motion-fast, 150ms) var(--ease-standard);
 }
 
 @media (min-width: 768px) {
@@ -30,29 +31,38 @@
   border-top-right-radius: var(--radius-xl);
   box-shadow: var(--shadow-sheet);
   overflow: hidden;
-  animation: slideUp 200ms ease;
+  animation: slideUp var(--motion-base, 250ms) var(--ease-emphasized);
   z-index: 1001;
+  touch-action: pan-y;
+  will-change: transform;
 }
 
 @media (min-width: 768px) {
   .sheet {
     border-radius: var(--radius-xl);
     max-height: 85dvh;
+    animation: scaleIn var(--motion-base, 250ms) var(--ease-emphasized);
   }
 }
 
+.handleWrapper {
+  width: 100%;
+  padding: 10px 0 6px 0;
+  cursor: grab;
+  touch-action: none;
+  display: flex;
+  justify-content: center;
+}
+
 .handle {
-  width: 36px;
-  height: 4px;
+  width: 40px;
+  height: 5px;
   background-color: var(--color-slate-300);
   border-radius: var(--radius-full);
-  margin-inline: auto;
-  margin-block-start: var(--space-2);
-  margin-block-end: var(--space-1);
 }
 
 @media (min-width: 768px) {
-  .handle {
+  .handleWrapper {
     display: none;
   }
 }

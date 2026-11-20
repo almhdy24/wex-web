@@ -8,18 +8,25 @@
   border-radius: var(--radius-btn);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+  transition: transform var(--motion-fast) var(--ease-standard), background-color var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard);
   text-decoration: none;
   white-space: nowrap;
   user-select: none;
   min-height: var(--touch-target);
   padding-inline: var(--space-4);
   font-size: var(--text-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.button:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
 .button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
 }
 
 /* Sizes */
@@ -56,18 +63,17 @@
 .primary:hover:not(:disabled) {
   background-color: var(--color-vivid);
   border-color: var(--color-vivid);
-  color: var(--color-white);
 }
 
 .vivid {
   background: var(--wex-grad-brand);
   color: var(--wex-white);
   border-color: transparent;
-  box-shadow: 0 6px 18px rgba(30, 107, 255, 0.3);
+  box-shadow: 0 6px 18px rgba(30, 107, 255, 0.28);
 }
 
 .vivid:hover:not(:disabled) {
-  filter: brightness(1.05);
+  background: linear-gradient(135deg, #1E6BFF 0%, #00B7FF 100%);
 }
 
 .secondary {
@@ -112,6 +118,43 @@
   background-color: var(--color-slate-100);
 }
 
+/* Primary CTA Idle Sheen Sweep */
+.sheen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.24) 50%,
+    transparent 100%
+  );
+  transform: translate3d(-150%, 0, 0) skewX(-25deg);
+  pointer-events: none;
+  animation: sheenSweep 6s infinite var(--ease-standard);
+  will-change: transform, opacity;
+}
+
+@keyframes sheenSweep {
+  0%, 80% {
+    transform: translate3d(-150%, 0, 0) skewX(-25deg);
+    opacity: 0;
+  }
+  85% {
+    opacity: 1;
+  }
+  92% {
+    transform: translate3d(350%, 0, 0) skewX(-25deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(350%, 0, 0) skewX(-25deg);
+    opacity: 0;
+  }
+}
+
 /* Spinner */
 .spinner {
   width: 16px;
@@ -126,4 +169,13 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+:global(html[data-motion="reduced"]) .button:active:not(:disabled) {
+  transform: none !important;
+}
+
+:global(html[data-motion="lite"]) .sheen,
+:global(html[data-motion="reduced"]) .sheen {
+  display: none !important;
 }
