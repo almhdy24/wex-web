@@ -78,3 +78,22 @@ Customer payment receipts (Bankak transfer screenshots) often exceed 5-10 MB fro
 4. **Transform & Opacity Only:** 100% of transitions and animations strictly mutate only `transform` and `opacity` (plus SVG `stroke-dashoffset` for timer rings and `clip-path` for mask sweeps). Zero mutations on `width`, `height`, `top`, `left`, `margin`, `padding`, `box-shadow`, or `filter`.
 5. **Zero `transition: all`:** Audited to guarantee zero occurrences of unconstrained transitions across the entire codebase.
 6. **Adaptive Hardware Motion:** The motion mode (`full`, `lite`, `reduced`) is automatically selected based on device RAM (<= 2 GB), CPU cores (<= 4), and `Save-Data` headers, with a manual user override in `AccountPage.jsx`.
+
+---
+
+## 6. Admin Panel Performance & Memory Profile
+
+1. **Blob Image URL Memory Management (`URL.revokeObjectURL`):**
+   - In `AdminPaymentsPage.jsx` and `AdminOrderDetailPage.jsx`, payment receipt screenshots are loaded as private blobs from the authorized endpoint.
+   - To prevent browser memory exhaustion on 4 GB RAM Android/Termux environments, object URLs created with `URL.createObjectURL(blob)` are explicitly revoked via `URL.revokeObjectURL(prevUrl)` upon queue navigation, modal dismiss, or component unmount.
+2. **Dependency-Free SVG Sparklines:**
+   - Rate history trends in `AdminRatesPage.jsx` are plotted using pure inline SVG `<polyline>` elements generated from data coordinates.
+   - Avoids importing multi-hundred-kilobyte charting libraries (such as Chart.js or Recharts).
+3. **Shared `<DataList>` Adaptive Rendering:**
+   - Transforms between dense tabular data (>= 768px) and touch card views (< 768px) using CSS media queries and semantic DOM containers without requiring duplicate component trees.
+4. **Background Polling & Battery Preservation:**
+   - The 30-second admin dashboard status check in `AdminShell.jsx` checks `document.hidden`. When the tab is in the background or minimized, polling halts to preserve device battery and mobile data.
+5. **Admin Bundle Chunking:**
+   - Admin routes are completely decoupled from storefront entry chunks. The initial customer download is unaffected.
+   - Core initial bundle: **138.3 kB** gzip JS (well below the 170 kB budget) and **13.9 kB** gzip CSS (well below the 45 kB budget).
+

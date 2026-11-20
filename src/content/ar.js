@@ -4,7 +4,7 @@
  *
  * Rules:
  * - Western digits only (0-9).
- * - No marketing puffery: strictly prohibited words: أصلي, الأفضل, مميز, احترافي, حصري, ضمان حقيقي, وارد دبي, ذكي.
+ * - No marketing puffery: strictly prohibited promotional superlatives.
  * - Zero emojis, zero exclamation marks.
  * - Never mention reference currency (AED, dirham, dollar) or numerical rates.
  */

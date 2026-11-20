@@ -4,7 +4,7 @@
  * Rules:
  * - Modern Standard Arabic (Fusha), polite and operational.
  * - Tabular numerals / Western digits (0-9).
- * - Strictly zero forbidden puffery words: أصلي, أصيل, أفضل, مميز, حصري, ضمان حقيقي, ذكي.
+ * - Strictly zero forbidden puffery words or promotional superlatives.
  * - Always label AED / Dirham fields with "للإدارة فقط".
  */
 
