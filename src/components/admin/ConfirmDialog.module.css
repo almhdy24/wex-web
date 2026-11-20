@@ -1,0 +1,56 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-4);
+  padding: var(--space-2) 0;
+}
+
+.iconWrapper {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.danger {
+  background-color: #FEE2E2;
+  color: #DC2626;
+}
+
+.warning {
+  background-color: #FEF3C7;
+  color: #D97706;
+}
+
+.primary {
+  background-color: var(--color-ice);
+  color: var(--color-royal-blue);
+}
+
+.content {
+  width: 100%;
+}
+
+.description {
+  font-size: var(--text-sm);
+  color: var(--color-slate-600);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-3);
+  width: 100%;
+  justify-content: center;
+  margin-top: var(--space-2);
+}
+
+.actions button {
+  flex: 1;
+}

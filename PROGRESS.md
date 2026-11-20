@@ -530,7 +530,19 @@ Ground-up redesign of the administration panel tailored for store operators and 
   - Authored `docs/API-GAPS.md` detailing backend limitations (payments queue, global search, product duplication, bulk actions, rate impact preview, live push) and explicit client-side workarounds.
   - Authored `docs/ADMIN-PLAN.md` documenting screen-by-screen responsive layouts across Phone (< 768px), Tablet (768-1023px), and Desktop (>= 1024px), including loading, empty, and error states.
   - Verification: 0 lint errors, 16 test files and 77 tests passing (100%), production build clean.
-- [ ] **Phase 1: Admin Shell and Primitives Foundation**
+- [x] **Phase 1: Admin Shell and Primitives Foundation**
+  - Created `src/content/admin.ar.js`: comprehensive Modern Standard Arabic dictionary for all admin operations, courteous operational tone, Western digits, zero emojis, zero puffery words, and explicit "للإدارة فقط" labels.
+  - Created `src/hooks/useIdleTimer.js`: tracks user activity (`pointerdown`, `keydown`, `scroll`, `touchstart`), triggers warning at 25m, and signs out at 30m.
+  - Created `src/components/admin/StatusChip.jsx` & `StatusChip.module.css`: accessible status badge using icon + color + text (orders, proofs, roles, visibility).
+  - Created `src/components/admin/DataList.jsx` & `DataList.module.css`: shared responsive component switching between dense data table on desktop/tablet (>=768px) and touch cards on phone (<768px) with sticky header, sortable columns, and unified pagination.
+  - Created `src/components/admin/FilterBar.jsx` & `FilterBar.module.css`: inline filters on desktop, compact search + bottom sheet on phone with active count badge.
+  - Created `src/components/admin/ConfirmDialog.jsx` & `ConfirmDialog.module.css`: accessible confirmation dialog stating consequences in plain words.
+  - Created `src/components/admin/Stepper.jsx` & `Stepper.module.css`: numeric stepper with 44px tap targets for mobile stock and hours adjustment.
+  - Created `src/components/admin/ImageViewer.jsx` & `ImageViewer.module.css`: interactive receipt image viewer with 60fps transform-only zoom, pan, and 90° rotation.
+  - Created `src/components/admin/AdminShell.jsx` & `AdminShell.module.css`: adaptive shell supporting Phone (app bar + bottom tab bar with live badge), Tablet (64px collapsed icon rail), and Desktop (240px sidebar + top bar with global search, live rate indicator, audio chime toggle, and idle warning).
+  - Updated `src/layouts/AdminLayout.jsx` to wrap nested routes with `AdminShell`.
+  - Added unit test suite `src/__tests__/admin-primitives.test.jsx` (8 unit tests).
+  - Verification: 0 lint errors, 17 test files and 85 tests passing (100%), production build clean (136.42 kB gzip initial JS, 13.78 kB gzip global CSS).
 - [ ] **Phase 2: Today Dashboard & Payments Review Queue**
 - [ ] **Phase 3: Orders List & Order Detail with Next-Step Actions**
 - [ ] **Phase 4: Products List & Multi-Section Product Form**
