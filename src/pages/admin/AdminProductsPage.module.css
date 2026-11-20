@@ -216,7 +216,7 @@
   background: var(--color-white);
   color: var(--color-slate-700);
   cursor: pointer;
-  transition: all 150ms ease-out;
+  transition: background-color 150ms ease-out, color 150ms ease-out, border-color 150ms ease-out;
 }
 
 .actionIconBtn:hover {

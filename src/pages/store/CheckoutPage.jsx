@@ -18,6 +18,7 @@ import { api } from '../../api/client';
 import { formatSdg, getProductImageUrl, normalizeSudanPhone, isValidSudanPhone } from '../../utils/formatters';
 import LaptopSvg from '../../components/common/LaptopSvg';
 import PriceNotice from '../../components/common/PriceNotice';
+import OrdersDisabledBanner from '../../components/store/OrdersDisabledBanner';
 import styles from './CheckoutPage.module.css';
 
 const DRAFT_STORAGE_KEY = 'wex_checkout_draft';
@@ -66,6 +67,8 @@ export default function CheckoutPage() {
   const [shopInfo, setShopInfo] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+
+  const isOrdersDisabled = shopInfo?.orders_enabled === false;
 
   // Sync draft to sessionStorage
   useEffect(() => {
@@ -241,6 +244,12 @@ export default function CheckoutPage() {
         <div className={styles.checkoutLayout}>
           {/* Left/Start Form Column */}
           <div className={styles.formColumn}>
+            {isOrdersDisabled && (
+              <div style={{ marginBottom: 'var(--space-4)' }}>
+                <OrdersDisabledBanner message={shopInfo?.orders_disabled_message} />
+              </div>
+            )}
+
             {/* Delivery Method Selector */}
             <div className={styles.card}>
               <h2 className={styles.cardHeading}>طريقة الاستلام</h2>
@@ -509,12 +518,14 @@ export default function CheckoutPage() {
               <div className={styles.desktopSubmitWrap}>
                 <button
                   type="submit"
-                  disabled={submitting || hasUnconfirmedPriceChanges}
+                  disabled={submitting || hasUnconfirmedPriceChanges || isOrdersDisabled}
                   className={`${styles.desktopSubmitBtn} btn-vivid`}
                 >
                   <Lock size={18} />
                   <span>
-                    {submitting
+                    {isOrdersDisabled
+                      ? 'استقبال الطلبات متوقف مؤقتاً'
+                      : submitting
                       ? 'جاري تثبيت السعر...'
                       : !isAuthenticated
                       ? 'تسجيل الدخول لتثبيت السعر'
@@ -545,12 +556,14 @@ export default function CheckoutPage() {
 
           <button
             type="submit"
-            disabled={submitting || hasUnconfirmedPriceChanges}
+            disabled={submitting || hasUnconfirmedPriceChanges || isOrdersDisabled}
             className={`${styles.submitBtn} btn-vivid`}
           >
             <Lock size={16} />
             <span>
-              {submitting
+              {isOrdersDisabled
+                ? 'الطلبات متوقفة مؤقتاً'
+                : submitting
                 ? 'جاري التثبيت...'
                 : !isAuthenticated
                 ? 'الدخول والتثبيت'

@@ -63,7 +63,7 @@ This checklist confirms adherence to the design rules, performance budgets, resp
 | **Zero Inline Styles** | Zero inline `style={{}}` attributes (except CSS variable injection). | Verified. All styling handled via scoped CSS Modules and `tokens.css`. | **PASSED** |
 | **Motion Budget** | Transform and opacity only; `@media (prefers-reduced-motion: reduce)` respected. | Audited CSS files; zero mutations on layout geometry properties (`width`, `height`, `margin`). | **PASSED** |
 | **Bundle Budget** | Initial JS <= 170 kB gzip, CSS <= 45 kB gzip. | Production build: JS 128.53 kB gzip, CSS 12.39 kB gzip. | **PASSED** |
-| **Automated Tests** | 100% test pass rate across all suites. | 16 test files, 77 unit tests passing (100%). | **PASSED** |
+| **Automated Tests** | 100% test pass rate across all suites. | 24 test files, 128 unit tests passing (100%). | **PASSED** |
 | **Backend Isolation** | Zero modifications or writes in `~/projects/wex-api`. | Verified. Backend remains untouched as source of truth. | **PASSED** |
 
 ---
@@ -87,6 +87,6 @@ This checklist confirms adherence to the design rules, performance budgets, resp
 | **Role Guard & Login Redirect**| `RouteGuard.jsx`, `LoginPage.jsx`| Customer accessing `/admin` sees honest prompt "هذه الصفحة مخصصة لإدارة المتجر" with return to shop button; admin/staff sign-ins redirect automatically to `/admin`. | **PASSED** |
 | **Standalone Admin PWA** | `admin-manifest.webmanifest`| Independent manifest for "ويكس - الإدارة" (start_url `/admin`); dynamic link swap in `document.head` on route mount. | **PASSED** |
 | **Copy & Price Rule Audit** | `admin.ar.js` | Western digits `0-9`; zero emojis; zero marketing puffery; explicit "للإدارة فقط" labels on AED and exchange rate. | **PASSED** |
-| **Automated Test Suites** | All 23 test files | 100% test pass rate across 99 unit tests. | **PASSED** |
+| **Automated Test Suites** | All 24 test files | 100% test pass rate across 128 unit tests. | **PASSED** |
 | **Bundle Size Check** | Production Build | Initial JS 138.31 kB gzip (<= 170 kB budget); CSS 13.91 kB gzip (<= 45 kB budget). | **PASSED** |
 

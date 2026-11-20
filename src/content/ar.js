@@ -352,6 +352,53 @@ export const ar = {
     typeGeneral: 'تنبيه',
   },
 
+  announcements: {
+    title: 'تنبيهات المتجر',
+    bannerTitle: 'تنبيه هام',
+    dismiss: 'إغلاق',
+    readMore: 'عرض التفاصيل',
+  },
+
+  recentPurchases: {
+    toastText: 'تم شراء {product} قبل {time}',
+    justNow: 'لحظات',
+    minute: 'دقيقة',
+    twoMinutes: 'دقيقتين',
+    minutes: '{count} دقائق',
+    minuteSuffix: '{count} دقيقة',
+    hour: 'ساعة',
+    twoHours: 'ساعتين',
+    hours: '{count} ساعات',
+    hourSuffix: '{count} ساعة',
+    day: 'يوم',
+    twoDays: 'يومين',
+    days: '{count} أيام',
+    daySuffix: '{count} يومًا',
+  },
+
+  ordersDisabled: {
+    bannerTitle: 'استقبال الطلبات متوقف مؤقتًا',
+    defaultMessage: 'استقبال الطلبات متوقف مؤقتًا في الوقت الحالي، نعتذر عن الإزعاج.',
+    actionDisabled: 'استقبال الطلبات متوقف حاليًا',
+    actionDisabledShort: 'الطلب متوقف',
+  },
+
+  paymentAccounts: {
+    title: 'حسابات التحويل المعتمدة',
+    subtitle: 'يرجى تحويل المبلغ المطلوب إلى أحد الحسابات البنكية المعتمدة التالية:',
+    generalNotesTitle: 'تعليمات السداد والتحويل',
+    bankName: 'البنك',
+    accountNumber: 'رقم الحساب',
+    accountName: 'اسم الحساب',
+    branch: 'الفرع',
+    notes: 'ملاحظات',
+    copyAccountNumber: 'نسخ رقم الحساب',
+    copyOrderNumber: 'نسخ رقم الطلب',
+    copiedAccountSuccess: 'تم نسخ رقم الحساب',
+    copiedOrderSuccess: 'تم نسخ رقم الطلب',
+    orderCreationBlocked: 'عذرًا، استقبال الطلبات متوقف مؤقتًا في الوقت الحالي.',
+  },
+
   account: {
     title: 'حسابي',
     subtitle: 'بيانات الحساب وتفضيلات المتجر',

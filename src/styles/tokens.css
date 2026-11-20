@@ -8,6 +8,7 @@
   --wex-cyan: #00B7FF;
   --wex-ice: #EAF3FF;
   --wex-ice-light: #F4F8FE;
+  --wex-backdrop: #D9E6F6;
   --wex-white: #FFFFFF;
 
   /* Aliases for backwards compatibility */
@@ -19,6 +20,7 @@
   --color-cyan: var(--wex-cyan);
   --color-ice: var(--wex-ice);
   --color-ice-blue: var(--wex-ice);
+  --color-backdrop: var(--wex-backdrop);
   --color-white: var(--wex-white);
 
   /* Neutral & Functional Colors */
@@ -42,6 +44,7 @@
   --color-slate-900: #0F172A;
   --color-border: var(--wex-gray-200);
   --color-border-subtle: var(--wex-ice);
+  --wex-border-focus-ice: #D6E8FF;
 
   /* Status Colors */
   --wex-success: #10B981;

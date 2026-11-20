@@ -6,10 +6,18 @@ import SplashScreen from '../components/common/SplashScreen';
 import PwaPrompt from '../components/common/PwaPrompt';
 import ScrollToTop from '../components/common/ScrollToTop';
 import DesktopHeader from '../components/desktop/DesktopHeader';
-import DesktopFooter from '../components/desktop/DesktopFooter';
 import CartDrawer from '../components/desktop/CartDrawer';
 import PendingOrderBanner from '../components/common/PendingOrderBanner';
+import {
+  AnnouncementBanner,
+  AnnouncementToast,
+  RecentPurchasesToast,
+  OrdersDisabledBanner,
+  StoreFooter,
+} from '../components/store';
 import { ordersApi } from '../api/orders';
+import { productsApi } from '../api/products';
+import { api } from '../api/client';
 import { notificationsApi } from '../api/notifications';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -33,6 +41,8 @@ export default function StoreLayout() {
 
   const [activeOrderCount, setActiveOrderCount] = useState(0);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [shopInfo, setShopInfo] = useState(null);
+  const [announcements, setAnnouncements] = useState([]);
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
   const viewportRef = useRef(null);
   const scrollPositions = useRef({});
@@ -138,6 +148,30 @@ export default function StoreLayout() {
     return () => { isMounted = false; };
   }, [isAuthenticated, location.pathname]);
 
+  // Load shop public settings and active announcements
+  useEffect(() => {
+    let isMounted = true;
+    productsApi.getShopInfo()
+      .then((res) => {
+        if (isMounted && res?.data) {
+          setShopInfo(res.data);
+        }
+      })
+      .catch(() => {});
+
+    api.get('/announcements')
+      .then((res) => {
+        if (isMounted && Array.isArray(res?.data)) {
+          setAnnouncements(res.data);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // Scroll Restoration / Keep-Alive Scroll Position
   useEffect(() => {
     if (isDesktop) {
@@ -170,18 +204,29 @@ export default function StoreLayout() {
         {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
 
         <DesktopHeader onOpenCart={() => setIsCartDrawerOpen(true)} />
+        {shopInfo && shopInfo.orders_enabled === false && (
+          <div style={{ maxWidth: '1200px', marginInline: 'auto', paddingInline: 'var(--space-4)', width: '100%' }}>
+            <OrdersDisabledBanner message={shopInfo.orders_disabled_message} />
+          </div>
+        )}
+        <div style={{ maxWidth: '1200px', marginInline: 'auto', paddingInline: 'var(--space-4)', width: '100%' }}>
+          <AnnouncementBanner announcements={announcements} />
+        </div>
         <PendingOrderBanner />
 
         <main id="main-content" className={styles.desktopMain} tabIndex={-1}>
           <Outlet />
         </main>
 
-        <DesktopFooter />
+        <StoreFooter shopInfo={shopInfo} />
 
         <CartDrawer
           isOpen={isCartDrawerOpen}
           onClose={() => setIsCartDrawerOpen(false)}
         />
+
+        <AnnouncementToast announcements={announcements} />
+        <RecentPurchasesToast tickerEnabled={shopInfo?.ticker_enabled !== false} />
 
         <ScrollToTop />
         <PwaPrompt />
@@ -203,6 +248,14 @@ export default function StoreLayout() {
           backTo={routeInfo.backTo}
           unreadCount={unreadCount}
         />
+        {shopInfo && shopInfo.orders_enabled === false && (
+          <div style={{ paddingInline: 'var(--space-4)' }}>
+            <OrdersDisabledBanner message={shopInfo.orders_disabled_message} />
+          </div>
+        )}
+        <div style={{ paddingInline: 'var(--space-4)' }}>
+          <AnnouncementBanner announcements={announcements} />
+        </div>
         <PendingOrderBanner />
 
         <main
@@ -226,6 +279,9 @@ export default function StoreLayout() {
         {!hideBottomNav && !isKeyboardOpen && (
           <BottomTabBar activeOrderCount={activeOrderCount} />
         )}
+
+        <AnnouncementToast announcements={announcements} />
+        <RecentPurchasesToast tickerEnabled={shopInfo?.ticker_enabled !== false} />
 
         <CartDrawer
           isOpen={isCartDrawerOpen}

@@ -1,0 +1,204 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+}
+
+/* Order Number Box with 1-tap copy */
+.orderNumberCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-surface, #ffffff);
+  border: 1px dashed var(--color-primary, #1e6bff);
+  border-radius: var(--radius-lg);
+  gap: var(--space-3);
+}
+
+.orderNumberMeta {
+  display: flex;
+  flex-direction: column;
+}
+
+.orderNumberLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted, #64748b);
+  margin-bottom: 2px;
+}
+
+.orderNumberVal {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--color-primary, #1e6bff);
+  font-family: monospace;
+  letter-spacing: 0.5px;
+}
+
+/* General Notes Banner above accounts */
+.generalNotesCard {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3-5) var(--space-4);
+  background: rgba(30, 107, 255, 0.06);
+  border: 1px solid rgba(30, 107, 255, 0.2);
+  border-radius: var(--radius-lg);
+  color: #0b3fa8;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+}
+
+:global(.dark) .generalNotesCard {
+  background: rgba(30, 107, 255, 0.15);
+  border-color: rgba(30, 107, 255, 0.3);
+  color: #93c5fd;
+}
+
+.generalNotesIcon {
+  color: var(--color-primary, #1e6bff);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.generalNotesTitle {
+  font-weight: 700;
+  margin-bottom: var(--space-1);
+}
+
+.generalNotesText {
+  opacity: 0.95;
+  white-space: pre-line;
+}
+
+/* Payment Accounts Grid / List */
+.accountsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3-5);
+}
+
+.accountCard {
+  padding: var(--space-4);
+  background-color: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  position: relative;
+  overflow: hidden;
+}
+
+.accountHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+  gap: var(--space-2);
+}
+
+.bankName {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--color-text-main, #0f172a);
+}
+
+.branch {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted, #64748b);
+  margin-top: 2px;
+}
+
+.bankBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  background-color: rgba(30, 107, 255, 0.1);
+  color: var(--color-primary, #1e6bff);
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+}
+
+.accountDetails {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2-5);
+}
+
+.detailRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding-block: var(--space-1);
+  border-bottom: 1px solid var(--color-border-subtle, #f1f5f9);
+}
+
+.detailRow:last-child {
+  border-bottom: none;
+}
+
+.label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted, #64748b);
+  flex-shrink: 0;
+}
+
+.value {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-main, #0f172a);
+  text-align: end;
+}
+
+.accountNumberBox {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.accountNumberText {
+  font-family: monospace;
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--color-text-main, #0f172a);
+  letter-spacing: 0.5px;
+}
+
+.copyBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2-5);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  background-color: rgba(30, 107, 255, 0.08);
+  color: var(--color-primary, #1e6bff);
+  border: 1px solid rgba(30, 107, 255, 0.2);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+
+.copyBtn:hover {
+  background-color: var(--color-primary, #1e6bff);
+  color: #ffffff;
+}
+
+.copyBtnActive {
+  background-color: #10b981 !important;
+  color: #ffffff !important;
+  border-color: #10b981 !important;
+}
+
+.accountNotes {
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-2-5);
+  background-color: var(--color-surface-sunken, #f8fafc);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted, #475569);
+  line-height: var(--line-height-normal);
+}

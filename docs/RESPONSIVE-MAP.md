@@ -123,6 +123,88 @@ This matrix maps every storefront screen across the three layout tiers:
 
 ---
 
+## Admin Panel Layout Tiers & Screen Mapping
+
+The administration portal (`/admin/*`) shares the same responsive foundation, tokens, and Modern Standard Arabic dictionary, tailored for operations and store management:
+
+| Tier | Breakpoint | Shell / Navigation | Content Layout | Data Display Mode |
+| :--- | :--- | :--- | :--- | :--- |
+| **Phone** | `< 768px` | 56px Top App Bar + 5-tab Bottom Bar (اليوم، الطلبات، المدفوعات، المنتجات، المزيد) | Single vertical column, sticky bottom form action bars | Card-based `<DataList>` touch cards, bottom action sheets |
+| **Tablet** | `768px – 1023px` | 64px Collapsed Icon Sidebar rail | 2-column responsive grid, fluid master-detail | Hybrid cards / compact table rows with horizontal swipe |
+| **Desktop** | `>= 1024px` | 240px Full Sidebar with text labels + Top Bar (global search `Ctrl+K`, rate badge, idle indicator, audio chime) | Multi-column grid, persistent side panels, floating indices | Full administrative data table with sorting, bulk actions, and modal dialogs |
+
+---
+
+### Admin Screen-by-Screen Breakdown
+
+#### 1. Admin Dashboard (`/admin`)
+| Feature | Phone (< 768px) | Tablet (768-1023px) | Desktop (>= 1024px) |
+| :--- | :--- | :--- | :--- |
+| **Metric Cards** | 1-column stacked KPI cards | 2-column KPI grid | 4-column KPI cards (orders, pending reviews, revenue, low stock) |
+| **Pending Reviews** | Quick link card with badge | 1-column card list | Prominent top alert rail with one-click direct jump |
+| **Recent Activity** | Stacked compact cards | 2-column layout | 2-column split (recent orders table + audit activity stream) |
+
+#### 2. Orders Management (`/admin/orders`)
+| Feature | Phone (< 768px) | Tablet (768-1023px) | Desktop (>= 1024px) |
+| :--- | :--- | :--- | :--- |
+| **Filter Toolbar** | Horizontal scroll filter chips | Wrap filter chips | Full toolbar: status chips, search input, delivery type selector, date range |
+| **Orders Presentation** | Rich touch cards with status badge | 2-column order cards | Full tabular data view with columns: #, Customer, Date, Total SDG, Status, Actions |
+| **Quick Actions** | Card tap opens details | Context action menu | Direct row action buttons + bulk status update toolbar |
+
+#### 3. Order Details (`/admin/orders/:orderNumber`)
+| Feature | Phone (< 768px) | Tablet (768-1023px) | Desktop (>= 1024px) |
+| :--- | :--- | :--- | :--- |
+| **Layout** | Single scrolling column | 2-column grid | 2-column master view (Start: Customer, Payment, Timeline; End: Items, Totals, Actions) |
+| **Workflow Step** | Full-width contextual button | Full-width contextual button | Prominent contextual action button (Review -> Prepare -> Courier -> Complete) |
+| **Invoice Slip** | Not displayed on phone | Print button | Print-ready A4 invoice view with `@media print` styling |
+
+#### 4. Payments Review Queue (`/admin/payments`)
+| Feature | Phone (< 768px) | Tablet (768-1023px) | Desktop (>= 1024px) |
+| :--- | :--- | :--- | :--- |
+| **Queue List** | Stacked receipt cards (oldest first) | Split master-detail | Side-by-side queue panel (35%) + inspection canvas (65%) |
+| **Image Inspection** | Tap opens fullscreen modal | Centered modal | Interactive `ImageViewer` (transform zoom, pan, 90° rotate, keyboard `A`/`R`/`J`/`K`) |
+| **Decision Form** | Bottom sheet with approve/reject | In-modal review box | In-place decision card with amount verification and preset rejection chips |
+
+#### 5. Products Management (`/admin/products`)
+| Feature | Phone (< 768px) | Tablet (768-1023px) | Desktop (>= 1024px) |
+| :--- | :--- | :--- | :--- |
+| **Products List** | Product cards with thumbnail | Compact rows | Full data table with image preview, name, type, SDG price, stock, actions |
+| **Stock Editing** | Inline numeric `<Stepper>` | Inline `<Stepper>` | Inline `<Stepper>` for instant live adjustment without opening form |
+| **Actions** | Card dropdown menu | Action buttons | Active toggle, duplicate product with `(نسخة)`, edit, delete confirmation |
+
+#### 6. Product Form (`/admin/products/new`, `/admin/products/:id/edit`)
+| Feature | Phone (< 768px) | Tablet (768-1023px) | Desktop (>= 1024px) |
+| :--- | :--- | :--- | :--- |
+| **Navigation** | Sticky horizontal section pills | Sticky section pills | Floating sidebar section index with scroll-spy tracking |
+| **Pricing Fields** | AED input + calculated SDG preview | 2-column price inputs | 2-column pricing card with live exchange rate conversion preview |
+| **Image Upload** | Client compression (< 800 KB) | Client compression | Multi-image dropzone with primary thumbnail selector and reorder |
+
+#### 7. Exchange Rate Management (`/admin/rates`)
+| Feature | Phone (< 768px) | Tablet (768-1023px) | Desktop (>= 1024px) |
+| :--- | :--- | :--- | :--- |
+| **Active Rate** | Prominent card with "(للإدارة فقط)" | Card + update form | Card with last updated timestamp, user, and rate update input |
+| **Impact Preview** | Stacked 3 sample devices | 3-column sample grid | Sample device cards (cheapest, median, highest) showing old vs new SDG price |
+| **Rate History** | Simplified list | 2-column history | Full historical log + dependency-free SVG sparkline trend |
+
+#### 8. Shipping Zones & Fees (`/admin/shipping-zones`)
+| Feature | Phone (< 768px) | Tablet (768-1023px) | Desktop (>= 1024px) |
+| :--- | :--- | :--- | :--- |
+| **Zones List** | Touch cards with fee in SDG | 2-column cards | Responsive `<DataList>` table with state name, fee SDG, active toggle, actions |
+| **Add/Edit** | Fullscreen sheet form | Centered modal (max 520px) | Centered modal dialog with validation |
+
+#### 9. Users & Access Roles (`/admin/users`)
+| Feature | Phone (< 768px) | Tablet (768-1023px) | Desktop (>= 1024px) |
+| :--- | :--- | :--- | :--- |
+| **Users List** | User cards with role badge | 2-column user cards | Full table: name, email, phone, role (admin/staff/customer), status, actions |
+| **Role Guard** | Modal with confirmation | Modal with confirmation | Role change dialog (staff disabled; cannot demote self) |
+
+#### 10. Audit Trail Logs (`/admin/audit-logs`)
+| Feature | Phone (< 768px) | Tablet (768-1023px) | Desktop (>= 1024px) |
+| :--- | :--- | :--- | :--- |
+| **Log Format** | Stacked Arabic activity sentences | 2-column timeline cards | Detailed activity timeline with entity filters, action chips, and JSON viewer modal |
+
+---
+
 ## State Handling Across All Tiers
 Every single screen implements 4 universal states:
 1. **Loading State:** Shimmering transform-only skeletons matching the exact tier grid columns (2 cols on phone, 3 on tablet, 4 on desktop).

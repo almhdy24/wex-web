@@ -12,8 +12,11 @@ import {
   ChevronLeft,
   CheckCircle2,
   AlertTriangle,
+  AlertOctagon,
+  Landmark,
 } from 'lucide-react';
 import { adminApi } from '../../api/admin';
+import { api } from '../../api/client';
 import { adminAr } from '../../content/admin.ar';
 import { formatSdg } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
@@ -28,6 +31,8 @@ import styles from './AdminDashboardPage.module.css';
 export default function AdminDashboardPage() {
   const { success, error: toastError } = useToast();
   const [data, setData] = useState(null);
+  const [settingsData, setSettingsData] = useState(null);
+  const [hasActiveAccounts, setHasActiveAccounts] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -36,12 +41,44 @@ export default function AdminDashboardPage() {
   const [newRateInput, setNewRateInput] = useState('');
   const [savingRate, setSavingRate] = useState(false);
 
+  const isRateUpdatedToday = (updatedAt) => {
+    if (!updatedAt) return false;
+    const d = new Date(updatedAt);
+    if (isNaN(d.getTime())) return false;
+    const now = new Date();
+    return (
+      d.getUTCFullYear() === now.getUTCFullYear() &&
+      d.getUTCMonth() === now.getUTCMonth() &&
+      d.getUTCDate() === now.getUTCDate()
+    );
+  };
+
   const loadDashboard = async (silent = false) => {
     if (!silent) setLoading(true);
     setError(null);
     try {
-      const res = await adminApi.getDashboard();
-      setData(res.data);
+      const [dashRes, setRes, payRes] = await Promise.allSettled([
+        adminApi.getDashboard(),
+        adminApi.getSettings(),
+        api.get('/admin/payment-accounts'),
+      ]);
+
+      if (dashRes.status === 'fulfilled') {
+        setData(dashRes.value.data);
+      } else {
+        throw dashRes.reason;
+      }
+
+      if (setRes.status === 'fulfilled' && setRes.value?.data) {
+        setSettingsData(setRes.value.data);
+      }
+
+      if (payRes.status === 'fulfilled' && Array.isArray(payRes.value?.data)) {
+        const activeCount = payRes.value.data.filter((a) => Boolean(a.is_active)).length;
+        setHasActiveAccounts(activeCount > 0);
+      } else if (dashRes.value?.data?.has_active_payment_accounts !== undefined) {
+        setHasActiveAccounts(Boolean(dashRes.value.data.has_active_payment_accounts));
+      }
     } catch (err) {
       if (!silent) {
         setError(err.message || 'الاتصال ضعيف. حاول مجدداً.');
@@ -120,6 +157,12 @@ export default function AdminDashboardPage() {
   const readyPickupCount = orders_by_status.ready_for_pickup || 0;
   const outDeliveryCount = orders_by_status.out_for_delivery || 0;
 
+  const isOrdersPaused =
+    settingsData?.orders_enabled === false ||
+    settingsData?.orders_enabled === '0' ||
+    settingsData?.orders_enabled === 0 ||
+    data?.orders_enabled === false;
+
   return (
     <div className={styles.container}>
       {/* Title & Header */}
@@ -139,6 +182,44 @@ export default function AdminDashboardPage() {
 
       {/* Brand divider */}
       <div className={styles.titleDivider} aria-hidden="true" />
+
+      {/* Critical Alert: No Active Payment Account */}
+      {!hasActiveAccounts && (
+        <aside className={styles.dangerAlertBanner} role="alert" aria-label="تنبيه حسابات الدفع">
+          <div className={styles.dangerAlertHeader}>
+            <AlertOctagon size={24} className={styles.dangerAlertIcon} />
+            <div className={styles.dangerAlertContent}>
+              <h2 className={styles.dangerAlertTitle}>
+                {adminAr.dashboard.noPaymentAccountsWarning}
+              </h2>
+              <p className={styles.dangerAlertSub}>
+                {adminAr.paymentAccounts.emptyDesc}
+              </p>
+            </div>
+          </div>
+          <Link to="/admin/payment-accounts">
+            <Button variant="danger" size="sm">
+              <Landmark size={14} />
+              <span>{adminAr.dashboard.configurePaymentAccountsNow}</span>
+            </Button>
+          </Link>
+        </aside>
+      )}
+
+      {/* Orders Paused Banner */}
+      {isOrdersPaused && (
+        <aside className={styles.warningBanner} role="alert" aria-label="تنبيه إيقاف الطلبات">
+          <div className={styles.warningContent}>
+            <strong>{adminAr.dashboard.ordersPausedBanner}</strong>
+            {settingsData?.orders_disabled_message && (
+              <span className={styles.warningSub}>{settingsData.orders_disabled_message}</span>
+            )}
+          </div>
+          <Link to="/admin/settings" className={styles.warningLink}>
+            {adminAr.nav.settings} ←
+          </Link>
+        </aside>
+      )}
 
       {/* Section: Requires Action (تحتاج إلى إجراء) */}
       <section className={styles.urgentSection} aria-label="تحتاج إلى إجراء">
@@ -261,6 +342,16 @@ export default function AdminDashboardPage() {
           </div>
           <div className={styles.rateCardFooter}>
             <span className={styles.adminOnlyTag}>{adminAr.brand.forAdminOnly}</span>
+            {isRateUpdatedToday(exchange_rate.updated_at) ? (
+              <span className={styles.rateUpdatedChip} title={exchange_rate.updated_at}>
+                {adminAr.dashboard.rateUpdatedToday}
+              </span>
+            ) : (
+              <span className={styles.rateOutdatedChip} title="سعر الصرف لم يُحدّث اليوم">
+                <AlertTriangle size={12} />
+                {adminAr.dashboard.rateNotUpdatedToday}
+              </span>
+            )}
             <button
               type="button"
               className={styles.quickRateBtn}

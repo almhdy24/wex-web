@@ -448,23 +448,33 @@
 }
 
 .cartBtn {
-  width: 40px;
-  height: 40px;
+  flex: 1;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   background: var(--wex-ice, #EAF3FF);
-  border: 1px solid rgba(11, 63, 191, 0.15);
+  border: 1.5px solid rgba(11, 63, 191, 0.2);
   color: var(--wex-royal, #0B3FBF);
   border-radius: var(--radius-md, 14px);
+  padding: 0 16px;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 700;
   cursor: pointer;
   transition: transform var(--motion-fast, 150ms) var(--ease-standard),
               background-color var(--motion-fast, 150ms) var(--ease-standard),
-              color var(--motion-fast, 150ms) var(--ease-standard);
+              color var(--motion-fast, 150ms) var(--ease-standard),
+              border-color var(--motion-fast, 150ms) var(--ease-standard);
+}
+
+.cartBtn:hover {
+  background: rgba(11, 63, 191, 0.08);
+  border-color: var(--wex-royal, #0B3FBF);
 }
 
 .cartBtn:active {
-  transform: scale(0.94);
+  transform: scale(0.98);
 }
 
 .cartBtnAdded {
@@ -884,16 +894,20 @@
 }
 
 .mobileCartBtn {
-  width: 44px;
   height: 44px;
+  padding: 0 14px;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   background: var(--wex-ice, #EAF3FF);
-  border: 1px solid rgba(11, 63, 191, 0.15);
+  border: 1px solid rgba(11, 63, 191, 0.2);
   color: var(--wex-royal, #0B3FBF);
   border-radius: var(--radius-md, 14px);
+  font-size: 13px;
+  font-weight: 700;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .mobileOrderBtn {

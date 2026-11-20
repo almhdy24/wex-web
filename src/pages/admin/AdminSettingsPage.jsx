@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Store, CreditCard, Sliders, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Store, CreditCard, Sliders, Check, ShoppingBag, Landmark } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { adminAr } from '../../content/admin.ar';
 import { useToast } from '../../context/ToastContext';
@@ -11,20 +12,35 @@ import ErrorState from '../../components/common/ErrorState';
 import styles from './AdminSettingsPage.module.css';
 
 export default function AdminSettingsPage() {
+  const navigate = useNavigate();
   const { success, error: toastError } = useToast();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   // Form Data
   const [formData, setFormData] = useState({
+    // Shop details
     shop_name: 'ويكس تكنولوجي - Wex Technology',
     shop_address: 'مول الواحة، الشهداء، أم درمان، السودان',
     shop_phone: '0912300000',
     shop_whatsapp: '+249912300000',
     working_hours: 'السبت - الخميس: 9:00 ص - 9:00 م',
+    shop_map_link: '',
+    social_facebook: '',
+    social_instagram: '',
+    footer_text: '',
+    delivery_notes: '',
+
+    // Orders control
+    orders_enabled: true,
+    orders_disabled_message: 'نعتذر، استقبال الطلبات متوقف مؤقتاً وسنعود لاستقبال طلباتكم قريباً.',
+
+    // Bank account
     bank_name: 'بنك الخرطوم (تطبيق بنكك)',
     bank_account_name: 'ويكس للتكنولوجيا والتجارة',
     bank_account_number: '1234567',
+
+    // Ops & pricing
     lock_hours: 4,
     app_discount_percent: 3,
     rounding_step_sdg: 500,
@@ -34,12 +50,14 @@ export default function AdminSettingsPage() {
   // Independent Saving States
   const [savingSection, setSavingSection] = useState({
     shop: false,
+    orders: false,
     bank: false,
     ops: false,
   });
 
   const [savedSection, setSavedSection] = useState({
     shop: false,
+    orders: false,
     bank: false,
     ops: false,
   });
@@ -53,6 +71,9 @@ export default function AdminSettingsPage() {
         setFormData((prev) => ({
           ...prev,
           ...res.data,
+          orders_enabled: res.data.orders_enabled === undefined || res.data.orders_enabled === null
+            ? true
+            : (res.data.orders_enabled === true || res.data.orders_enabled === 'true' || res.data.orders_enabled === 1 || res.data.orders_enabled === '1'),
         }));
       }
     } catch (err) {
@@ -67,10 +88,10 @@ export default function AdminSettingsPage() {
   }, []);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
@@ -85,6 +106,11 @@ export default function AdminSettingsPage() {
         shop_phone: formData.shop_phone,
         shop_whatsapp: formData.shop_whatsapp,
         working_hours: formData.working_hours,
+        shop_map_link: formData.shop_map_link,
+        social_facebook: formData.social_facebook,
+        social_instagram: formData.social_instagram,
+        footer_text: formData.footer_text,
+        delivery_notes: formData.delivery_notes,
       });
       setSavedSection((prev) => ({ ...prev, shop: true }));
       success('تم حفظ معلومات المتجر والتواصل بنجاح');
@@ -116,7 +142,26 @@ export default function AdminSettingsPage() {
     }
   };
 
-  // 3. Save Operations & Pricing Section
+  // 3. Save Order-Taking Control
+  const handleSaveOrdersControl = async (e) => {
+    e.preventDefault();
+    try {
+      setSavingSection((prev) => ({ ...prev, orders: true }));
+      await adminApi.updateSettings({
+        orders_enabled: formData.orders_enabled,
+        orders_disabled_message: formData.orders_disabled_message,
+      });
+      setSavedSection((prev) => ({ ...prev, orders: true }));
+      success('تم حفظ حالة استقبال الطلبات بنجاح');
+      setTimeout(() => setSavedSection((prev) => ({ ...prev, orders: false })), 4000);
+    } catch (err) {
+      toastError(err.message || 'فشل حفظ حالة استقبال الطلبات');
+    } finally {
+      setSavingSection((prev) => ({ ...prev, orders: false }));
+    }
+  };
+
+  // 4. Save Operations & Pricing Section
   const handleSaveOpsInfo = async (e) => {
     e.preventDefault();
     try {
@@ -167,7 +212,75 @@ export default function AdminSettingsPage() {
       <div className={styles.titleDivider} aria-hidden="true" />
 
       <div className={styles.sectionsStack}>
-        {/* Section 1: Store Information */}
+        {/* Section 1: Order-Taking Control */}
+        <form onSubmit={handleSaveOrdersControl} className={styles.card}>
+          <div className={styles.cardHeader}>
+            <div className={styles.cardHeaderTitle}>
+              <ShoppingBag size={18} color="var(--color-royal-blue)" />
+              <h2 className={styles.cardTitle}>استقبال الطلبات في المتجر</h2>
+            </div>
+          </div>
+          <div className={styles.cardBody}>
+            <div className={styles.toggleRow}>
+              <div className={styles.toggleLabel}>
+                <span className={styles.toggleTitle}>
+                  {formData.orders_enabled ? 'استقبال الطلبات مفعّل حالياً' : 'استقبال الطلبات متوقف مؤقتاً'}
+                </span>
+                <span className={styles.toggleDesc}>
+                  عند الإيقاف، يظهر تنبيه للمتصفحين في المتجر ويُعطّل إتمام الطلب في سلة الشراء.
+                </span>
+              </div>
+              <label className={styles.switch}>
+                <input
+                  type="checkbox"
+                  name="orders_enabled"
+                  checked={formData.orders_enabled}
+                  onChange={handleChange}
+                />
+                <span className={styles.slider} />
+              </label>
+            </div>
+
+            {!formData.orders_enabled && (
+              <div className={styles.textareaField}>
+                <label className={styles.fieldLabel} htmlFor="orders_disabled_message">
+                  رسالة الإيقاف المؤقت (تظهر للعملاء في أعلى المتجر)
+                </label>
+                <textarea
+                  id="orders_disabled_message"
+                  name="orders_disabled_message"
+                  className={styles.textarea}
+                  rows={3}
+                  value={formData.orders_disabled_message}
+                  onChange={handleChange}
+                  placeholder="نعتذر، استقبال الطلبات متوقف مؤقتاً وسنعود لاستقبال طلباتكم قريباً."
+                  required
+                />
+              </div>
+            )}
+          </div>
+          <div className={styles.cardFooter}>
+            <div>
+              {savedSection.orders && (
+                <span className={styles.savedBadge}>
+                  <Check size={14} />
+                  <span>تم حفظ الحالة</span>
+                </span>
+              )}
+            </div>
+            <Button
+              type="submit"
+              variant="primary"
+              size="sm"
+              loading={savingSection.orders}
+            >
+              <Check size={14} />
+              <span>حفظ حالة استقبال الطلبات</span>
+            </Button>
+          </div>
+        </form>
+
+        {/* Section 2: Store Information */}
         <form onSubmit={handleSaveShopInfo} className={styles.card}>
           <div className={styles.cardHeader}>
             <div className={styles.cardHeaderTitle}>
@@ -189,19 +302,29 @@ export default function AdminSettingsPage() {
                 name="working_hours"
                 value={formData.working_hours}
                 onChange={handleChange}
-                placeholder="مثال: 9:00 ص - 9:00 م"
+                placeholder="مثال: السبت - الخميس: 9:00 ص - 9:00 م"
                 required
               />
             </div>
 
-            <Input
-              label={adminAr.settings.shopAddress}
-              name="shop_address"
-              value={formData.shop_address}
-              onChange={handleChange}
-              placeholder="مثال: مول الواحة، الشهداء، أم درمان"
-              required
-            />
+            <div className={styles.grid2}>
+              <Input
+                label={adminAr.settings.shopAddress}
+                name="shop_address"
+                value={formData.shop_address}
+                onChange={handleChange}
+                placeholder="مثال: مول الواحة، الشهداء، أم درمان"
+                required
+              />
+              <Input
+                label="رابط الموقع الجغرافي (خرائط Google)"
+                name="shop_map_link"
+                value={formData.shop_map_link || ''}
+                onChange={handleChange}
+                placeholder="https://maps.app.goo.gl/..."
+                dir="ltr"
+              />
+            </div>
 
             <div className={styles.grid2}>
               <Input
@@ -221,6 +344,55 @@ export default function AdminSettingsPage() {
                 type="tel"
                 dir="ltr"
                 required
+              />
+            </div>
+
+            <div className={styles.grid2}>
+              <Input
+                label="صفحة فيسبوك"
+                name="social_facebook"
+                value={formData.social_facebook || ''}
+                onChange={handleChange}
+                placeholder="https://facebook.com/..."
+                dir="ltr"
+              />
+              <Input
+                label="حساب إنستغرام"
+                name="social_instagram"
+                value={formData.social_instagram || ''}
+                onChange={handleChange}
+                placeholder="https://instagram.com/..."
+                dir="ltr"
+              />
+            </div>
+
+            <div className={styles.textareaField}>
+              <label className={styles.fieldLabel} htmlFor="delivery_notes">
+                ملاحظات ومناطق التوصيل الافتراضية
+              </label>
+              <textarea
+                id="delivery_notes"
+                name="delivery_notes"
+                className={styles.textarea}
+                rows={2}
+                value={formData.delivery_notes || ''}
+                onChange={handleChange}
+                placeholder="توصيل سريع لكافة ولايات ومناطق السودان المتاحة."
+              />
+            </div>
+
+            <div className={styles.textareaField}>
+              <label className={styles.fieldLabel} htmlFor="footer_text">
+                نص التذييل الإضافي في واجهة المتجر
+              </label>
+              <textarea
+                id="footer_text"
+                name="footer_text"
+                className={styles.textarea}
+                rows={2}
+                value={formData.footer_text || ''}
+                onChange={handleChange}
+                placeholder="ويكس تكنولوجي - وجهتكم الموثوقة لأجهزة اللابتوب والتقنية في السودان."
               />
             </div>
           </div>
@@ -245,7 +417,7 @@ export default function AdminSettingsPage() {
           </div>
         </form>
 
-        {/* Section 2: Bank Account for Bankak */}
+        {/* Section 3: Bank Account for Bankak */}
         <form onSubmit={handleSaveBankInfo} className={styles.card}>
           <div className={styles.cardHeader}>
             <div className={styles.cardHeaderTitle}>
@@ -254,6 +426,24 @@ export default function AdminSettingsPage() {
             </div>
           </div>
           <div className={styles.cardBody}>
+            <div className={styles.calloutCard} style={{ marginBottom: 'var(--space-3)' }}>
+              <div className={styles.calloutText}>
+                <span className={styles.calloutTitle}>حسابات الدفع والتحويل المتعددة</span>
+                <span className={styles.calloutDesc}>
+                  لإضافة بنوك متعددة وترتيبها وتفعيلها أو إيقافها للعملاء، تفضل بزيارة شاشة حسابات الدفع.
+                </span>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/admin/payment-accounts')}
+              >
+                <Landmark size={14} />
+                <span>إدارة حسابات الدفع</span>
+              </Button>
+            </div>
+
             <div className={styles.grid3}>
               <Input
                 label="اسم البنك / التطبيق"
@@ -300,7 +490,7 @@ export default function AdminSettingsPage() {
           </div>
         </form>
 
-        {/* Section 3: Operations, Price Lock & Discounts */}
+        {/* Section 4: Operations, Price Lock & Discounts */}
         <form onSubmit={handleSaveOpsInfo} className={styles.card}>
           <div className={styles.cardHeader}>
             <div className={styles.cardHeaderTitle}>

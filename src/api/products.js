@@ -49,4 +49,53 @@ export const productsApi = {
   getShippingZones() {
     return api.get('/shipping-zones');
   },
+
+  /**
+   * Fetch active hero slides
+   */
+  getHeroSlides() {
+    return api.get('/content/hero-slides');
+  },
+
+  /**
+   * Fetch active home sections
+   */
+  getHomeSections() {
+    return api.get('/content/home-sections');
+  },
+
+  /**
+   * Fetch active FAQ items
+   */
+  getFaq() {
+    return api.get('/content/faq');
+  },
+
+  /**
+   * Fetch active pages list
+   */
+  getPages() {
+    return api.get('/content/pages');
+  },
+
+  /**
+   * Fetch single page by slug
+   */
+  getPage(slug) {
+    return api.get(`/content/pages/${encodeURIComponent(slug)}`);
+  },
+
+  /**
+   * Fetch active announcements
+   */
+  getAnnouncements() {
+    return api.get('/announcements');
+  },
+
+  /**
+   * Fetch recent purchases ticker
+   */
+  getRecentPurchases() {
+    return api.get('/recent-purchases');
+  },
 };

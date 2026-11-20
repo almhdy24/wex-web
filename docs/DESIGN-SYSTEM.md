@@ -123,3 +123,32 @@ The storefront architecture utilizes **three responsive layout tiers** sharing t
 - **Reusable Customer Notice:** When informing customers about market price fluctuations, use exclusively the standard reusable notice:
   *"الأسعار بتتغير مع تقلب سعر الصرف. بعد الطلب بنثبت ليك السعر لمدة {N} ساعات تحول فيها."*
 - **Price Lock Presentation:** Locked orders display only `السعر مثبت: {total} ج.س` and `ينتهي التثبيت الساعة {HH:MM}`. Any "locked rate" or "سعر الصرف المحجوز" is strictly forbidden on customer screens.
+
+---
+
+## 7. Shared Utilities & Formatters (`src/utils/`)
+
+All UI formatting across storefront and administration is centralized in `src/utils/`:
+
+| Utility | File | Purpose & Behavior |
+| :--- | :--- | :--- |
+| `pluralAr(n, forms)` | `pluralAr.js` | Modern Standard Arabic grammar rules (1: singular `one`, 2: dual `two`, 3-10: plural genitive `few`, 11-99: singular accusative `many`, 100+: singular genitive). |
+| `relativeTimeAr(date, baseDate)` | `relativeTimeAr.js` | Africa/Khartoum timezone relative times ("الآن"، "قبل دقيقة"، "قبل دقيقتين"، "قبل 5 دقائق"، "قبل ساعتين"، "قبل يومين"). Older dates format to YYYY/MM/DD. |
+| `safeText(val, fallback)` | `safeFormatters.js` | Guaranteed zero rendering of `undefined`, `null`, `NaN`, or `[object Object]`. |
+| `formatSdgSafe(amount)` | `safeFormatters.js` | Thousands separators with Western digits (0-9) and ` ج.س`. |
+| `formatAedSafe(amount)` | `safeFormatters.js` | Thousands separators with ` د.إ` for admin/staff viewports. |
+| `formatMoney(amount, currency)` | `safeFormatters.js` | General money formatter with custom currency suffix. |
+| `formatDateSafe(isoString, fallback, includeTime)` | `safeFormatters.js` | Formats ISO timestamps in Africa/Khartoum timezone (UTC+2) with Western digits. |
+| `errorMapper(error)` | `errorMapper.js` | Maps HTTP statuses (400, 401, 403, 404, 409, 413, 422, 429, 500, 502, 503, 504, 0/network) to structured Arabic messages, titles, and retry hints. |
+
+---
+
+## 8. Centralized Common Content (`src/content/common/`)
+
+Reusable dictionary strings partitioned into domain-specific modules:
+- `buttons.js`: Reusable button labels (confirm, cancel, save, delete, retry, checkout, etc.).
+- `actions.js`: Common user actions and modal confirmation dialogues.
+- `errors.js`: Standard validation and HTTP error state descriptions.
+- `offline.js`: Network disconnection, caching notices, and reconnection feedback.
+- `pagination.js`: Table and list pagination terms (previous, next, page X of Y, total items).
+- `breadcrumbs.js`: Human-readable route labels in Modern Standard Arabic.

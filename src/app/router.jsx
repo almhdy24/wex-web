@@ -59,6 +59,13 @@ const AdminSettingsPage = lazy(() => import('../pages/admin/AdminSettingsPage'))
 const AdminShippingZonesPage = lazy(() => import('../pages/admin/AdminShippingZonesPage'));
 const AdminUsersPage = lazy(() => import('../pages/admin/AdminUsersPage'));
 const AdminAuditLogsPage = lazy(() => import('../pages/admin/AdminAuditLogsPage'));
+const AdminPaymentAccountsPage = lazy(() => import('../pages/admin/AdminPaymentAccountsPage'));
+const AdminAnnouncementsPage = lazy(() => import('../pages/admin/AdminAnnouncementsPage'));
+const AdminRecentPurchasesPage = lazy(() => import('../pages/admin/AdminRecentPurchasesPage'));
+const AdminHeroSlidesPage = lazy(() => import('../pages/admin/AdminHeroSlidesPage'));
+const AdminHomeSectionsPage = lazy(() => import('../pages/admin/AdminHomeSectionsPage'));
+const AdminFaqPage = lazy(() => import('../pages/admin/AdminFaqPage'));
+const AdminPagesPage = lazy(() => import('../pages/admin/AdminPagesPage'));
 
 export const router = createBrowserRouter([
   // Public Storefront Routes
@@ -143,8 +150,50 @@ export const router = createBrowserRouter([
       { path: 'orders', element: load(AdminOrdersPage) },
       { path: 'orders/:orderNumber', element: load(AdminOrderDetailPage) },
       { path: 'payments', element: load(AdminPaymentsPage) },
+      { path: 'announcements', element: load(AdminAnnouncementsPage) },
+      { path: 'recent-purchases', element: load(AdminRecentPurchasesPage) },
 
       // Admin Only Routes
+      {
+        path: 'payment-accounts',
+        element: (
+          <RoleGuard allowedRoles={['admin']}>
+            {load(AdminPaymentAccountsPage)}
+          </RoleGuard>
+        ),
+      },
+      {
+        path: 'hero-slides',
+        element: (
+          <RoleGuard allowedRoles={['admin']}>
+            {load(AdminHeroSlidesPage)}
+          </RoleGuard>
+        ),
+      },
+      {
+        path: 'home-sections',
+        element: (
+          <RoleGuard allowedRoles={['admin']}>
+            {load(AdminHomeSectionsPage)}
+          </RoleGuard>
+        ),
+      },
+      {
+        path: 'faq',
+        element: (
+          <RoleGuard allowedRoles={['admin']}>
+            {load(AdminFaqPage)}
+          </RoleGuard>
+        ),
+      },
+      {
+        path: 'pages',
+        element: (
+          <RoleGuard allowedRoles={['admin']}>
+            {load(AdminPagesPage)}
+          </RoleGuard>
+        ),
+      },
       {
         path: 'products',
         element: (

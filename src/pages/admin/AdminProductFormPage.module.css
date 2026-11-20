@@ -98,7 +98,7 @@
   font-weight: 500;
   color: var(--color-slate-600);
   text-decoration: none;
-  transition: all 150ms ease-out;
+  transition: background-color 150ms ease-out, color 150ms ease-out;
 }
 
 .navLink:hover {
@@ -296,7 +296,7 @@
   background: var(--color-ice);
   cursor: pointer;
   text-align: center;
-  transition: all 150ms ease-out;
+  transition: background-color 150ms ease-out, color 150ms ease-out;
 }
 
 .dropzone:hover {

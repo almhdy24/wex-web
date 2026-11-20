@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Copy, Check, MessageCircle, RefreshCw, Upload, CheckCircle2, Clock, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Check, MessageCircle, RefreshCw, Upload, CheckCircle2, Clock, ShieldCheck, ArrowRight } from 'lucide-react';
 import { ordersApi } from '../../api/orders';
 import { formatSdg, formatDate, getOrderStatusInfo } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
@@ -8,6 +8,7 @@ import ErrorState from '../../components/common/ErrorState';
 import { Skeleton } from '../../components/common/Skeleton';
 import { compressProofImage } from '../../utils/imageCompressor';
 import PriceNotice from '../../components/common/PriceNotice';
+import PaymentAccountsDisplay from '../../components/store/PaymentAccountsDisplay';
 import styles from './OrderDetailPage.module.css';
 
 function formatExpiryTime(dateStr) {
@@ -41,7 +42,6 @@ export default function OrderDetailPage() {
   const [senderName, setSenderName] = useState('');
   const [referenceNumber, setReferenceNumber] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [copiedAccount, setCopiedAccount] = useState(false);
   const [reordering, setReordering] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -183,15 +183,6 @@ export default function OrderDetailPage() {
     } finally {
       setUploading(false);
     }
-  };
-
-  // Copy Account Number
-  const handleCopyAccount = (accountNo) => {
-    navigator.clipboard?.writeText(accountNo).then(() => {
-      setCopiedAccount(true);
-      success('تم نسخ رقم الحساب');
-      setTimeout(() => setCopiedAccount(false), 2000);
-    });
   };
 
   // Reorder expired
@@ -401,51 +392,22 @@ export default function OrderDetailPage() {
             </div>
           )}
 
-          {/* 3. Bankak Payment Details Card */}
+          {/* 3. Bank Payment Accounts Display */}
           {!isExpired && isPending && (
-            <div className={styles.bankCard}>
-              <div className={styles.bankHeader}>
-                <div>
-                  <h4 className={styles.bankName}>{bankDetails.bank_name}</h4>
-                  <div className={styles.bankBranch}>{bankDetails.branch_name}</div>
-                </div>
-                <span className={styles.bankTag}>تحويل بنكك</span>
-              </div>
-
-              <div className={styles.bankRow}>
-                <span className={styles.bankLabel}>رقم الحساب:</span>
-                <div className={styles.accountBox}>
-                  <span className={styles.accountNumber}>{bankDetails.account_number}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleCopyAccount(bankDetails.account_number)}
-                    className={styles.copyBtn}
-                    title="نسخ رقم الحساب"
-                  >
-                    {copiedAccount ? <Check size={14} /> : <Copy size={14} />}
-                    <span>{copiedAccount ? 'تم النسخ' : 'نسخ'}</span>
-                  </button>
-                </div>
-              </div>
-
-              <div className={styles.bankRow}>
-                <span className={styles.bankLabel}>اسم الحساب:</span>
-                <span className={styles.bankVal}>{bankDetails.account_name}</span>
-              </div>
-
-              <div className={styles.bankRow}>
-                <span className={styles.bankLabel}>ملاحظة التحويل:</span>
-                <span className={styles.orderRefHint}>اكتب رقم الطلب #{order.order_number}</span>
-              </div>
-            </div>
+            <PaymentAccountsDisplay
+              paymentAccounts={order.payment_accounts}
+              paymentGeneralNotes={order.payment_general_notes}
+              orderNumber={order.order_number}
+              bankDetails={bankDetails}
+            />
           )}
 
           {/* 4. Receipt Upload Dropzone (with Drag/Drop & Ctrl+V Paste) */}
           {!isExpired && isPending && (
             <div className={styles.receiptCard}>
-              <h4 className={styles.receiptTitle}>رفع إشعار التحويل</h4>
+              <h4 className={styles.receiptTitle}>رفع إشعار التحويل البنكي</h4>
               <p className={styles.receiptDesc}>
-                بعد ما تحوّل عبر تطبيق بنكك، ارفع صورة الإشعار هنا أو اسحبها أو الصقها مباشرة (Ctrl+V).
+                بعد إتمام التحويل، يرجى رفع صورة الإشعار البنكي هنا أو سحبها أو لصقها مباشرة.
               </p>
 
               {hasProof ? (

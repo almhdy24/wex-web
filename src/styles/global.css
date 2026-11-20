@@ -28,7 +28,7 @@ body {
   font-size: var(--text-base);
   line-height: var(--leading-normal);
   color: var(--wex-navy);
-  background-color: #D9E6F6;
+  background-color: var(--color-backdrop);
   min-height: 100vh;
   min-height: 100dvh;
   direction: rtl;
@@ -161,8 +161,8 @@ ul, ol {
 }
 
 .wex-ribbon-subtle {
-  background: linear-gradient(135deg, #FFFFFF 0%, #EAF3FF 100%);
-  border: 1px solid #D6E8FF;
+  background: var(--wex-grad-surface);
+  border: 1px solid var(--wex-border-focus-ice);
   position: relative;
   overflow: hidden;
 }

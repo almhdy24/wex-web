@@ -1,71 +1,59 @@
+import { pluralAr } from './pluralAr.js';
+import { relativeTimeAr } from './relativeTimeAr.js';
+import { errorMapper, getErrorMessage } from './errorMapper.js';
+import {
+  safeText,
+  formatSdgSafe,
+  formatAedSafe,
+  formatMoney,
+  formatDateSafe,
+} from './safeFormatters.js';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api/v1';
 const HOST_BASE = API_BASE_URL.replace(/\/api\/v1\/?$/, '');
+
+// Re-export core utilities
+export {
+  pluralAr,
+  relativeTimeAr,
+  errorMapper,
+  getErrorMessage,
+  safeText,
+  formatSdgSafe,
+  formatAedSafe,
+  formatMoney,
+  formatDateSafe,
+};
 
 /**
  * Format integer SDG amount with thousand separators in Western digits (0-9)
  */
 export function formatSdg(amount) {
-  if (amount === undefined || amount === null || isNaN(amount)) {
-    return '0 ج.س';
-  }
-  return `${Number(amount).toLocaleString('en-US')} ج.س`;
+  return formatSdgSafe(amount, '0 ج.س');
 }
 
 /**
  * Format integer AED amount in Western digits (0-9)
  */
 export function formatAed(amount) {
-  if (amount === undefined || amount === null || isNaN(amount)) {
-    return '0 د.إ';
-  }
-  return `${Number(amount).toLocaleString('en-US')} د.إ`;
+  return formatAedSafe(amount, '0 د.إ');
 }
 
 /**
- * Format ISO 8601 UTC timestamp to readable Arabic date with Western digits
+ * Format ISO 8601 UTC timestamp to readable Arabic date with Western digits in Africa/Khartoum timezone
  */
 export function formatDate(isoString) {
   if (!isoString) return '';
-  try {
-    const d = new Date(isoString);
-    // Use Western digits format
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const year = d.getFullYear();
-    const hours = String(d.getHours()).padStart(2, '0');
-    const minutes = String(d.getMinutes()).padStart(2, '0');
-    return `${year}/${month}/${day} - ${hours}:${minutes}`;
-  } catch {
-    return isoString;
-  }
+  return formatDateSafe(isoString, typeof isoString === 'string' ? isoString : '', true);
 }
 
 /**
- * Format timestamp to relative human-readable Arabic time (e.g. "منذ 5 دقائق")
+ * Format timestamp to relative human-readable Arabic time in Africa/Khartoum timezone
  */
 export function formatRelativeTime(isoString) {
   if (!isoString) return '';
-  try {
-    const diffMs = Date.now() - new Date(isoString).getTime();
-    const isFuture = diffMs < 0;
-    const absDiffSec = Math.floor(Math.abs(diffMs) / 1000);
-
-    if (absDiffSec < 60) {
-      return isFuture ? 'بعد لحظات' : 'الآن';
-    }
-    const minutes = Math.floor(absDiffSec / 60);
-    if (minutes < 60) {
-      return isFuture ? `خلال ${minutes} دقيقة` : `منذ ${minutes} دقيقة`;
-    }
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) {
-      return isFuture ? `خلال ${hours} ساعة` : `منذ ${hours} ساعة`;
-    }
-    const days = Math.floor(hours / 24);
-    return isFuture ? `خلال ${days} يوم` : `منذ ${days} يوم`;
-  } catch {
-    return formatDate(isoString);
-  }
+  const result = relativeTimeAr(isoString);
+  return result || formatDate(isoString);
 }
 
 /**
@@ -228,4 +216,3 @@ export function isValidSudanPhone(phone) {
   const normalized = normalizeSudanPhone(phone);
   return /^(09\d{8}|01\d{8})$/.test(normalized);
 }
-

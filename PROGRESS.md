@@ -667,3 +667,29 @@ Ground-up redesign of the administration panel tailored for store operators and 
 
 
 
+
+---
+
+## Final Review Track (Branch: final-review) — Completed
+
+Comprehensive end-to-end review, hardening, and completion of the whole Wex Technology system:
+
+- [x] **Storefront & Admin Integration**
+  - **Brand filtering fix**: Resolved case mismatch between catalog query parameter and lowercase database slugs.
+  - **Add to cart visual glitch fix**: Replaced 40px squished icon button with comfortable flex pill button displaying icon and text.
+  - **Payment Accounts Display**: Built `PaymentAccountsDisplay` component with 1-tap copy for order number and account number, display of branch, notes, and general instructions.
+  - **Announcements**: Storefront banner, toast notifications (once per session, remembered in localStorage), and home card placement.
+  - **Recent Purchases Ticker**: Live real-data toast ticker strictly anonymized (product name, thumbnail, time), respecting master toggle and per-order hidden flag.
+  - **Order-Taking Control**: Admin toggle for pausing orders with custom polite Arabic message, displaying top warning banner and disabling checkout submission.
+  - **Dynamic Content Administration**: Full admin panels for Hero Slides, Home Sections, FAQ, and Pages.
+- [x] **Quality, Accessibility & Design System**
+  - Modern Standard Arabic across all UI strings, zero colloquial slang, zero odd/technical error messages.
+  - 100% Arabic UI with zero emojis (Lucide icons only) and zero promotional puffery words.
+  - Customer SDG-only isolation: customers never see AED, reference currency, or numerical exchange rate.
+  - Transition performance: zero `transition: all` across all CSS modules.
+- [x] **Verification & Audits**
+  - `bash scripts/audit.sh`: 0 puffery words, 0 customer AED leaks, 0 `transition: all`, 0 emojis.
+  - `npm run lint`: 0 errors, 0 warnings.
+  - `npm test -- --run`: 26 test suites, 141/141 tests passing (100%).
+  - `npm run build`: Production bundle JS 148.12 kB gzip (<= 170 kB budget).
+  - `bash scripts/e2e.sh`: Live end-to-end integration test against CodeIgniter 4 backend on port 8081 verified.

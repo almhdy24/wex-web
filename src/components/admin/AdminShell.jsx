@@ -5,15 +5,22 @@ import {
   Package,
   CreditCard,
   Laptop,
+  FolderTree,
+  Sliders,
+  LayoutGrid,
+  Megaphone,
+  Activity,
+  HelpCircle,
+  FileText,
+  Landmark,
+  TrendingUp,
+  Truck,
+  Settings,
+  Users,
   Menu,
   Search,
   ExternalLink,
   LogOut,
-  TrendingUp,
-  Settings,
-  Truck,
-  Users,
-  FileText,
   Volume2,
   VolumeX,
   ShieldCheck,
@@ -217,6 +224,8 @@ export default function AdminShell({ children }) {
 
         {/* Navigation Links */}
         <nav className={styles.navMenu} aria-label="أقسام لوحة الإدارة">
+          {/* Group 1: العمليات */}
+          <div className={styles.navGroupHeader}>{adminAr.nav.groupOperations}</div>
           <NavLink to="/admin" end className={({ isActive }) => `${styles.navItem} ${isActive ? styles.activeNav : ''}`}>
             <LayoutDashboard size={20} className={styles.navIcon} />
             <span className={styles.navLabel}>{adminAr.nav.dashboard}</span>
@@ -237,13 +246,69 @@ export default function AdminShell({ children }) {
             )}
           </NavLink>
 
-          {/* Admin-only links */}
+          {/* Group 2: المتجر */}
           {isAdmin && (
             <>
-              <div className={styles.navDivider} role="separator" />
+              <div className={styles.navGroupHeader}>{adminAr.nav.groupStore}</div>
               <NavLink to="/admin/products" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.activeNav : ''}`}>
                 <Laptop size={20} className={styles.navIcon} />
                 <span className={styles.navLabel}>{adminAr.nav.products}</span>
+              </NavLink>
+
+              <NavLink to="/admin/categories" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.activeNav : ''}`}>
+                <FolderTree size={20} className={styles.navIcon} />
+                <span className={styles.navLabel}>{adminAr.nav.categories}</span>
+              </NavLink>
+            </>
+          )}
+
+          {/* Group 3: المحتوى والواجهة */}
+          <div className={styles.navGroupHeader}>{adminAr.nav.groupContent}</div>
+          {isAdmin && (
+            <>
+              <NavLink to="/admin/hero-slides" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.activeNav : ''}`}>
+                <Sliders size={20} className={styles.navIcon} />
+                <span className={styles.navLabel}>{adminAr.nav.heroSlides}</span>
+              </NavLink>
+
+              <NavLink to="/admin/home-sections" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.activeNav : ''}`}>
+                <LayoutGrid size={20} className={styles.navIcon} />
+                <span className={styles.navLabel}>{adminAr.nav.homeSections}</span>
+              </NavLink>
+            </>
+          )}
+
+          <NavLink to="/admin/announcements" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.activeNav : ''}`}>
+            <Megaphone size={20} className={styles.navIcon} />
+            <span className={styles.navLabel}>{adminAr.nav.announcements}</span>
+          </NavLink>
+
+          <NavLink to="/admin/recent-purchases" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.activeNav : ''}`}>
+            <Activity size={20} className={styles.navIcon} />
+            <span className={styles.navLabel}>{adminAr.nav.recentPurchases}</span>
+          </NavLink>
+
+          {isAdmin && (
+            <>
+              <NavLink to="/admin/faq" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.activeNav : ''}`}>
+                <HelpCircle size={20} className={styles.navIcon} />
+                <span className={styles.navLabel}>{adminAr.nav.faq}</span>
+              </NavLink>
+
+              <NavLink to="/admin/pages" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.activeNav : ''}`}>
+                <FileText size={20} className={styles.navIcon} />
+                <span className={styles.navLabel}>{adminAr.nav.pages}</span>
+              </NavLink>
+            </>
+          )}
+
+          {/* Group 4: الدفع والتسعير (Admin only) */}
+          {isAdmin && (
+            <>
+              <div className={styles.navGroupHeader}>{adminAr.nav.groupPricing}</div>
+              <NavLink to="/admin/payment-accounts" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.activeNav : ''}`}>
+                <Landmark size={20} className={styles.navIcon} />
+                <span className={styles.navLabel}>{adminAr.nav.paymentAccounts}</span>
               </NavLink>
 
               <NavLink to="/admin/rates" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.activeNav : ''}`}>
@@ -255,7 +320,13 @@ export default function AdminShell({ children }) {
                 <Truck size={20} className={styles.navIcon} />
                 <span className={styles.navLabel}>{adminAr.nav.shippingZones}</span>
               </NavLink>
+            </>
+          )}
 
+          {/* Group 5: النظام (Admin only) */}
+          {isAdmin && (
+            <>
+              <div className={styles.navGroupHeader}>{adminAr.nav.groupSystem}</div>
               <NavLink to="/admin/settings" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.activeNav : ''}`}>
                 <Settings size={20} className={styles.navIcon} />
                 <span className={styles.navLabel}>{adminAr.nav.settings}</span>
@@ -459,6 +530,45 @@ export default function AdminShell({ children }) {
         <div className={styles.moreSheetList}>
           {isAdmin && (
             <>
+              <Link to="/admin/categories" className={styles.moreItem} onClick={() => setMoreSheetOpen(false)}>
+                <FolderTree size={20} />
+                <span>{adminAr.nav.categories}</span>
+              </Link>
+              <Link to="/admin/hero-slides" className={styles.moreItem} onClick={() => setMoreSheetOpen(false)}>
+                <Sliders size={20} />
+                <span>{adminAr.nav.heroSlides}</span>
+              </Link>
+              <Link to="/admin/home-sections" className={styles.moreItem} onClick={() => setMoreSheetOpen(false)}>
+                <LayoutGrid size={20} />
+                <span>{adminAr.nav.homeSections}</span>
+              </Link>
+            </>
+          )}
+
+          <Link to="/admin/announcements" className={styles.moreItem} onClick={() => setMoreSheetOpen(false)}>
+            <Megaphone size={20} />
+            <span>{adminAr.nav.announcements}</span>
+          </Link>
+
+          <Link to="/admin/recent-purchases" className={styles.moreItem} onClick={() => setMoreSheetOpen(false)}>
+            <Activity size={20} />
+            <span>{adminAr.nav.recentPurchases}</span>
+          </Link>
+
+          {isAdmin && (
+            <>
+              <Link to="/admin/faq" className={styles.moreItem} onClick={() => setMoreSheetOpen(false)}>
+                <HelpCircle size={20} />
+                <span>{adminAr.nav.faq}</span>
+              </Link>
+              <Link to="/admin/pages" className={styles.moreItem} onClick={() => setMoreSheetOpen(false)}>
+                <FileText size={20} />
+                <span>{adminAr.nav.pages}</span>
+              </Link>
+              <Link to="/admin/payment-accounts" className={styles.moreItem} onClick={() => setMoreSheetOpen(false)}>
+                <Landmark size={20} />
+                <span>{adminAr.nav.paymentAccounts}</span>
+              </Link>
               <Link to="/admin/rates" className={styles.moreItem} onClick={() => setMoreSheetOpen(false)}>
                 <TrendingUp size={20} />
                 <span>{adminAr.nav.rates}</span>

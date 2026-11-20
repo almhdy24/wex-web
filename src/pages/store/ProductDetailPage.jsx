@@ -665,6 +665,7 @@ export default function ProductDetailPage() {
           aria-label={isAdded ? t('product.addedToCart') : t('product.addToCart')}
         >
           {isAdded ? <Check size={18} /> : <ShoppingCart size={18} />}
+          <span>{isAdded ? t('product.addedToCart') : 'أضف للسلة'}</span>
         </button>
 
         <button

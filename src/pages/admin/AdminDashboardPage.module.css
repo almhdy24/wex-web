@@ -46,6 +46,110 @@
   border-radius: var(--radius-full);
 }
 
+/* Danger Alert Banner (e.g. No active payment account) */
+.dangerAlertBanner {
+  background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
+  border: 1px solid rgba(220, 38, 38, 0.4);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  box-shadow: var(--shadow-sm);
+}
+
+.dangerAlertHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1;
+}
+
+.dangerAlertIcon {
+  color: #DC2626;
+  flex-shrink: 0;
+}
+
+.dangerAlertContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dangerAlertTitle {
+  font-size: var(--text-sm);
+  font-weight: 800;
+  color: #991B1B;
+  margin: 0;
+}
+
+.dangerAlertSub {
+  font-size: var(--text-xs);
+  color: #B91C1C;
+  margin: 0;
+}
+
+/* Warning Banner (e.g. Orders Paused) */
+.warningBanner {
+  background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+  border: 1px solid rgba(217, 119, 6, 0.4);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.warningContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--text-sm);
+  color: #92400E;
+}
+
+.warningSub {
+  font-size: var(--text-xs);
+  color: #B45309;
+}
+
+.warningLink {
+  color: #B45309;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: var(--text-xs);
+}
+
+.rateUpdatedChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  background-color: #ECFDF5;
+  color: #047857;
+  border: 1px solid #A7F3D0;
+}
+
+.rateOutdatedChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 700;
+  background-color: #FEF2F2;
+  color: #B91C1C;
+  border: 1px solid #FECACA;
+}
+
 /* ==========================================================================
    Urgent Action Section (تحتاج إلى إجراء)
    ========================================================================== */

@@ -54,11 +54,40 @@ export default function HomePage() {
 
   // Hero carousel state
   const [activeSlide, setActiveSlide] = useState(0);
+  const [heroSlides, setHeroSlides] = useState([]);
   const [isPaused, setIsPaused] = useState(false);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
 
-  // Rail scroll refs for desktop navigation
+  const effectiveSlides = heroSlides.length > 0 ? heroSlides : [
+    {
+      title: t('home.hero.slide1Title'),
+      subtitle: t('home.hero.slide1Subtitle'),
+      badge: t('home.rails.newArrivals'),
+      button_label: t('home.hero.slide1Cta'),
+      link: '/products?sort=newest',
+      type: 'laptops',
+    },
+    {
+      title: t('home.hero.slide2Title'),
+      subtitle: t('home.hero.slide2Subtitle', { hours: 4 }),
+      badge: t('home.hero.slide2Title'),
+      button_label: t('home.hero.slide2Cta'),
+      link: '#how-to-order-section',
+      type: 'lock',
+    },
+    {
+      title: t('home.hero.slide3Title'),
+      subtitle: t('home.hero.slide3Subtitle'),
+      badge: t('home.categories.accessories'),
+      button_label: t('home.hero.slide3Cta'),
+      link: '/products?category=accessories',
+      type: 'accessories',
+    },
+  ];
+
+  const slidesCount = effectiveSlides.length;
+
   const railRef1 = useRef(null);
   const railRef2 = useRef(null);
   const railRef3 = useRef(null);
@@ -66,13 +95,12 @@ export default function HomePage() {
 
   const scrollRail = (ref, direction) => {
     if (!ref.current) return;
-    // In RTL, scrolling towards start is positive, towards end is negative
     const delta = direction === 'next' ? -340 : 340;
     ref.current.scrollBy({ left: delta, behavior: 'smooth' });
   };
 
-  const handlePrevSlide = () => setActiveSlide((prev) => (prev - 1 + 3) % 3);
-  const handleNextSlide = () => setActiveSlide((prev) => (prev + 1) % 3);
+  const handlePrevSlide = () => setActiveSlide((prev) => (prev - 1 + slidesCount) % slidesCount);
+  const handleNextSlide = () => setActiveSlide((prev) => (prev + 1) % slidesCount);
 
   // Floating WhatsApp scroll behavior
   const [showWhatsappFab, setShowWhatsappFab] = useState(true);
@@ -91,12 +119,12 @@ export default function HomePage() {
 
   // Auto-advance hero carousel every 5s unless paused
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || slidesCount <= 1) return;
     const timer = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % 3);
+      setActiveSlide((prev) => (prev + 1) % slidesCount);
     }, 5000);
     return () => clearInterval(timer);
-  }, [isPaused]);
+  }, [isPaused, slidesCount]);
 
   // Floating WhatsApp scroll listener
   useEffect(() => {
@@ -118,13 +146,17 @@ export default function HomePage() {
     setLoading(true);
     setError(null);
     try {
-      const [shopRes, prodsRes] = await Promise.all([
-        productsApi.getShopInfo(),
-        productsApi.getProducts({ per_page: 24 }),
+      const [shopRes, prodsRes, slidesRes] = await Promise.all([
+        productsApi.getShopInfo().catch(() => ({ data: null })),
+        productsApi.getProducts({ per_page: 24 }).catch(() => ({ data: [] })),
+        productsApi.getHeroSlides().catch(() => ({ data: [] })),
       ]);
 
       setShopInfo(shopRes?.data || null);
       setProducts(prodsRes?.data || []);
+      if (slidesRes?.data?.length > 0) {
+        setHeroSlides(slidesRes.data);
+      }
     } catch (err) {
       setError(err.message || 'تعذر تحميل بيانات المتجر');
     } finally {
@@ -266,70 +298,60 @@ export default function HomePage() {
         </div>
 
         <div className={styles.slidesContainer}>
-          {/* Slide 1: New Arrivals */}
-          <div className={`${styles.slide} ${activeSlide === 0 ? styles.slideActive : ''}`}>
-            <div className={styles.slideContent}>
-              <span className={styles.slideBadge}>{t('home.rails.newArrivals')}</span>
-              <h2 className={styles.slideTitle}>{t('home.hero.slide1Title')}</h2>
-              <p className={styles.slideDesc}>{t('home.hero.slide1Subtitle')}</p>
-              <Link to="/products?sort=newest" className={styles.slideCta}>
-                <span>{t('home.hero.slide1Cta')}</span>
-                <ArrowLeft size={16} />
-              </Link>
-            </div>
-            <div className={styles.slideVisual}>
-              <LaptopSvg silhouette="modern" accentColor="#00B7FF" />
-            </div>
-          </div>
-
-          {/* Slide 2: Price Lock Guarantee */}
-          <div className={`${styles.slide} ${activeSlide === 1 ? styles.slideActive : ''}`}>
-            <div className={styles.slideContent}>
-              <span className={styles.slideBadge}>{t('home.hero.slide2Title')}</span>
-              <h2 className={styles.slideTitle}>{t('home.hero.slide2Title')}</h2>
-              <p className={styles.slideDesc}>
-                {t('home.hero.slide2Subtitle', { hours: priceLockHours })}
-              </p>
-              <button
-                type="button"
-                onClick={() => {
-                  const el = document.getElementById('how-to-order-section');
-                  el?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className={styles.slideCta}
-              >
-                <span>{t('home.hero.slide2Cta')}</span>
-                <ArrowLeft size={16} />
-              </button>
-            </div>
-            <div className={styles.slideVisualLock}>
-              <div className={styles.lockIllustration}>
-                <Lock size={44} className={styles.lockIcon} />
-                <Clock size={28} className={styles.clockIcon} />
+          {effectiveSlides.map((slide, idx) => (
+            <div
+              key={slide.id || idx}
+              className={`${styles.slide} ${activeSlide === idx ? styles.slideActive : ''}`}
+            >
+              <div className={styles.slideContent}>
+                <span className={styles.slideBadge}>{slide.badge || 'أجهزة مختارة'}</span>
+                <h2 className={styles.slideTitle}>{slide.title}</h2>
+                <p className={styles.slideDesc}>{slide.subtitle}</p>
+                {slide.link && slide.link.startsWith('#') ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const el = document.getElementById(slide.link.slice(1));
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className={styles.slideCta}
+                  >
+                    <span>{slide.button_label || 'عرض التفاصيل'}</span>
+                    <ArrowLeft size={16} />
+                  </button>
+                ) : (
+                  <Link to={slide.link || '/catalog'} className={styles.slideCta}>
+                    <span>{slide.button_label || 'استعرض الأجهزة'}</span>
+                    <ArrowLeft size={16} />
+                  </Link>
+                )}
+              </div>
+              <div className={styles.slideVisual}>
+                {slide.image && !slide.image.startsWith('/assets/hero') ? (
+                  <img
+                    src={slide.image}
+                    alt={slide.title}
+                    className={styles.slideCustomImg}
+                    style={{ maxHeight: '180px', objectFit: 'contain' }}
+                  />
+                ) : idx === 1 || slide.type === 'lock' ? (
+                  <div className={styles.lockIllustration}>
+                    <Lock size={44} className={styles.lockIcon} />
+                    <Clock size={28} className={styles.clockIcon} />
+                  </div>
+                ) : idx === 2 || slide.type === 'accessories' ? (
+                  <Headphones size={68} strokeWidth={1.5} className={styles.accessoriesIcon} />
+                ) : (
+                  <LaptopSvg silhouette="modern" accentColor="#00B7FF" />
+                )}
               </div>
             </div>
-          </div>
-
-          {/* Slide 3: Accessories */}
-          <div className={`${styles.slide} ${activeSlide === 2 ? styles.slideActive : ''}`}>
-            <div className={styles.slideContent}>
-              <span className={styles.slideBadge}>{t('home.categories.accessories')}</span>
-              <h2 className={styles.slideTitle}>{t('home.hero.slide3Title')}</h2>
-              <p className={styles.slideDesc}>{t('home.hero.slide3Subtitle')}</p>
-              <Link to="/products?category=accessories" className={styles.slideCta}>
-                <span>{t('home.hero.slide3Cta')}</span>
-                <ArrowLeft size={16} />
-              </Link>
-            </div>
-            <div className={styles.slideVisual}>
-              <Headphones size={68} strokeWidth={1.5} className={styles.accessoriesIcon} />
-            </div>
-          </div>
+          ))}
         </div>
 
         {/* Carousel Progress Dots */}
         <div className={styles.carouselDots} role="tablist" aria-label="مؤشرات الشرائح">
-          {[0, 1, 2].map((idx) => (
+          {effectiveSlides.map((_, idx) => (
             <button
               key={idx}
               type="button"

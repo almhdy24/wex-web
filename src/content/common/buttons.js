@@ -1,0 +1,52 @@
+/**
+ * Common Button Labels (الفصحى المعاصرة)
+ * Zero emojis, zero marketing puffery.
+ */
+
+export const buttons = {
+  confirm: 'تأكيد',
+  cancel: 'إلغاء',
+  save: 'حفظ',
+  saved: 'تم الحفظ',
+  delete: 'حذف',
+  edit: 'تعديل',
+  back: 'رجوع',
+  close: 'إغلاق',
+  dismiss: 'تجاهل',
+  search: 'بحث',
+  filter: 'تصفية',
+  apply: 'تطبيق',
+  reset: 'إعادة ضبط',
+  clear: 'مسح',
+  clearAll: 'مسح الكل',
+  submit: 'إرسال',
+  retry: 'إعادة المحاولة',
+  viewAll: 'عرض الكل',
+  showMore: 'عرض المزيد',
+  showLess: 'عرض أقل',
+  copy: 'نسخ',
+  copied: 'تم النسخ',
+  download: 'تحميل',
+  upload: 'رفع ملف',
+  selectFile: 'اختيار ملف',
+  print: 'طباعة',
+  share: 'مشاركة',
+  refresh: 'تحديث',
+  checkout: 'متابعة الشراء',
+  addToCart: 'أضف للسلة',
+  buyNow: 'اطلب الآن',
+  continueShopping: 'متابعة التسوق',
+  login: 'تسجيل الدخول',
+  logout: 'تسجيل الخروج',
+  next: 'التالي',
+  previous: 'السابق',
+  finish: 'إنهاء',
+  agree: 'موافق',
+  understand: 'فهمت ذلك',
+  undo: 'تراجع',
+  reorder: 'إعادة الطلب',
+  call: 'اتصال',
+  whatsapp: 'واتساب',
+};
+
+export default buttons;
