@@ -34,7 +34,7 @@ export default function PendingOrderBanner() {
             setDismissed(true);
           } else {
             setActiveOrder(order);
-            setTimeLeft(calculateTimeLeft(order.expires_at));
+            setTimeLeft(calculateTimeLeft(order.expires_at || order.lock_expires_at));
           }
         } else if (isMounted) {
           setActiveOrder(null);
@@ -56,10 +56,11 @@ export default function PendingOrderBanner() {
 
   // Live 1-second countdown
   useEffect(() => {
-    if (!activeOrder?.expires_at) return;
+    const expiry = activeOrder?.expires_at || activeOrder?.lock_expires_at;
+    if (!expiry) return;
 
     const timer = setInterval(() => {
-      const remaining = calculateTimeLeft(activeOrder.expires_at);
+      const remaining = calculateTimeLeft(expiry);
       setTimeLeft(remaining);
       if (remaining.expired) {
         clearInterval(timer);

@@ -142,7 +142,7 @@ export default function OrdersPage() {
                     <div className={styles.priceCol}>
                       <span className={styles.priceLabel}>الإجمالي:</span>
                       <span className={styles.priceVal}>
-                        {formatSdg(order.total_amount_sdg)}
+                        {formatSdg(order.total_sdg ?? order.total_amount_sdg)}
                       </span>
                     </div>
 

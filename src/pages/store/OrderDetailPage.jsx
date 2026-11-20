@@ -546,16 +546,18 @@ export default function OrderDetailPage() {
                 </div>
               )}
 
-              {order.shipping_fee_sdg > 0 && (
+              {(order.delivery_fee_sdg > 0 || order.shipping_fee_sdg > 0) && (
                 <div className={styles.itemRow}>
                   <span>رسوم التوصيل:</span>
-                  <span>{formatSdg(order.shipping_fee_sdg)}</span>
+                  <span>{formatSdg(order.delivery_fee_sdg ?? order.shipping_fee_sdg)}</span>
                 </div>
               )}
 
               <div className={styles.grandTotalRow}>
                 <span>الإجمالي:</span>
-                <span className={styles.grandTotalVal}>{formatSdg(order.total_amount_sdg)}</span>
+                <span className={styles.grandTotalVal}>
+                  {formatSdg(order.total_sdg ?? order.total_amount_sdg)}
+                </span>
               </div>
             </div>
 
