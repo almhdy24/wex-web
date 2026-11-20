@@ -61,6 +61,21 @@ export default function AdminShell({ children }) {
     },
   });
 
+  // Dynamic Admin PWA Manifest swap
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const manifestLink = document.querySelector('link[rel="manifest"]');
+    const originalHref = manifestLink?.getAttribute('href') || '/manifest.webmanifest';
+    if (manifestLink) {
+      manifestLink.setAttribute('href', '/admin-manifest.webmanifest');
+    }
+    return () => {
+      if (manifestLink) {
+        manifestLink.setAttribute('href', originalHref);
+      }
+    };
+  }, []);
+
   // Background audio chime using Web Audio API
   const playChime = () => {
     if (!soundEnabled || typeof window === 'undefined') return;

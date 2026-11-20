@@ -631,7 +631,20 @@ Ground-up redesign of the administration panel tailored for store operators and 
     - Updated `LoginPage.jsx` and `VerifyOtpPage.jsx`: admin and staff sign-ins automatically redirect to `/admin` instead of the customer storefront.
   - Added unit test suite `src/__tests__/admin-phase6.test.jsx` (3 unit tests).
   - Verification: 0 lint errors, 0 warnings, 22 test files and 97 tests passing (100%), production build clean (138.22 kB gzip initial JS <= 170 kB budget, 13.91 kB gzip global CSS <= 45 kB budget).
-- [ ] **Phase 7: Polish (A11y, Idle Timer, Admin PWA Manifest, Error Recovery)**
+- [x] **Phase 7: Polish (A11y, Idle Timer, Admin PWA Manifest, Error Recovery)**
+  - Standalone Admin PWA Manifest:
+    - Created `public/admin-manifest.webmanifest` ("ويكس - الإدارة | Wex Technology Admin", start_url `/admin`, theme color `#061A55`, background `#EAF3FF`).
+    - Dynamic manifest swapping in `AdminShell.jsx`: automatically switches `link[rel="manifest"]` to `/admin-manifest.webmanifest` while in admin panel and reverts back upon leaving.
+    - Cleaned marketing puffery word from `vite.config.js` manifest description.
+  - Idle security & audio awareness:
+    - Verified `useIdleTimer` warning at 25 min and auto sign-out at 30 min.
+    - Web Audio API chime with persistence toggle for incoming payment receipts.
+  - Accessibility & Touch Targets:
+    - All touch elements on phone verified >= 44px (steppers, action icons, tab bars, sheet buttons).
+    - Focus visible rings (`:focus-visible` 2px cyan with 2px offset) across all admin controls.
+    - Screen reader announcements: `role="status"` and `aria-live="polite"` on toasts and badges.
+  - Added unit test suite `src/__tests__/admin-phase7.test.jsx` (2 unit tests).
+  - Verification: 0 lint errors, 0 warnings, 23 test files and 99 tests passing (100%), production build clean (138.31 kB gzip initial JS <= 170 kB budget, 13.91 kB gzip global CSS <= 45 kB budget).
 - [ ] **Phase 8: Tests, Documentation & Final Double Check Verification**
 
 

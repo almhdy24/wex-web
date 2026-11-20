@@ -11,7 +11,7 @@ export default defineConfig({
       manifest: {
         name: 'Wex Technology | ويكس تكنولوجي',
         short_name: 'Wex',
-        description: 'متجر أجهزة لابتوب وهواتف ذكية وإلكترونيات في أم درمان، السودان',
+        description: 'متجر أجهزة لابتوب وهواتف وإلكترونيات في أم درمان، السودان',
         theme_color: '#061A55',
         background_color: '#FFFFFF',
         display: 'standalone',
