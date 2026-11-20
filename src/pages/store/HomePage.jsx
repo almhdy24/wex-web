@@ -1,18 +1,73 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ArrowLeft, MapPin, Clock, Coins, MessageCircle } from 'lucide-react';
+import { Search, ArrowLeft, MessageCircle, MapPin, Clock } from 'lucide-react';
 import { productsApi } from '../../api/products';
 import ProductCard from '../../components/products/ProductCard';
 import { ProductCardSkeleton } from '../../components/common/Skeleton';
 import ErrorState from '../../components/common/ErrorState';
 import styles from './HomePage.module.css';
 
+// Exact SVG Category Icons from Mockup
+function CategoryIcon({ type }) {
+  if (type === 'briefcase') {
+    return (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="2" y="7" width="20" height="14" rx="2" />
+        <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+      </svg>
+    );
+  }
+  if (type === 'gamepad') {
+    return (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <line x1="6" y1="12" x2="10" y2="12" />
+        <line x1="8" y1="10" x2="8" y2="14" />
+        <line x1="15" y1="13" x2="15.01" y2="13" />
+        <line x1="18" y1="11" x2="18.01" y2="11" />
+        <rect x="2" y="6" width="20" height="12" rx="4" />
+      </svg>
+    );
+  }
+  if (type === 'graduation') {
+    return (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+        <path d="M6 12v5c3 3 9 3 12 0v-5" />
+      </svg>
+    );
+  }
+  if (type === 'ultrabook') {
+    return (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="2" y="4" width="20" height="12" rx="2" />
+        <line x1="1" y1="20" x2="23" y2="20" />
+      </svg>
+    );
+  }
+  // Default Box (All / General)
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+      <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+      <line x1="12" y1="22.08" x2="12" y2="12" />
+    </svg>
+  );
+}
+
+// Built-in mockup categories with matching SVGs
+const DEFAULT_CATEGORIES = [
+  { id: 'all', name: 'الكل', type: 'box', slug: '' },
+  { id: 'business', name: 'أعمال', type: 'briefcase', slug: 'business' },
+  { id: 'gaming', name: 'ألعاب', type: 'gamepad', slug: 'gaming' },
+  { id: 'budget', name: 'اقتصادية', type: 'graduation', slug: 'budget' },
+  { id: 'ultrabooks', name: 'أجهزة خفيفة', type: 'ultrabook', slug: 'ultrabook' },
+];
+
 export default function HomePage() {
   const navigate = useNavigate();
   const [shopInfo, setShopInfo] = useState(null);
   const [categories, setCategories] = useState([]);
-  const [latestProducts, setLatestProducts] = useState([]);
-  const [accessories, setAccessories] = useState([]);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -21,17 +76,16 @@ export default function HomePage() {
     setLoading(true);
     setError(null);
     try {
-      const [shopRes, catsRes, latestRes, accRes] = await Promise.all([
+      const [shopRes, catsRes, featuredRes] = await Promise.all([
         productsApi.getShopInfo(),
         productsApi.getCategories(),
-        productsApi.getProducts({ sort: 'newest', per_page: 8 }),
-        productsApi.getProducts({ type: 'accessory', per_page: 4 }),
+        productsApi.getProducts({ per_page: 8 }),
       ]);
 
       setShopInfo(shopRes?.data || null);
-      setCategories(catsRes?.data || []);
-      setLatestProducts(latestRes?.data || []);
-      setAccessories(accRes?.data || []);
+      const apiCats = catsRes?.data || [];
+      setCategories(apiCats.length > 0 ? apiCats : DEFAULT_CATEGORIES);
+      setFeaturedProducts(featuredRes?.data || []);
     } catch (err) {
       setError(err.message || 'تعذر تحميل بيانات الصفحة الرئيسية');
     } finally {
@@ -50,171 +104,151 @@ export default function HomePage() {
     }
   };
 
+  const exchangeRate = shopInfo?.exchange_rate_sdg || 650;
+  const priceLockHours = shopInfo?.price_lock_hours || 4;
+
   return (
     <div className={styles.container}>
-      {/* 1. Search Field */}
-      <section className={styles.searchSection} aria-label="البحث عن منتج">
+      {/* 1. User Greeting & Live Rate Chip */}
+      <section className={styles.greetingSection} aria-label="الترحيب وسعر الصرف">
+        <div>
+          <div className={styles.greetingSub}>أهلاً بيك</div>
+          <h1 className={styles.greetingTitle}>لابتوبات جديدة ومستعملة</h1>
+        </div>
+
+        <div className={styles.rateChip} title="سعر الصرف المعتمد اليوم">
+          <span className={styles.pulseDot} />
+          <span className={styles.rateText}>الدرهم اليوم: {exchangeRate} جنيه</span>
+        </div>
+      </section>
+
+      {/* 2. Search Input */}
+      <section className={styles.searchSection} aria-label="البحث عن لابتوب">
         <form onSubmit={handleSearchSubmit} className={styles.searchForm}>
-          <Search size={20} className={styles.searchIcon} />
           <input
             type="search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="ابحث عن لابتوب، هاتف، أو ملحق..."
+            placeholder="ابحث عن لابتوب أو مواصفات..."
             className={styles.searchInput}
             aria-label="ابحث في المتجر"
           />
+          <Search size={18} className={styles.searchIcon} />
         </form>
       </section>
 
-      {/* 2. Category Chips */}
-      {categories.length > 0 && (
-        <section className={styles.categorySection} aria-label="التصنيفات">
-          <div className={styles.categoryScroll}>
-            <Link to="/products" className={styles.categoryChip}>
-              كل الأجهزة
-            </Link>
-            {categories.map((cat) => (
-              <Link
-                key={cat.id}
-                to={`/products?category=${encodeURIComponent(cat.slug)}`}
-                className={styles.categoryChip}
-              >
-                {cat.name_ar}
+      {/* 3. App Discount Banner with Slanted Ribbons */}
+      <section
+        className={`${styles.discountBanner} wex-ribbon`}
+        onClick={() => navigate('/products')}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === 'Enter') navigate('/products'); }}
+        aria-label="خصم الطلب بالتطبيق"
+      >
+        <div className={styles.discountContent}>
+          <span className={styles.discountChip}>خصم الطلب بالتطبيق</span>
+          <h3 className={styles.discountHeading}>خصم 3% لو طلبت من التطبيق</h3>
+          <p className={styles.discountSub}>
+            السعر بيتثبت ليك لمدة {priceLockHours} ساعات عشان تحول
+          </p>
+        </div>
+
+        <div className={styles.discountBadgeCircle}>
+          <span className={styles.badgeNum}>-3%</span>
+          <span className={styles.badgeLabel}>تخفيض</span>
+        </div>
+      </section>
+
+      {/* 4. Categories Scroll Row */}
+      <section className={styles.categoriesSection} aria-label="التصنيفات">
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.sectionTitle}>التصنيفات</h2>
+          <Link to="/products" className={styles.viewAllLink}>
+            عرض الكل
+          </Link>
+        </div>
+
+        <div className={styles.categoriesScroll}>
+          {categories.map((cat, idx) => {
+            const catType = cat.type || (idx === 0 ? 'box' : idx === 1 ? 'briefcase' : idx === 2 ? 'gamepad' : idx === 3 ? 'graduation' : 'ultrabook');
+            const targetUrl = cat.slug ? `/products?category=${encodeURIComponent(cat.slug)}` : '/products';
+
+            return (
+              <Link key={cat.id || idx} to={targetUrl} className={styles.categoryChipItem}>
+                <div className={styles.categoryIconBubble}>
+                  <CategoryIcon type={catType} />
+                </div>
+                <span className={styles.categoryTitle}>{cat.name_ar || cat.name}</span>
               </Link>
-            ))}
-          </div>
-        </section>
-      )}
+            );
+          })}
+        </div>
+      </section>
 
       {error && <ErrorState message={error} onRetry={loadHomeData} />}
 
-      {/* 3. "وصل جديد" Product Grid */}
-      <section className={styles.section} aria-label="وصل جديد">
+      {/* 5. Featured Products (2-Column Grid) */}
+      <section className={styles.featuredSection} aria-label="أجهزة مختارة">
         <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>وصل جديد</h2>
-          <Link to="/products?sort=newest" className={styles.viewAllLink}>
-            <span>عرض الكل</span>
-            <ArrowLeft size={16} />
+          <h2 className={styles.sectionTitle}>أجهزة مختارة</h2>
+          <Link to="/products" className={styles.viewAllLink}>
+            <span>كل الأجهزة</span>
+            <ArrowLeft size={14} />
           </Link>
         </div>
 
         <div className={styles.productGrid}>
-          {loading
-            ? Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
-            : latestProducts.length > 0
-            ? latestProducts.map((prod) => <ProductCard key={prod.id} product={prod} />)
-            : !error && <p>لا توجد أجهزة متوفرة حالياً</p>}
+          {loading ? (
+            Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
+          ) : featuredProducts.length > 0 ? (
+            featuredProducts.map((prod) => (
+              <ProductCard key={prod.id} product={prod} />
+            ))
+          ) : !error ? (
+            <p className={styles.emptyNotice}>لا توجد أجهزة متوفرة حالياً</p>
+          ) : null}
         </div>
       </section>
 
-      {/* 4. "ملحقات" Section */}
-      {(accessories.length > 0 || loading) && (
-        <section className={styles.section} aria-label="الملحقات">
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>ملحقات</h2>
-            <Link to="/products?type=accessory" className={styles.viewAllLink}>
-              <span>عرض كل الملحقات</span>
-              <ArrowLeft size={16} />
-            </Link>
-          </div>
-
-          <div className={styles.productGrid}>
-            {loading
-              ? Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
-              : accessories.map((prod) => <ProductCard key={prod.id} product={prod} />)}
-          </div>
-        </section>
-      )}
-
-      {/* 5. Compact 3-Step "كيف تطلب" */}
-      <section className={styles.howToOrderSection} aria-label="كيف تطلب">
-        <h3 className={styles.stripTitle}>كيف تطلب من ويكس؟</h3>
-        <div className={styles.stepsGrid}>
-          <div className={styles.stepCard}>
-            <div className={styles.stepNumber}>1</div>
-            <div className={styles.stepContent}>
-              <h4 className={styles.stepHeading}>اختر الجهاز</h4>
-              <p className={styles.stepText}>تصفح المعروضات وتأكد من المواصفات والحالة المناسبة لاحتياجك.</p>
-            </div>
-          </div>
-
-          <div className={styles.stepCard}>
-            <div className={styles.stepNumber}>2</div>
-            <div className={styles.stepContent}>
-              <h4 className={styles.stepHeading}>ثبّت السعر وحوّل</h4>
-              <p className={styles.stepText}>
-                بنثبت ليك سعر الصرف لمدة {shopInfo?.price_lock_hours || 4} ساعات عند إتمام الطلب، وحوّل القيمة عبر بنكك.
-              </p>
-            </div>
-          </div>
-
-          <div className={styles.stepCard}>
-            <div className={styles.stepNumber}>3</div>
-            <div className={styles.stepContent}>
-              <h4 className={styles.stepHeading}>استلم من المحل أو التوصيل</h4>
-              <p className={styles.stepText}>استلام فوري من مول الواحة بأم درمان أو شحن مباشر لبابك.</p>
-            </div>
-          </div>
+      {/* 6. Store Feature Notice (Subtle Ribbon) */}
+      <section className={`${styles.priceLockNotice} wex-ribbon-subtle`} aria-label="طريقة تثبيت السعر">
+        <div>
+          <h4 className={styles.noticeTitle}>طريقة تثبيت السعر</h4>
+          <p className={styles.noticeText}>
+            سعر اللابتوب بالدرهم وبيتغير مع الصرف. لما تطلب، بنثبت ليك السعر لمدة {priceLockHours} ساعات وبتحول فيها عبر بنكك. لو المدة انتهت بيرجع السعر للصرف الحالي.
+          </p>
         </div>
       </section>
 
-      {/* 6. Shop Info Block */}
-      <section className={styles.shopInfoSection} aria-label="معلومات المتجر">
-        <div className={styles.shopInfoCard}>
-          <div className={styles.shopInfoMain}>
-            <h3 className={styles.shopInfoTitle}>متجر ويكس تكنولوجي — أم درمان</h3>
-            <p className={styles.shopInfoDesc}>
-              محل أجهزة لابتوب وهواتف وملحقات في مول الواحة بأم درمان. نوفر أجهزة جديدة ومستعملة مع فحص دقيق وإمكانية المعاينة المباشرة قبل الاستلام.
+      {/* 7. Shop Info Card */}
+      <section className={styles.shopSection} aria-label="معلومات المتجر">
+        <div className={styles.shopCard}>
+          <div className={styles.shopMain}>
+            <h3 className={styles.shopTitle}>متجر ويكس تكنولوجي — أم درمان</h3>
+            <p className={styles.shopDesc}>
+              محل لابتوبات وإلكترونيات في مول الواحة بأم درمان. أجهزة جديدة ومستعملة فحص دقيق ومعاينة مباشرة قبل الدفع.
             </p>
-            <div className={styles.shopActions}>
-              <a
-                href="https://wa.me/249912345678"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.whatsappBtn}
-              >
-                <MessageCircle size={18} />
-                <span>تواصل عبر واتساب</span>
-              </a>
-              <a
-                href="https://maps.google.com/?q=Omdurman+Al+Waha+Mall"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.mapsBtn}
-              >
-                <MapPin size={18} />
-                <span>موقعنا على الخريطة</span>
-              </a>
-            </div>
-          </div>
-
-          <div className={styles.shopDetailsList}>
-            <div className={styles.detailRow}>
-              <MapPin size={20} className={styles.detailIcon} />
-              <div>
-                <div className={styles.detailLabel}>الموقع</div>
-                <div className={styles.detailValue}>مول الواحة — الشهداء — أم درمان</div>
+            <div className={styles.shopMetaRow}>
+              <div className={styles.metaItem}>
+                <MapPin size={16} className={styles.metaIcon} />
+                <span>مول الواحة — الشهداء — أم درمان</span>
+              </div>
+              <div className={styles.metaItem}>
+                <Clock size={16} className={styles.metaIcon} />
+                <span>السبت - الخميس: 10:00 ص - 10:00 م</span>
               </div>
             </div>
 
-            <div className={styles.detailRow}>
-              <Clock size={20} className={styles.detailIcon} />
-              <div>
-                <div className={styles.detailLabel}>ساعات العمل</div>
-                <div className={styles.detailValue}>السبت - الخميس: 10:00 ص - 10:00 م | الجمعة: 4:00 م - 10:00 م</div>
-              </div>
-            </div>
-
-            <div className={styles.detailRow}>
-              <Coins size={20} className={styles.detailIcon} />
-              <div>
-                <div className={styles.detailLabel}>سعر الصرف المعتمد</div>
-                <div className={styles.detailValue}>
-                  1 درهم = {shopInfo?.exchange_rate_sdg || 650} جنيه سوداني
-                </div>
-              </div>
-            </div>
+            <a
+              href="https://wa.me/249912345678"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.whatsappBtn}
+            >
+              <MessageCircle size={18} />
+              <span>تواصل عبر واتساب للاستفسار</span>
+            </a>
           </div>
         </div>
       </section>

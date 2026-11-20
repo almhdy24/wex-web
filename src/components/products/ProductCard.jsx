@@ -1,31 +1,37 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
 import { formatSdg, formatAed, getProductImageUrl, getConditionLabel } from '../../utils/formatters';
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
-import Button from '../common/Button';
+import LaptopSvg from '../common/LaptopSvg';
 import styles from './ProductCard.module.css';
 
 /**
- * Extract a concise one-line spec summary from product specs or description
+ * Extract 1-2 quick spec pills from product
  */
-function getSpecLine(product) {
+function getQuickSpecs(product) {
   if (product.specs && Array.isArray(product.specs) && product.specs.length > 0) {
     return product.specs
-      .slice(0, 3)
+      .slice(0, 2)
       .map((s) => s.spec_value || s.value)
-      .filter(Boolean)
-      .join(' · ');
+      .filter(Boolean);
   }
-  if (product.short_description) {
-    return product.short_description;
+  const pills = [];
+  if (product.ram) pills.push(product.ram);
+  if (product.storage) pills.push(product.storage);
+  if (pills.length === 0 && product.short_description) {
+    const parts = product.short_description.split(/[,·|]/);
+    if (parts[0]) pills.push(parts[0].trim());
+    if (parts[1]) pills.push(parts[1].trim());
   }
-  return '';
+  return pills.slice(0, 2);
 }
 
 export default function ProductCard({ product }) {
   const { addItem } = useCart();
   const { success } = useToast();
+  const [imageError, setImageError] = useState(false);
 
   if (!product) return null;
 
@@ -33,7 +39,8 @@ export default function ProductCard({ product }) {
   const isOutOfStock = product.stock_status === 'out_of_stock' || (product.stock_quantity !== undefined && product.stock_quantity <= 0);
   const isLowStock = !isOutOfStock && ((product.stock_quantity > 0 && product.stock_quantity <= 3) || product.stock_status === 'low_stock');
   const imageUrl = getProductImageUrl(product.image?.thumb_path || product.image?.path);
-  const specSummary = getSpecLine(product);
+  const quickSpecs = getQuickSpecs(product);
+  const brandName = product.brand?.name || product.brand_name || '';
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -45,52 +52,67 @@ export default function ProductCard({ product }) {
 
   return (
     <article className={styles.card}>
-      <Link to={`/products/${product.slug || product.id}`} className={styles.link}>
-        <div className={styles.imageWrapper}>
-          <img
-            src={imageUrl}
-            alt={product.name}
-            className={styles.image}
-            loading="lazy"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = '/favicon.svg';
-            }}
-          />
-          {condition && (
-            <span className={styles.conditionBadge}>
-              {condition}
-            </span>
+      <Link to={`/products/${product.slug || product.id}`} className={styles.cardLink}>
+        {/* Condition Badge (Top Right) */}
+        {condition && (
+          <span className={styles.cardBadge}>
+            {condition}
+          </span>
+        )}
+
+        {/* Product Image Container (120px) */}
+        <div className={styles.imageContainer}>
+          {imageUrl && !imageError ? (
+            <img
+              src={imageUrl}
+              alt={product.name}
+              className={styles.image}
+              loading="lazy"
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <div className={styles.svgWrapper}>
+              <LaptopSvg
+                silhouette={product.silhouette || 'modern'}
+                accentColor={product.accent_color || '#1E6BFF'}
+              />
+            </div>
           )}
         </div>
 
-        <div className={styles.content}>
-          <h3 className={styles.title} title={product.name}>
+        {/* Product Info */}
+        <div className={styles.info}>
+          {brandName && <span className={styles.brand}>{brandName}</span>}
+          <h3 className={styles.name} title={product.name}>
             {product.name}
           </h3>
 
-          {specSummary ? (
-            <p className={styles.specLine}>{specSummary}</p>
-          ) : (
-            <p className={styles.specLine}>&nbsp;</p>
+          {/* Quick Specs Pills */}
+          {quickSpecs.length > 0 && (
+            <div className={styles.quickSpecs}>
+              {quickSpecs.map((spec, idx) => (
+                <span key={idx} className={styles.specPill}>
+                  {spec}
+                </span>
+              ))}
+            </div>
           )}
 
+          {/* Pricing */}
           <div className={styles.pricing}>
-            <div className={styles.priceRow}>
-              <span className={styles.sdgPrice}>
-                {formatSdg(product.price_sdg)}
-              </span>
-              {product.price_aed && (
-                <span className={styles.aedPrice}>
-                  {formatAed(product.price_aed)}
-                </span>
-              )}
+            <div className={styles.priceSdg}>
+              <span>{formatSdg(product.price_sdg)}</span>
             </div>
+            {product.price_aed ? (
+              <div className={styles.priceAed}>
+                {formatAed(product.price_aed)}
+              </div>
+            ) : null}
 
             {isOutOfStock ? (
               <span className={styles.outOfStockNotice}>نفد من المخزن</span>
             ) : isLowStock ? (
-              <span className={styles.stockNotice}>
+              <span className={styles.lowStockNotice}>
                 {product.stock_quantity ? `باقي ${product.stock_quantity} فقط` : 'كمية محدودة'}
               </span>
             ) : null}
@@ -98,19 +120,19 @@ export default function ProductCard({ product }) {
         </div>
       </Link>
 
-      <div className={styles.actionFooter}>
-        <Button
-          variant={isOutOfStock ? 'outline' : 'primary'}
-          size="sm"
-          className={styles.addBtn}
-          disabled={isOutOfStock}
+      {/* Quick Add to Cart Action */}
+      {!isOutOfStock && (
+        <button
+          type="button"
           onClick={handleAddToCart}
-          aria-label={isOutOfStock ? 'نفد من المخزن' : `أضف ${product.name} إلى السلة`}
+          className={styles.addCartBtn}
+          title="أضف إلى السلة"
+          aria-label={`أضف ${product.name} إلى السلة`}
         >
-          <ShoppingCart size={16} strokeWidth={2} />
-          {isOutOfStock ? 'نفد' : 'أضف للسلة'}
-        </Button>
-      </div>
+          <ShoppingCart size={16} />
+          <span>إضافة للسلة</span>
+        </button>
+      )}
     </article>
   );
 }

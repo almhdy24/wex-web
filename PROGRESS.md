@@ -17,11 +17,12 @@ Rebuilding storefront UI as ONE mobile-app-style experience identical on phone a
   - Laptop illustration fallback component (`LaptopSvg.jsx`): exact SVG vector illustration matching mockup silhouettes and accent color.
   - Native feel: `overscroll-behavior: contain`, `-webkit-tap-highlight-color: transparent`, `:active` press feedback (`scale(0.98)`), 16px inputs to prevent iOS zoom, toasts floating above bottom tab bar, bottom sheets within 480px frame.
   - Verification: 0 lint errors, 39/39 tests passing, production build 110.16 kB gzip.
-- [ ] **Phase 2: Home, Catalog & Product Detail Screens**
-  - Home: greeting, search, rate chip, app-discount banner, category icon bubbles, 2-column featured grid, store notice.
-  - Catalog: search, filter chips scroll (category, brand, sort), 2-column live grid, empty state.
-  - Product Card & LaptopSvg component (inline vector fallback).
-  - Product Details: hero image card, specs table, price box with rate chip & notice, sticky "اطلب الآن" bar.
+- [x] **Phase 2: Home, Catalog & Product Detail Screens**
+  - `ProductCard.jsx` & `ProductCard.module.css`: exact mockup parity (14px padding, 20px radius, condition badge top-right, 120px image box with real photo or `LaptopSvg` vector fallback, brand subtitle, 2-line title, 2 quick spec pills, SDG bold price + AED reference, quick add to cart button).
+  - `HomePage.jsx` & `HomePage.module.css`: Screen 2 parity (user greeting & live exchange rate chip with pulsing green dot, 44px search input with search icon, 3% app discount banner with slanted brand ribbons & `-3%` circle badge, categories scroll with 52px circular SVG icon bubbles, 2-column featured product grid, subtle ribbon price-lock notice, shop info & WhatsApp link).
+  - `CatalogPage.jsx` & `CatalogPage.module.css`: Screen 3 parity (in-catalog search, categories & condition filter chips scroll, brands filter chips scroll with compact sort dropdown, live 2-column product grid, empty state with filter reset, pagination bar).
+  - `ProductDetailPage.jsx` & `ProductDetailPage.module.css`: Screen 4 parity (180px hero image card with condition & brand chips, 20px bold title, subtle ribbon price box with live rate chip & price guarantee note, specs table card, store inspection & warranty notes card, fixed bottom action bar above safe area with quantity counter, cart button, and "اطلب الآن وثبّت السعر" full-width CTA).
+  - Verification: 0 lint errors, 39/39 tests passing, production build 110.18 kB gzip.
 - [ ] **Phase 3: Cart, Checkout & Sign-In Screens**
   - Cart & Checkout: 1-column mobile layout, delivery selector (pickup vs delivery), address fields, financial calculation summary, price-lock notice, sticky CTA.
   - Sign-in: Google first + 6-box auto-advance OTP input with splash-style ribbon styling.
