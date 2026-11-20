@@ -511,85 +511,13 @@ Calm, trustworthy, production-ready UI/UX tailored for Sudanese customers and el
   - Copy & Puffery Audit: cleaned forbidden word `ذكية` in `src/content/ar.js`; automated regex scans verified 0 forbidden marketing words, 0 customer-facing references to AED/exchange rate, and 0 emojis across all `src/` files.
   - Unit tests: added Sudanese phone normalization and validation tests in `src/__tests__/formatters.test.js`.
   - Verification: 0 lint errors, 16 test files and 77 tests passing (100%), production build clean (128.53 kB gzip initial JS, 12.39 kB gzip global CSS).
-- [ ] **Phase 8: Performance, Tests, Documentation Updates & Double Check Verification**
-- [x] **Phase 5: Cart Page, Checkout Two-Column Layout, Guest Flow & Pending Order Banner**
-  - Enhanced `Toast.jsx`, `Toast.module.css`, and `ToastContext.jsx`: added action button support (`actionToast`), refined action styling, and set desktop positioning to bottom-start (`inset-inline-start: 32px`).
-  - Enhanced `CartContext.jsx`: added `restoreItem` to support 5-second undo restoration.
-  - Upgraded `CartPage.jsx` & `CartPage.module.css`:
-    - 2-column desktop layout: items list on start (65%) + sticky calculation summary on end (35%).
-    - 5-second undo snackbar on item removal ("تم حذف {item} من السلة" with "تراجع" button).
-    - Mobile sticky bottom checkout bar hidden on desktop; primary checkout action integrated directly into the sticky summary card.
-  - Upgraded `CheckoutPage.jsx` & `CheckoutPage.module.css`:
-    - 3-step progress indicator across top: (1) السلة, (2) بيانات الطلب (نشط), (3) تثبيت السعر والدفع.
-    - 2-column desktop layout: delivery selector & contact forms (60%) + sticky order review summary (40%) with PriceNotice and submit CTA.
-    - "ماذا بعد تثبيت السعر؟" next steps card explaining price-lock, Bankak transfer, and pickup/delivery.
-    - SessionStorage draft persistence across phone, delivery zone, address, and notes.
-  - Implemented Guest Checkout Flow:
-    - Opened `/checkout` to guests in `src/app/router.jsx`.
-    - If customer is unauthenticated at submit time, draft is preserved and user is redirected to `/login?returnTo=/checkout` without touching cart contents.
-    - Updated `LoginPage.jsx` and `VerifyOtpPage.jsx` to honor `returnTo` URL parameter and return user seamlessly to checkout.
-  - Created `PendingOrderBanner.jsx` & `PendingOrderBanner.module.css`:
-    - Persistent top banner across all viewports detecting active `pending_payment` orders.
-    - Live countdown timer, order number link to `/orders/{order_number}`, and session dismissal.
-    - Integrated into `StoreLayout.jsx`.
-  - Created `src/__tests__/cart-checkout.test.jsx`: 5 unit tests covering cart, checkout, and pending order banner.
-  - Verification: 0 lint errors, 15 test files and 74 tests passing (100%), production build 127.73 kB gzip initial JS, 12.33 kB gzip global CSS.
-- [x] **Phase 6: Order Detail & Orders Desktop Layouts, Receipt Drag/Paste, Account/Notifications, FAQ Page**
-  - Upgraded `OrderDetailPage.jsx` & `OrderDetailPage.module.css`:
-    - 2-column desktop layout: (Start Column) sticky countdown ring + price lock banner + Bankak card + receipt upload dropzone; (End Column) 5-step tracking timeline + order items & delivery breakdown + WhatsApp assistance card.
-    - Receipt Dropzone: drag-and-drop file upload with visual dragging feedback (`isDragging`), plus clipboard paste (Ctrl+V) listener to paste screenshot directly from clipboard.
-    - Breadcrumb navigation to return to orders list.
-  - Upgraded `OrdersPage.module.css`: desktop horizontal tabular row layout with order number, date, item summary, status badge, price in SDG, and quick action buttons.
-  - Upgraded `AccountPage.module.css` and `NotificationsPage.module.css` for desktop max-width and typography.
-  - Created `FaqPage.jsx` & `FaqPage.module.css` (`/faq`):
-    - Fusha copy covering: price lock mechanism (4 hours), Bankak payment & receipt upload, 7-day testing warranty, store address in Al-Waha mall and opening hours (9:00 AM - 9:00 PM), and delivery options.
-    - Live search query filter and accordion expand/collapse.
-    - Registered `/faq` in `src/app/router.jsx`.
-  - Created `src/__tests__/order-detail-faq.test.jsx`: unit tests covering FAQ page, search, and propositions.
-  - Verification: 0 lint errors, 16 test files and 76 tests passing (100%), production build clean (127.82 kB gzip initial JS, 12.33 kB gzip global CSS).
-- [x] **Phase 7: General UX Pass: Forms, Undo, Error Recovery, Prefetch, Blur-up & A11y**
-  - Form validation: added `normalizeSudanPhone` and `isValidSudanPhone` in `src/utils/formatters.js` supporting all Sudanese formats (`09XXXXXXXX`, `01XXXXXXXX`, `+249...`).
-  - Customer contact persistence: integrated phone validation and localStorage phone persistence in `CheckoutPage.jsx` so return visits autofill immediately.
-  - Error recovery & network awareness: added live online/offline event listeners in `StoreLayout.jsx` with network reconnection notification ("عادت شبكة الإنترنت").
-  - Optimistic route prefetching: created `src/utils/prefetch.js` with instant route prefetching on link hover/focus across `DesktopHeader.jsx` and `BottomTabBar.jsx`.
-  - A11y: added keyboard skip-to-content link in `StoreLayout.jsx` and `StoreLayout.module.css`.
-  - Copy & Puffery Audit: cleaned forbidden word `ذكية` in `src/content/ar.js`; automated regex scans verified 0 forbidden marketing words, 0 customer-facing references to AED/exchange rate, and 0 emojis across all `src/` files.
-  - Unit tests: added Sudanese phone normalization and validation tests in `src/__tests__/formatters.test.js`.
-  - Verification: 0 lint errors, 16 test files and 77 tests passing (100%), production build clean (128.53 kB gzip initial JS, 12.39 kB gzip global CSS).
-- [ ] **Phase 8: Performance, Tests, Documentation Updates & Double Check Verification**
-- [x] **Phase 6: Order Detail & Orders Desktop Layouts, Receipt Drag/Paste, Account/Notifications, FAQ Page**
-  - Upgraded `OrderDetailPage.jsx` & `OrderDetailPage.module.css`:
-    - 2-column desktop layout: (Start Column) sticky countdown ring + price lock banner + Bankak card + receipt upload dropzone; (End Column) 5-step tracking timeline + order items & delivery breakdown + WhatsApp assistance card.
-    - Receipt Dropzone: drag-and-drop file upload with visual dragging feedback (`isDragging`), plus clipboard paste (Ctrl+V) listener to paste screenshot directly from clipboard.
-    - Breadcrumb navigation to return to orders list.
-  - Upgraded `OrdersPage.module.css`: desktop horizontal tabular row layout with order number, date, item summary, status badge, price in SDG, and quick action buttons.
-  - Upgraded `AccountPage.module.css` and `NotificationsPage.module.css` for desktop max-width and typography.
-  - Created `FaqPage.jsx` & `FaqPage.module.css` (`/faq`):
-    - Fusha copy covering: price lock mechanism (4 hours), Bankak payment & receipt upload, 7-day testing warranty, store address in Al-Waha mall and opening hours (9:00 AM - 9:00 PM), and delivery options.
-    - Live search query filter and accordion expand/collapse.
-    - Registered `/faq` in `src/app/router.jsx`.
-  - Created `src/__tests__/order-detail-faq.test.jsx`: unit tests covering FAQ page, search, and propositions.
-  - Verification: 0 lint errors, 16 test files and 76 tests passing (100%), production build clean (127.82 kB gzip initial JS, 12.33 kB gzip global CSS).
-- [x] **Phase 7: General UX Pass: Forms, Undo, Error Recovery, Prefetch, Blur-up & A11y**
-  - Form validation: added `normalizeSudanPhone` and `isValidSudanPhone` in `src/utils/formatters.js` supporting all Sudanese formats (`09XXXXXXXX`, `01XXXXXXXX`, `+249...`).
-  - Customer contact persistence: integrated phone validation and localStorage phone persistence in `CheckoutPage.jsx` so return visits autofill immediately.
-  - Error recovery & network awareness: added live online/offline event listeners in `StoreLayout.jsx` with network reconnection notification ("عادت شبكة الإنترنت").
-  - Optimistic route prefetching: created `src/utils/prefetch.js` with instant route prefetching on link hover/focus across `DesktopHeader.jsx` and `BottomTabBar.jsx`.
-  - A11y: added keyboard skip-to-content link in `StoreLayout.jsx` and `StoreLayout.module.css`.
-  - Copy & Puffery Audit: cleaned forbidden word `ذكية` in `src/content/ar.js`; automated regex scans verified 0 forbidden marketing words, 0 customer-facing references to AED/exchange rate, and 0 emojis across all `src/` files.
-  - Unit tests: added Sudanese phone normalization and validation tests in `src/__tests__/formatters.test.js`.
-  - Verification: 0 lint errors, 16 test files and 77 tests passing (100%), production build clean (128.53 kB gzip initial JS, 12.39 kB gzip global CSS).
-- [ ] **Phase 8: Performance, Tests, Documentation Updates & Double Check Verification**
-- [x] **Phase 7: General UX Pass: Forms, Undo, Error Recovery, Prefetch, Blur-up & A11y**
-  - Form validation: added `normalizeSudanPhone` and `isValidSudanPhone` in `src/utils/formatters.js` supporting all Sudanese formats (`09XXXXXXXX`, `01XXXXXXXX`, `+249...`).
-  - Customer contact persistence: integrated phone validation and localStorage phone persistence in `CheckoutPage.jsx` so return visits autofill immediately.
-  - Error recovery & network awareness: added live online/offline event listeners in `StoreLayout.jsx` with network reconnection notification ("عادت شبكة الإنترنت").
-  - Optimistic route prefetching: created `src/utils/prefetch.js` with instant route prefetching on link hover/focus across `DesktopHeader.jsx` and `BottomTabBar.jsx`.
-  - A11y: added keyboard skip-to-content link in `StoreLayout.jsx` and `StoreLayout.module.css`.
-  - Copy & Puffery Audit: cleaned forbidden word `ذكية` in `src/content/ar.js`; automated regex scans verified 0 forbidden marketing words, 0 customer-facing references to AED/exchange rate, and 0 emojis across all `src/` files.
-  - Unit tests: added Sudanese phone normalization and validation tests in `src/__tests__/formatters.test.js`.
-  - Verification: 0 lint errors, 16 test files and 77 tests passing (100%), production build clean (128.53 kB gzip initial JS, 12.39 kB gzip global CSS).
-- [ ] **Phase 8: Performance, Tests, Documentation Updates & Double Check Verification**
-- [ ] **Phase 8: Performance, Tests, Documentation Updates & Double Check Verification**
+- [x] **Phase 8: Performance, Tests, Documentation Updates & Double Check Verification**
+  - Updated `docs/PERFORMANCE.md` with complete chunk distribution table, client-side image compression specs, and motion budget analysis.
+  - Authored ADR-002 in `docs/DECISIONS.md` documenting universal UX improvements (guest checkout return-to flow, cart undo, comparison & favorites, phone normalization, receipt drag/paste, zero AED/rate rule).
+  - Updated `docs/DESIGN-SYSTEM.md` with comprehensive three-tier specifications, responsive container rules (1240px desktop), desktop navigation hierarchy, and typography step-up.
+  - Updated `docs/MOTION.md` with desktop micro-interactions (hover lift, focus-visible rings, shortcuts, transform-only guarantees).
+  - Authored detailed verification matrix in `docs/UI-CHECKLIST.md` across 6 responsive breakpoints (360px, 390px, 768px, 1024px, 1280px, 1536px), desktop feature matrix, and universal UX rules.
+  - Completed Double Check the Double Check: verified clean ESLint (0 errors, 0 warnings), 100% Vitest pass rate (16 test files, 77/77 tests), and clean production build under initial budgets (JS 128.53 kB <= 170 kB gzip, CSS 12.39 kB <= 45 kB gzip).
+
 
 

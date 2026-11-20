@@ -36,3 +36,29 @@ This document is the official motion specification for `wex-web`. It details eve
 | `timeline-draw` | `OrderDetailPage.jsx`| Step change | `400ms`, `ease-standard` | Progressive vertical line fill | Step switch | Step switch |
 | `how-it-works-line`| `HomePage.jsx` | Section intersect | `600ms`, `ease-standard` | SVG connector line draws down | Full line visible | Full line |
 | `sheet-slide-up` | `Sheet.jsx` | Filter tap | `250ms`, `ease-standard` | Translates from Y(100%) to 0 | Faster slide | Instant |
+| `drawer-slide-end` | `Drawer.jsx` | Cart click | `280ms`, `ease-standard` | Translates from X(100%) to 0 | Faster slide | Instant |
+| `popover-scale` | `Popover.jsx` | Icon click | `180ms`, `ease-standard` | Scale 0.95 -> 1.0 + fade | Opacity only | Instant |
+| `nav-indicator-slide` | `DesktopHeader.jsx` | Link hover/active | `220ms`, `ease-emphasized`| Underline slide & stretch | Instant line snap | Instant |
+| `card-hover-lift` | `ProductCard.jsx` | Pointer hover | `200ms`, `ease-standard` | `translateY(-4px)` with shadow | None | None |
+| `gallery-zoom-lens` | `ProductDetailPage.jsx` | Mouse move | Continuous | 2.2x transform-origin pan | None | None |
+| `scroll-top-fade` | `ScrollToTop.jsx` | Scroll > 500px | `220ms`, `ease-standard` | Scale 0.8 -> 1.0 + fade | Opacity only | Instant |
+
+---
+
+## 3. Desktop Micro-Interactions & Ergonomics
+
+### 3.1 Pointer & Hover Micro-States
+- **Targeting Hover-Capable Devices:** All hover animations are enclosed in `@media (hover: hover) and (pointer: fine)` queries to avoid sticky hover states on touchscreens.
+- **Transform-Only Elevation:** Interactive cards (`ProductCard`, category tiles, hero buttons) lift by `translateY(-4px)` with an accompanying drop shadow transition. Zero mutations on padding or margins.
+- **Button Sheen & Press:** Interactive primary action buttons incorporate a subtle diagonal light sweep during hover and an active press state of `transform: scale(0.98)`.
+- **Image Zoom on Hover:** Product card thumbnails scale gently by `scale(1.04)` inside an `overflow: hidden` container on card hover.
+
+### 3.2 Desktop Focus Rings & Accessibility (`:focus-visible`)
+- **Restrained Cyan Accent:** All keyboard interactive elements (buttons, links, inputs, checkboxes) display a high-contrast 2px cyan focus ring (`outline: 2px solid var(--color-cyan, #00B7FF); outline-offset: 2px;`) ONLY when navigated via keyboard.
+- **Mouse Clicks:** Standard mouse taps do not produce persistent focus rings (`:focus:not(:focus-visible) { outline: none; }`).
+
+### 3.3 Overlays, Focus Trapping & Keyboard Shortcuts
+- **Search Shortcut:** Pressing `/` anywhere on desktop focuses the central search input in `DesktopHeader`.
+- **Overlay Dismissal:** Pressing `Escape` instantaneously closes active popovers, side drawers (`CartDrawer`), or modal dialogs.
+- **Focus Trapping:** Side drawers and dialogs trap keyboard focus within their boundaries and restore focus to the triggering element upon dismissal.
+- **Smooth Anchored Scrolling:** Desktop in-page navigation and rail scroll buttons use smooth CSS scrolling (`scroll-behavior: smooth`) without blocking the main browser thread.

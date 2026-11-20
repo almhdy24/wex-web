@@ -69,23 +69,50 @@ All base components use scoped CSS Modules (`*.module.css`) and reference `token
 
 ---
 
-## 5. Screen Layout & Navigation Standards
+## 5. Responsive Layout Tiers & Breakpoints
 
-### 5.1 Mobile-First Viewport (>= 360px)
-- Minimum touch target: `44px x 44px`.
-- CSS Logical Properties: `margin-inline`, `padding-inline`, `inset-inline` for native RTL alignment.
-- Container: Max width `1200px` centered with responsive horizontal padding (`16px` on mobile, `24px` on desktop).
+The storefront architecture utilizes **three responsive layout tiers** sharing the same design tokens, React components, and modern Fusha copy:
 
-### 5.2 Storefront Navigation
-- **Header:**
-  - Minimum 120px brand logo.
-  - Quick keyword search input.
-  - Pricing freshness timestamp: "آخر تحديث للأسعار: اليوم 9:00" from `prices_updated_at` (no exchange rate or reference currency).
-  - Notification bell with unread dot.
-  - Cart counter badge.
-- **Mobile Bottom Navigation Bar:**
-  - 4 fixed tabs: الرئيسية (Home), المتجر (Store), طلباتي (Orders), حسابي (Account).
-  - Automatically hidden on Checkout and Product Detail pages to expose sticky bottom action bars.
+| Tier | Breakpoint | Container Width | Shell / Header | Navigation & Overlays |
+| :--- | :--- | :--- | :--- | :--- |
+| **Phone** | `< 640px` | Max `480px` centered | Fixed 56px `AppBar` | Fixed 56px `BottomTabBar`, bottom `Sheet` overlays |
+| **Tablet** | `640px – 1023px` | Max `768px` fluid | Fixed 56px `AppBar` | Fixed 56px `BottomTabBar`, centered `Modal` dialogs (max 560px) |
+| **Desktop** | `>= 1024px` | Max `1240px` centered | Sticky 72px `DesktopHeader` + 32px status strip | Horizontal top nav with animated underline, side `Drawer` cart, 4-column `DesktopFooter` |
+
+### 5.1 Responsive Spacing & Container Rules
+- **Side Padding:** `clamp(16px, 3vw, 24px)` on phone/tablet; `clamp(24px, 4vw, 48px)` on desktop.
+- **Desktop Container:** Constrained to `1240px` centered via `margin-inline: auto`.
+- **Backgrounds:** Ice background (`--color-ice-blue: #EAF3FF`) for outer page backgrounds on wide screens; clean white cards (`--color-white: #FFFFFF`) with 1px border (`--color-border: #E2E8F0`).
+- **Typography Stepping on Desktop:**
+  - Body text: 16px – 17px (line-height: 1.7).
+  - Page titles: 28px – 36px bold.
+  - Section headers: 22px – 24px bold.
+  - Tabular numerals: `font-variant-numeric: tabular-nums` enforced on all numbers and prices.
+
+### 5.2 Desktop Navigation & Overlays (`>= 1024px`)
+- **Top Status Strip (32px):**
+  - Live shop hours indicator: computed in real time from Khartoum business hours (`9:00 ص - 9:00 م`). Renders "مفتوح الآن" (success green pill) or "مغلق حاليًا" (neutral slate pill).
+  - Physical store location: "مول الواحة، الشهداء، أم درمان".
+  - Quick contact links: direct WhatsApp and telephone.
+- **Sticky Desktop Header (72px):**
+  - Brand Logo: Minimum 140px width with link to `/`.
+  - Main Navigation: Links for الرئيسية (`/`), المتجر (`/products`), الملحقات (`/products?category=accessories`), and طلباتي (`/orders`), with smooth animated indicator underline.
+  - Autocomplete Search Field: Wide centered input with debounced query suggestions, product thumbnails, tabular SDG prices, recent searches chips, and keyboard `/` focus shortcut.
+  - Notifications Bell: Anchored popover displaying the 5 latest notifications with unread state indicators and link to `/notifications`.
+  - Side Cart Drawer: Clicking cart icon opens a responsive slide-in side drawer (`CartDrawer.jsx`) with live quantity steppers, running financial breakdown, and direct checkout CTA.
+  - Account Menu: Avatar dropdown with direct links to `/account`, `/orders`, `/faq`, or guest sign-in CTA.
+- **Desktop 4-Column Footer:**
+  - Column 1: Wex Technology store identity, physical address, and hours.
+  - Column 2: Quick links (`/`, `/products`, `/orders`, `/faq`, `/terms`).
+  - Column 3: Contact methods, WhatsApp hotline, and location map link.
+  - Column 4: 4-step ordering guide (اختيار الجهاز، تثبيت السعر، تحويل بنكك، الاستلام).
+  - Full-width royal-to-cyan ribbon divider and copyright row with dynamic year and SDG pricing transparency statement.
+- **Overlay Hierarchy:**
+  - Toasts: Bottom-start anchored (`bottom: 32px`, `inset-inline-start: 32px`) on desktop.
+  - Dialogs: Centered modal windows with backdrop blur, focus trap, and Escape key dismissal.
+  - Popovers: Anchored to trigger buttons with click-outside detection.
+  - Floating WhatsApp FAB: Automatically removed on desktop in favor of header and footer contact points.
+  - Scroll-to-Top Button: Appears after 500px vertical page scroll on wide viewports.
 
 ---
 
