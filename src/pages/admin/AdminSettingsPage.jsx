@@ -37,9 +37,12 @@ export default function AdminSettingsPage() {
 
     // Store policies (Inspection, Hand-off & Warranty clarification)
     policy_inspection_title: 'المعاينة وفحص الأجهزة',
-    policy_inspection: 'أجهزة مستوردة؛ يفحص العميل الجهاز ويعاينه بنفسه بدقة عند الاستلام في المتجر للتأكد من الحالة وسلامة كافة المكونات قبل إتمام الشراء.',
-    policy_pickup: 'يمكنك تشغيل الجهاز وفحصه بنفسك بمقرنا في مول الواحة، الشهداء، أم درمان قبل سداد أي مبلغ.',
-    policy_return: 'نظراً لطبيعة الأجهزة المستوردة وعدم وجود وكيل محلي، لا يتوفر ضمان مصنعي أو استبدال بعد الاستلام والفحص المباشر.',
+    policy_inspection: 'أجهزة مستوردة؛ يعاين العميل الجهاز بنفسه عند الاستلام في المتجر.',
+    policy_pickup: 'يمكنك استلام الجهاز من مقرنا في مول الواحة، الشهداء، أم درمان.',
+    policy_return: 'نظراً لطبيعة الأجهزة المستوردة، يتم الاستلام بعد المعاينة المباشرة.',
+    inspection_note: '',
+    returns_note: '',
+    extra_delivery_note: '',
 
     // Bank account
     bank_name: 'بنك الخرطوم (تطبيق بنكك)',
@@ -136,13 +139,16 @@ export default function AdminSettingsPage() {
     try {
       setSavingSection((prev) => ({ ...prev, policies: true }));
       await adminApi.updateSettings({
-        policy_inspection_title: formData.policy_inspection_title,
-        policy_inspection: formData.policy_inspection,
-        policy_pickup: formData.policy_pickup,
-        policy_return: formData.policy_return,
+        policy_inspection_title: formData.policy_inspection_title || 'معاينة الأجهزة',
+        policy_inspection: formData.inspection_note || formData.policy_inspection || '',
+        policy_pickup: formData.policy_pickup || '',
+        policy_return: formData.returns_note || formData.policy_return || '',
+        inspection_note: formData.inspection_note || '',
+        returns_note: formData.returns_note || '',
+        extra_delivery_note: formData.extra_delivery_note || '',
       });
       setSavedSection((prev) => ({ ...prev, policies: true }));
-      success('تم حفظ سياسات المتجر والمعاينة بنجاح');
+      success('تم حفظ نصوص الاستلام والسياسات بنجاح');
       setTimeout(() => setSavedSection((prev) => ({ ...prev, policies: false })), 4000);
     } catch (err) {
       toastError(err.message || 'فشل حفظ سياسات المتجر');
@@ -446,69 +452,57 @@ export default function AdminSettingsPage() {
           </div>
         </form>
 
-        {/* Section 2b: Store Policies (Inspection, Pickup & Return) */}
+        {/* Section 2b: Store Policies & Delivery Notes */}
         <form onSubmit={handleSavePolicies} className={styles.card}>
           <div className={styles.cardHeader}>
             <div className={styles.cardHeaderTitle}>
               <FileText size={18} color="var(--color-royal-blue)" />
-              <h2 className={styles.cardTitle}>سياسات المعاينة والاستلام في المتجر</h2>
+              <h2 className={styles.cardTitle}>نصوص الاستلام والسياسات (ملاحظات اختيارية)</h2>
             </div>
           </div>
           <div className={styles.cardBody}>
-            <Input
-              label="عنوان سياسة المعاينة الرئيسية"
-              name="policy_inspection_title"
-              value={formData.policy_inspection_title || ''}
-              onChange={handleChange}
-              placeholder="مثال: المعاينة وفحص الأجهزة"
-              required
-            />
-
             <div className={styles.textareaField}>
-              <label className={styles.fieldLabel} htmlFor="policy_inspection">
-                نص سياسة المعاينة والفحص المباشر (يظهر في صفحة تفاصيل المنتج)
+              <label className={styles.fieldLabel} htmlFor="extra_delivery_note">
+                ملاحظة إضافية للشحن والتوصيل (اختياري - تظهر في صفحة المنتج والطلب)
               </label>
               <textarea
-                id="policy_inspection"
-                name="policy_inspection"
+                id="extra_delivery_note"
+                name="extra_delivery_note"
                 className={styles.textarea}
-                rows={3}
-                value={formData.policy_inspection || ''}
+                rows={2}
+                value={formData.extra_delivery_note || ''}
                 onChange={handleChange}
-                placeholder="أجهزة مستوردة؛ يفحص العميل الجهاز ويعاينه بنفسه بدقة عند الاستلام في المتجر..."
-                required
+                placeholder="مثال: التوصيل متاح داخل ولاية الخرطوم والولايات المحددة عبر شركات الشحن..."
               />
             </div>
 
             <div className={styles.textareaField}>
-              <label className={styles.fieldLabel} htmlFor="policy_pickup">
-                نص الاستلام والمعاينة في مقر المحل
+              <label className={styles.fieldLabel} htmlFor="inspection_note">
+                ملاحظة المعاينة عند الاستلام (اختياري)
               </label>
               <textarea
-                id="policy_pickup"
-                name="policy_pickup"
+                id="inspection_note"
+                name="inspection_note"
                 className={styles.textarea}
                 rows={2}
-                value={formData.policy_pickup || ''}
+                value={formData.inspection_note || ''}
                 onChange={handleChange}
-                placeholder="يمكنك تشغيل الجهاز وفحصه بنفسك بمقرنا في مول الواحة بأم درمان قبل سداد أي مبلغ."
-                required
+                placeholder="مثال: أجهزة مستوردة؛ يعاين العميل الجهاز بنفسه عند الاستلام في المتجر..."
               />
             </div>
 
             <div className={styles.textareaField}>
-              <label className={styles.fieldLabel} htmlFor="policy_return">
-                توضيح الضمان وسياسة الاستبدال (شفافية الأجهزة المستوردة)
+              <label className={styles.fieldLabel} htmlFor="returns_note">
+                ملاحظة سياسة الاستلام (اختياري)
               </label>
               <textarea
-                id="policy_return"
-                name="policy_return"
+                id="returns_note"
+                name="returns_note"
                 className={styles.textarea}
                 rows={2}
-                value={formData.policy_return || ''}
+                value={formData.returns_note || ''}
                 onChange={handleChange}
-                placeholder="نظراً لطبيعة الأجهزة المستوردة وعدم وجود وكيل محلي، لا يتوفر ضمان مصنعي أو استبدال بعد الاستلام والفحص المباشر."
-                required
+                placeholder="مثال: نظراً لطبيعة الأجهزة المستوردة، يتم الاستلام بعد المعاينة المباشرة في مقرنا..."
               />
             </div>
           </div>

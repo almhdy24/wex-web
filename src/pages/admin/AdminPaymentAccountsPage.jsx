@@ -445,7 +445,7 @@ export default function AdminPaymentAccountsPage() {
                   required
                   value={formData.account_name}
                   onChange={(e) => setFormData({ ...formData, account_name: e.target.value })}
-                  placeholder="الاسم الثلاثي أو اسم المنشأة المعتمد"
+                  placeholder="الاسم الثلاثي أو اسم المنشأة"
                   className={styles.formInput}
                 />
               </div>

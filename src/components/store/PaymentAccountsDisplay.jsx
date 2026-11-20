@@ -116,7 +116,7 @@ export default function PaymentAccountsDisplay({
                 </div>
                 <span className={styles.bankBadge}>
                   <Building2 size={12} />
-                  <span>حساب معتمد</span>
+                  <span>حساب المتجر</span>
                 </span>
               </div>
 

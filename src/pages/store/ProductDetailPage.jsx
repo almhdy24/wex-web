@@ -14,6 +14,7 @@ import {
   Heart,
   Truck,
   Lock,
+  Clock,
 } from 'lucide-react';
 import { productsApi } from '../../api/products';
 import { formatSdg, getProductImageUrl, getConditionLabel } from '../../utils/formatters';
@@ -54,7 +55,7 @@ export default function ProductDetailPage() {
   const [error, setError] = useState(null);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
-  const [activeTab, setActiveTab] = useState('specs'); // 'specs' | 'warranty'
+  const [activeTab, setActiveTab] = useState('specs'); // 'specs' | 'delivery'
   const heroImgRef = useRef(null);
 
   // Load product data
@@ -307,7 +308,7 @@ export default function ProductDetailPage() {
     } else {
       const labelMap = {
         cpu: 'المعالج',
-        ram: 'الذاكرة (RAM)',
+        ram: 'الذاكرة العشوائية',
         storage: 'التخزين',
         screen: 'الشاشة',
         gpu: 'كرت الشاشة',
@@ -323,16 +324,18 @@ export default function ProductDetailPage() {
 
   if (specList.length === 0) {
     if (product.processor) specList.push({ key: 'المعالج', val: product.processor });
-    if (product.ram) specList.push({ key: 'الذاكرة', val: product.ram });
+    if (product.ram) specList.push({ key: 'الذاكرة العشوائية', val: product.ram });
     if (product.storage) specList.push({ key: 'التخزين', val: product.storage });
     if (product.screen_size) specList.push({ key: 'مقاس الشاشة', val: product.screen_size });
   }
 
-  specList.push({
-    key: 'المعاينة والفحص',
-    val: product.warranty_text || 'فحص ومعاينة شخصية للجهاز عند الاستلام في المحل',
-    highlight: false,
-  });
+  if (product.warranty_text && String(product.warranty_text).trim()) {
+    specList.push({
+      key: 'الضمان',
+      val: String(product.warranty_text).trim(),
+      highlight: false,
+    });
+  }
 
   return (
     <div className={styles.container}>
@@ -520,11 +523,11 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            {/* Quick Guarantees Strip */}
+            {/* Quick Benefits Strip */}
             <div className={styles.guaranteeStrip}>
               <div className={styles.guaranteeCol}>
-                <ShieldCheck size={17} className={styles.guarIcon} />
-                <span>معاينة وفحص مباشر عند الاستلام</span>
+                <Clock size={17} className={styles.guarIcon} />
+                <span>تثبيت السعر لمدة 4 ساعات</span>
               </div>
               <div className={styles.guaranteeCol}>
                 <MapPin size={17} className={styles.guarIcon} />
@@ -535,7 +538,7 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
-      {/* Tabs Section: Specifications vs Warranty */}
+      {/* Tabs Section: Specifications vs Delivery */}
       <div className={styles.tabsSection}>
         <div className={styles.tabNav} role="tablist">
           <button
@@ -550,11 +553,11 @@ export default function ProductDetailPage() {
           <button
             type="button"
             role="tab"
-            aria-selected={activeTab === 'warranty'}
-            className={`${styles.tabBtn} ${activeTab === 'warranty' ? styles.tabBtnActive : ''}`}
-            onClick={() => setActiveTab('warranty')}
+            aria-selected={activeTab === 'delivery'}
+            className={`${styles.tabBtn} ${activeTab === 'delivery' ? styles.tabBtnActive : ''}`}
+            onClick={() => setActiveTab('delivery')}
           >
-            المعاينة والاستلام
+            الاستلام والتوصيل
           </button>
         </div>
 
@@ -574,23 +577,12 @@ export default function ProductDetailPage() {
             <div className={styles.warrantyPanel}>
               <div className={styles.policyCard}>
                 <div className={styles.policyRow}>
-                  <ShieldCheck size={20} className={styles.policyIcon} />
-                  <div>
-                    <h4 className={styles.policyTitle}>
-                      {shopInfo?.policy_inspection_title || 'المعاينة وفحص الأجهزة'}
-                    </h4>
-                    <p className={styles.policyText}>
-                      {shopInfo?.policy_inspection || 'أجهزة مستوردة؛ يفحص العميل الجهاز ويعاينه بنفسه بدقة عند الاستلام في المتجر للتأكد من الحالة وسلامة كافة المكونات قبل إتمام الشراء.'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className={styles.policyRow}>
                   <MapPin size={20} className={styles.policyIcon} />
                   <div>
-                    <h4 className={styles.policyTitle}>الاستلام المباشر</h4>
+                    <h4 className={styles.policyTitle}>مقر الاستلام</h4>
                     <p className={styles.policyText}>
-                      {shopInfo?.policy_pickup || `يمكنك تشغيل الجهاز وفحصه بنفسك بمقرنا في ${shopInfo?.address || 'مول الواحة، الشهداء، أم درمان'} قبل سداد أي مبلغ.`}
+                      {shopInfo?.address || 'مول الواحة، الشهداء، أم درمان'}
+                      {shopInfo?.working_hours ? ` — ساعات العمل: ${shopInfo.working_hours}` : ''}
                     </p>
                   </div>
                 </div>
@@ -598,12 +590,42 @@ export default function ProductDetailPage() {
                 <div className={styles.policyRow}>
                   <Truck size={20} className={styles.policyIcon} />
                   <div>
-                    <h4 className={styles.policyTitle}>التوصيل والاستلام</h4>
+                    <h4 className={styles.policyTitle}>التوصيل والشحن</h4>
                     <p className={styles.policyText}>
-                      {shopInfo?.delivery_notes || 'التوصيل متاح داخل ولاية الخرطوم والولايات الآمنة مع إمكانية الفحص والمعاينة عند الاستلام.'}
+                      {shopInfo?.extra_delivery_note || shopInfo?.delivery_notes || 'التوصيل متاح داخل ولاية الخرطوم والولايات المحددة عبر شركات الشحن.'}
                     </p>
                   </div>
                 </div>
+
+                <div className={styles.policyRow}>
+                  <Clock size={20} className={styles.policyIcon} />
+                  <div>
+                    <h4 className={styles.policyTitle}>ماذا بعد الدفع؟</h4>
+                    <p className={styles.policyText}>
+                      بعد تحويل المبلغ عبر بنكك ورفع إشعار التحويل، يتم تأكيد طلبك وتجهيز الجهاز للاستلام في المتجر أو تسليمه لشركة الشحن.
+                    </p>
+                  </div>
+                </div>
+
+                {shopInfo?.inspection_note && (
+                  <div className={styles.policyRow}>
+                    <ShieldCheck size={20} className={styles.policyIcon} />
+                    <div>
+                      <h4 className={styles.policyTitle}>ملاحظة المعاينة</h4>
+                      <p className={styles.policyText}>{shopInfo.inspection_note}</p>
+                    </div>
+                  </div>
+                )}
+
+                {shopInfo?.returns_note && (
+                  <div className={styles.policyRow}>
+                    <ShieldCheck size={20} className={styles.policyIcon} />
+                    <div>
+                      <h4 className={styles.policyTitle}>سياسة الاستلام</h4>
+                      <p className={styles.policyText}>{shopInfo.returns_note}</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}

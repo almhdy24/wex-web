@@ -37,7 +37,7 @@ function formatAuditSentence(log) {
     if (details.rate) {
       return `قام ${actor} بتحديث سعر الصرف إلى ${details.rate} ج.س`;
     }
-    return `قام ${actor} بتحديث سعر الصرف المعتمد`;
+    return `قام ${actor} بتحديث سعر الصرف`;
   }
 
   if (action === 'approve_proof' || action === 'approve_payment') {
@@ -247,7 +247,7 @@ export default function AdminAuditLogsPage() {
           onChange={(e) => updateParam('action', e.target.value)}
           options={[
             { value: '', label: 'كافة الإجراءات' },
-            { value: 'approve_proof', label: 'اعتماد إشعار' },
+            { value: 'approve_proof', label: 'قبول إشعار' },
             { value: 'reject_proof', label: 'رفض إشعار' },
             { value: 'update_status', label: 'تحديث مسار الطلب' },
             { value: 'update_rate', label: 'تحديث سعر الصرف' },

@@ -259,7 +259,7 @@ export default function CartPage() {
 
             <div className={styles.securityBadge}>
               <ShieldCheck size={16} className={styles.securityIcon} />
-              <span>تثبيت السعر مضمون بالكامل حتى اكتمال السداد بالبنك</span>
+              <span>تثبيت السعر سارٍ حتى اكتمال السداد بالبنك</span>
             </div>
           </div>
         </div>

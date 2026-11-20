@@ -447,7 +447,7 @@ export default function AdminShell({ children }) {
           <div className={styles.topBarActions}>
             {/* Live Exchange Rate Indicator */}
             {activeRate && (
-              <div className={styles.rateChip} title="سعر الصرف المعتمد حالياً لحساب الجنيه">
+              <div className={styles.rateChip} title="سعر الصرف الحالي لحساب الجنيه">
                 <span className={styles.rateChipDot} />
                 <span className={styles.rateChipText}>
                   {activeRate} ج.س / درهم

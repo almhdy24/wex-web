@@ -87,7 +87,7 @@ describe('Compare & Favorites Systems Unit Tests', () => {
       expect(html).toContain('المعالج');
       expect(html).toContain('Core i5-1145G7');
       expect(html).toContain('Core i7-1165G7');
-      expect(html).toContain('الذاكرة (RAM)');
+      expect(html).toContain('الذاكرة العشوائية');
       expect(html).toContain('سعة التخزين');
 
       // Ensure zero customer-facing AED or rate leakage

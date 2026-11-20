@@ -281,7 +281,7 @@ export default function OrderDetailPage() {
     },
     {
       title: order.order_type === 'pickup' ? 'تجهيز الجهاز للاستلام في المحل' : 'تجهيز الجهاز للتوصيل',
-      desc: 'فحص الجهاز وشحن البطارية والتغليف.',
+      desc: 'تجهيز الجهاز وتغليفه للاستلام.',
       time: order.status === 'completed' ? 'مكتمل' : 'قيد التجهيز',
     },
     {
@@ -632,7 +632,7 @@ export default function OrderDetailPage() {
 
             <div className={styles.guaranteeBox}>
               <ShieldCheck size={16} className={styles.guaranteeIcon} />
-              <span>يُرجى فحص ومعاينة الجهاز بالكامل عند الاستلام.</span>
+              <span>يُرجى معاينة الجهاز عند الاستلام في المتجر.</span>
             </div>
           </div>
 

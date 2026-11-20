@@ -126,7 +126,7 @@ export default function AdminPagesPage() {
         <div>
           <h1 className={styles.title}>إدارة الصفحات التعريفية والسياسات</h1>
           <p className={styles.subtitle}>
-            تعديل نصوص صفحات المتجر (سياسة الخصوصية، شروط الاستخدام، سياسة الاسترجاع، عن المحل)
+            تعديل نصوص صفحات المتجر (سياسة الخصوصية، شروط الاستخدام، سياسة الاستلام، عن المحل)
           </p>
         </div>
         <Button variant="primary" onClick={handleAddNew}>

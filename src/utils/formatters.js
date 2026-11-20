@@ -106,7 +106,7 @@ export function getProofStatusInfo(status) {
     case 'pending':
       return { label: 'قيد المراجعة', variant: 'warning' };
     case 'approved':
-      return { label: 'معتمد', variant: 'success' };
+      return { label: 'مقبول', variant: 'success' };
     case 'rejected':
       return { label: 'مرفوض', variant: 'danger' };
     default:

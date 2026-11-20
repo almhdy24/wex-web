@@ -114,7 +114,7 @@ export default function PendingOrderBanner() {
               لديك طلب محجوز بانتظار سداد بنكك (طلب #{activeOrder.order_number})
             </span>
             <span className={styles.subtitle}>
-              السعر مضمون ومثبت. متبقي:{' '}
+              السعر مثبت ومحجوز. متبقي:{' '}
               <strong className={styles.timerDisplay}>{formattedTimer}</strong>
             </span>
           </div>

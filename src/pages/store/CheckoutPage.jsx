@@ -565,7 +565,7 @@ export default function CheckoutPage() {
               <div className={styles.guaranteeNote}>
                 <ShieldAlert size={14} className={styles.guaranteeIcon} />
                 <span>
-                  السعر ثابت ومضمون بالجنيه لمدة {priceLockHours} ساعات حتى مع تقلبات أسعار الصرف.
+                  السعر ثابت بالجنيه لمدة {priceLockHours} ساعات حتى مع تقلبات أسعار الصرف.
                 </span>
               </div>
             </div>

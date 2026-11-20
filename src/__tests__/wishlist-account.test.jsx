@@ -241,7 +241,7 @@ describe('WEX Wishlist & Customer Account Experience Tests', () => {
 
       // Verify Email OTP is shown as primary method
       expect(html).toContain('تسجيل الدخول عبر البريد (رمز OTP)');
-      expect(html).toContain('طريقة الدخول الآمنة الأساسية');
+      expect(html).toContain('طريقة الدخول الأساسية برمز التحقق عبر البريد الإلكتروني');
 
       // Verify Google OAuth status
       expect(html).toContain('حساب Google');
@@ -329,7 +329,7 @@ describe('WEX Wishlist & Customer Account Experience Tests', () => {
       // Verify overview cards
       expect(html).toContain('قائمة الأجهزة المفضلة');
       expect(html).toContain('متابعة وسجل الطلبات');
-      expect(html).toContain('متجر ويكس تكنولوجي — المقر الرسمي');
+      expect(html).toContain('متجر ويكس تكنولوجي — فرع أم درمان');
     });
   });
 });

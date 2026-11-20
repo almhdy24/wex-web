@@ -326,7 +326,7 @@ export default function AccountPage() {
             <div className={styles.nameBadgeRow}>
               <h1 className={styles.userName}>{displayName}</h1>
               <span className={styles.roleBadge}>
-                {isAdmin ? 'مدير المتجر' : 'عميل معتمد'}
+                {isAdmin ? 'مدير المتجر' : 'عميل المتجر'}
               </span>
             </div>
             <div className={styles.userEmail} dir="ltr">{displayEmail}</div>
@@ -464,7 +464,7 @@ export default function AccountPage() {
           <div className={styles.sectionCard}>
             <div className={styles.sectionHeader}>
               <Store size={20} className={styles.sectionIcon} />
-              <h3 className={styles.sectionTitle}>متجر ويكس تكنولوجي — المقر الرسمي</h3>
+              <h3 className={styles.sectionTitle}>متجر ويكس تكنولوجي — فرع أم درمان</h3>
             </div>
             <div className={styles.shopInfoList}>
               <div className={styles.shopInfoRow}>
@@ -672,7 +672,7 @@ export default function AccountPage() {
                 </div>
                 <span className={styles.providerStatusBadgeActive}>
                   <Check size={14} />
-                  <span>مفعّل ومعتمد</span>
+                  <span>مفعّل ونشط</span>
                 </span>
               </div>
 
@@ -826,7 +826,7 @@ export default function AccountPage() {
                   <Shield size={18} className={styles.menuRowIcon} />
                   <div>
                     <h4 className={styles.menuRowTitle}>{ar.account.menuPriceLockGuide}</h4>
-                    <p className={styles.menuRowSub}>تثبيت السعر لمدة 4 ساعات لضمان ثبات القيمة عند التحويل</p>
+                    <p className={styles.menuRowSub}>تثبيت السعر لمدة 4 ساعات لثبات القيمة عند التحويل</p>
                   </div>
                 </div>
                 <div className={styles.menuRowRight}>

@@ -28,7 +28,7 @@ const STATUS_MAP = {
 
   // Payment Proof Review Statuses
   pending: { label: 'قيد التدقيق', variant: 'warning', icon: Clock },
-  approved: { label: 'معتمد', variant: 'success', icon: CheckCircle2 },
+  approved: { label: 'مقبول', variant: 'success', icon: CheckCircle2 },
   rejected: { label: 'مرفوض', variant: 'danger', icon: XCircle },
 
   // User Roles

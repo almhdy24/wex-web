@@ -53,7 +53,7 @@ export default function AdminProductFormPage() {
     condition: 'used',
     price_aed: '',
     stock_quantity: 1,
-    warranty_text: 'معاينة وفحص عند الاستلام',
+    warranty_text: '',
     short_description: '',
     description: '',
     is_active: true,
@@ -682,11 +682,11 @@ export default function AdminProductFormPage() {
                 </div>
 
                 <Input
-                  label="نص المعاينة أو الضمان (إن وجد)"
+                  label="ملاحظة الضمان (اختياري)"
                   name="warranty_text"
                   value={formData.warranty_text}
                   onChange={handleInputChange}
-                  placeholder="مثال: معاينة وفحص عند الاستلام"
+                  placeholder="اتركه فارغًا إن لم يكن هناك ضمان"
                 />
               </div>
             </div>

@@ -17,7 +17,7 @@ describe('Phase 6: Order Detail & FAQ Systems Unit Tests', () => {
       expect(html).toContain('البحث في الأسئلة الشائعة');
       expect(html).toContain('تثبيت السعر والحجز');
       expect(html).toContain('السداد عبر بنكك');
-      expect(html).toContain('المعاينة والفحص عند الاستلام');
+      expect(html).toContain('الاستلام والمعاينة');
       expect(html).toContain('الموقع والتوصيل');
     });
 

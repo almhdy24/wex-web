@@ -56,7 +56,7 @@ export const adminAr = {
     todayOrders: 'طلبات اليوم',
     todayRevenue: 'إجمالي المبيعات اليوم',
     pendingPaymentsCount: 'إشعارات قيد المراجعة',
-    activeRate: 'سعر الصرف المعتمد',
+    activeRate: 'سعر الصرف الحالي',
     priceLockDuration: 'مدة تثبيت السعر',
     ordersByStatusTitle: 'توزيع حالات الطلبات',
     lowStockTitle: 'تنبيهات انخفاض المخزون',
@@ -213,8 +213,8 @@ export const adminAr = {
 
   rates: {
     title: 'سعر الصرف (درهم إماراتي ← جنيه سوداني)',
-    subtitle: 'تحديث سعر الصرف المعتمد لحساب أسعار المنتجات في المتجر',
-    currentRateBanner: 'السعر المعتمد حالياً: {rate} ج.س لكل 1 درهم (للإدارة فقط)',
+    subtitle: 'تحديث سعر الصرف لحساب أسعار المنتجات في المتجر',
+    currentRateBanner: 'السعر الحالي: {rate} ج.س لكل 1 درهم (للإدارة فقط)',
     newRateLabel: 'سعر الصرف الجديد (ج.س)',
     lastUpdateInfo: 'آخر تحديث: {date} بواسطة {user}',
     impactPreviewTitle: 'معاينة أثر التغيير على أسعار الأجهزة',
@@ -302,7 +302,7 @@ export const adminAr = {
 
   paymentAccounts: {
     title: 'إدارة حسابات الدفع البنكي',
-    subtitle: 'إدارة الحسابات البنكية المعتمدة لاستقبال تحويلات تطبيق بنكك من العملاء',
+    subtitle: 'إدارة الحسابات البنكية لاستقبال تحويلات تطبيق بنكك من العملاء',
     addNew: 'إضافة حساب بنكي جديد',
     editAccount: 'تعديل بيانات الحساب',
     bankName: 'اسم البنك',
@@ -454,7 +454,7 @@ export const adminAr = {
 
   faq: {
     title: 'إدارة الأسئلة الشائعة',
-    subtitle: 'إعداد الإجابات الرسمية لاستفسارات العملاء المتكررة',
+    subtitle: 'إعداد إجابات استفسارات العملاء المتكررة',
     addNew: 'إضافة سؤال جديد',
     edit: 'تعديل السؤال',
     question: 'نص السؤال',
@@ -490,7 +490,7 @@ export const adminAr = {
     defaultPages: {
       privacy: 'سياسة الخصوصية',
       terms: 'شروط الاستخدام',
-      refund: 'سياسة الاستبدال والاسترجاع',
+      refund: 'سياسة الاستلام والمعاينة',
       about: 'عن المحل',
     },
     validationError: 'يرجى كتابة عنوان الصفحة ومحتواها',

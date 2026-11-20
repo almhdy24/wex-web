@@ -45,13 +45,13 @@ export default function ComparePage() {
   // Comparison Rows
   const specRows = [
     { id: 'processor', label: t('compare.processor', 'المعالج') },
-    { id: 'ram', label: t('compare.ram', 'الذاكرة (RAM)') },
+    { id: 'ram', label: t('compare.ram', 'الذاكرة العشوائية') },
     { id: 'storage', label: t('compare.storage', 'سعة التخزين') },
     { id: 'gpu', label: t('compare.gpu', 'كرت الشاشة') },
     { id: 'screen', label: t('compare.screen', 'الشاشة') },
     { id: 'condition', label: t('compare.condition', 'حالة الجهاز') },
     { id: 'battery', label: t('compare.battery', 'البطارية') },
-    { id: 'warranty', label: t('compare.warranty', 'المعاينة والاستلام') },
+    { id: 'warranty', label: t('compare.warranty', 'الضمان') },
   ];
 
   const getSpecValue = (item, specId) => {
@@ -59,7 +59,7 @@ export default function ComparePage() {
       return getConditionLabel(item.condition) || 'مستعمل استيراد';
     }
     if (specId === 'warranty') {
-      return item.warranty_text || 'فحص ومعاينة عند الاستلام';
+      return item.warranty_text || '—';
     }
     if (specId === 'processor') {
       return item.processor || item.cpu || findInSpecs(item, ['processor', 'cpu', 'معالج']) || '—';
