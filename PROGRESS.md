@@ -714,10 +714,13 @@ Hotfix of critical storefront issues identified during phone testing:
   - `LatinText` helper `<bdi dir="ltr">` preventing bidi text and quote flips for Latin product names.
   - Standardized toasts for cart, compare, favorites, and clipboard copy.
   - Test suite `src/__tests__/toast-system.test.jsx` passes 100%. Lint clean with 0 warnings.
-- [ ] **Phase 3: Compare Feature**
-  - Cross-tab store, max 3 items, strict product type matching.
-  - CompareTray floating bar with thumbnails, counter, "قارن الآن" and "مسح".
-  - Full `/compare` matrix table with sticky specs, differences-only toggle, "الأقل سعرًا" badge.
+- [x] **Phase 3: Compare Feature**
+  - Enhanced `CompareContext` store with strict same-type enforcement, max 3 limit, cross-tab synchronization via storage events.
+  - Informative toast with "إدارة المقارنة" action when 4th device added, type mismatch warnings, and undoable remove toasts.
+  - Built floating `CompareTray` component with thumbnails, remove badges, counter, "قارن الآن" CTA, and "مسح" action, positioned above bottom navigation using `--bottom-offset`.
+  - Upgraded `/compare` matrix table: sticky spec column, horizontal snap scroll, "إظهار الفروق فقط" toggle, neutral "الأقل سعرًا" badge, "+ إضافة جهاز" slot, and clean empty state.
+  - Added compare toggle buttons on `ProductCard` and `ProductDetailPage` with `aria-pressed` and Lucide icons.
+  - Test suite `src/__tests__/compare-feature.test.jsx` passes 100%. Lint clean with 0 warnings.
 - [ ] **Phase 4: Text Direction, Spec Table & Product Page Polish**
   - Spec value normalization with non-breaking spaces and LTR direction.
   - Rebalanced specs grid, Arabic document titles, equal-height action buttons.

@@ -1,0 +1,186 @@
+.trayContainer {
+  position: fixed;
+  bottom: calc(var(--bottom-offset, 68px) + 8px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: calc(var(--z-sticky, 20) + 10);
+  width: calc(100vw - 24px);
+  max-width: calc(var(--app-shell-max-width, 480px) - 24px);
+  animation: slideUpTray var(--motion-normal, 250ms) var(--ease-spring, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+@keyframes slideUpTray {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trayContainer {
+    animation: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .trayContainer {
+    bottom: var(--space-6, 24px);
+    width: auto;
+    max-width: 580px;
+  }
+}
+
+.trayCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3, 12px);
+  padding-block: var(--space-2, 8px);
+  padding-inline: var(--space-3, 12px);
+  background-color: var(--color-white, #FFFFFF);
+  border: 1px solid var(--color-slate-200, #E2E8F0);
+  border-radius: var(--radius-card, 16px);
+  box-shadow: 0 12px 30px -6px rgba(6, 26, 85, 0.18), 0 8px 12px -6px rgba(6, 26, 85, 0.1);
+  border-inline-start: 4px solid var(--wex-vivid, #1E6BFF);
+}
+
+.itemsList {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  flex-shrink: 0;
+}
+
+.thumbWrapper {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm, 8px);
+  background-color: var(--color-slate-100, #F1F5F9);
+  border: 1px solid var(--color-slate-200, #E2E8F0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 2px;
+}
+
+.removeThumbBtn {
+  position: absolute;
+  top: 1px;
+  inset-inline-end: 1px;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-full, 9999px);
+  background-color: var(--color-slate-800, #1E293B);
+  color: #FFFFFF;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.9;
+  transition: opacity var(--motion-fast, 150ms) ease;
+}
+
+.removeThumbBtn:hover {
+  opacity: 1;
+  background-color: var(--color-danger, #DC2626);
+}
+
+.emptySlot {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm, 8px);
+  border: 1.5px dashed var(--color-slate-300, #CBD5E1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-slate-400, #94A3B8);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.metaInfo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.counterTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-navy, #061A55);
+  line-height: var(--leading-tight, 1.3);
+}
+
+.counterSub {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-slate-500, #64748B);
+}
+
+.actionsGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  flex-shrink: 0;
+}
+
+.clearBtn {
+  background: transparent;
+  border: none;
+  padding-block: 6px;
+  padding-inline: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-slate-500, #64748B);
+  cursor: pointer;
+  border-radius: var(--radius-xs, 4px);
+  transition: color var(--motion-fast, 150ms) ease;
+}
+
+.clearBtn:hover {
+  color: var(--color-danger, #DC2626);
+}
+
+.compareCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding-block: 8px;
+  padding-inline: 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #FFFFFF;
+  background: var(--gradient-brand-cta, linear-gradient(135deg, #1E6BFF 0%, #061A55 100%));
+  border: none;
+  border-radius: var(--radius-button, 10px);
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(30, 107, 255, 0.25);
+  transition: opacity var(--motion-fast, 150ms) ease,
+              transform var(--motion-fast, 150ms) ease;
+}
+
+.compareCta:active {
+  transform: scale(0.97);
+}
+
+.compareCtaDisabled {
+  opacity: 0.6;
+  cursor: default;
+  box-shadow: none;
+}

@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Check, Heart } from 'lucide-react';
+import { ShoppingCart, Check, Heart, GitCompare } from 'lucide-react';
 import { formatSdg, getProductImageUrl, getConditionLabel } from '../../utils/formatters';
 import { useCart } from '../../context/CartContext';
+import { useCompare } from '../../context/CompareContext';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useToast } from '../../context/ToastContext';
 import { t } from '../../content/ar';
@@ -38,6 +39,7 @@ export default function ProductCard({ product, index = 0 }) {
   const navigate = useNavigate();
   const { addItem } = useCart();
   const { toggleFavorite, isFavorite } = useFavorites();
+  const { addToCompare, removeFromCompare, isInCompare } = useCompare();
   const { success } = useToast();
   const [imageError, setImageError] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
@@ -46,6 +48,7 @@ export default function ProductCard({ product, index = 0 }) {
   if (!product) return null;
 
   const fav = isFavorite(product.id);
+  const inComp = isInCompare(product.id);
   const condition = getConditionLabel(product.condition);
   const isOutOfStock = product.stock_status === 'out_of_stock' || (product.stock_quantity !== undefined && product.stock_quantity <= 0);
   const isLowStock = !isOutOfStock && ((product.stock_quantity > 0 && product.stock_quantity <= 3) || product.stock_status === 'low_stock');
@@ -136,6 +139,26 @@ export default function ProductCard({ product, index = 0 }) {
           title={fav ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}
         >
           <Heart size={15} fill={fav ? '#EF4444' : 'none'} />
+        </button>
+
+        {/* Compare Toggle Button */}
+        <button
+          type="button"
+          className={`${styles.compareBtn} ${inComp ? styles.compareBtnActive : ''}`}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (inComp) {
+              removeFromCompare(product.id);
+            } else {
+              addToCompare(product);
+            }
+          }}
+          aria-pressed={inComp}
+          aria-label={inComp ? 'في المقارنة' : 'أضف للمقارنة'}
+          title={inComp ? 'في المقارنة' : 'أضف للمقارنة'}
+        >
+          <GitCompare size={14} />
         </button>
 
         {/* Condition Badge (Top End in RTL) */}

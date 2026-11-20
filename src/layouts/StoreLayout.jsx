@@ -8,6 +8,7 @@ import ScrollToTop from '../components/common/ScrollToTop';
 import DesktopHeader from '../components/desktop/DesktopHeader';
 import CartDrawer from '../components/desktop/CartDrawer';
 import PendingOrderBanner from '../components/common/PendingOrderBanner';
+import CompareTray from '../components/compare/CompareTray';
 import {
   AnnouncementBanner,
   AnnouncementToast,
@@ -227,6 +228,7 @@ export default function StoreLayout() {
 
         <AnnouncementToast announcements={announcements} />
         <RecentPurchasesToast tickerEnabled={shopInfo?.ticker_enabled !== false} />
+        <CompareTray />
 
         <ScrollToTop />
         <PwaPrompt />
@@ -282,6 +284,7 @@ export default function StoreLayout() {
           <BottomTabBar activeOrderCount={activeOrderCount} />
         )}
 
+        <CompareTray />
         <AnnouncementToast announcements={announcements} />
         <RecentPurchasesToast tickerEnabled={shopInfo?.ticker_enabled !== false} />
 

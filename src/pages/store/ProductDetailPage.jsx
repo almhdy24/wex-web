@@ -35,7 +35,7 @@ export default function ProductDetailPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { addItem } = useCart();
-  const { addToCompare, isInCompare } = useCompare();
+  const { addToCompare, removeFromCompare, isInCompare } = useCompare();
   const { toggleFavorite, isFavorite } = useFavorites();
   const { success } = useToast();
 
@@ -481,11 +481,13 @@ export default function ProductDetailPage() {
                 <button
                   type="button"
                   className={`${styles.actionPillBtn} ${inCompare ? styles.actionPillActive : ''}`}
-                  onClick={() => addToCompare(product)}
-                  aria-label="إضافة للمقارنة"
+                  onClick={() => (inCompare ? removeFromCompare(product.id) : addToCompare(product))}
+                  aria-pressed={inCompare}
+                  aria-label={inCompare ? 'في المقارنة' : 'أضف للمقارنة'}
+                  title={inCompare ? 'إزالة من المقارنة' : 'أضف للمقارنة'}
                 >
                   <GitCompare size={16} />
-                  <span>{inCompare ? 'في المقارنة' : 'مقارنة'}</span>
+                  <span>{inCompare ? 'في المقارنة' : 'أضف للمقارنة'}</span>
                 </button>
 
                 <button
