@@ -1,4 +1,24 @@
-/* Desktop Viewport Container: Centers the App Shell on wide screens */
+/* Desktop Web Shell (>= 1024px) */
+.desktopShell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--wex-ice, #EAF3FF);
+  color: var(--wex-navy, #061A55);
+  width: 100%;
+}
+
+.desktopMain {
+  flex: 1;
+  width: 100%;
+  max-width: var(--desktop-max-width, 1240px);
+  margin: 0 auto;
+  padding: 32px var(--desktop-side-padding, clamp(24px, 4vw, 48px));
+  box-sizing: border-box;
+}
+
+/* Mobile & Tablet Viewport Container: Centers the App Shell on wide screens */
 .desktopViewport {
   min-height: 100vh;
   min-height: 100dvh;
@@ -19,7 +39,7 @@
   }
 }
 
-/* App Shell: Single Column Mobile App Layout (Max 480px) */
+/* App Shell: Mobile App Layout (Max 480px on phone, max 768px on tablet) */
 .appShell {
   width: 100%;
   max-width: var(--app-shell-max-width, 480px);
@@ -33,6 +53,12 @@
   box-shadow: none;
 }
 
+@media (min-width: 640px) and (max-width: 1023px) {
+  .appShell {
+    max-width: var(--tablet-max-width, 768px);
+  }
+}
+
 @media (min-width: 520px) {
   .appShell {
     height: 94vh;
@@ -43,7 +69,7 @@
   }
 }
 
-/* Middle Content Viewport: ONLY THIS AREA SCROLLS */
+/* Middle Content Viewport: ONLY THIS AREA SCROLLS IN APP SHELL */
 .screensViewport {
   flex: 1;
   position: relative;

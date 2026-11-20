@@ -1,0 +1,294 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.emptyState {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.emptyIconBox {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-full, 9999px);
+  background: var(--wex-ice, #EAF3FF);
+  color: var(--wex-royal, #0B3FBF);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.emptyTitle {
+  margin: 0 0 8px;
+  font-size: var(--text-lg, 1.125rem);
+  font-weight: 700;
+  color: var(--wex-navy, #061A55);
+}
+
+.emptyDesc {
+  margin: 0 0 24px;
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--wex-gray-600, #475569);
+  line-height: var(--leading-relaxed, 1.7);
+  max-width: 280px;
+}
+
+.browseBtn {
+  padding: 12px 28px;
+  border-radius: var(--radius-md, 14px);
+  background: var(--wex-grad-brand, linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 50%, #00B7FF 100%));
+  color: #FFFFFF;
+  border: none;
+  font-weight: 700;
+  font-size: var(--text-sm, 0.875rem);
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(11, 63, 191, 0.25);
+  transition: transform var(--motion-fast, 150ms) var(--ease-standard),
+              box-shadow var(--motion-fast, 150ms) var(--ease-standard);
+}
+
+.browseBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(11, 63, 191, 0.35);
+}
+
+.itemsList {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 16px;
+}
+
+.itemRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  background: var(--wex-ice-light, #F4F8FE);
+  border-radius: var(--radius-md, 14px);
+  border: 1px solid rgba(11, 63, 191, 0.08);
+}
+
+.itemImageWrapper {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-sm, 8px);
+  background: #FFFFFF;
+  border: 1px solid var(--wex-gray-200, #E2E8F0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.itemImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.fallbackSvgBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.itemInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.itemName {
+  margin: 0 0 4px;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 700;
+  color: var(--wex-navy, #061A55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemPrice {
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 700;
+  color: var(--wex-royal, #0B3FBF);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 8px;
+}
+
+.actionsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.quantityStepper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #FFFFFF;
+  border: 1px solid var(--wex-gray-200, #E2E8F0);
+  border-radius: var(--radius-full, 9999px);
+  padding: 2px 6px;
+}
+
+.stepBtn {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full, 9999px);
+  border: none;
+  background: transparent;
+  color: var(--wex-navy, #061A55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform var(--motion-fast, 150ms) var(--ease-standard);
+}
+
+.stepBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.stepBtn:not(:disabled):active {
+  transform: scale(0.85);
+}
+
+.stepValue {
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 700;
+  min-width: 16px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.removeBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full, 9999px);
+  border: none;
+  background: transparent;
+  color: var(--wex-gray-400, #94A3B8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color var(--motion-fast, 150ms) var(--ease-standard),
+              background-color var(--motion-fast, 150ms) var(--ease-standard);
+}
+
+.removeBtn:hover {
+  color: var(--wex-danger, #EF4444);
+  background: var(--wex-danger-bg, #FEF2F2);
+}
+
+.footerSummary {
+  border-top: 1px solid var(--wex-gray-200, #E2E8F0);
+  padding-top: 16px;
+  margin-top: auto;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--wex-gray-600, #475569);
+}
+
+.summaryValue {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--wex-navy, #061A55);
+}
+
+.discountRow {
+  color: var(--wex-success, #10B981);
+}
+
+.discountValue {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--wex-success, #10B981);
+}
+
+.totalRow {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--wex-gray-200, #E2E8F0);
+  font-size: var(--text-base, 1rem);
+  font-weight: 800;
+  color: var(--wex-navy, #061A55);
+}
+
+.totalValue {
+  font-size: var(--text-lg, 1.125rem);
+  color: var(--wex-royal, #0B3FBF);
+  font-variant-numeric: tabular-nums;
+}
+
+.ctaGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.checkoutBtn {
+  width: 100%;
+  height: 48px;
+  border-radius: var(--radius-md, 14px);
+  background: var(--wex-grad-brand, linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 50%, #00B7FF 100%));
+  color: #FFFFFF;
+  border: none;
+  font-weight: 700;
+  font-size: var(--text-base, 1rem);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 8px 20px rgba(11, 63, 191, 0.28);
+  transition: transform var(--motion-fast, 150ms) var(--ease-standard),
+              box-shadow var(--motion-fast, 150ms) var(--ease-standard);
+}
+
+.checkoutBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(11, 63, 191, 0.38);
+}
+
+.checkoutBtn:active {
+  transform: translateY(0);
+}
+
+.viewCartBtn {
+  width: 100%;
+  height: 44px;
+  border-radius: var(--radius-md, 14px);
+  background: var(--wex-ice, #EAF3FF);
+  color: var(--wex-royal, #0B3FBF);
+  border: 1px solid rgba(11, 63, 191, 0.15);
+  font-weight: 700;
+  font-size: var(--text-sm, 0.875rem);
+  cursor: pointer;
+  transition: background-color var(--motion-fast, 150ms) var(--ease-standard);
+}
+
+.viewCartBtn:hover {
+  background: rgba(11, 63, 191, 0.1);
+}

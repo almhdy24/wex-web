@@ -4,15 +4,22 @@ import AppBar from '../components/common/AppBar';
 import BottomTabBar from '../components/common/BottomTabBar';
 import SplashScreen from '../components/common/SplashScreen';
 import PwaPrompt from '../components/common/PwaPrompt';
+import ScrollToTop from '../components/common/ScrollToTop';
+import DesktopHeader from '../components/desktop/DesktopHeader';
+import DesktopFooter from '../components/desktop/DesktopFooter';
+import CartDrawer from '../components/desktop/CartDrawer';
 import { ordersApi } from '../api/orders';
 import { notificationsApi } from '../api/notifications';
 import { useAuth } from '../context/AuthContext';
+import { useViewport } from '../hooks/useViewport';
 import { ar } from '../content/ar';
 import styles from './StoreLayout.module.css';
 
 export default function StoreLayout() {
   const location = useLocation();
   const { isAuthenticated } = useAuth();
+  const { isDesktop } = useViewport();
+
   const [showSplash, setShowSplash] = useState(() => {
     try {
       return !sessionStorage.getItem('wex_splash_shown');
@@ -23,13 +30,14 @@ export default function StoreLayout() {
 
   const [activeOrderCount, setActiveOrderCount] = useState(0);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
   const viewportRef = useRef(null);
   const scrollPositions = useRef({});
   const prevPathRef = useRef(location.pathname);
   const [navDirection, setNavDirection] = useState('forward');
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
 
-  // Detect virtual on-screen keyboard via visualViewport
+  // Detect virtual on-screen keyboard via visualViewport (mobile/tablet only)
   useEffect(() => {
     if (typeof window === 'undefined' || !window.visualViewport) return;
     const handleResize = () => {
@@ -46,7 +54,6 @@ export default function StoreLayout() {
     const previous = prevPathRef.current;
 
     if (current !== previous) {
-      // Determine if navigating deeper or back
       const depthOf = (p) => (p === '/' ? 0 : p.split('/').filter(Boolean).length);
       const isDeeper = depthOf(current) >= depthOf(previous);
       setNavDirection(isDeeper ? 'forward' : 'backward');
@@ -65,6 +72,7 @@ export default function StoreLayout() {
     if (pathname.startsWith('/orders/')) return { title: ar.orderDetail.priceLockedNotice, showBack: true, backTo: '/orders' };
     if (pathname === '/notifications') return { title: ar.notifications.title, showBack: true, backTo: '/' };
     if (pathname === '/account') return { title: ar.account.title, showBack: false };
+    if (pathname === '/faq') return { title: ar.desktop.footer.faq, showBack: true, backTo: '/' };
     if (pathname === '/login') return { title: ar.auth.loginTitle, showBack: true, backTo: '/' };
     if (pathname === '/auth/verify') return { title: ar.auth.verifyTitle, showBack: true, backTo: '/login' };
     return { title: ar.common.appName, showBack: true, backTo: '/' };
@@ -72,15 +80,14 @@ export default function StoreLayout() {
 
   const routeInfo = getRouteInfo(location.pathname);
 
-  // Hide bottom tab bar on Product Detail, Cart, Checkout, and Order Detail
-  // where a sticky bottom action bar takes its place
+  // Hide bottom tab bar on screens where sticky bottom action takes over
   const hideBottomNav =
     (location.pathname.startsWith('/products/') && location.pathname !== '/products') ||
     location.pathname === '/cart' ||
     location.pathname.startsWith('/checkout') ||
     (location.pathname.startsWith('/orders/') && location.pathname !== '/orders');
 
-  // Load count of pending/active orders for bottom bar badge
+  // Load count of pending/active orders
   useEffect(() => {
     if (!isAuthenticated) {
       setActiveOrderCount(0);
@@ -111,37 +118,59 @@ export default function StoreLayout() {
 
   // Scroll Restoration / Keep-Alive Scroll Position
   useEffect(() => {
+    if (isDesktop) {
+      window.scrollTo(0, 0);
+      return;
+    }
+
     const viewport = viewportRef.current;
     if (!viewport) return;
 
-    // Save previous scroll position
     const prevPath = location.pathname;
-
     const handleScroll = () => {
       scrollPositions.current[prevPath] = viewport.scrollTop;
     };
 
     viewport.addEventListener('scroll', handleScroll, { passive: true });
-
-    // Restore scroll position for current route or scroll to top
     const savedPos = scrollPositions.current[location.pathname] || 0;
     viewport.scrollTop = savedPos;
 
     return () => {
       viewport.removeEventListener('scroll', handleScroll);
     };
-  }, [location.pathname]);
+  }, [location.pathname, isDesktop]);
 
+  // DESKTOP LAYOUT (>= 1024px)
+  if (isDesktop) {
+    return (
+      <div className={styles.desktopShell}>
+        {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
+
+        <DesktopHeader onOpenCart={() => setIsCartDrawerOpen(true)} />
+
+        <main id="main-content" className={styles.desktopMain} tabIndex={-1}>
+          <Outlet />
+        </main>
+
+        <DesktopFooter />
+
+        <CartDrawer
+          isOpen={isCartDrawerOpen}
+          onClose={() => setIsCartDrawerOpen(false)}
+        />
+
+        <ScrollToTop />
+        <PwaPrompt />
+      </div>
+    );
+  }
+
+  // PHONE & TABLET APP SHELL (< 1024px)
   return (
     <div className={styles.desktopViewport}>
-      {/* Session Splash Screen Overlay */}
-      {showSplash && (
-        <SplashScreen onFinish={() => setShowSplash(false)} />
-      )}
+      {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
 
-      {/* Main App Shell Frame (Max 480px) */}
       <div className={styles.appShell}>
-        {/* Fixed App Bar */}
         <AppBar
           title={routeInfo.title}
           showLogo={routeInfo.isHome}
@@ -150,7 +179,6 @@ export default function StoreLayout() {
           unreadCount={unreadCount}
         />
 
-        {/* Scrollable Content Viewport */}
         <main
           id="main-content"
           ref={viewportRef}
@@ -169,12 +197,15 @@ export default function StoreLayout() {
           </div>
         </main>
 
-        {/* Fixed Bottom Tab Bar (4 Tabs) - Hidden when virtual keyboard is open */}
         {!hideBottomNav && !isKeyboardOpen && (
           <BottomTabBar activeOrderCount={activeOrderCount} />
         )}
 
-        {/* PWA Install & Offline Detection Prompt */}
+        <CartDrawer
+          isOpen={isCartDrawerOpen}
+          onClose={() => setIsCartDrawerOpen(false)}
+        />
+
         <PwaPrompt />
       </div>
     </div>

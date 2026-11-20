@@ -422,7 +422,23 @@ Calm, trustworthy, production-ready UI/UX tailored for Sudanese customers and el
   - Added responsive layout tokens to `src/styles/tokens.css` (`--tablet-max-width`, `--desktop-max-width`, `--desktop-header-height`, `--desktop-top-bar-height`, `--desktop-side-padding`).
   - Created `src/__tests__/viewport.test.jsx`: 10 unit tests covering overlay primitives and viewport detection.
   - Verification: 0 lint errors, 12 test files and 61 tests passing (100%), production build 121.47 kB gzip initial JS, 7.81 kB gzip global CSS.
-- [ ] **Phase 2: Desktop Header/Footer, Search Dropdown, Notifications Popover, Account Menu, Cart Drawer**
+- [x] **Phase 2: Desktop Header/Footer, Search Dropdown, Notifications Popover, Account Menu, Cart Drawer**
+  - Created `src/components/desktop/DesktopHeader.jsx` & `DesktopHeader.module.css`:
+    - 72px sticky white bar with brand logo (min 140px), primary navigation (`/`, `/products`, `/products?category=accessories`, `/orders`) with active animated underline.
+    - Top status strip with live Khartoum shop status ("مفتوح الآن" / "مغلق حاليًا" based on 9:00 ص - 9:00 م schedule), WhatsApp, phone, and location.
+    - Wide search bar with debounced autocomplete suggestions dropdown (product thumbnail, title, tabular SDG price; zero AED/rate leakage), recent search chips, and clear action.
+    - Notifications button with unread dot and anchored `Popover` showing 5 latest notifications and "عرض جميع التنبيهات" link.
+    - Account button with user avatar initial and anchored `Popover` menu (user details, "طلباتي", "بيانات الحساب", "تسجيل الخروج" or guest login prompt).
+  - Created `src/components/desktop/DesktopFooter.jsx` & `DesktopFooter.module.css`:
+    - 4 columns: Shop details & hours, Quick links, Contact & support, How to order 4 steps.
+    - Royal-blue-to-cyan gradient ribbon divider, copyright line with dynamic year, and SDG-only pricing disclaimer. Zero puffery, zero emojis.
+  - Created `src/components/desktop/CartDrawer.jsx` & `CartDrawer.module.css`:
+    - Slide-in side drawer rendering cart items with image/LaptopSvg, quantity steppers, item removal, running subtotal, 3% app discount, total in SDG, "متابعة الطلب" checkout CTA, and "عرض السلة كاملة" button.
+  - Updated `src/layouts/StoreLayout.jsx` & `StoreLayout.module.css`:
+    - Clean tier switching: renders full web layout (`desktopShell`, container max-width 1240px, `DesktopHeader`, `DesktopFooter`, `ScrollToTop`) on `>= 1024px`, and phone/tablet `appShell` (expanding to 768px on tablet) on `< 1024px`.
+  - Created `src/__tests__/desktop-shell.test.jsx`: 4 unit tests covering desktop header, footer, and cart drawer.
+  - Verification: 0 lint errors, 13 test files and 65 tests passing (100%), production build 131.15 kB gzip initial JS, 11.76 kB gzip global CSS.
+- [ ] **Phase 3: Desktop Home & Catalog Layouts with Hover States**
 - [ ] **Phase 3: Desktop Home & Catalog Layouts with Hover States**
 - [ ] **Phase 4: Product Page (Gallery Zoom, Buy Box, Tabs), Compare, Favorites, Recently Viewed, Share**
 - [ ] **Phase 5: Cart Page, Checkout Two-Column Layout, Guest Flow & Pending Order Banner**
