@@ -1,8 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, Minus, X, Trash2, ArrowLeft } from 'lucide-react';
+import { Plus, Minus, Trash2, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { formatSdg, getProductImageUrl } from '../../utils/formatters';
-import Button from '../../components/common/Button';
+import LaptopSvg from '../../components/common/LaptopSvg';
 import EmptyState from '../../components/common/EmptyState';
 import styles from './CartPage.module.css';
 
@@ -23,145 +23,149 @@ export default function CartPage() {
     );
   }
 
+  const appDiscount = Math.round(estimatedSubtotalSdg * 0.03);
+  const estimatedTotal = Math.max(0, estimatedSubtotalSdg - appDiscount);
+
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <div className={styles.titleInfo}>
+      {/* Header Bar */}
+      <div className={styles.topBar}>
+        <div>
           <h1 className={styles.title}>سلة المشتريات</h1>
-          <p className={styles.subTitle}>
-            {totalItems} {totalItems === 1 ? 'جهاز' : 'أجهزة / منتجات'} في السلة
-          </p>
+          <span className={styles.subtitle}>{totalItems} أجهزة في السلة</span>
         </div>
 
-        <button
-          type="button"
-          onClick={clearCart}
-          className={styles.clearBtn}
-        >
+        <button type="button" onClick={clearCart} className={styles.clearBtn} title="إفراغ السلة">
           <Trash2 size={14} />
-          <span>إفراغ السلة</span>
+          <span>إفراغ</span>
         </button>
-      </header>
+      </div>
 
-      <div className={styles.layoutGrid}>
-        {/* Cart Items List */}
-        <div>
-          <div className={styles.itemsCard}>
-            {items.map((item) => {
-              const imgUrl = getProductImageUrl(item.image?.thumb_path || item.image?.path);
-              const lineTotal = (item.price_sdg || 0) * item.quantity;
+      {/* Cart Items List */}
+      <div className={styles.itemsList}>
+        {items.map((item) => {
+          const imgUrl = getProductImageUrl(item.image?.thumb_path || item.image?.path);
+          const lineTotal = (item.price_sdg || 0) * item.quantity;
 
-              return (
-                <div key={item.id} className={styles.itemRow}>
-                  {/* Thumbnail */}
-                  <Link
-                    to={`/products/${item.slug || item.id}`}
-                    className={styles.thumbLink}
-                    tabIndex={-1}
-                  >
-                    <img
-                      src={imgUrl}
-                      alt={item.name}
-                      className={styles.thumbImg}
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = '/favicon.svg';
-                      }}
-                    />
+          return (
+            <div key={item.id} className={styles.itemCard}>
+              {/* Product Thumbnail */}
+              <div className={styles.thumbBox}>
+                {imgUrl ? (
+                  <img
+                    src={imgUrl}
+                    alt={item.name}
+                    className={styles.thumbImg}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = '/favicon.svg';
+                    }}
+                  />
+                ) : (
+                  <LaptopSvg
+                    silhouette={item.silhouette || 'modern'}
+                    accentColor={item.accent_color || '#1E6BFF'}
+                  />
+                )}
+              </div>
+
+              {/* Product Details & Stepper */}
+              <div className={styles.itemDetails}>
+                <div className={styles.itemNameRow}>
+                  <Link to={`/products/${item.slug || item.id}`} className={styles.itemName}>
+                    {item.name}
                   </Link>
-
-                  {/* Title & Price */}
-                  <div className={styles.itemInfo}>
-                    <Link
-                      to={`/products/${item.slug || item.id}`}
-                      className={styles.itemName}
-                    >
-                      {item.name}
-                    </Link>
-                    <span className={styles.unitPrice}>
-                      سعر القطعة: {formatSdg(item.price_sdg)}
-                    </span>
-                  </div>
-
-                  {/* Stepper */}
-                  <div className={styles.stepper} aria-label="تعديل الكمية">
-                    <button
-                      type="button"
-                      className={styles.stepBtn}
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      aria-label="تقليل الكمية"
-                    >
-                      <Minus size={14} />
-                    </button>
-                    <span className={styles.stepCount}>{item.quantity}</span>
-                    <button
-                      type="button"
-                      className={styles.stepBtn}
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      disabled={item.quantity >= 10}
-                      aria-label="زيادة الكمية"
-                    >
-                      <Plus size={14} />
-                    </button>
-                  </div>
-
-                  {/* Line Total */}
-                  <div className={styles.totalCol}>
-                    <span className={styles.lineTotal}>{formatSdg(lineTotal)}</span>
-                  </div>
-
-                  {/* Remove */}
                   <button
                     type="button"
                     onClick={() => removeItem(item.id)}
                     className={styles.removeBtn}
                     aria-label={`حذف ${item.name}`}
                   >
-                    <X size={18} />
+                    <Trash2 size={15} />
                   </button>
                 </div>
-              );
-            })}
-          </div>
 
-          <Link to="/products" className={styles.continueLink}>
-            <ArrowLeft size={16} />
-            <span>متابعة تصفح المزيد من الأجهزة</span>
-          </Link>
+                <div className={styles.itemPriceRow}>
+                  <div className={styles.priceCol}>
+                    <span className={styles.linePrice}>{formatSdg(lineTotal)}</span>
+                    {item.quantity > 1 && (
+                      <span className={styles.unitPrice}>({formatSdg(item.price_sdg)} للقطعة)</span>
+                    )}
+                  </div>
+
+                  {/* Quantity Stepper */}
+                  <div className={styles.stepper} aria-label="الكمية">
+                    <button
+                      type="button"
+                      className={styles.stepBtn}
+                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      aria-label="تقليل"
+                    >
+                      <Minus size={13} />
+                    </button>
+                    <span className={styles.stepCount}>{item.quantity}</span>
+                    <button
+                      type="button"
+                      className={styles.stepBtn}
+                      disabled={item.quantity >= 10}
+                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      aria-label="زيادة"
+                    >
+                      <Plus size={13} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Summary Card with 3% App Discount Preview */}
+      <div className={styles.summaryCard}>
+        <h3 className={styles.summaryTitle}>تفاصيل السعر التقديري:</h3>
+
+        <div className={styles.summaryRow}>
+          <span className={styles.summaryLabel}>المجموع المبدئي:</span>
+          <span className={styles.summaryVal}>{formatSdg(estimatedSubtotalSdg)}</span>
         </div>
 
-        {/* Order Summary & Checkout Card */}
-        <aside>
-          <div className={styles.summaryCard}>
-            <h2 className={styles.summaryTitle}>ملخص السلة</h2>
+        <div className={styles.discountRow}>
+          <span>خصم الطلب بالتطبيق (3%):</span>
+          <span className={styles.discountVal}>- {formatSdg(appDiscount)}</span>
+        </div>
 
-            <div className={styles.summaryRow}>
-              <span>عدد القطع:</span>
-              <span>{totalItems}</span>
-            </div>
-
-            <div className={styles.summaryTotalRow}>
-              <span>المجموع المبدئي:</span>
-              <span className={styles.totalSdg}>
-                {formatSdg(estimatedSubtotalSdg)}
-              </span>
-            </div>
-
-            <div className={styles.noticeBox}>
-              السعر بالدرهم وبيتغير مع الصرف. بنثبته ليك بعد الطلب مباشرة لمدة 4 ساعات.
-            </div>
-
-            <Button
-              variant="primary"
-              size="lg"
-              block
-              onClick={() => navigate('/checkout')}
-            >
-              <span>متابعة إتمام الطلب</span>
-              <ArrowLeft size={18} />
-            </Button>
+        <div className={styles.totalRow}>
+          <div>
+            <div className={styles.totalLabel}>الإجمالي التقديري:</div>
+            <div className={styles.totalVal}>{formatSdg(estimatedTotal)}</div>
           </div>
-        </aside>
+          <span className={styles.rateHint}>السعر يتثبت 4 ساعات فور الطلب</span>
+        </div>
+      </div>
+
+      <Link to="/products" className={styles.continueLink}>
+        <ArrowRight size={14} />
+        <span>إضافة أجهزة أو ملحقات أخرى</span>
+      </Link>
+
+      <div className={styles.bottomSpacer} />
+
+      {/* Sticky Bottom Checkout Bar (Above Safe Area) */}
+      <div className={styles.stickyBar}>
+        <div className={styles.stickyInfo}>
+          <span className={styles.stickyLabel}>المطلوب:</span>
+          <span className={styles.stickyTotal}>{formatSdg(estimatedTotal)}</span>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => navigate('/checkout')}
+          className={`${styles.checkoutBtn} btn-vivid`}
+        >
+          <span>متابعة تثبيت السعر والطلب</span>
+          <ArrowLeft size={16} />
+        </button>
       </div>
     </div>
   );

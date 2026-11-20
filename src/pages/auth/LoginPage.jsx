@@ -4,8 +4,6 @@ import { Mail, ArrowLeft } from 'lucide-react';
 import { authApi } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import Button from '../../components/common/Button';
-import Input from '../../components/common/Input';
 import styles from './Auth.module.css';
 
 export default function LoginPage() {
@@ -103,70 +101,73 @@ export default function LoginPage() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.authCard}>
-        {/* Slanted ribbon brand graphic at top of card */}
-        <div className={styles.ribbonDecoration} aria-hidden="true" />
+      <div className={styles.bgRibbon1} />
+      <div className={styles.bgRibbon2} />
 
-        <header className={styles.cardHeader}>
-          <img
-            src="/logo.svg"
-            alt="Wex Technology"
-            className={styles.brandLogo}
-          />
+      <div className={styles.authCard}>
+        <div className={styles.cardHeader}>
+          <div className={styles.logoBox}>
+            <img
+              src="/assets/logo.png"
+              alt="Wex Technology"
+              className={styles.brandLogo}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = '/favicon.svg';
+              }}
+            />
+          </div>
           <h1 className={styles.cardTitle}>تسجيل الدخول</h1>
           <p className={styles.cardSubtitle}>
-            سجّل دخولك لمتابعة طلباتك وتثبيت الأسعار
+            سجل دخولك لمتابعة طلباتك، تثبيت الأسعار، والحصول على خصم التطبيق
           </p>
-        </header>
+        </div>
 
         {errorMsg && <div className={styles.errorAlert}>{errorMsg}</div>}
 
-        {/* 1. Google Sign-in First & Largest if configured */}
         {googleClientId && (
           <div className={styles.googleWrapper}>
             <div id="google-btn-container" className={styles.googleBtnContainer} />
             {googleLoading && (
-              <div className={styles.googleStatus}>
-                جاري التحقق من حساب جوجل...
-              </div>
+              <div className={styles.googleStatus}>جاري التحقق من حساب جوجل...</div>
             )}
             <div className={styles.divider}>
-              <div className={styles.dividerLine} />
-              <span className={styles.dividerText}>أو بالبريد الإلكتروني</span>
-              <div className={styles.dividerLine} />
+              <span className={styles.dividerLine} />
+              <span className={styles.dividerText}>أو عبر البريد الإلكتروني</span>
+              <span className={styles.dividerLine} />
             </div>
           </div>
         )}
 
-        {/* 2. Email OTP Form */}
         <form onSubmit={handleEmailSubmit} className={styles.form}>
-          <Input
-            label="البريد الإلكتروني"
-            type="email"
-            placeholder="name@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            dir="ltr"
-            icon={<Mail size={16} />}
-            hint="بنرسل ليك رمز تحقق من 6 أرقام بدون كلمة سر"
-          />
+          <div className={styles.inputGroup}>
+            <label className={styles.inputLabel} htmlFor="authEmail">البريد الإلكتروني:</label>
+            <input
+              id="authEmail"
+              type="email"
+              dir="ltr"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="name@example.com"
+              required
+              autoFocus
+              className={styles.input}
+            />
+          </div>
 
-          <Button
+          <button
             type="submit"
-            variant="primary"
-            size="lg"
-            block
-            loading={loading}
             disabled={loading}
+            className={styles.submitBtn}
           >
-            <span>إرسال رمز التحقق</span>
+            <Mail size={16} />
+            <span>{loading ? 'جاري الإرسال...' : 'إرسال رمز التحقق'}</span>
             <ArrowLeft size={16} />
-          </Button>
+          </button>
         </form>
 
         <div className={styles.footerNote}>
-          بالتسجيل فإنك توافق على شروط الخدمة وتثبيت الأسعار في متجر ويكس تكنولوجي.
+          بالتسجيل، أنت توافق على شروط متجر ويكس تكنولوجي وسياسة الخصوصية.
         </div>
       </div>
     </div>

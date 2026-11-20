@@ -4,8 +4,6 @@ import { ArrowRight, CheckCircle2, RefreshCw } from 'lucide-react';
 import { authApi } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import Button from '../../components/common/Button';
-import Input from '../../components/common/Input';
 import styles from './Auth.module.css';
 
 export default function VerifyOtpPage() {
@@ -92,14 +90,14 @@ export default function VerifyOtpPage() {
     const newDigits = [...digits];
 
     if (clean.length > 1) {
-      // Handle paste or multiple chars
       const pasted = clean.slice(0, 6).split('');
       pasted.forEach((ch, idx) => {
         newDigits[idx] = ch;
       });
       setDigits(newDigits);
-      const nextFocus = Math.min(pasted.length, 5);
-      inputRefs.current[nextFocus]?.focus();
+      const nextIdx = Math.min(pasted.length, 5);
+      inputRefs.current[nextIdx]?.focus();
+
       if (pasted.length === 6) {
         handleVerify(pasted.join(''));
       }
@@ -109,12 +107,10 @@ export default function VerifyOtpPage() {
     newDigits[index] = clean;
     setDigits(newDigits);
 
-    // Auto-advance
     if (clean && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
 
-    // Auto-submit if all 6 digits filled
     const fullCode = newDigits.join('');
     if (fullCode.length === 6 && !newDigits.includes('')) {
       handleVerify(fullCode);
@@ -125,30 +121,6 @@ export default function VerifyOtpPage() {
     if (e.key === 'Backspace' && !digits[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
-  };
-
-  const handlePaste = (e) => {
-    e.preventDefault();
-    const pasteData = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
-    if (!pasteData) return;
-
-    const newDigits = ['', '', '', '', '', ''];
-    pasteData.split('').forEach((ch, idx) => {
-      newDigits[idx] = ch;
-    });
-    setDigits(newDigits);
-
-    const nextFocus = Math.min(pasteData.length, 5);
-    inputRefs.current[nextFocus]?.focus();
-
-    if (pasteData.length === 6) {
-      handleVerify(pasteData);
-    }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    handleVerify(digits.join(''));
   };
 
   const handleResend = async () => {
@@ -163,89 +135,84 @@ export default function VerifyOtpPage() {
       setDigits(['', '', '', '', '', '']);
       inputRefs.current[0]?.focus();
     } catch (err) {
-      setErrorMsg(err.message || 'الاتصال ضعيف. حاول تاني.');
-      toastError(err.message);
+      setErrorMsg(err.message || 'تعذر إعادة إرسال الرمز');
     } finally {
       setResending(false);
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    handleVerify(digits.join(''));
+  };
+
   return (
     <div className={styles.container}>
-      <div className={styles.authCard}>
-        {/* Slanted ribbon brand graphic */}
-        <div className={styles.ribbonDecoration} aria-hidden="true" />
+      <div className={styles.bgRibbon1} />
+      <div className={styles.bgRibbon2} />
 
-        <header className={styles.cardHeader}>
-          <img
-            src="/logo.svg"
-            alt="Wex Technology"
-            className={styles.brandLogo}
-          />
+      <div className={styles.authCard}>
+        <div className={styles.cardHeader}>
+          <div className={styles.logoBox}>
+            <img
+              src="/assets/logo.png"
+              alt="Wex Technology"
+              className={styles.brandLogo}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = '/favicon.svg';
+              }}
+            />
+          </div>
           <h1 className={styles.cardTitle}>تأكيد رمز الدخول</h1>
           <p className={styles.cardSubtitle}>
-            أدخل الرمز المكون من 6 أرقام المرسل إلى:
-            <br />
-            <strong style={{ color: 'var(--color-navy)', direction: 'ltr', display: 'inline-block' }}>
-              {emailParam}
-            </strong>
+            أدخل الرمز المكون من 6 أرقام المرسل إلى: <br />
+            <strong dir="ltr">{emailParam}</strong>
           </p>
-        </header>
+        </div>
 
         {errorMsg && <div className={styles.errorAlert}>{errorMsg}</div>}
 
         <form onSubmit={handleSubmit} className={styles.form}>
-          {/* 6-box numeric code input */}
-          <div className={styles.otpBoxGroup} onPaste={handlePaste} aria-label="رمز التحقق">
+          {needsName && (
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel} htmlFor="userName">الاسم الكامل:</label>
+              <input
+                id="userName"
+                type="text"
+                placeholder="أحمد محمد"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className={styles.input}
+              />
+            </div>
+          )}
+
+          {/* 6-box OTP digits */}
+          <div className={styles.otpBoxGroup}>
             {digits.map((digit, idx) => (
               <input
                 key={idx}
-                ref={(el) => {
-                  inputRefs.current[idx] = el;
-                }}
+                ref={(el) => (inputRefs.current[idx] = el)}
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
-                maxLength={1}
+                maxLength={6}
                 value={digit}
                 onChange={(e) => handleDigitChange(idx, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(idx, e)}
                 className={styles.otpInput}
-                autoFocus={idx === 0}
+                autoComplete={idx === 0 ? 'one-time-code' : 'off'}
                 aria-label={`الرقم ${idx + 1}`}
               />
             ))}
           </div>
 
-          {/* New user name prompt if required */}
-          {needsName && (
-            <Input
-              label="الاسم الكريم (مطلوب للحساب الجديد)"
-              placeholder="اكتب اسمك الثلاثي"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          )}
-
-          <Button
-            type="submit"
-            variant="primary"
-            size="lg"
-            block
-            loading={loading}
-            disabled={loading || digits.join('').length < 6}
-          >
-            <CheckCircle2 size={18} />
-            <span>تأكيد وتسجيل الدخول</span>
-          </Button>
-
-          {/* Resend timer */}
           <div className={styles.timerRow}>
-            <span>لم يصلك الرمز؟</span>
             {countdown > 0 ? (
               <span>
-                إعادة الإرسال بعد <span className={styles.timerCount}>{countdown}</span> ثانية
+                إعادة الإرسال بعد: <span className={styles.timerCount}>{countdown} ثانية</span>
               </span>
             ) : (
               <button
@@ -254,14 +221,23 @@ export default function VerifyOtpPage() {
                 disabled={resending}
                 className={styles.resendBtn}
               >
-                <RefreshCw size={12} style={{ display: 'inline', marginInlineEnd: 4 }} />
+                <RefreshCw size={12} />
                 <span>إعادة إرسال الرمز</span>
               </button>
             )}
           </div>
+
+          <button
+            type="submit"
+            disabled={loading || digits.join('').length !== 6}
+            className={styles.submitBtn}
+          >
+            <CheckCircle2 size={16} />
+            <span>{loading ? 'جاري التحقق...' : 'تأكيد ودخول'}</span>
+          </button>
         </form>
 
-        <Link to="/auth/login" className={styles.backLink}>
+        <Link to="/login" className={styles.backLink}>
           <ArrowRight size={14} />
           <span>تغيير البريد الإلكتروني</span>
         </Link>

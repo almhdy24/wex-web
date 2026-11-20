@@ -1,326 +1,335 @@
+/* Wex App Shell Checkout Page (Screen 5 Parity) */
 .container {
-  max-width: 960px;
-  margin-inline: auto;
-  padding: var(--space-6) var(--space-4) var(--space-16);
-}
-
-.header {
-  margin-bottom: var(--space-6);
-}
-
-.title {
-  font-size: var(--text-2xl);
-  font-weight: 800;
-  color: var(--color-navy);
-  margin: 0 0 var(--space-1);
-}
-
-.subtitle {
-  font-size: var(--text-sm);
-  color: var(--color-slate-500);
-  margin: 0;
-}
-
-.layoutGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-6);
-}
-
-@media (min-width: 768px) {
-  .layoutGrid {
-    grid-template-columns: 1fr 360px;
-  }
-}
-
-.formCol {
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: 14px;
 }
 
-.stepCard {
-  background-color: var(--color-white);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-5);
+/* 1. Items Summary Card */
+.itemsSummaryCard {
+  background: var(--wex-white, #FFFFFF);
+  border-radius: var(--radius-lg, 20px);
+  padding: 14px;
+  border: 1px solid var(--wex-ice, #EAF3FF);
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: 10px;
 }
 
-.stepHeading {
-  font-size: var(--text-base);
-  font-weight: 700;
-  color: var(--color-navy);
-  margin: 0;
+.summaryItemRow {
   display: flex;
+  gap: 12px;
   align-items: center;
-  gap: var(--space-2);
 }
 
-.stepNumber {
-  width: 24px;
-  height: 24px;
-  border-radius: var(--radius-full);
-  background-color: var(--color-royal-blue);
-  color: var(--color-white);
+.itemThumb {
+  width: 70px;
+  height: 60px;
+  background: var(--wex-ice-light, #F4F8FD);
+  border-radius: var(--radius-md, 14px);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--text-xs);
+  padding: 4px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.thumbImg {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+}
+
+.itemInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.itemName {
+  font-size: 13px;
   font-weight: 800;
+  color: var(--wex-navy, #061A55);
+  margin: 0 0 2px 0;
+  line-height: 1.3;
+}
+
+.itemMeta {
+  font-size: 11px;
+  color: var(--wex-gray-600, #5A6B85);
+}
+
+.itemPrice {
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--wex-royal, #0B3FBF);
+  margin-top: 2px;
   font-variant-numeric: tabular-nums;
 }
 
-.deliveryOptions {
+/* 2. Generic Card */
+.checkoutForm {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.card {
+  background: var(--wex-white, #FFFFFF);
+  border-radius: var(--radius-lg, 20px);
+  padding: 16px;
+  border: 1px solid var(--wex-ice, #EAF3FF);
+  box-shadow: var(--shadow-sm);
+}
+
+.cardHeading {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--wex-navy, #061A55);
+  margin: 0 0 12px 0;
+}
+
+/* Delivery 2-Column Grid */
+.deliveryGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-3);
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
-.optionCard {
-  position: relative;
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-4);
+.deliveryBox {
+  border: 2px solid var(--wex-gray-200, #E2E8F0);
+  background: var(--wex-white, #FFFFFF);
+  padding: 12px 8px;
+  border-radius: var(--radius-md, 14px);
   cursor: pointer;
-  background-color: var(--color-white);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+  text-align: center;
+  transition: all 0.2s ease;
+  user-select: none;
 }
 
-.optionCardSelected {
-  border-color: var(--color-royal-blue);
-  background-color: var(--color-ice-blue);
+.deliveryBoxSelected {
+  border-color: var(--wex-royal, #0B3FBF);
+  background: var(--wex-ice, #EAF3FF);
 }
 
-.radioInput {
-  position: absolute;
-  opacity: 0;
-}
-
-.optionTitle {
-  font-size: var(--text-sm);
-  font-weight: 700;
-  color: var(--color-navy);
+.boxTitle {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  justify-content: center;
+  gap: 6px;
+  font-weight: 800;
+  font-size: 12px;
+  color: var(--wex-navy, #061A55);
+  line-height: 1.3;
 }
 
-.optionDesc {
-  font-size: var(--text-xs);
-  color: var(--color-slate-500);
+.boxDesc {
+  font-size: 10px;
+  color: var(--wex-gray-600, #5A6B85);
+  margin-top: 4px;
 }
 
-.phoneFieldWrapper {
+/* Delivery Details Fields */
+.deliveryDetails {
+  background: var(--wex-ice-light, #F4F8FD);
+  padding: 12px;
+  border-radius: var(--radius-md, 14px);
+  border: 1px solid var(--wex-ice, #EAF3FF);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Form Inputs */
+.inputGroup {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  margin-bottom: 10px;
 }
 
-.phoneInput {
+.inputGroup:last-child {
+  margin-bottom: 0;
+}
+
+.inputLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--wex-navy, #061A55);
+}
+
+.input,
+.select,
+.textarea {
   width: 100%;
-  padding: 10px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  font-size: var(--text-base);
-  font-variant-numeric: tabular-nums;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--wex-navy, #061A55);
+  background: var(--wex-white, #FFFFFF);
+  border: 1px solid var(--wex-gray-200, #E2E8F0);
+  border-radius: var(--radius-md, 14px);
   outline: none;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
 }
 
-.phoneInput:focus {
-  border-color: var(--color-royal-blue);
-  box-shadow: var(--shadow-focus);
-}
-
-.fieldError {
-  font-size: var(--text-xs);
-  color: var(--color-danger);
-  font-weight: 600;
-}
-
-.fieldHint {
-  font-size: var(--text-xs);
-  color: var(--color-slate-500);
+.input:focus,
+.select:focus,
+.textarea:focus {
+  border-color: var(--wex-vivid, #1E6BFF);
 }
 
 .textarea {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  font-size: var(--text-sm);
-  font-family: inherit;
   resize: vertical;
-  min-height: 80px;
-  outline: none;
 }
 
-.textarea:focus {
-  border-color: var(--color-royal-blue);
-  box-shadow: var(--shadow-focus);
+.fieldHint {
+  font-size: 10px;
+  color: var(--wex-gray-400, #9AA8BC);
 }
 
-/* Order Summary Column */
-.summaryCol {
-  display: flex;
-  flex-direction: column;
-}
-
-.summaryCard {
-  background-color: var(--color-white);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-5);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  position: sticky;
-  top: 90px;
-  align-self: start;
-}
-
-.summaryTitle {
-  font-size: var(--text-base);
-  font-weight: 700;
-  color: var(--color-navy);
-  margin: 0;
-  padding-bottom: var(--space-3);
-  border-bottom: 1px solid var(--color-border-subtle);
-}
-
-.itemsPreview {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  max-height: 180px;
-  overflow-y: auto;
-  padding-bottom: var(--space-2);
-  border-bottom: 1px solid var(--color-border-subtle);
-}
-
-.itemPreviewRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: var(--text-xs);
-  gap: var(--space-2);
-}
-
-.itemPreviewName {
+.fieldError {
+  font-size: 11px;
+  color: var(--color-error, #D32F2F);
   font-weight: 600;
-  color: var(--color-navy);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.itemPreviewPrice {
-  font-weight: 700;
-  color: var(--color-slate-700);
-  font-variant-numeric: tabular-nums;
-  flex-shrink: 0;
-}
-
+/* Financial Calculation */
 .calcRow {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  font-size: var(--text-sm);
-  color: var(--color-slate-600);
+  font-size: 13px;
+  margin-bottom: 8px;
 }
 
-.discountRow {
+.calcLabel {
+  color: var(--wex-gray-600, #5A6B85);
+}
+
+.calcVal {
+  font-weight: 700;
+  color: var(--wex-navy, #061A55);
+  font-variant-numeric: tabular-nums;
+}
+
+.calcDiscountRow {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  font-size: var(--text-sm);
-  color: var(--color-success);
+  font-size: 13px;
+  margin-bottom: 8px;
+  color: var(--wex-royal, #0B3FBF);
+  font-weight: 700;
+}
+
+.discountNum {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
 }
 
 .calcTotalRow {
+  border-top: 2px dashed var(--wex-ice, #EAF3FF);
+  padding-top: 12px;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  padding-top: var(--space-2);
-  border-top: 1px solid var(--color-border-subtle);
-  font-size: var(--text-base);
-  font-weight: 800;
-  color: var(--color-navy);
 }
 
-.totalSdg {
-  font-size: var(--text-xl);
-  font-weight: 800;
-  color: var(--color-royal-blue);
+.totalLabel {
+  font-size: 11px;
+  color: var(--wex-gray-600, #5A6B85);
+}
+
+.totalAmount {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--wex-royal, #0B3FBF);
   font-variant-numeric: tabular-nums;
 }
 
-.lockNotice {
-  background-color: var(--color-ice-blue);
-  border: 1px solid rgba(11, 63, 191, 0.15);
-  border-radius: var(--radius-md);
-  padding: var(--space-3);
-  font-size: var(--text-xs);
-  color: var(--color-navy);
+.exchangeRateHint {
+  font-size: 11px;
+  color: var(--wex-gray-400, #9AA8BC);
+}
+
+/* Notice Card (Amber) */
+.noticeCard {
+  background: #FFFBEB;
+  border: 1.5px solid #FCD34D;
+  border-radius: var(--radius-lg, 20px);
+  padding: 14px;
+}
+
+.noticeHeading {
+  font-size: 12px;
+  font-weight: 800;
+  color: #92400E;
+  margin: 0 0 3px 0;
+}
+
+.noticeBody {
+  font-size: 11px;
+  color: #B45309;
   line-height: 1.5;
+  margin: 0;
 }
 
-.desktopSubmitBtn {
-  display: none;
+.bottomSpacer {
+  height: 70px;
 }
 
-@media (min-width: 768px) {
-  .desktopSubmitBtn {
-    display: block;
-  }
-}
-
-/* Sticky Mobile CTA Bar */
-.mobileStickyCta {
+/* Sticky Submit Bar */
+.stickySubmitBar {
   position: fixed;
   bottom: 0;
-  inset-inline-start: 0;
-  inset-inline-end: 0;
-  background-color: var(--color-white);
-  border-top: 1px solid var(--color-border);
-  box-shadow: 0 -4px 16px rgba(6, 26, 85, 0.1);
-  padding: var(--space-3) var(--space-4);
+  inset-inline-start: 50%;
+  transform: translateX(50%);
+  width: 100%;
+  max-width: var(--app-shell-max-width, 480px);
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)) 16px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--wex-ice, #EAF3FF);
+  box-shadow: 0 -4px 16px rgba(6, 26, 85, 0.08);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  z-index: 100;
+  z-index: 50;
+  box-sizing: border-box;
 }
 
-@media (min-width: 768px) {
-  .mobileStickyCta {
-    display: none;
-  }
+[dir="rtl"] .stickySubmitBar {
+  inset-inline-start: auto;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
-.mobileTotalInfo {
+.submitBtn {
+  width: 100%;
+  height: 46px;
   display: flex;
-  flex-direction: column;
-}
-
-.mobileTotalLabel {
-  font-size: 11px;
-  color: var(--color-slate-500);
-}
-
-.mobileTotalValue {
-  font-size: var(--text-lg);
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--wex-grad-brand, linear-gradient(135deg, #061A55 0%, #0B3FBF 60%, #1E6BFF 100%));
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-md, 14px);
+  font-size: 14px;
   font-weight: 800;
-  color: var(--color-royal-blue);
-  font-variant-numeric: tabular-nums;
-  line-height: 1.2;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(30, 107, 255, 0.35);
+  transition: all 0.2s ease;
 }
 
-.mobileSubmitBtn {
-  min-width: 170px;
+.submitBtn:active {
+  transform: scale(0.98);
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
 }

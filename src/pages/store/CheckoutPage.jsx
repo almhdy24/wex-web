@@ -6,10 +6,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { productsApi } from '../../api/products';
 import { api } from '../../api/client';
-import { formatSdg } from '../../utils/formatters';
-import Button from '../../components/common/Button';
-import Input from '../../components/common/Input';
-import Select from '../../components/common/Select';
+import { formatSdg, getProductImageUrl } from '../../utils/formatters';
+import LaptopSvg from '../../components/common/LaptopSvg';
 import styles from './CheckoutPage.module.css';
 
 export default function CheckoutPage() {
@@ -24,6 +22,7 @@ export default function CheckoutPage() {
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [contactPhone, setContactPhone] = useState(user?.phone || '');
   const [customerNotes, setCustomerNotes] = useState('');
+  const [shopInfo, setShopInfo] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -35,16 +34,19 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     let isMounted = true;
-    productsApi
-      .getShippingZones()
-      .then((res) => {
-        if (!isMounted) return;
-        setShippingZones(res.data || []);
-        if (res.data && res.data.length > 0) {
-          setSelectedZoneId(String(res.data[0].id));
-        }
-      })
-      .catch(() => {});
+    Promise.all([
+      productsApi.getShippingZones().catch(() => ({ data: [] })),
+      productsApi.getShopInfo().catch(() => ({ data: null })),
+    ]).then(([zonesRes, shopRes]) => {
+      if (!isMounted) return;
+      const zList = zonesRes?.data || [];
+      setShippingZones(zList);
+      if (zList.length > 0) {
+        setSelectedZoneId(String(zList[0].id));
+      }
+      setShopInfo(shopRes?.data || null);
+    });
+
     return () => {
       isMounted = false;
     };
@@ -52,8 +54,10 @@ export default function CheckoutPage() {
 
   const selectedZone = shippingZones.find((z) => String(z.id) === String(selectedZoneId));
   const deliveryFee = orderType === 'delivery' && selectedZone ? selectedZone.fee_sdg : 0;
-  const estimatedDiscount = Math.round(estimatedSubtotalSdg * 0.03);
-  const estimatedTotal = Math.max(0, estimatedSubtotalSdg - estimatedDiscount + deliveryFee);
+  const appDiscount = Math.round(estimatedSubtotalSdg * 0.03);
+  const finalTotal = Math.max(0, estimatedSubtotalSdg - appDiscount + deliveryFee);
+  const exchangeRate = shopInfo?.exchange_rate_sdg || 650;
+  const priceLockHours = shopInfo?.price_lock_hours || 4;
 
   const handleSubmitOrder = async (e) => {
     if (e) e.preventDefault();
@@ -67,7 +71,7 @@ export default function CheckoutPage() {
 
     if (orderType === 'delivery') {
       if (!selectedZoneId) {
-        setErrors({ shipping_zone_id: 'يرجى اختيار ولاية أو منطقة التوصيل' });
+        setErrors({ shipping_zone_id: 'يرجى اختيار منطقة التوصيل' });
         return;
       }
       if (!deliveryAddress.trim() || deliveryAddress.trim().length < 5) {
@@ -97,7 +101,7 @@ export default function CheckoutPage() {
       const res = await api.post('/orders', payload);
       const createdOrder = res.data;
       clearCart();
-      success(`تم إنشاء الطلب بنجاح رقم #${createdOrder.order_number}`);
+      success(`تم تثبيت السعر وإنشاء الطلب بنجاح رقم #${createdOrder.order_number}`);
       navigate(`/orders/${createdOrder.order_number}`, {
         state: { orderCreated: true, order: createdOrder },
         replace: true,
@@ -106,7 +110,7 @@ export default function CheckoutPage() {
       if (err.errors) {
         setErrors(err.errors);
       }
-      toastError(err.message || 'فشل تقديم الطلب. حاول تاني.');
+      toastError(err.message || 'تعذر إتمام الطلب، حاول مرة أخرى');
     } finally {
       setSubmitting(false);
     }
@@ -114,233 +118,217 @@ export default function CheckoutPage() {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>إتمام الطلب وتثبيت السعر</h1>
-        <p className={styles.subtitle}>
-          حدد طريقة الاستلام وأكمل بياناتك لحجز الأجهزة وتجميد السعر لمدة 4 ساعات
-        </p>
-      </header>
-
-      <form onSubmit={handleSubmitOrder}>
-        <div className={styles.layoutGrid}>
-          {/* Steps column */}
-          <div className={styles.formCol}>
-            {/* Step 1: Delivery Method */}
-            <div className={styles.stepCard}>
-              <h2 className={styles.stepHeading}>
-                <span className={styles.stepNumber}>1</span>
-                <span>طريقة الاستلام</span>
-              </h2>
-
-              <div className={styles.deliveryOptions}>
-                <label
-                  className={`${styles.optionCard} ${
-                    orderType === 'pickup' ? styles.optionCardSelected : ''
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="order_type"
-                    value="pickup"
-                    checked={orderType === 'pickup'}
-                    onChange={() => setOrderType('pickup')}
-                    className={styles.radioInput}
+      {/* 1. Products Summary Card (Mockup Parity) */}
+      <div className={styles.itemsSummaryCard}>
+        {items.map((item) => {
+          const imgUrl = getProductImageUrl(item.image?.thumb_path || item.image?.path);
+          return (
+            <div key={item.id} className={styles.summaryItemRow}>
+              <div className={styles.itemThumb}>
+                {imgUrl ? (
+                  <img
+                    src={imgUrl}
+                    alt={item.name}
+                    className={styles.thumbImg}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = '/favicon.svg';
+                    }}
                   />
-                  <div className={styles.optionTitle}>
-                    <Store size={18} />
-                    <span>استلام من المحل</span>
-                  </div>
-                  <div className={styles.optionDesc}>
-                    مول الواحة، أم درمان (مجاناً)
-                  </div>
-                </label>
-
-                <label
-                  className={`${styles.optionCard} ${
-                    orderType === 'delivery' ? styles.optionCardSelected : ''
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="order_type"
-                    value="delivery"
-                    checked={orderType === 'delivery'}
-                    onChange={() => setOrderType('delivery')}
-                    className={styles.radioInput}
+                ) : (
+                  <LaptopSvg
+                    silhouette={item.silhouette || 'modern'}
+                    accentColor={item.accent_color || '#1E6BFF'}
                   />
-                  <div className={styles.optionTitle}>
-                    <Truck size={18} />
-                    <span>توصيل وشحن</span>
-                  </div>
-                  <div className={styles.optionDesc}>
-                    إلى أم درمان والولايات المتاحة
-                  </div>
-                </label>
+                )}
+              </div>
+
+              <div className={styles.itemInfo}>
+                <h4 className={styles.itemName}>{item.name}</h4>
+                <div className={styles.itemMeta}>
+                  <span>الكمية: {item.quantity}</span>
+                  {item.specs && Array.isArray(item.specs) && item.specs[0] && (
+                    <span> · {item.specs[0].spec_value || item.specs[0].value}</span>
+                  )}
+                </div>
+                <div className={styles.itemPrice}>
+                  {formatSdg((item.price_sdg || 0) * item.quantity)}
+                </div>
               </div>
             </div>
+          );
+        })}
+      </div>
 
-            {/* Step 2: Delivery address (if delivery selected) */}
-            {orderType === 'delivery' && (
-              <div className={styles.stepCard}>
-                <h2 className={styles.stepHeading}>
-                  <span className={styles.stepNumber}>2</span>
-                  <span>منطقة التوصيل والعنوان</span>
-                </h2>
+      <form onSubmit={handleSubmitOrder} className={styles.checkoutForm}>
+        {/* 2. Delivery Method Selector (2-Column Selector in Mockup) */}
+        <div className={styles.card}>
+          <h3 className={styles.cardHeading}>طريقة الاستلام:</h3>
 
-                <Select
-                  label="الولاية / منطقة التوصيل"
-                  value={selectedZoneId}
-                  onChange={(e) => setSelectedZoneId(e.target.value)}
-                  options={shippingZones.map((z) => ({
-                    value: String(z.id),
-                    label: `${z.state_name_ar} (رسوم التوصيل: ${formatSdg(z.fee_sdg)})`,
-                  }))}
-                  required
-                  error={errors.shipping_zone_id}
-                />
-
-                <Input
-                  label="عنوان التوصيل بالتفصيل"
-                  placeholder="مثال: أم درمان - حي الملازمين - شارع الشفيع"
-                  value={deliveryAddress}
-                  onChange={(e) => setDeliveryAddress(e.target.value)}
-                  required
-                  error={errors.delivery_address}
-                  hint="يرجى ذكر أقرب معلم أو اسم الشارع بدقة"
-                />
+          <div className={styles.deliveryGrid}>
+            <div
+              className={`${styles.deliveryBox} ${orderType === 'pickup' ? styles.deliveryBoxSelected : ''}`}
+              onClick={() => setOrderType('pickup')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter') setOrderType('pickup'); }}
+            >
+              <div className={styles.boxTitle}>
+                <Store size={16} />
+                <span>استلام من المحل (مجاني)</span>
               </div>
-            )}
+              <div className={styles.boxDesc}>مول الواحة، الشهداء، أم درمان</div>
+            </div>
 
-            {/* Step 3: Contact Phone & Notes */}
-            <div className={styles.stepCard}>
-              <h2 className={styles.stepHeading}>
-                <span className={styles.stepNumber}>
-                  {orderType === 'delivery' ? 3 : 2}
-                </span>
-                <span>بيانات التواصل</span>
-              </h2>
-
-              <div className={styles.phoneFieldWrapper}>
-                <label className={styles.fieldHint} htmlFor="contact_phone">
-                  رقم الهاتف للتواصل (مطلوب)
-                </label>
-                <input
-                  id="contact_phone"
-                  type="tel"
-                  inputMode="tel"
-                  dir="ltr"
-                  placeholder="0912345678"
-                  value={contactPhone}
-                  onChange={(e) => setContactPhone(e.target.value)}
-                  className={styles.phoneInput}
-                  required
-                />
-                {errors.contact_phone && (
-                  <span className={styles.fieldError}>
-                    {errors.contact_phone}
-                  </span>
-                )}
-                <span className={styles.fieldHint}>
-                  رقم سوداني فعال للتواصل معك لتسليم الطلب وتأكيد التحويل
-                </span>
+            <div
+              className={`${styles.deliveryBox} ${orderType === 'delivery' ? styles.deliveryBoxSelected : ''}`}
+              onClick={() => setOrderType('delivery')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter') setOrderType('delivery'); }}
+            >
+              <div className={styles.boxTitle}>
+                <Truck size={16} />
+                <span>توصيل للعنوان</span>
               </div>
-
-              <div>
-                <label className={styles.fieldHint} htmlFor="customer_notes">
-                  ملاحظات إضافية على الطلب (اختياري)
-                </label>
-                <textarea
-                  id="customer_notes"
-                  className={styles.textarea}
-                  placeholder="أي ملاحظات بخصوص موعد التسليم أو متطلبات إضافية..."
-                  value={customerNotes}
-                  onChange={(e) => setCustomerNotes(e.target.value)}
-                  maxLength={500}
-                />
-              </div>
+              <div className={styles.boxDesc}>أم درمان والخرطوم والولايات</div>
             </div>
           </div>
 
-          {/* Summary column */}
-          <aside className={styles.summaryCol}>
-            <div className={styles.summaryCard}>
-              <h2 className={styles.summaryTitle}>ملخص الطلب</h2>
-
-              <div className={styles.itemsPreview}>
-                {items.map((item) => (
-                  <div key={item.id} className={styles.itemPreviewRow}>
-                    <span className={styles.itemPreviewName}>
-                      {item.quantity}x {item.name}
-                    </span>
-                    <span className={styles.itemPreviewPrice}>
-                      {formatSdg((item.price_sdg || 0) * item.quantity)}
-                    </span>
-                  </div>
-                ))}
+          {/* Delivery Zone & Address Fields */}
+          {orderType === 'delivery' && (
+            <div className={styles.deliveryDetails}>
+              <div className={styles.inputGroup}>
+                <label className={styles.inputLabel} htmlFor="zoneSelect">المدينة / منطقة التوصيل:</label>
+                <select
+                  id="zoneSelect"
+                  value={selectedZoneId}
+                  onChange={(e) => setSelectedZoneId(e.target.value)}
+                  className={styles.select}
+                >
+                  {shippingZones.map((z) => (
+                    <option key={z.id} value={String(z.id)}>
+                      {z.state_name_ar} (رسوم التوصيل: {formatSdg(z.fee_sdg)})
+                    </option>
+                  ))}
+                </select>
+                {errors.shipping_zone_id && (
+                  <span className={styles.fieldError}>{errors.shipping_zone_id}</span>
+                )}
               </div>
 
-              <div className={styles.calcRow}>
-                <span>المجموع الفرعي:</span>
-                <span>{formatSdg(estimatedSubtotalSdg)}</span>
+              <div className={styles.inputGroup}>
+                <label className={styles.inputLabel} htmlFor="deliveryAddress">العنوان بالتفصيل:</label>
+                <input
+                  id="deliveryAddress"
+                  type="text"
+                  value={deliveryAddress}
+                  onChange={(e) => setDeliveryAddress(e.target.value)}
+                  placeholder="الحي، الشارع، أو المعلم القريب..."
+                  className={styles.input}
+                  required
+                />
+                {errors.delivery_address && (
+                  <span className={styles.fieldError}>{errors.delivery_address}</span>
+                )}
               </div>
-
-              <div className={styles.discountRow}>
-                <span>خصم التطبيق (3%):</span>
-                <span>-{formatSdg(estimatedDiscount)}</span>
-              </div>
-
-              <div className={styles.calcRow}>
-                <span>رسوم التوصيل:</span>
-                <span>
-                  {deliveryFee === 0 ? 'مجاناً (استلام)' : formatSdg(deliveryFee)}
-                </span>
-              </div>
-
-              <div className={styles.calcTotalRow}>
-                <span>المبلغ الإجمالي التقريبي:</span>
-                <span className={styles.totalSdg}>{formatSdg(estimatedTotal)}</span>
-              </div>
-
-              <div className={styles.lockNotice}>
-                السعر بالدرهم وبيتغير مع الصرف. بنثبته ليك بعد الطلب مباشرة لمدة 4 ساعات.
-              </div>
-
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                block
-                loading={submitting}
-                disabled={submitting}
-                className={styles.desktopSubmitBtn}
-              >
-                <Lock size={18} />
-                <span>تثبيت السعر وإتمام الطلب</span>
-              </Button>
             </div>
-          </aside>
+          )}
         </div>
 
-        {/* Sticky Mobile CTA Bar */}
-        <div className={styles.mobileStickyCta}>
-          <div className={styles.mobileTotalInfo}>
-            <span className={styles.mobileTotalLabel}>المبلغ التقريبي</span>
-            <span className={styles.mobileTotalValue}>
-              {formatSdg(estimatedTotal)}
+        {/* 3. Customer Contact Phone & Notes */}
+        <div className={styles.card}>
+          <h3 className={styles.cardHeading}>بيانات الاتصال:</h3>
+
+          <div className={styles.inputGroup}>
+            <label className={styles.inputLabel} htmlFor="contactPhone">رقم هاتف التواصل والواتساب:</label>
+            <input
+              id="contactPhone"
+              type="tel"
+              inputMode="tel"
+              dir="ltr"
+              value={contactPhone}
+              onChange={(e) => setContactPhone(e.target.value)}
+              placeholder="0912345678"
+              className={styles.input}
+              required
+            />
+            {errors.contact_phone && (
+              <span className={styles.fieldError}>{errors.contact_phone}</span>
+            )}
+            <span className={styles.fieldHint}>
+              رقم سوداني فعال لمطابقة إشعار التحويل وتأكيد الاستلام.
             </span>
           </div>
 
-          <Button
+          <div className={styles.inputGroup}>
+            <label className={styles.inputLabel} htmlFor="customerNotes">ملاحظات إضافية (اختياري):</label>
+            <textarea
+              id="customerNotes"
+              value={customerNotes}
+              onChange={(e) => setCustomerNotes(e.target.value)}
+              placeholder="أي تفاصيل خاصة بتسليم الجهاز أو توقيت التواجد..."
+              rows={2}
+              className={styles.textarea}
+            />
+          </div>
+        </div>
+
+        {/* 4. Financial Calculation Summary (Mockup Parity) */}
+        <div className={styles.card}>
+          <h3 className={styles.cardHeading}>تفاصيل السعر:</h3>
+
+          <div className={styles.calcRow}>
+            <span className={styles.calcLabel}>سعر الأجهزة:</span>
+            <span className={styles.calcVal}>{formatSdg(estimatedSubtotalSdg)}</span>
+          </div>
+
+          <div className={styles.calcDiscountRow}>
+            <span>خصم الطلب بالتطبيق (3%):</span>
+            <span className={styles.discountNum}>- {formatSdg(appDiscount)}</span>
+          </div>
+
+          <div className={styles.calcRow}>
+            <span className={styles.calcLabel}>رسوم التوصيل:</span>
+            <span className={styles.calcVal}>
+              {deliveryFee === 0 ? 'مجاني (0 جنيه)' : formatSdg(deliveryFee)}
+            </span>
+          </div>
+
+          <div className={styles.calcTotalRow}>
+            <div>
+              <div className={styles.totalLabel}>الإجمالي المطلوب تحويله:</div>
+              <div className={styles.totalAmount}>
+                {formatSdg(finalTotal)}
+              </div>
+            </div>
+            <div className={styles.exchangeRateHint}>
+              سعر الصرف: {exchangeRate}
+            </div>
+          </div>
+        </div>
+
+        {/* 5. Checkout Notice (Amber Card) */}
+        <div className={styles.noticeCard}>
+          <h4 className={styles.noticeHeading}>ملاحظة الدفع وتثبيت السعر:</h4>
+          <p className={styles.noticeBody}>
+            الدفع كامل قبل التجهيز، للاستلام من المحل أو للتوصيل. السعر بيتثبت ليك لمدة {priceLockHours} ساعات عشان تحول في بنكك وترفع الإشعار.
+          </p>
+        </div>
+
+        <div className={styles.bottomSpacer} />
+
+        {/* 6. Sticky Submit Order Button */}
+        <div className={styles.stickySubmitBar}>
+          <button
             type="submit"
-            variant="primary"
-            size="md"
-            loading={submitting}
             disabled={submitting}
-            className={styles.mobileSubmitBtn}
+            className={`${styles.submitBtn} btn-vivid`}
           >
-            <span>إتمام الطلب</span>
+            <Lock size={16} />
+            <span>{submitting ? 'جاري تثبيت السعر...' : 'تثبيت السعر وإتمام الطلب'}</span>
             <ArrowLeft size={16} />
-          </Button>
+          </button>
         </div>
       </form>
     </div>

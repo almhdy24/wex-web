@@ -1,170 +1,263 @@
+/* Wex Mockup Auth Layout & Screens (Splash Brand Theme) */
 .container {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-8) var(--space-4) var(--space-16);
-  min-height: 70vh;
+  padding: 24px 16px 40px 16px;
+  position: relative;
+  overflow: hidden;
+  min-height: calc(100dvh - 130px);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Background Slanted Brand Ribbons */
+.bgRibbon1 {
+  position: absolute;
+  width: 160%;
+  height: 60px;
+  background: var(--wex-grad-brand, linear-gradient(135deg, #061A55 0%, #0B3FBF 60%, #1E6BFF 100%));
+  transform: rotate(-25deg);
+  top: 15%;
+  opacity: 0.12;
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+.bgRibbon2 {
+  position: absolute;
+  width: 160%;
+  height: 40px;
+  background: linear-gradient(90deg, #1E6BFF 0%, #00B7FF 100%);
+  transform: rotate(-25deg);
+  top: 28%;
+  opacity: 0.15;
+  pointer-events: none;
 }
 
 .authCard {
   width: 100%;
   max-width: 440px;
-  background-color: var(--color-white);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-8) var(--space-6);
-  box-shadow: 0 4px 20px rgba(6, 26, 85, 0.06);
+  background-color: var(--wex-white, #FFFFFF);
+  border: 1px solid var(--wex-ice, #EAF3FF);
+  border-radius: var(--radius-xl, 28px);
+  padding: 28px 20px;
+  box-shadow: var(--shadow-floating, 0 16px 40px rgba(6, 26, 85, 0.12));
   position: relative;
+  z-index: 10;
   overflow: hidden;
-}
-
-/* Brand graphic: Slanted ribbon from the X arrow in splash/sign-in header */
-.ribbonDecoration {
-  position: absolute;
-  top: 0;
-  inset-inline-start: 0;
-  width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, var(--color-royal-blue) 0%, var(--color-vivid-blue) 60%, var(--color-cyan) 100%);
 }
 
 .cardHeader {
   text-align: center;
-  margin-bottom: var(--space-6);
+  margin-bottom: 24px;
+}
+
+.logoBox {
+  display: inline-block;
+  background: #FFFFFF;
+  border-radius: var(--radius-lg, 20px);
+  padding: 12px 20px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 14px;
+  border: 1px solid var(--wex-ice, #EAF3FF);
 }
 
 .brandLogo {
-  width: 120px;
+  width: 110px;
   height: auto;
-  margin: 0 auto var(--space-4);
   display: block;
+  margin: 0 auto;
 }
 
 .cardTitle {
-  font-size: var(--text-xl);
-  font-weight: 800;
-  color: var(--color-navy);
-  margin: 0 0 var(--space-1);
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--wex-navy, #061A55);
+  margin: 0 0 4px 0;
 }
 
 .cardSubtitle {
-  font-size: var(--text-sm);
-  color: var(--color-slate-500);
+  font-size: 12px;
+  color: var(--wex-gray-600, #5A6B85);
   margin: 0;
   line-height: 1.5;
 }
 
 .errorAlert {
-  background-color: var(--color-danger-bg);
-  color: var(--color-danger);
-  border: 1px solid var(--color-danger-border);
-  padding: var(--space-3);
-  border-radius: var(--radius-md);
-  font-size: var(--text-sm);
-  margin-bottom: var(--space-4);
+  background-color: #FEF2F2;
+  color: var(--color-error, #D32F2F);
+  border: 1px solid #FECACA;
+  padding: 10px 14px;
+  border-radius: var(--radius-md, 14px);
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 16px;
   text-align: center;
 }
 
 .googleWrapper {
-  margin-bottom: var(--space-5);
+  margin-bottom: 16px;
 }
 
 .googleBtnContainer {
   min-height: 44px;
   width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .googleStatus {
   text-align: center;
-  margin-top: var(--space-2);
-  font-size: var(--text-xs);
-  color: var(--color-slate-500);
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--wex-gray-600, #5A6B85);
 }
 
 .divider {
   display: flex;
   align-items: center;
-  margin: var(--space-5) 0;
-  color: var(--color-slate-400);
-  font-size: var(--text-xs);
+  margin: 16px 0;
+  color: var(--wex-gray-400, #9AA8BC);
+  font-size: 11px;
 }
 
 .dividerLine {
   flex: 1;
   height: 1px;
-  background-color: var(--color-border);
+  background-color: var(--wex-ice, #EAF3FF);
 }
 
 .dividerText {
-  padding: 0 var(--space-3);
+  padding: 0 10px;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: 14px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.inputLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--wex-navy, #061A55);
+}
+
+.input {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--wex-navy, #061A55);
+  background: var(--wex-white, #FFFFFF);
+  border: 1px solid var(--wex-gray-200, #E2E8F0);
+  border-radius: var(--radius-md, 14px);
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.input:focus {
+  border-color: var(--wex-vivid, #1E6BFF);
+  box-shadow: 0 0 0 3px rgba(30, 107, 255, 0.15);
+}
+
+.submitBtn {
+  width: 100%;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--wex-grad-brand, linear-gradient(135deg, #061A55 0%, #0B3FBF 60%, #1E6BFF 100%));
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-md, 14px);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(30, 107, 255, 0.35);
+  transition: all 0.2s ease;
+}
+
+.submitBtn:active {
+  transform: scale(0.98);
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .footerNote {
-  margin-top: var(--space-6);
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--color-border-subtle);
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px solid var(--wex-ice, #EAF3FF);
   text-align: center;
-  font-size: var(--text-xs);
-  color: var(--color-slate-500);
-  line-height: 1.6;
+  font-size: 11px;
+  color: var(--wex-gray-600, #5A6B85);
+  line-height: 1.5;
 }
 
 /* 6-box OTP Input Styles */
 .otpBoxGroup {
   display: flex;
-  gap: var(--space-2);
+  gap: 8px;
   justify-content: center;
   direction: ltr;
-  margin: var(--space-4) 0;
+  margin: 16px 0;
 }
 
 .otpInput {
   width: 44px;
   height: 52px;
   text-align: center;
-  font-size: var(--text-xl);
+  font-size: 20px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background-color: var(--color-white);
-  color: var(--color-navy);
+  border: 1px solid var(--wex-gray-200, #E2E8F0);
+  border-radius: var(--radius-md, 14px);
+  background-color: var(--wex-white, #FFFFFF);
+  color: var(--wex-navy, #061A55);
   outline: none;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition: all 0.2s ease;
 }
 
 .otpInput:focus {
-  border-color: var(--color-royal-blue);
-  box-shadow: var(--shadow-focus);
+  border-color: var(--wex-vivid, #1E6BFF);
+  box-shadow: 0 0 0 3px rgba(30, 107, 255, 0.15);
 }
 
 .timerRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: var(--text-xs);
-  color: var(--color-slate-500);
-  margin-top: var(--space-2);
+  font-size: 11px;
+  color: var(--wex-gray-600, #5A6B85);
+  margin-top: 8px;
 }
 
 .timerCount {
   font-weight: 700;
-  color: var(--color-royal-blue);
+  color: var(--wex-royal, #0B3FBF);
   font-variant-numeric: tabular-nums;
 }
 
 .resendBtn {
   background: none;
   border: none;
-  color: var(--color-royal-blue);
-  font-size: var(--text-xs);
-  font-weight: 600;
+  color: var(--wex-royal, #0B3FBF);
+  font-size: 11px;
+  font-weight: 700;
   cursor: pointer;
   padding: 0;
 }
@@ -174,7 +267,7 @@
 }
 
 .resendBtn:disabled {
-  color: var(--color-slate-400);
+  color: var(--wex-gray-400, #9AA8BC);
   cursor: not-allowed;
 }
 
@@ -182,14 +275,15 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: var(--color-slate-500);
-  font-size: var(--text-xs);
+  color: var(--wex-gray-600, #5A6B85);
+  font-size: 11px;
+  font-weight: 700;
   text-decoration: none;
-  margin-top: var(--space-4);
+  margin-top: 14px;
   justify-content: center;
   width: 100%;
 }
 
 .backLink:hover {
-  color: var(--color-royal-blue);
+  color: var(--wex-royal, #0B3FBF);
 }

@@ -23,9 +23,11 @@ Rebuilding storefront UI as ONE mobile-app-style experience identical on phone a
   - `CatalogPage.jsx` & `CatalogPage.module.css`: Screen 3 parity (in-catalog search, categories & condition filter chips scroll, brands filter chips scroll with compact sort dropdown, live 2-column product grid, empty state with filter reset, pagination bar).
   - `ProductDetailPage.jsx` & `ProductDetailPage.module.css`: Screen 4 parity (180px hero image card with condition & brand chips, 20px bold title, subtle ribbon price box with live rate chip & price guarantee note, specs table card, store inspection & warranty notes card, fixed bottom action bar above safe area with quantity counter, cart button, and "اطلب الآن وثبّت السعر" full-width CTA).
   - Verification: 0 lint errors, 39/39 tests passing, production build 110.18 kB gzip.
-- [ ] **Phase 3: Cart, Checkout & Sign-In Screens**
-  - Cart & Checkout: 1-column mobile layout, delivery selector (pickup vs delivery), address fields, financial calculation summary, price-lock notice, sticky CTA.
-  - Sign-in: Google first + 6-box auto-advance OTP input with splash-style ribbon styling.
+- [x] **Phase 3: Cart, Checkout & Sign-In Screens**
+  - `CartPage.jsx` & `CartPage.module.css`: Screen 5 parity in 480px app shell (cart items list with 70x60px image boxes, name, unit price, line total, quantity stepper, remove button, financial calculation card with 3% app discount preview, and sticky bottom checkout action bar).
+  - `CheckoutPage.jsx` & `CheckoutPage.module.css`: Screen 5 parity (items summary card, 2-column delivery selector [Pickup from Al-Waha mall vs Delivery with zones and address fields], contact phone and notes, financial calculation summary with SDG base, 3% discount, shipping fee, final total, amber payment policy card, and sticky submit order button).
+  - `LoginPage.jsx`, `VerifyOtpPage.jsx`, and `Auth.module.css`: splash brand theme with slanted gradient ribbons, white card with logo, Google sign-in integration, Sudanese email/phone OTP input, 6-digit auto-advancing code boxes with 60s resend countdown.
+  - Verification: 0 lint errors, 39/39 tests passing, production build 110.46 kB gzip.
 - [ ] **Phase 4: Price-Lock/Payment, Orders, Tracking, Notifications & Account**
   - Price Lock + Payment: live countdown digits banner, urgent state (< 1h), expired state with reorder, Bankak card with copy shortcuts, receipt upload box with preview & compression.
   - Orders list with status chips.
