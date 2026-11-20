@@ -1,4 +1,4 @@
-/* Wex Mockup Catalog Screen (Screen 3 Parity) */
+/* Wex Catalog Screen (Screen 3 Parity) */
 .container {
   padding: 14px 16px;
   display: flex;
@@ -28,13 +28,12 @@
   font-family: inherit;
   color: var(--wex-navy, #061A55);
   outline: none;
-  box-shadow: var(--shadow-sm);
-  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(6, 26, 85, 0.03);
+  transition: border-color var(--motion-fast, 150ms) var(--ease-standard);
 }
 
 .searchInput:focus {
   border-color: var(--wex-vivid, #1E6BFF);
-  box-shadow: 0 0 0 3px rgba(30, 107, 255, 0.15);
 }
 
 .searchIcon {
@@ -83,7 +82,10 @@
   font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: transform var(--motion-fast, 150ms) var(--ease-standard),
+              background-color var(--motion-fast, 150ms) var(--ease-standard),
+              border-color var(--motion-fast, 150ms) var(--ease-standard),
+              color var(--motion-fast, 150ms) var(--ease-standard);
   user-select: none;
 }
 
@@ -185,8 +187,14 @@
   font-weight: 700;
   color: var(--wex-navy, #061A55);
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  transition: all 0.15s ease;
+  box-shadow: 0 2px 8px rgba(6, 26, 85, 0.03);
+  transition: transform var(--motion-fast, 150ms) var(--ease-standard),
+              border-color var(--motion-fast, 150ms) var(--ease-standard),
+              color var(--motion-fast, 150ms) var(--ease-standard);
+}
+
+.pageBtn:active {
+  transform: scale(0.96);
 }
 
 .pageBtn:disabled {
@@ -203,4 +211,16 @@
   font-size: 12px;
   font-weight: 700;
   color: var(--wex-gray-600, #5A6B85);
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  .filterChip, .pageBtn {
+    transition: none !important;
+  }
+}
+
+:global(html[data-motion="reduced"]) .filterChip,
+:global(html[data-motion="reduced"]) .pageBtn {
+  transition: none !important;
 }

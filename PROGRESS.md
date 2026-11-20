@@ -341,7 +341,20 @@ Calm, trustworthy, production-ready UI/UX tailored for Sudanese customers and el
     9. Shop location card with Al-Waha Mall address, operating hours, Google Maps and WhatsApp CTAs, and slanted ribbon background accent.
     10. Floating WhatsApp button above bottom tab bar with scroll-direction detection (hides on scroll down, reappears on scroll up).
   - Verification: 0 lint errors, 11 test files and 51 tests passing, production build 121.41 kB gzip initial JS.
-- [ ] **Phase 4: Catalog, Product Page, Search & Cart Flight Animation**
+- [x] **Phase 4: Catalog, Product Page, Search & Cart Flight Animation**
+  - Upgraded `CatalogPage.jsx` & `CatalogPage.module.css`:
+    - Clean Fusha text using centralized `ar.catalog` dictionary keys (`resultsCount`, `searchPlaceholder`, `resetFilters`, `sortTitle`, `noResultsTitle`).
+    - Staggered entrance animation for product grid via `--i` indices.
+    - Results count bar with conditional reset button.
+    - Zero `transition: all`, transform, opacity, background-color and border-color transitions only.
+  - Upgraded `ProductDetailPage.jsx` & `ProductDetailPage.module.css`:
+    - Hero gallery with tap-to-zoom modal, multi-image thumbnail indicator dots, and vector `LaptopSvg` fallback.
+    - Specs card with Fusha spec keys and warranty badge.
+    - "يكمل جهازك" accessories rail with one-tap quick add.
+    - Sticky bottom action bar with quantity stepper, morphing cart button with checkmark feedback, and full-width "تثبيت السعر وتأكيد الطلب" CTA.
+    - WAAPI fly-to-cart animation clone targeting `#app-bar-cart-btn`.
+    - Customer privacy strictly enforced: SDG prices only, zero AED, zero exchange rate.
+  - Verification: 0 lint errors, 11 test files and 51 tests passing, production build 121.38 kB gzip initial JS.
 - [ ] **Phase 5: Cart, Checkout, Price-Lock Ring, Receipt & Orders Flow**
 - [ ] **Phase 6: Responsiveness & Accessibility Audits**
 - [ ] **Phase 7: Copy Modernization Pass Across All Screens**

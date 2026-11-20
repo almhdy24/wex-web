@@ -6,6 +6,7 @@ import ProductCard from '../../components/products/ProductCard';
 import { ProductCardSkeleton } from '../../components/common/Skeleton';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
+import { t } from '../../content/ar';
 import styles from './CatalogPage.module.css';
 
 const POPULAR_BRANDS = ['Dell', 'Lenovo', 'HP', 'Apple', 'Acer', 'Asus'];
@@ -121,19 +122,25 @@ export default function CatalogPage() {
   };
 
   const totalCount = meta?.total || products.length;
+  const hasActiveFilters = Boolean(
+    query.trim() ||
+    selectedCategory !== 'all' ||
+    selectedBrand !== 'all' ||
+    selectedCondition !== 'all'
+  );
 
   return (
     <div className={styles.container}>
       {/* 1. In-Catalog Search Bar */}
-      <section className={styles.searchSection} aria-label="البحث في المتجر">
+      <section className={styles.searchSection} aria-label={t('catalog.searchPlaceholder')}>
         <div className={styles.searchForm}>
           <input
             type="search"
             value={query}
             onChange={handleSearchChange}
-            placeholder="ابحث عن لابتوب أو ماركة..."
+            placeholder={t('catalog.searchPlaceholder')}
             className={styles.searchInput}
-            aria-label="ابحث في المتجر"
+            aria-label={t('catalog.searchPlaceholder')}
           />
           <Search size={16} className={styles.searchIcon} />
         </div>
@@ -155,7 +162,7 @@ export default function CatalogPage() {
             className={`${styles.filterChip} ${selectedCondition === 'new' ? styles.active : ''}`}
             onClick={() => { setSelectedCondition(selectedCondition === 'new' ? 'all' : 'new'); setCurrentPage(1); }}
           >
-            جديد
+            {t('home.categories.conditionNew')}
           </button>
 
           <button
@@ -163,7 +170,7 @@ export default function CatalogPage() {
             className={`${styles.filterChip} ${selectedCondition === 'used' ? styles.active : ''}`}
             onClick={() => { setSelectedCondition(selectedCondition === 'used' ? 'all' : 'used'); setCurrentPage(1); }}
           >
-            مستعمل استيراد
+            {t('home.categories.conditionUsed')}
           </button>
 
           {categoriesList.map((cat) => (
@@ -206,41 +213,43 @@ export default function CatalogPage() {
           value={selectedSort}
           onChange={(e) => { setSelectedSort(e.target.value); setCurrentPage(1); }}
           className={styles.sortSelect}
-          aria-label="ترتيب النتائج"
+          aria-label={t('catalog.sortTitle')}
         >
-          <option value="newest">الأحدث</option>
-          <option value="price-low">السعر: من الأقل</option>
-          <option value="price-high">السعر: من الأعلى</option>
+          <option value="newest">{t('catalog.sortNewest')}</option>
+          <option value="price-low">{t('catalog.sortPriceAsc')}</option>
+          <option value="price-high">{t('catalog.sortPriceDesc')}</option>
         </select>
       </section>
 
-      {/* Results Header Count */}
+      {/* Results Header Count & Reset */}
       <div className={styles.resultsBar}>
         <span className={styles.resultsCount}>
-          {loading ? 'جاري التحميل...' : `${totalCount} أجهزة متوفرة`}
+          {loading ? 'جاري التحميل...' : t('catalog.resultsCount', { count: totalCount })}
         </span>
-        {(query || selectedCategory !== 'all' || selectedBrand !== 'all' || selectedCondition !== 'all') && (
+        {hasActiveFilters && (
           <button type="button" onClick={handleResetFilters} className={styles.resetBtn}>
             <RotateCcw size={12} />
-            <span>إعادة ضبط</span>
+            <span>{t('catalog.resetFilters')}</span>
           </button>
         )}
       </div>
 
       {error && <ErrorState message={error} onRetry={loadProducts} />}
 
-      {/* 4. Live 2-Column Product Grid */}
+      {/* 4. Live 2-Column Product Grid with Staggered Fade-in */}
       <div className={styles.productGrid}>
         {loading ? (
           Array.from({ length: 6 }).map((_, i) => <ProductCardSkeleton key={i} />)
         ) : products.length > 0 ? (
-          products.map((prod) => <ProductCard key={prod.id} product={prod} />)
+          products.map((prod, idx) => (
+            <ProductCard key={prod.id} product={prod} index={idx} />
+          ))
         ) : !error ? (
           <div className={styles.emptyContainer}>
             <EmptyState
-              title="لم نجد أجهزة مطابقة"
-              description="جرب البحث بكلمة مختلفة أو إعادة ضبط الفلاتر المعينة."
-              actionLabel="إعادة ضبط الفلاتر"
+              title={t('catalog.noResultsTitle')}
+              description={t('catalog.noResultsDesc')}
+              actionLabel={t('catalog.resetFilters')}
               onAction={handleResetFilters}
             />
           </div>
