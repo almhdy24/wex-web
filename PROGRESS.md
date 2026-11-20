@@ -561,7 +561,22 @@ Ground-up redesign of the administration panel tailored for store operators and 
   - Added `formatRelativeTime` in `src/utils/formatters.js`.
   - Added unit test suite `src/__tests__/admin-phase2.test.jsx`.
   - Verification: 0 lint errors, 18 test files and 87 tests passing (100%), production build clean (136.58 kB gzip initial JS, 13.78 kB gzip global CSS).
-- [ ] **Phase 3: Orders List & Order Detail with Next-Step Actions**
+- [x] **Phase 3: Orders List & Order Detail with Next-Step Actions**
+  - Upgraded `AdminOrdersPage.jsx` & `AdminOrdersPage.module.css`:
+    - Horizontally scrollable status filter chips bar with live counts (`الكل`, `بانتظار التحويل`, `مراجعة الإشعار`, `تم التأكيد`, `قيد التجهيز`, `جاهز للاستلام`, `مع المندوب`, `تم التسليم`, `ملغي`, `منتهي`).
+    - `<FilterBar>` with search (order number, customer phone), delivery type filter, date filter.
+    - URL query parameter synchronization (`searchParams`).
+    - Rendered via `<DataList>` (touch card view on phone, sortable data table on desktop).
+  - Upgraded `AdminOrderDetailPage.jsx` & `AdminOrderDetailPage.module.css`:
+    - Status header with `<StatusChip status={order.status} />`.
+    - Single primary contextual next-step action based on current status (`pending_payment`/`payment_review` -> "مراجعة إشعار الدفع واعتماده", `confirmed` -> "بدء تجهيز الطلب بالمحل", `processing` [delivery] -> "تسليم لمندوب التوصيل", `processing` [pickup] -> "جاهز للاستلام بالمحل", `ready_for_pickup`/`out_for_delivery` -> "تم التسليم للعميل بنجاح").
+    - Courier dispatch modal requiring courier name & phone for delivery orders.
+    - Customer contact bar with direct call button (`tel:`) and WhatsApp shortcut (`wa.me` with prefilled template).
+    - Delivery details card, items breakdown with thumbnails, and audit timeline.
+    - Payment proofs history table with interactive `ImageViewer` modal.
+    - Secondary actions: extend price lock (hours), cancel order (requires reason), copy summary, and printable invoice slip with `@media print` stylesheet.
+  - Added unit test suite `src/__tests__/admin-phase3.test.jsx` (2 unit tests).
+  - Verification: 0 lint errors, 19 test files and 89 tests passing (100%), production build clean (137.54 kB gzip initial JS, 13.78 kB gzip global CSS).
 - [ ] **Phase 4: Products List & Multi-Section Product Form**
 - [ ] **Phase 5: Exchange Rate, Settings & Shipping Zones**
 - [ ] **Phase 6: Users, Audit Log, Role-Based Navigation & Login Redirect**

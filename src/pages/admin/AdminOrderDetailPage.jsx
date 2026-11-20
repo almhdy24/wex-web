@@ -1,15 +1,31 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowRight, Clock, CheckCircle2, Check, X } from 'lucide-react';
+import {
+  ArrowRight,
+  Phone,
+  MessageCircle,
+  Printer,
+  Copy,
+  Clock,
+  CheckCircle2,
+  Package,
+  Truck,
+  Store,
+  Eye,
+  Check,
+  Ban,
+} from 'lucide-react';
 import { adminApi } from '../../api/admin';
-import { formatSdg, formatDate, getOrderStatusInfo, getProofStatusInfo } from '../../utils/formatters';
+import { adminAr } from '../../content/admin.ar';
+import { formatSdg, formatDate, formatRelativeTime, resolveImageUrl } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
-import Tag from '../../components/common/Tag';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import Modal from '../../components/common/Modal';
 import ErrorState from '../../components/common/ErrorState';
 import { Skeleton } from '../../components/common/Skeleton';
+import StatusChip from '../../components/admin/StatusChip';
+import ImageViewer from '../../components/admin/ImageViewer';
 import styles from './AdminOrderDetailPage.module.css';
 
 export default function AdminOrderDetailPage() {
@@ -19,28 +35,29 @@ export default function AdminOrderDetailPage() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [updating, setUpdating] = useState(false);
 
-  // Status Update Modal
-  const [statusModalOpen, setStatusModalOpen] = useState(false);
-  const [newStatus, setNewStatus] = useState('');
-  const [statusNote, setStatusNote] = useState('');
+  // Modals
+  const [courierModalOpen, setCourierModalOpen] = useState(false);
   const [courierName, setCourierName] = useState('');
   const [courierPhone, setCourierPhone] = useState('');
-  const [updatingStatus, setUpdatingStatus] = useState(false);
 
-  // Lock Extension Modal
   const [lockModalOpen, setLockModalOpen] = useState(false);
   const [lockHours, setLockHours] = useState(4);
   const [extendingLock, setExtendingLock] = useState(false);
 
-  // Payment Proof Review Modal
-  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [cancelling, setCancelling] = useState(false);
+
+  // Proof Review Modal
+  const [proofModalOpen, setProofModalOpen] = useState(false);
   const [selectedProof, setSelectedProof] = useState(null);
-  const [reviewAction, setReviewAction] = useState('approve');
-  const [reviewNote, setReviewNote] = useState('');
-  const [reviewing, setReviewing] = useState(false);
   const [proofImageBlobUrl, setProofImageBlobUrl] = useState(null);
   const [loadingProofImage, setLoadingProofImage] = useState(false);
+  const [reviewAction, setReviewAction] = useState('approve');
+  const [reviewNote, setReviewNote] = useState('');
+  const [reviewingProof, setReviewingProof] = useState(false);
 
   const loadOrder = async (showLoading = true) => {
     if (showLoading) setLoading(true);
@@ -49,7 +66,7 @@ export default function AdminOrderDetailPage() {
       const res = await adminApi.getOrderDetail(orderNumber);
       setOrder(res.data);
     } catch (err) {
-      setError(err.message || 'الاتصال ضعيف. حاول تاني.');
+      setError(err.message || 'الاتصال ضعيف. حاول مجدداً.');
     } finally {
       if (showLoading) setLoading(false);
     }
@@ -59,12 +76,139 @@ export default function AdminOrderDetailPage() {
     loadOrder(true);
   }, [orderNumber]);
 
-  const openProofReview = async (proof, action) => {
+  // Clean up blob URL on unmount
+  useEffect(() => {
+    return () => {
+      if (proofImageBlobUrl) URL.revokeObjectURL(proofImageBlobUrl);
+    };
+  }, [proofImageBlobUrl]);
+
+  // Update order status directly
+  const handleStatusUpdate = async (nextStatus, payload = {}) => {
+    setUpdating(true);
+    try {
+      await adminApi.updateOrderStatus(orderNumber, {
+        status: nextStatus,
+        ...payload,
+      });
+      success(`تم تحديث حالة الطلب إلى "${nextStatus}"`);
+      loadOrder(false);
+    } catch (err) {
+      toastError(err.message || 'فشل تحديث حالة الطلب');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  // Primary Next-Step Action Logic
+  const handlePrimaryNextStep = () => {
+    if (!order) return;
+    const isDelivery = order.delivery_type === 'delivery';
+
+    switch (order.status) {
+      case 'payment_review':
+      case 'pending_payment': {
+        const proofs = order.proofs || [];
+        const pendingProof = proofs.find((p) => p.status === 'pending') || proofs[0];
+        if (pendingProof) {
+          openProofReview(pendingProof, 'approve');
+        } else {
+          toastError('لم يرفع العميل إشعار دفع بعد');
+        }
+        break;
+      }
+      case 'confirmed':
+        handleStatusUpdate('processing');
+        break;
+      case 'processing':
+        if (isDelivery) {
+          setCourierModalOpen(true);
+        } else {
+          handleStatusUpdate('ready_for_pickup');
+        }
+        break;
+      case 'ready_for_pickup':
+      case 'out_for_delivery':
+        handleStatusUpdate('delivered');
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Courier Dispatch Submit
+  const handleCourierSubmit = async (e) => {
+    e.preventDefault();
+    if (!courierName.trim()) {
+      toastError('يرجى إدخال اسم المندوب');
+      return;
+    }
+    setUpdating(true);
+    try {
+      await adminApi.updateOrderStatus(orderNumber, {
+        status: 'out_for_delivery',
+        courier_name: courierName.trim(),
+        courier_phone: courierPhone.trim() || undefined,
+      });
+      success('تم تسليم الطلب للمندوب وتحديث الحالة');
+      setCourierModalOpen(false);
+      setCourierName('');
+      setCourierPhone('');
+      loadOrder(false);
+    } catch (err) {
+      toastError(err.message || 'فشل تسليم الطلب للمندوب');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  // Lock Extension
+  const handleExtendLock = async (e) => {
+    e.preventDefault();
+    setExtendingLock(true);
+    try {
+      await adminApi.extendLock(orderNumber, lockHours);
+      success(`تم تمديد مهلة السعر بمقدار ${lockHours} ساعات`);
+      setLockModalOpen(false);
+      loadOrder(false);
+    } catch (err) {
+      toastError(err.message || 'فشل تمديد مهلة السعر');
+    } finally {
+      setExtendingLock(false);
+    }
+  };
+
+  // Cancel Order
+  const handleCancelOrder = async () => {
+    if (!cancelReason.trim()) {
+      toastError('يرجى كتابة سبب الإلغاء');
+      return;
+    }
+    setCancelling(true);
+    try {
+      await adminApi.updateOrderStatus(orderNumber, {
+        status: 'cancelled',
+        note: cancelReason.trim(),
+      });
+      success('تم إلغاء الطلب بنجاح');
+      setCancelModalOpen(false);
+      setCancelReason('');
+      loadOrder(false);
+    } catch (err) {
+      toastError(err.message || 'فشل إلغاء الطلب');
+    } finally {
+      setCancelling(false);
+    }
+  };
+
+  // Proof Review Modal Open
+  const openProofReview = async (proof, action = 'approve') => {
     setSelectedProof(proof);
     setReviewAction(action);
     setReviewNote('');
-    setReviewModalOpen(true);
+    setProofModalOpen(true);
     setLoadingProofImage(true);
+    if (proofImageBlobUrl) URL.revokeObjectURL(proofImageBlobUrl);
     setProofImageBlobUrl(null);
 
     try {
@@ -72,525 +216,550 @@ export default function AdminOrderDetailPage() {
       const url = URL.createObjectURL(blob);
       setProofImageBlobUrl(url);
     } catch {
-      toastError('تعذر تحميل ملف الإشعار');
+      toastError('تعذر تحميل صورة الإشعار');
     } finally {
       setLoadingProofImage(false);
     }
   };
 
-  const handleStatusSubmit = async (e) => {
-    e.preventDefault();
-    if (!newStatus) return;
-    setUpdatingStatus(true);
-
-    try {
-      await adminApi.updateOrderStatus(orderNumber, {
-        status: newStatus,
-        note: statusNote.trim() || undefined,
-        courier_name: courierName.trim() || undefined,
-        courier_phone: courierPhone.trim() || undefined,
-      });
-      success('تم تحديث حالة الطلب');
-      setStatusModalOpen(false);
-      setStatusNote('');
-      setCourierName('');
-      setCourierPhone('');
-      loadOrder(false);
-    } catch (err) {
-      toastError(err.message || 'فشل تحديث الحالة. حاول تاني.');
-    } finally {
-      setUpdatingStatus(false);
-    }
-  };
-
-  const handleExtendLock = async (e) => {
-    e.preventDefault();
-    setExtendingLock(true);
-    try {
-      await adminApi.extendPriceLock(orderNumber, Number(lockHours));
-      success(`تم تمديد حجز السعر بنجاح لمدة ${lockHours} ساعات`);
-      setLockModalOpen(false);
-      loadOrder(false);
-    } catch (err) {
-      toastError(err.message || 'فشل تمديد الحجز');
-    } finally {
-      setExtendingLock(false);
-    }
-  };
-
-  const handleProofReviewSubmit = async (e) => {
-    e.preventDefault();
+  const handleProofDecision = async (e) => {
+    if (e) e.preventDefault();
     if (!selectedProof) return;
 
     if (reviewAction === 'reject' && !reviewNote.trim()) {
-      toastError('يرجى كتابة سبب الرفض');
+      toastError(adminAr.payments.rejectReasonRequired);
       return;
     }
 
-    setReviewing(true);
+    setReviewingProof(true);
     try {
       await adminApi.reviewPaymentProof(orderNumber, selectedProof.id, {
         action: reviewAction,
         note: reviewNote.trim() || undefined,
       });
       success(reviewAction === 'approve' ? 'تم اعتماد التحويل وتأكيد الطلب' : 'تم رفض الإشعار');
-      setReviewModalOpen(false);
+      setProofModalOpen(false);
       loadOrder(false);
     } catch (err) {
-      toastError(err.message || 'فشل تنفيذ الإجراء');
+      toastError(err.message || 'فشل تنفيذ القرار');
     } finally {
-      setReviewing(false);
+      setReviewingProof(false);
     }
+  };
+
+  const handleCopySummary = () => {
+    if (!order) return;
+    const summary = `طلب رقم #${order.order_number}\nالعميل: ${order.customer_name} (${order.customer_phone})\nالمبلغ الإجمالي: ${formatSdg(order.total_sdg)}\nالحالة: ${order.status}\nالاستلام: ${order.delivery_type === 'delivery' ? 'توصيل' : 'استلام بالمحل'}`;
+    navigator.clipboard.writeText(summary);
+    success('تم نسخ ملخص الطلب إلى الحافظة');
+  };
+
+  const handlePrintSlip = () => {
+    window.print();
   };
 
   if (loading) {
     return (
       <div className={styles.container}>
-        <Skeleton height="36px" width="40%" />
+        <Skeleton height="36px" width="280px" />
         <div style={{ height: 16 }} />
-        <Skeleton height="260px" borderRadius="var(--radius-lg)" />
+        <Skeleton height="180px" borderRadius="var(--radius-lg)" />
+        <div style={{ height: 16 }} />
+        <Skeleton height="320px" borderRadius="var(--radius-lg)" />
       </div>
     );
   }
 
   if (error || !order) {
-    return (
-      <div className={styles.container}>
-        <ErrorState
-          title="تعذر العثور على الطلب"
-          message={error || 'رقم الطلب غير صحيح.'}
-        />
-      </div>
-    );
+    return <ErrorState message={error || 'تعذر تحميل بيانات الطلب'} onRetry={() => loadOrder(true)} />;
   }
 
-  const statusInfo = getOrderStatusInfo(order.status);
-  const isPending = order.status === 'pending_payment';
+  const isDelivery = order.delivery_type === 'delivery';
+
+  // Determine Primary Next-Step Action Label and Icon
+  let nextStepLabel = null;
+  let NextStepIcon = CheckCircle2;
+  let isNextStepDisabled = false;
+
+  if (order.status === 'payment_review' || order.status === 'pending_payment') {
+    nextStepLabel = 'مراجعة إشعار الدفع واعتماده';
+    NextStepIcon = Eye;
+  } else if (order.status === 'confirmed') {
+    nextStepLabel = 'بدء تجهيز الطلب بالمحل';
+    NextStepIcon = Package;
+  } else if (order.status === 'processing') {
+    nextStepLabel = isDelivery ? 'تسليم لمندوب التوصيل' : 'جاهز للاستلام بالمحل';
+    NextStepIcon = isDelivery ? Truck : Store;
+  } else if (order.status === 'ready_for_pickup' || order.status === 'out_for_delivery') {
+    nextStepLabel = 'تم التسليم للعميل بنجاح';
+    NextStepIcon = Check;
+  } else if (order.status === 'delivered') {
+    nextStepLabel = 'الطلب مكتمل وتم التسليم';
+    isNextStepDisabled = true;
+  }
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <div className={styles.titleInfo}>
-          <Link
-            to="/admin/orders"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 4,
-              fontSize: 'var(--text-xs)',
-              color: 'var(--color-slate-500)',
-              textDecoration: 'none',
-              marginBottom: 4,
-            }}
-          >
-            <ArrowRight size={14} />
-            <span>العودة لقائمة الطلبات</span>
-          </Link>
-          <h1 className={styles.orderNumber}>#{order.order_number}</h1>
-          <span className={styles.orderDate}>
-            تاريخ الإنشاء: {formatDate(order.created_at)}
-          </span>
+      {/* Printable Invoice Slip (Visible only during window.print) */}
+      <div className={styles.printOnlySlip} aria-hidden="true">
+        <div className={styles.printHeader}>
+          <h1>متجر ويكس تكنولوجي — فاتورة استلام</h1>
+          <p>مول الواحة، الشهداء، أم درمان | هاتف: 0912345678</p>
         </div>
-
-        <div className={styles.headerActions}>
-          <Tag variant={statusInfo.variant}>{statusInfo.label}</Tag>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setNewStatus(order.status);
-              setStatusModalOpen(true);
-            }}
-          >
-            <CheckCircle2 size={14} />
-            <span>تحديث الحالة</span>
-          </Button>
-
-          {isPending && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setLockModalOpen(true)}
-            >
-              <Clock size={14} />
-              <span>تمديد حجز السعر</span>
-            </Button>
-          )}
+        <hr />
+        <div className={styles.printMeta}>
+          <div><strong>رقم الطلب:</strong> #{order.order_number}</div>
+          <div><strong>التاريخ:</strong> {formatDate(order.created_at)}</div>
+          <div><strong>العميل:</strong> {order.customer_name} ({order.customer_phone})</div>
+          <div><strong>طريقة الاستلام:</strong> {isDelivery ? 'توصيل' : 'استلام من المحل'}</div>
         </div>
-      </header>
-
-      {/* Brand graphic: thin divider under admin page title */}
-      <div className={styles.titleDivider} aria-hidden="true" />
-
-      <div className={styles.grid}>
-        {/* Main Column */}
-        <div>
-          {/* Order Items */}
-          <section className={styles.card} aria-label="المنتجات">
-            <div className={styles.cardHeader}>
-              <h2 className={styles.cardTitle}>المنتجات والأجهزة المطلوبة</h2>
-            </div>
-            <div className={styles.tableWrapper}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>الجهاز</th>
-                    <th>سعر القطعة (SDG)</th>
-                    <th>
-                      سعر القطعة (AED) <span className={styles.adminOnlyBadge}>للإدارة فقط</span>
-                    </th>
-                    <th>الكمية</th>
-                    <th>المجموع (SDG)</th>
-                    <th>
-                      المجموع (AED) <span className={styles.adminOnlyBadge}>للإدارة فقط</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {order.items?.map((item) => (
-                    <tr key={item.id}>
-                      <td>
-                        <strong>{item.name || item.product_name}</strong>
-                      </td>
-                      <td>{formatSdg(item.unit_price_sdg)}</td>
-                      <td>{item.unit_price_aed ? `${item.unit_price_aed} AED` : '—'}</td>
-                      <td>{item.quantity}</td>
-                      <td>{formatSdg(item.line_total_sdg || item.subtotal_sdg)}</td>
-                      <td>{item.line_total_aed ? `${item.line_total_aed} AED` : '—'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className={styles.tableFooter}>
-              <div className={styles.footerRow}>
-                <span>
-                  سعر الصرف المعتمد للطلب: <span className={styles.adminOnlyBadge}>للإدارة فقط</span>
-                </span>
-                <span style={{ fontWeight: 700 }}>
-                  {order.rate_sdg_snapshot ? `1 AED = ${Number(order.rate_sdg_snapshot).toLocaleString('en-US')} SDG` : '—'}
-                </span>
-              </div>
-              <div className={styles.footerRow}>
-                <span>
-                  المجموع الفرعي (AED): <span className={styles.adminOnlyBadge}>للإدارة فقط</span>
-                </span>
-                <span style={{ fontWeight: 700 }}>
-                  {order.subtotal_aed ? `${order.subtotal_aed} AED` : '—'}
-                </span>
-              </div>
-              <div className={styles.footerRow}>
-                <span>المجموع الفرعي (SDG):</span>
-                <span>{formatSdg(order.subtotal_sdg)}</span>
-              </div>
-              {order.discount_sdg > 0 && (
-                <div className={styles.footerRow} style={{ color: 'var(--color-success)' }}>
-                  <span>خصم التطبيق:</span>
-                  <span>-{formatSdg(order.discount_sdg)}</span>
-                </div>
-              )}
-              <div className={styles.footerRow}>
-                <span>رسوم التوصيل:</span>
-                <span>
-                  {order.delivery_fee_sdg === 0 ? 'مجاناً' : formatSdg(order.delivery_fee_sdg)}
-                </span>
-              </div>
-              <div className={styles.footerTotalRow}>
-                <span>المبلغ الإجمالي المثبت:</span>
-                <span className={styles.totalSdg}>{formatSdg(order.total_sdg)}</span>
-              </div>
-            </div>
-          </section>
-
-          {/* Payment Proofs */}
-          <section className={styles.card} aria-label="إشعارات التحويل">
-            <div className={styles.cardHeader}>
-              <h2 className={styles.cardTitle}>إشعارات الدفع والتحويل البنكي</h2>
-            </div>
-            <div className={styles.cardBody}>
-              {!order.proofs || order.proofs.length === 0 ? (
-                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)', margin: 0 }}>
-                  لم يتم رفع أي إشعار تحويل لهذا الطلب حتى الآن.
-                </p>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                  {order.proofs.map((proof) => {
-                    const proofStatus = getProofStatusInfo(proof.status);
-                    return (
-                      <div
-                        key={proof.id}
-                        style={{
-                          padding: 'var(--space-3)',
-                          borderRadius: 'var(--radius-md)',
-                          backgroundColor: 'var(--color-slate-50)',
-                          border: '1px solid var(--color-border-subtle)',
-                        }}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                          <span style={{ fontSize: '11px', color: 'var(--color-slate-500)' }}>
-                            تاريخ الرفع: {formatDate(proof.created_at)}
-                          </span>
-                          <Tag variant={proofStatus.variant}>{proofStatus.label}</Tag>
-                        </div>
-
-                        {proof.sender_name && (
-                          <div style={{ fontSize: '12px' }}>اسم المحوّل: <strong>{proof.sender_name}</strong></div>
-                        )}
-                        {proof.reference_number && (
-                          <div style={{ fontSize: '12px' }} dir="ltr">الرقم المرجعي: <strong>{proof.reference_number}</strong></div>
-                        )}
-
-                        <div style={{ marginTop: 'var(--space-2)', display: 'flex', gap: 'var(--space-2)' }}>
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            onClick={() => openProofReview(proof, 'approve')}
-                          >
-                            <Check size={14} />
-                            <span>مراجعة واعتماد</span>
-                          </Button>
-                          <Button
-                            variant="danger"
-                            size="sm"
-                            onClick={() => openProofReview(proof, 'reject')}
-                          >
-                            <X size={14} />
-                            <span>رفض</span>
-                          </Button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </section>
-        </div>
-
-        {/* Sidebar Column */}
-        <div>
-          {/* Customer & Delivery */}
-          <section className={styles.card} aria-label="بيانات العميل">
-            <div className={styles.cardHeader}>
-              <h2 className={styles.cardTitle}>بيانات العميل والتسليم</h2>
-            </div>
-            <div className={styles.cardBody}>
-              <div className={styles.infoList}>
-                <div>
-                  <span className={styles.infoLabel}>العميل: </span>
-                  <strong>{order.user_name || order.customer_name || 'عميل'}</strong>
-                </div>
-                <div>
-                  <span className={styles.infoLabel}>الهاتف: </span>
-                  <span dir="ltr"><strong>{order.contact_phone}</strong></span>
-                </div>
-                <div>
-                  <span className={styles.infoLabel}>طريقة الاستلام: </span>
-                  <span>{order.delivery_type === 'pickup' ? 'استلام من المحل' : 'توصيل للعنوان'}</span>
-                </div>
-                {order.delivery_type === 'delivery' && (
-                  <div>
-                    <span className={styles.infoLabel}>العنوان: </span>
-                    <span>{order.delivery_address}</span>
-                  </div>
-                )}
-                {order.customer_notes && (
-                  <div>
-                    <span className={styles.infoLabel}>ملاحظات العميل: </span>
-                    <span>{order.customer_notes}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </section>
-
-          {/* Timeline */}
-          {order.events && order.events.length > 0 && (
-            <section className={styles.card} aria-label="المسار">
-              <div className={styles.cardHeader}>
-                <h2 className={styles.cardTitle}>مسار المراحل</h2>
-              </div>
-              <div className={styles.cardBody}>
-                <div className={styles.timeline}>
-                  {order.events.map((evt) => (
-                    <div key={evt.id} className={styles.timelineItem}>
-                      <div className={styles.timelineDot} />
-                      <span className={styles.timelineStatus}>
-                        {evt.status_ar || evt.new_status}
-                      </span>
-                      <span className={styles.timelineDate}>
-                        {formatDate(evt.created_at)}
-                      </span>
-                      {evt.note && (
-                        <span className={styles.timelineNote}>{evt.note}</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-          )}
+        <table className={styles.printTable}>
+          <thead>
+            <tr>
+              <th>الجهاز / المنتج</th>
+              <th>الكمية</th>
+              <th>السعر الفردي</th>
+              <th>الإجمالي</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(order.items || []).map((it) => (
+              <tr key={it.id || it.product_id}>
+                <td>{it.product_name}</td>
+                <td>{it.quantity}</td>
+                <td>{formatSdg(it.unit_price_sdg)}</td>
+                <td>{formatSdg(it.line_total_sdg)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className={styles.printTotal}>
+          <strong>المبلغ الإجمالي المدفوع: {formatSdg(order.total_sdg)}</strong>
         </div>
       </div>
 
-      {/* Modal: Status Update */}
-      <Modal
-        isOpen={statusModalOpen}
-        onClose={() => setStatusModalOpen(false)}
-        title="تحديث حالة الطلب"
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setStatusModalOpen(false)}>
-              إلغاء
-            </Button>
-            <Button
-              variant="primary"
-              loading={updatingStatus}
-              onClick={handleStatusSubmit}
-            >
-              حفظ التحديث
-            </Button>
-          </>
-        }
-      >
-        <form onSubmit={handleStatusSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-          <div>
-            <label style={{ fontSize: 'var(--text-xs)', fontWeight: 600, display: 'block', marginBottom: 4 }}>
-              الحالة الجديدة
-            </label>
-            <select
-              value={newStatus}
-              onChange={(e) => setNewStatus(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--color-border)',
-                fontFamily: 'inherit',
-              }}
-            >
-              <option value="pending_payment">بانتظار الدفع</option>
-              <option value="payment_review">مراجعة إشعار الدفع</option>
-              <option value="confirmed">تم تأكيد الطلب</option>
-              <option value="ready_for_pickup">جاهز للاستلام بالمحل</option>
-              <option value="out_for_delivery">جاري التوصيل مع المندوب</option>
-              <option value="completed">مكتمل ومستلم</option>
-              <option value="cancelled">إلغاء الطلب</option>
-            </select>
+      {/* Screen View */}
+      <div className={styles.screenView}>
+        {/* Back Link & Header */}
+        <div className={styles.navBack}>
+          <Link to="/admin/orders" className={styles.backLink}>
+            <ArrowRight size={16} />
+            <span>العودة لكافة الطلبات</span>
+          </Link>
+        </div>
+
+        <header className={styles.header}>
+          <div className={styles.titleGroup}>
+            <div className={styles.titleRow}>
+              <h1 className={styles.orderTitle}>طلب #{order.order_number}</h1>
+              <StatusChip status={order.status} size="md" />
+            </div>
+            <span className={styles.orderDate}>
+              تم الإنشاء: {formatDate(order.created_at)} ({formatRelativeTime(order.created_at)})
+            </span>
           </div>
 
-          {newStatus === 'out_for_delivery' && (
-            <>
-              <Input
-                label="اسم المندوب"
-                value={courierName}
-                onChange={(e) => setCourierName(e.target.value)}
-              />
-              <Input
-                label="هاتف المندوب"
-                value={courierPhone}
-                onChange={(e) => setCourierPhone(e.target.value)}
-                dir="ltr"
-              />
-            </>
-          )}
+          {/* Secondary Actions Bar */}
+          <div className={styles.secondaryActions}>
+            <Button variant="outline" size="sm" onClick={handlePrintSlip} title={adminAr.orders.printSlip}>
+              <Printer size={14} />
+              <span>طباعة الفاتورة</span>
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleCopySummary} title={adminAr.orders.copySummary}>
+              <Copy size={14} />
+              <span>نسخ الملخص</span>
+            </Button>
+            {order.status === 'pending_payment' && (
+              <Button variant="outline" size="sm" onClick={() => setLockModalOpen(true)}>
+                <Clock size={14} />
+                <span>تمديد المهلة</span>
+              </Button>
+            )}
+            {order.status !== 'cancelled' && order.status !== 'delivered' && (
+              <Button variant="outline" size="sm" onClick={() => setCancelModalOpen(true)} className={styles.cancelBtn}>
+                <Ban size={14} />
+                <span>إلغاء الطلب</span>
+              </Button>
+            )}
+          </div>
+        </header>
 
+        {/* Brand Divider */}
+        <div className={styles.titleDivider} aria-hidden="true" />
+
+        {/* Primary Next-Step Action Banner */}
+        {nextStepLabel && (
+          <aside className={styles.nextStepBanner} aria-label="الإجراء التالي المطلوب">
+            <div className={styles.nextStepInfo}>
+              <span className={styles.nextStepBadge}>الخطوة التالية في مسار الطلب:</span>
+              <strong className={styles.nextStepTitle}>{nextStepLabel}</strong>
+            </div>
+
+            <Button
+              variant="primary"
+              size="lg"
+              disabled={isNextStepDisabled || updating}
+              loading={updating}
+              onClick={handlePrimaryNextStep}
+              className={styles.nextStepCTA}
+            >
+              <NextStepIcon size={18} />
+              <span>{nextStepLabel}</span>
+            </Button>
+          </aside>
+        )}
+
+        {/* Two-Column Grid: Left Details + Right Timeline */}
+        <div className={styles.grid}>
+          {/* Main Column */}
+          <div className={styles.mainCol}>
+            {/* Customer Contact Card */}
+            <section className={styles.card} aria-label="بيانات العميل">
+              <div className={styles.cardHeader}>
+                <h2 className={styles.cardTitle}>بيانات العميل والتواصل</h2>
+              </div>
+              <div className={styles.cardBody}>
+                <div className={styles.customerRow}>
+                  <div>
+                    <span className={styles.custName}>{order.customer_name || 'عميل'}</span>
+                    <span className={styles.custPhone}>{order.customer_phone}</span>
+                  </div>
+                  <div className={styles.custActions}>
+                    {order.customer_phone && (
+                      <>
+                        <a href={`tel:${order.customer_phone}`} className={styles.contactBtn}>
+                          <Phone size={14} />
+                          <span>اتصال هاتف</span>
+                        </a>
+                        <a
+                          href={`https://wa.me/${order.customer_phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                            adminAr.orders.whatsappTemplate
+                              .replace('{name}', order.customer_name || '')
+                              .replace('{orderNumber}', order.order_number)
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`${styles.contactBtn} ${styles.whatsappBtn}`}
+                        >
+                          <MessageCircle size={14} />
+                          <span>مراسلة واتساب</span>
+                        </a>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Delivery Details Card */}
+            <section className={styles.card} aria-label={adminAr.orders.deliveryDetailsTitle}>
+              <div className={styles.cardHeader}>
+                <h2 className={styles.cardTitle}>{adminAr.orders.deliveryDetailsTitle}</h2>
+              </div>
+              <div className={styles.cardBody}>
+                <div className={styles.deliveryDetailsGrid}>
+                  <div>
+                    <span className={styles.fieldLabel}>طريقة الاستلام:</span>
+                    <strong className={styles.fieldValue}>{isDelivery ? 'توصيل إلى العنوان' : 'استلام من المحل (مول الواحة)'}</strong>
+                  </div>
+                  {isDelivery && (
+                    <>
+                      <div>
+                        <span className={styles.fieldLabel}>المنطقة / الولاية:</span>
+                        <strong className={styles.fieldValue}>{order.shipping_state || 'الخرطوم'}</strong>
+                      </div>
+                      <div>
+                        <span className={styles.fieldLabel}>العنوان التفصيلي:</span>
+                        <strong className={styles.fieldValue}>{order.shipping_address || '—'}</strong>
+                      </div>
+                    </>
+                  )}
+                  {order.courier_name && (
+                    <div>
+                      <span className={styles.fieldLabel}>مندوب التوصيل:</span>
+                      <strong className={styles.fieldValue}>
+                        {order.courier_name} {order.courier_phone && `(${order.courier_phone})`}
+                      </strong>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
+
+            {/* Order Items List */}
+            <section className={styles.card} aria-label={adminAr.orders.itemsTitle}>
+              <div className={styles.cardHeader}>
+                <h2 className={styles.cardTitle}>{adminAr.orders.itemsTitle}</h2>
+              </div>
+              <div className={styles.cardBody}>
+                <div className={styles.itemsList}>
+                  {(order.items || []).map((it) => (
+                    <div key={it.id || it.product_id} className={styles.itemRow}>
+                      <div className={styles.itemThumb}>
+                        {it.product_image ? (
+                          <img src={resolveImageUrl(it.product_image)} alt={it.product_name} />
+                        ) : (
+                          <Package size={20} className={styles.itemPlaceholderIcon} />
+                        )}
+                      </div>
+                      <div className={styles.itemInfo}>
+                        <span className={styles.itemName}>{it.product_name}</span>
+                        <span className={styles.itemQuantity}>الكمية: {it.quantity}</span>
+                      </div>
+                      <div className={styles.itemPrices}>
+                        <span className={styles.unitPrice}>{formatSdg(it.unit_price_sdg)}</span>
+                        <strong className={styles.lineTotal}>{formatSdg(it.line_total_sdg)}</strong>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className={styles.orderTotalsBreakdown}>
+                  <div className={styles.breakdownRow}>
+                    <span>المجموع الجزئي:</span>
+                    <span>{formatSdg(order.subtotal_sdg)}</span>
+                  </div>
+                  {order.discount_sdg > 0 && (
+                    <div className={styles.breakdownRow}>
+                      <span>خصم التطبيق:</span>
+                      <span className={styles.discountText}>- {formatSdg(order.discount_sdg)}</span>
+                    </div>
+                  )}
+                  {isDelivery && (
+                    <div className={styles.breakdownRow}>
+                      <span>رسوم التوصيل:</span>
+                      <span>{formatSdg(order.delivery_fee_sdg)}</span>
+                    </div>
+                  )}
+                  <div className={`${styles.breakdownRow} ${styles.finalTotalRow}`}>
+                    <strong>الإجمالي النهائي:</strong>
+                    <strong>{formatSdg(order.total_sdg)}</strong>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Payment Proofs History */}
+            <section className={styles.card} aria-label={adminAr.orders.proofsHistoryTitle}>
+              <div className={styles.cardHeader}>
+                <h2 className={styles.cardTitle}>{adminAr.orders.proofsHistoryTitle}</h2>
+              </div>
+              <div className={styles.cardBody}>
+                {(order.proofs || []).length === 0 ? (
+                  <p className={styles.emptyNotice}>لا توجد إشعارات دفع مرفوعة حتى الآن.</p>
+                ) : (
+                  <div className={styles.proofsList}>
+                    {order.proofs.map((proof) => (
+                      <div key={proof.id} className={styles.proofHistoryItem}>
+                        <div className={styles.proofHistoryInfo}>
+                          <StatusChip status={proof.status} size="sm" />
+                          <span className={styles.proofSender}>المرسل: {proof.sender_name || '—'}</span>
+                          <span className={styles.proofRef}>الرقم: {proof.reference_number || '—'}</span>
+                          <span className={styles.proofDate}>{formatRelativeTime(proof.created_at)}</span>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openProofReview(proof, 'approve')}
+                        >
+                          <Eye size={14} />
+                          <span>معاينة الإشعار</span>
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </section>
+          </div>
+
+          {/* Side Column: Audit Timeline */}
+          <div className={styles.sideCol}>
+            <section className={styles.card} aria-label={adminAr.orders.timelineTitle}>
+              <div className={styles.cardHeader}>
+                <h2 className={styles.cardTitle}>{adminAr.orders.timelineTitle}</h2>
+              </div>
+              <div className={styles.cardBody}>
+                {(order.timeline || []).length === 0 ? (
+                  <p className={styles.emptyNotice}>لا توجد سجلات متابعة مسجلة.</p>
+                ) : (
+                  <div className={styles.timeline}>
+                    {order.timeline.map((step, idx) => (
+                      <div key={idx} className={styles.timelineStep}>
+                        <div className={styles.timelineDot} />
+                        <div className={styles.timelineContent}>
+                          <div className={styles.timelineHeader}>
+                            <StatusChip status={step.status} size="sm" />
+                            <span className={styles.timelineDate}>{formatRelativeTime(step.created_at)}</span>
+                          </div>
+                          {step.note && <p className={styles.timelineNote}>{step.note}</p>}
+                          {step.user_name && <span className={styles.timelineUser}>بواسطة: {step.user_name}</span>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      {/* Courier Modal */}
+      <Modal
+        isOpen={courierModalOpen}
+        onClose={() => setCourierModalOpen(false)}
+        title="بيانات مندوب التوصيل"
+      >
+        <form onSubmit={handleCourierSubmit} className={styles.modalForm}>
           <Input
-            label="ملاحظة إدارية داخلية (اختياري)"
-            value={statusNote}
-            onChange={(e) => setStatusNote(e.target.value)}
+            label={adminAr.orders.courierNameLabel}
+            placeholder="اسم المندوب الكامل"
+            value={courierName}
+            onChange={(e) => setCourierName(e.target.value)}
+            required
+            autoFocus
           />
+          <Input
+            label={adminAr.orders.courierPhoneLabel}
+            placeholder="09XXXXXXXX"
+            type="tel"
+            value={courierPhone}
+            onChange={(e) => setCourierPhone(e.target.value)}
+          />
+          <div className={styles.modalActions}>
+            <Button variant="primary" size="md" type="submit" loading={updating}>
+              تأكيد التسليم للمندوب
+            </Button>
+            <Button variant="outline" size="md" type="button" onClick={() => setCourierModalOpen(false)}>
+              إلغاء
+            </Button>
+          </div>
         </form>
       </Modal>
 
-      {/* Modal: Extend Price Lock */}
+      {/* Extend Lock Modal */}
       <Modal
         isOpen={lockModalOpen}
         onClose={() => setLockModalOpen(false)}
-        title="تمديد حجز سعر الصرف"
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setLockModalOpen(false)}>
-              إلغاء
-            </Button>
-            <Button
-              variant="primary"
-              loading={extendingLock}
-              onClick={handleExtendLock}
-            >
-              تمديد المهلة
-            </Button>
-          </>
-        }
+        title="تمديد مهلة تثبيت السعر"
       >
-        <form onSubmit={handleExtendLock}>
-          <label style={{ fontSize: 'var(--text-xs)', fontWeight: 600, display: 'block', marginBottom: 4 }}>
-            ساعات التمديد الإضافية
-          </label>
-          <input
+        <form onSubmit={handleExtendLock} className={styles.modalForm}>
+          <Input
+            label={adminAr.orders.extendLockHoursLabel}
             type="number"
-            min={1}
-            max={72}
+            min="1"
+            max="48"
             value={lockHours}
             onChange={(e) => setLockHours(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '8px 12px',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--color-border)',
-              fontFamily: 'inherit',
-            }}
+            required
+            autoFocus
           />
+          <div className={styles.modalActions}>
+            <Button variant="primary" size="md" type="submit" loading={extendingLock}>
+              تمديد المهلة
+            </Button>
+            <Button variant="outline" size="md" type="button" onClick={() => setLockModalOpen(false)}>
+              إلغاء
+            </Button>
+          </div>
         </form>
       </Modal>
 
-      {/* Modal: Review Proof */}
+      {/* Cancel Order Modal */}
       <Modal
-        isOpen={reviewModalOpen}
-        onClose={() => setReviewModalOpen(false)}
-        title={reviewAction === 'approve' ? 'اعتماد الإشعار' : 'رفض الإشعار'}
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setReviewModalOpen(false)}>
-              إلغاء
-            </Button>
-            <Button
-              variant={reviewAction === 'approve' ? 'primary' : 'danger'}
-              loading={reviewing}
-              disabled={loadingProofImage || reviewing}
-              onClick={handleProofReviewSubmit}
-            >
-              تأكيد القرار
-            </Button>
-          </>
-        }
+        isOpen={cancelModalOpen}
+        onClose={() => setCancelModalOpen(false)}
+        title="إلغاء طلب الشراء"
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-          <div style={{ textAlign: 'center', backgroundColor: 'var(--color-slate-100)', padding: 'var(--space-3)', borderRadius: 'var(--radius-md)', minHeight: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className={styles.modalForm}>
+          <p className={styles.cancelWarning}>
+            سيتم إلغاء الطلب وإعادة كميات الأجهزة إلى المخزون المتوفر فوراً.
+          </p>
+          <Input
+            label={adminAr.orders.cancelReasonLabel}
+            placeholder="اكتب سبب إلغاء الطلب (يظهر للعميل)..."
+            value={cancelReason}
+            onChange={(e) => setCancelReason(e.target.value)}
+            required
+            autoFocus
+          />
+          <div className={styles.modalActions}>
+            <Button variant="danger" size="md" onClick={handleCancelOrder} loading={cancelling}>
+              تأكيد إلغاء الطلب
+            </Button>
+            <Button variant="outline" size="md" onClick={() => setCancelModalOpen(false)}>
+              تراجع
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Payment Proof Review Modal */}
+      <Modal
+        isOpen={proofModalOpen}
+        onClose={() => setProofModalOpen(false)}
+        title="معاينة إشعار الدفع البنكي"
+      >
+        <div className={styles.modalForm}>
+          <div className={styles.proofModalViewer}>
             {loadingProofImage ? (
-              <span>جاري تحميل ملف الإشعار...</span>
+              <Skeleton height="300px" width="100%" borderRadius="var(--radius-md)" />
             ) : proofImageBlobUrl ? (
-              <img
-                src={proofImageBlobUrl}
-                alt="إشعار"
-                style={{ maxWidth: '100%', maxHeight: 320, objectFit: 'contain' }}
-              />
+              <ImageViewer src={proofImageBlobUrl} alt="صورة إشعار بنكك" />
             ) : (
-              <span style={{ color: 'var(--color-danger)' }}>تعذر تحميل الصورة</span>
+              <p>تعذر عرض الصورة</p>
             )}
           </div>
 
-          {reviewAction === 'reject' && (
-            <Input
-              label="سبب الرفض (إلزامي)"
-              value={reviewNote}
-              onChange={(e) => setReviewNote(e.target.value)}
-              placeholder="مثال: المبلغ غير مطابق، الإشعار غير واضح..."
-              required
-            />
-          )}
+          <div className={styles.proofDecisionBox}>
+            <div className={styles.decisionTypeRow}>
+              <label>
+                <input
+                  type="radio"
+                  name="reviewAction"
+                  value="approve"
+                  checked={reviewAction === 'approve'}
+                  onChange={() => setReviewAction('approve')}
+                />
+                <span>اعتماد وقبول التحويل</span>
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="reviewAction"
+                  value="reject"
+                  checked={reviewAction === 'reject'}
+                  onChange={() => setReviewAction('reject')}
+                />
+                <span>رفض الإشعار</span>
+              </label>
+            </div>
+
+            {reviewAction === 'reject' && (
+              <Input
+                label="سبب الرفض (يظهر للعميل)"
+                placeholder="المبلغ المحول غير مطابق، الصورة غير واضحة..."
+                value={reviewNote}
+                onChange={(e) => setReviewNote(e.target.value)}
+                required
+              />
+            )}
+          </div>
+
+          <div className={styles.modalActions}>
+            <Button
+              variant={reviewAction === 'approve' ? 'primary' : 'danger'}
+              size="md"
+              onClick={handleProofDecision}
+              loading={reviewingProof}
+            >
+              تأكيد القرار
+            </Button>
+            <Button variant="outline" size="md" onClick={() => setProofModalOpen(false)}>
+              إغلاق
+            </Button>
+          </div>
         </div>
       </Modal>
     </div>

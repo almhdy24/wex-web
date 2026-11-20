@@ -1,122 +1,237 @@
-import { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { RefreshCw, FileText } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { RefreshCw, Truck, Store, ExternalLink } from 'lucide-react';
 import { adminApi } from '../../api/admin';
-import { formatSdg, formatDate, getOrderStatusInfo } from '../../utils/formatters';
-import Tag from '../../components/common/Tag';
+import { adminAr } from '../../content/admin.ar';
+import { formatSdg, formatRelativeTime, formatDate } from '../../utils/formatters';
 import Button from '../../components/common/Button';
-import Input from '../../components/common/Input';
 import Select from '../../components/common/Select';
-import EmptyState from '../../components/common/EmptyState';
-import ErrorState from '../../components/common/ErrorState';
-import { TableSkeleton } from '../../components/common/Skeleton';
-import styles from './AdminCommon.module.css';
+import DataList from '../../components/admin/DataList';
+import FilterBar from '../../components/admin/FilterBar';
+import StatusChip from '../../components/admin/StatusChip';
+import styles from './AdminOrdersPage.module.css';
+
+const STATUS_FILTERS = [
+  { key: '', label: 'الكل' },
+  { key: 'pending_payment', label: 'بانتظار التحويل' },
+  { key: 'payment_review', label: 'مراجعة الإشعار' },
+  { key: 'confirmed', label: 'تم التأكيد' },
+  { key: 'processing', label: 'قيد التجهيز' },
+  { key: 'ready_for_pickup', label: 'جاهز للاستلام' },
+  { key: 'out_for_delivery', label: 'مع المندوب' },
+  { key: 'delivered', label: 'تم التسليم' },
+  { key: 'cancelled', label: 'ملغي' },
+  { key: 'expired', label: 'منتهي' },
+];
 
 export default function AdminOrdersPage() {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [orders, setOrders] = useState([]);
-  const [status, setStatus] = useState(searchParams.get('status') || '');
-  const [deliveryType, setDeliveryType] = useState(searchParams.get('delivery_type') || '');
-  const [q, setQ] = useState(searchParams.get('q') || '');
-  const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchOrders = async () => {
+  // Filter States synced with URL
+  const [status, setStatus] = useState(searchParams.get('status') || '');
+  const [deliveryType, setDeliveryType] = useState(searchParams.get('delivery_type') || '');
+  const [search, setSearch] = useState(searchParams.get('q') || '');
+  const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
+
+  // Status Counts from Dashboard for the filter chips
+  const [statusCounts, setStatusCounts] = useState({});
+
+  useEffect(() => {
+    adminApi.getDashboard().then((res) => {
+      if (res.data?.orders_by_status) {
+        setStatusCounts(res.data.orders_by_status);
+      }
+    }).catch(() => {});
+  }, []);
+
+  const fetchOrders = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const params = { page, per_page: 15 };
       if (status) params.status = status;
       if (deliveryType) params.delivery_type = deliveryType;
-      if (q.trim()) params.q = q.trim();
+      if (search.trim()) params.q = search.trim();
 
       const res = await adminApi.getOrders(params);
       setOrders(res.data || []);
       setMeta(res.meta || null);
 
+      // Update URL query parameters
       const nextParams = {};
       if (status) nextParams.status = status;
       if (deliveryType) nextParams.delivery_type = deliveryType;
-      if (q.trim()) nextParams.q = q.trim();
-      if (page > 1) nextParams.page = page;
+      if (search.trim()) nextParams.q = search.trim();
+      if (page > 1) nextParams.page = String(page);
       setSearchParams(nextParams, { replace: true });
     } catch (err) {
-      setError(err.message || 'الاتصال ضعيف. حاول تاني.');
+      setError(err.message || 'الاتصال ضعيف. حاول مجدداً.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, status, deliveryType, search, setSearchParams]);
 
   useEffect(() => {
     fetchOrders();
-  }, [page, status, deliveryType]);
+  }, [fetchOrders]);
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
+  const handleStatusFilterChange = (newStatus) => {
+    setStatus(newStatus);
     setPage(1);
-    fetchOrders();
   };
 
-  const handleResetFilters = () => {
+  const handleClearFilters = () => {
     setStatus('');
     setDeliveryType('');
-    setQ('');
+    setSearch('');
     setPage(1);
     setSearchParams({}, { replace: true });
   };
 
+  const activeFiltersCount = (status ? 1 : 0) + (deliveryType ? 1 : 0) + (search ? 1 : 0);
+
+  // Columns definition for DataList
+  const columns = [
+    {
+      key: 'order_number',
+      label: adminAr.orders.orderNumber,
+      isPrimary: true,
+      render: (row) => (
+        <div className={styles.orderNumberCol}>
+          <span className={styles.orderNumberText}>#{row.order_number}</span>
+          <span className={styles.orderDateSub} title={formatDate(row.created_at)}>
+            {formatRelativeTime(row.created_at)}
+          </span>
+        </div>
+      ),
+    },
+    {
+      key: 'customer',
+      label: adminAr.orders.customer,
+      render: (row) => (
+        <div className={styles.customerCol}>
+          <span className={styles.customerName}>{row.customer_name || 'عميل'}</span>
+          <span className={styles.customerPhone}>{row.customer_phone}</span>
+        </div>
+      ),
+    },
+    {
+      key: 'status',
+      label: adminAr.orders.status,
+      isStatus: true,
+      render: (row) => <StatusChip status={row.status} size="sm" />,
+    },
+    {
+      key: 'total_sdg',
+      label: adminAr.orders.totalSdg,
+      align: 'end',
+      render: (row) => (
+        <span className={styles.totalAmount}>
+          {formatSdg(row.total_sdg)}
+        </span>
+      ),
+    },
+    {
+      key: 'delivery_type',
+      label: 'الاستلام',
+      render: (row) => (
+        <div className={styles.deliveryTypeCol}>
+          {row.delivery_type === 'delivery' ? (
+            <span className={styles.deliveryBadge}>
+              <Truck size={13} />
+              <span>توصيل</span>
+            </span>
+          ) : (
+            <span className={styles.pickupBadge}>
+              <Store size={13} />
+              <span>استلام</span>
+            </span>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'actions',
+      label: '',
+      align: 'end',
+      hideOnMobile: true,
+      render: (row) => (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/admin/orders/${row.order_number}`);
+          }}
+        >
+          <span>التفاصيل</span>
+          <ExternalLink size={13} />
+        </Button>
+      ),
+    },
+  ];
+
   return (
     <div className={styles.container}>
+      {/* Page Header */}
       <header className={styles.header}>
         <div className={styles.titleInfo}>
-          <h1 className={styles.title}>إدارة طلبات المتجر</h1>
+          <h1 className={styles.title}>{adminAr.orders.title}</h1>
           <p className={styles.subtitle}>
-            {meta?.total !== undefined ? `إجمالي الطلبات: ${meta.total}` : 'متابعة كافة طلبات الشراء'}
+            {meta?.total !== undefined ? `إجمالي الطلبات المسجلة: ${meta.total}` : adminAr.orders.subtitle}
           </p>
         </div>
 
         <Button variant="outline" size="sm" onClick={fetchOrders}>
           <RefreshCw size={14} />
-          <span>تحديث</span>
+          <span>{adminAr.common.refresh}</span>
         </Button>
       </header>
 
-      {/* Brand graphic divider */}
+      {/* Brand Divider */}
       <div className={styles.titleDivider} aria-hidden="true" />
 
-      {/* Filter Toolbar */}
-      <div className={styles.toolbarCard}>
-        <form onSubmit={handleSearchSubmit} className={styles.toolbarForm}>
-          <Input
-            label="بحث بالرقم أو الهاتف أو الاسم"
-            placeholder="WEX-..."
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-          />
+      {/* Horizontally Scrollable Status Filter Chips Bar */}
+      <div className={styles.statusChipsScroll} role="tablist" aria-label="تصفية بحالة الطلب">
+        {STATUS_FILTERS.map((item) => {
+          const isActive = status === item.key;
+          const count = item.key ? statusCounts[item.key] : meta?.total;
+          return (
+            <button
+              key={item.key}
+              type="button"
+              className={`${styles.statusFilterChip} ${isActive ? styles.activeFilterChip : ''}`}
+              onClick={() => handleStatusFilterChange(item.key)}
+              role="tab"
+              aria-selected={isActive}
+            >
+              <span>{item.label}</span>
+              {count !== undefined && count > 0 && (
+                <span className={styles.filterChipCount}>{count}</span>
+              )}
+            </button>
+          );
+        })}
+      </div>
 
-          <Select
-            label="تصفية حسب الحالة"
-            value={status}
-            onChange={(e) => {
-              setStatus(e.target.value);
-              setPage(1);
-            }}
-            options={[
-              { value: '', label: 'كافة الحالات' },
-              { value: 'pending_payment', label: 'بانتظار الدفع' },
-              { value: 'payment_review', label: 'مراجعة إشعار الدفع' },
-              { value: 'confirmed', label: 'مؤكد' },
-              { value: 'ready_for_pickup', label: 'جاهز للاستلام' },
-              { value: 'out_for_delivery', label: 'جاري التوصيل' },
-              { value: 'completed', label: 'مكتمل ومستلم' },
-              { value: 'cancelled', label: 'ملغي' },
-              { value: 'expired', label: 'انتهت فترة الحجز' },
-            ]}
-          />
-
+      {/* Filter & Search Bar */}
+      <FilterBar
+        search={search}
+        onSearchChange={(val) => {
+          setSearch(val);
+          setPage(1);
+        }}
+        searchPlaceholder={adminAr.orders.searchPlaceholder}
+        filterCount={activeFiltersCount}
+        onClearFilters={handleClearFilters}
+      >
+        <div className={styles.filterSelects}>
           <Select
             label="طريقة الاستلام"
             value={deliveryType}
@@ -125,114 +240,33 @@ export default function AdminOrdersPage() {
               setPage(1);
             }}
             options={[
-              { value: '', label: 'الكل' },
-              { value: 'pickup', label: 'استلام من المحل' },
-              { value: 'delivery', label: 'توصيل' },
+              { value: '', label: adminAr.orders.deliveryTypeAll },
+              { value: 'pickup', label: adminAr.orders.pickup },
+              { value: 'delivery', label: adminAr.orders.delivery },
             ]}
           />
-
-          <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-            <Button type="submit" variant="primary" size="md">
-              تطبيق
-            </Button>
-            <Button type="button" variant="ghost" size="md" onClick={handleResetFilters}>
-              مسح
-            </Button>
-          </div>
-        </form>
-      </div>
-
-      {error ? (
-        <ErrorState message={error} onRetry={fetchOrders} />
-      ) : loading ? (
-        <TableSkeleton rows={8} cols={7} />
-      ) : orders.length === 0 ? (
-        <EmptyState
-          title="لا توجد طلبات مطابقة"
-          description="جرب البحث بكلمات مختلفة أو إزالة الفلاتر."
-          actionLabel="مسح الفلاتر"
-          onAction={handleResetFilters}
-        />
-      ) : (
-        <div className={styles.card}>
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>رقم الطلب</th>
-                  <th>العميل</th>
-                  <th>الهاتف</th>
-                  <th>النوع</th>
-                  <th>الحالة</th>
-                  <th>المبلغ (SDG)</th>
-                  <th>
-                    المبلغ (AED) <span className={styles.adminOnlyBadge}>للإدارة فقط</span>
-                  </th>
-                  <th>
-                    سعر الصرف <span className={styles.adminOnlyBadge}>للإدارة فقط</span>
-                  </th>
-                  <th>التاريخ</th>
-                  <th>الإجراء</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((o) => {
-                  const statusInfo = getOrderStatusInfo(o.status);
-                  return (
-                    <tr key={o.order_number}>
-                      <td className={styles.orderNumber}>#{o.order_number}</td>
-                      <td>{o.user_name || o.customer_name || 'عميل'}</td>
-                      <td dir="ltr">{o.contact_phone}</td>
-                      <td>{o.delivery_type === 'pickup' ? 'استلام' : 'توصيل'}</td>
-                      <td>
-                        <Tag variant={statusInfo.variant}>{statusInfo.label}</Tag>
-                      </td>
-                      <td className={styles.totalPrice}>{formatSdg(o.total_sdg)}</td>
-                      <td>{o.subtotal_aed ? `${Number(o.subtotal_aed).toLocaleString('en-US')} AED` : '—'}</td>
-                      <td style={{ fontSize: '11px', whiteSpace: 'nowrap' }}>
-                        {o.rate_sdg_snapshot ? `1 AED = ${Number(o.rate_sdg_snapshot).toLocaleString('en-US')}` : '—'}
-                      </td>
-                      <td className={styles.dateText}>{formatDate(o.created_at)}</td>
-                      <td>
-                        <Link to={`/admin/orders/${o.order_number}`}>
-                          <Button variant="ghost" size="sm">
-                            <FileText size={14} />
-                            <span>عرض</span>
-                          </Button>
-                        </Link>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {meta && meta.total_pages > 1 && (
-            <nav className={styles.pagination} aria-label="تنقل الصفحات">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => p - 1)}
-              >
-                السابق
-              </Button>
-              <span className={styles.pageCount}>
-                صفحة {meta.page} من {meta.total_pages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={page >= meta.total_pages}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                التالي
-              </Button>
-            </nav>
-          )}
         </div>
-      )}
+      </FilterBar>
+
+      {/* DataList Table / Cards View */}
+      <DataList
+        columns={columns}
+        data={orders}
+        keyField="order_number"
+        loading={loading}
+        emptyMessage={error || adminAr.common.noResults}
+        onRowClick={(row) => navigate(`/admin/orders/${row.order_number}`)}
+        pagination={
+          meta
+            ? {
+                page: meta.page,
+                totalPages: meta.total_pages,
+                totalItems: meta.total,
+                onPageChange: (newPage) => setPage(newPage),
+              }
+            : null
+        }
+      />
     </div>
   );
 }
