@@ -1,21 +1,36 @@
-/* Wex Mockup Product Card (Screen 2 & Screen 3 Parity) */
+/* Product Card with Brand Elevation, 4:3 Ratio, and Container Queries */
 .card {
+  container-type: inline-size;
   background: var(--wex-white, #FFFFFF);
   border-radius: var(--radius-lg, 20px);
-  padding: 14px;
+  padding: 12px;
   border: 1px solid var(--wex-ice, #EAF3FF);
-  box-shadow: var(--shadow-sm, 0 2px 8px rgba(6, 26, 85, 0.04));
+  box-shadow: var(--shadow-sm, 0 4px 16px rgba(6, 26, 85, 0.04));
   display: flex;
   flex-direction: column;
   position: relative;
-  transition: all 0.25s ease;
   height: 100%;
+  animation: cardReveal var(--motion-base, 250ms) var(--ease-standard) backwards;
+  animation-delay: calc(var(--i, 0) * var(--motion-stagger, 60ms));
+}
+
+@keyframes cardReveal {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md, 0 6px 18px rgba(6, 26, 85, 0.08));
   border-color: #CBE2FF;
+}
+
+.card:active {
+  transform: scale(0.985);
 }
 
 .cardLink {
@@ -26,7 +41,7 @@
   color: inherit;
 }
 
-/* Badge (Top Right) */
+/* Condition Badge (Top End) */
 .cardBadge {
   position: absolute;
   top: 10px;
@@ -41,28 +56,29 @@
   line-height: 1.2;
 }
 
-/* Image Container (120px) */
+/* 4:3 Aspect Ratio Image Container on Ice-to-White Gradient */
 .imageContainer {
-  height: 120px;
-  background: linear-gradient(180deg, #F8FAFD 0%, #EAF3FF 100%);
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(180deg, #EAF3FF 0%, #FFFFFF 100%);
   border-radius: var(--radius-md, 14px);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   position: relative;
   overflow: hidden;
 }
 
 .image {
-  max-width: 90%;
-  max-height: 90%;
+  max-width: 88%;
+  max-height: 88%;
   object-fit: contain;
-  transition: transform 0.3s ease;
+  transition: transform var(--motion-base, 250ms) var(--ease-standard);
 }
 
 .card:hover .image {
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
 .svgWrapper {
@@ -76,11 +92,11 @@
 .svgWrapper svg {
   max-width: 85%;
   max-height: 85%;
-  transition: transform 0.3s ease;
+  transition: transform var(--motion-base, 250ms) var(--ease-standard);
 }
 
 .card:hover .svgWrapper svg {
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
 /* Info Section */
@@ -104,7 +120,7 @@
   font-weight: 800;
   color: var(--wex-navy, #061A55);
   line-height: 1.35;
-  margin: 0 0 6px 0;
+  margin: 0 0 4px 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -114,21 +130,19 @@
 
 /* Quick Specs */
 .quickSpecs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
-.specPill {
-  font-size: 10px;
-  font-weight: 600;
+.specsLine {
+  font-size: 11px;
+  font-weight: 500;
   color: var(--wex-gray-600, #5A6B85);
-  background: var(--wex-ice-light, #F4F8FD);
-  padding: 2px 6px;
-  border-radius: 4px;
-  border: 1px solid var(--wex-ice, #EAF3FF);
+  display: block;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  direction: ltr;
+  text-align: right;
 }
 
 /* Pricing */
@@ -141,18 +155,11 @@
 
 .priceSdg {
   font-size: 15px;
-  font-weight: 900;
+  font-weight: 800;
   color: var(--wex-royal, #0B3FBF);
   display: flex;
   align-items: baseline;
   gap: 4px;
-  font-variant-numeric: tabular-nums;
-}
-
-.priceAed {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--wex-gray-400, #9AA8BC);
   font-variant-numeric: tabular-nums;
 }
 
@@ -186,8 +193,12 @@
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.15s ease;
-  min-height: 38px;
+  transition: transform var(--motion-fast, 150ms) var(--ease-standard),
+              background-color var(--motion-fast, 150ms) var(--ease-standard),
+              color var(--motion-fast, 150ms) var(--ease-standard);
+  min-height: 40px;
+  position: relative;
+  overflow: hidden;
 }
 
 .addCartBtn:hover {
@@ -196,5 +207,82 @@
 }
 
 .addCartBtn:active {
-  transform: scale(0.98);
+  transform: scale(0.96);
+}
+
+.addedBtn {
+  background: #10B981 !important;
+  color: #FFFFFF !important;
+  border-color: #10B981 !important;
+}
+
+.checkIcon {
+  animation: checkPop var(--motion-fast, 150ms) var(--ease-emphasized);
+}
+
+@keyframes checkPop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Flying Clone for WAAPI */
+.flyClone {
+  position: fixed;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full, 9999px);
+  background: linear-gradient(135deg, var(--wex-royal, #0B3FBF), var(--wex-cyan, #00B7FF));
+  box-shadow: 0 4px 12px rgba(0, 183, 255, 0.4);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Container Queries for Responsive Fluidity */
+@container (min-width: 220px) {
+  .priceSdg {
+    font-size: 16px;
+  }
+  .name {
+    font-size: 14px;
+  }
+}
+
+@container (max-width: 160px) {
+  .card {
+    padding: 8px;
+  }
+  .addCartBtn span {
+    display: none;
+  }
+  .priceSdg {
+    font-size: 13px;
+  }
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    animation: none;
+  }
+  .image, .svgWrapper svg, .addCartBtn, .checkIcon {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+:global(html[data-motion="reduced"]) .card {
+  animation: none;
+}
+:global(html[data-motion="reduced"]) .image,
+:global(html[data-motion="reduced"]) .svgWrapper svg,
+:global(html[data-motion="reduced"]) .addCartBtn,
+:global(html[data-motion="reduced"]) .checkIcon {
+  transition: none !important;
+  animation: none !important;
 }

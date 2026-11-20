@@ -1,94 +1,115 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ArrowLeft, MessageCircle, MapPin, Clock } from 'lucide-react';
+import {
+  Search,
+  ArrowLeft,
+  MessageCircle,
+  MapPin,
+  Clock,
+  Laptop,
+  Smartphone,
+  Headphones,
+  PackageCheck,
+  ShieldCheck,
+  Banknote,
+  Truck,
+  Lock,
+  ChevronRight,
+  ExternalLink,
+} from 'lucide-react';
 import { productsApi } from '../../api/products';
+import { useAuth } from '../../context/AuthContext';
 import ProductCard from '../../components/products/ProductCard';
 import PriceNotice, { formatPricesUpdatedAt } from '../../components/common/PriceNotice';
 import { ProductCardSkeleton } from '../../components/common/Skeleton';
 import ErrorState from '../../components/common/ErrorState';
+import { Reveal, Stagger, useParallax } from '../../motion';
+import { t } from '../../content/ar';
+import LaptopSvg from '../../components/common/LaptopSvg';
 import styles from './HomePage.module.css';
 
-// Exact SVG Category Icons from Mockup
-function CategoryIcon({ type }) {
-  if (type === 'briefcase') {
-    return (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <rect x="2" y="7" width="20" height="14" rx="2" />
-        <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
-      </svg>
-    );
-  }
-  if (type === 'gamepad') {
-    return (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <line x1="6" y1="12" x2="10" y2="12" />
-        <line x1="8" y1="10" x2="8" y2="14" />
-        <line x1="15" y1="13" x2="15.01" y2="13" />
-        <line x1="18" y1="11" x2="18.01" y2="11" />
-        <rect x="2" y="6" width="20" height="12" rx="4" />
-      </svg>
-    );
-  }
-  if (type === 'graduation') {
-    return (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-        <path d="M6 12v5c3 3 9 3 12 0v-5" />
-      </svg>
-    );
-  }
-  if (type === 'ultrabook') {
-    return (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <rect x="2" y="4" width="20" height="12" rx="2" />
-        <line x1="1" y1="20" x2="23" y2="20" />
-      </svg>
-    );
-  }
-  // Default Box (All / General)
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-      <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-      <line x1="12" y1="22.08" x2="12" y2="12" />
-    </svg>
-  );
-}
-
-// Built-in mockup categories with matching SVGs
-const DEFAULT_CATEGORIES = [
-  { id: 'all', name: 'الكل', type: 'box', slug: '' },
-  { id: 'business', name: 'أعمال', type: 'briefcase', slug: 'business' },
-  { id: 'gaming', name: 'ألعاب', type: 'gamepad', slug: 'gaming' },
-  { id: 'budget', name: 'اقتصادية', type: 'graduation', slug: 'budget' },
-  { id: 'ultrabooks', name: 'أجهزة خفيفة', type: 'ultrabook', slug: 'ultrabook' },
+const PLACEHOLDERS = [
+  'ابحث عن جهاز، مثل: Dell Latitude',
+  'ابحث عن جهاز، مثل: Lenovo ThinkPad',
+  'ابحث عن جهاز، مثل: HP EliteBook',
+  'ابحث عن ملحقات، مثل: شاحن أصيل',
 ];
+
+const POPULAR_SEARCHES = ['Dell', 'ThinkPad', 'HP', 'Core i5', 'شاحن'];
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
   const [shopInfo, setShopInfo] = useState(null);
-  const [categories, setCategories] = useState([]);
-  const [featuredProducts, setFeaturedProducts] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Search input state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+
+  // Hero carousel state
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+
+  // Floating WhatsApp scroll behavior
+  const [showWhatsappFab, setShowWhatsappFab] = useState(true);
+  const lastScrollY = useRef(0);
+
+  // Parallax for hero drifting ribbons
+  const heroParallax = useParallax(0.12);
+
+  // Rotate search placeholder every 3.5s
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setPlaceholderIndex((prev) => (prev + 1) % PLACEHOLDERS.length);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Auto-advance hero carousel every 5s unless paused
+  useEffect(() => {
+    if (isPaused) return;
+    const timer = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % 3);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [isPaused]);
+
+  // Floating WhatsApp scroll listener
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY.current && currentScrollY > 120) {
+        setShowWhatsappFab(false);
+      } else {
+        setShowWhatsappFab(true);
+      }
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const loadHomeData = async () => {
     setLoading(true);
     setError(null);
     try {
-      const [shopRes, catsRes, featuredRes] = await Promise.all([
+      const [shopRes, prodsRes] = await Promise.all([
         productsApi.getShopInfo(),
-        productsApi.getCategories(),
-        productsApi.getProducts({ per_page: 8 }),
+        productsApi.getProducts({ per_page: 24 }),
       ]);
 
       setShopInfo(shopRes?.data || null);
-      const apiCats = catsRes?.data || [];
-      setCategories(apiCats.length > 0 ? apiCats : DEFAULT_CATEGORIES);
-      setFeaturedProducts(featuredRes?.data || []);
+      setProducts(prodsRes?.data || []);
     } catch (err) {
-      setError(err.message || 'تعذر تحميل بيانات الصفحة الرئيسية');
+      setError(err.message || 'تعذر تحميل بيانات المتجر');
     } finally {
       setLoading(false);
     }
@@ -105,155 +126,524 @@ export default function HomePage() {
     }
   };
 
+  const handleTouchStart = (e) => {
+    setIsPaused(true);
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e) => {
+    touchEndX.current = e.changedTouches[0].clientX;
+    const diff = touchStartX.current - touchEndX.current;
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) {
+        // Swiped left (in RTL: goes to previous or next depending on preference, let's advance)
+        setActiveSlide((prev) => (prev + 1) % 3);
+      } else {
+        setActiveSlide((prev) => (prev - 1 + 3) % 3);
+      }
+    }
+    setTimeout(() => setIsPaused(false), 2000);
+  };
+
   const priceLockHours = shopInfo?.lock_hours || shopInfo?.price_lock_hours || 4;
+
+  // Segment products for the 4 Rails
+  const newArrivals = products.slice(0, 6);
+  const studyLaptops = products
+    .filter((p) => {
+      const desc = (p.short_description || p.name || '').toLowerCase();
+      return desc.includes('i3') || desc.includes('i5') || (p.price_sdg && p.price_sdg < 900000);
+    })
+    .slice(0, 6);
+  const workLaptops = products
+    .filter((p) => {
+      const desc = (p.short_description || p.name || '').toLowerCase();
+      return desc.includes('thinkpad') || desc.includes('latitude') || desc.includes('elitebook') || desc.includes('i7');
+    })
+    .slice(0, 6);
+  const accessories = products
+    .filter((p) => {
+      const cat = (p.category?.name || p.category_slug || '').toLowerCase();
+      const desc = (p.short_description || p.name || '').toLowerCase();
+      return cat.includes('access') || cat.includes('ملحق') || desc.includes('charger') || desc.includes('شاحن') || desc.includes('ماوس');
+    })
+    .slice(0, 6);
+
+  const greetingText = user?.name
+    ? t('home.greetingUser', { name: user.name })
+    : t('home.greetingGuest');
 
   return (
     <div className={styles.container}>
-      {/* 1. User Greeting & Last Update Line */}
-      <section className={styles.greetingSection} aria-label="الترحيب بالمتجر">
-        <div>
-          <div className={styles.greetingSub}>أهلاً بيك</div>
-          <h1 className={styles.greetingTitle}>لابتوبات جديدة ومستعملة</h1>
-        </div>
-
-        {shopInfo?.prices_updated_at && (
-          <div className={styles.rateChip} title="آخر تحديث للأسعار">
-            <span className={styles.pulseDot} />
-            <span className={styles.rateText}>آخر تحديث للأسعار: {formatPricesUpdatedAt(shopInfo.prices_updated_at)}</span>
+      {/* 2. Greeting Line & Rotating Search */}
+      <section className={styles.greetingSection} aria-label="الترحيب والبحث">
+        <div className={styles.greetingHeader}>
+          <div>
+            <h1 className={styles.greetingTitle}>{greetingText}</h1>
+            <p className={styles.greetingSub}>{t('splash.subtitle')}</p>
           </div>
-        )}
+          {shopInfo?.prices_updated_at && (
+            <div className={styles.priceFreshnessBadge} title={t('priceNotice.pricesUpdatedAt', { time: formatPricesUpdatedAt(shopInfo.prices_updated_at) })}>
+              <span className={styles.pulseDot} />
+              <span className={styles.freshnessText}>
+                {t('priceNotice.pricesUpdatedAt', { time: formatPricesUpdatedAt(shopInfo.prices_updated_at) })}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Prominent Search Bar */}
+        <div className={styles.searchWrapper}>
+          <form onSubmit={handleSearchSubmit} className={styles.searchForm}>
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+              placeholder={PLACEHOLDERS[placeholderIndex]}
+              className={styles.searchInput}
+              aria-label={t('home.searchPlaceholder')}
+            />
+            <button type="submit" className={styles.searchBtn} aria-label="بحث">
+              <Search size={18} />
+            </button>
+          </form>
+
+          {/* Quick Search Chips on Focus */}
+          {isSearchFocused && (
+            <div className={styles.searchChipsPopup}>
+              <span className={styles.chipsLabel}>{t('home.popularSearches')}:</span>
+              <div className={styles.chipsRow}>
+                {POPULAR_SEARCHES.map((chip) => (
+                  <button
+                    key={chip}
+                    type="button"
+                    onMouseDown={() => {
+                      setSearchQuery(chip);
+                      navigate(`/products?search=${encodeURIComponent(chip)}`);
+                    }}
+                    className={styles.popularChip}
+                  >
+                    {chip}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </section>
 
-      {/* 2. Search Input */}
-      <section className={styles.searchSection} aria-label="البحث عن لابتوب">
-        <form onSubmit={handleSearchSubmit} className={styles.searchForm}>
-          <input
-            type="search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="ابحث عن لابتوب أو مواصفات..."
-            className={styles.searchInput}
-            aria-label="ابحث في المتجر"
-          />
-          <Search size={18} className={styles.searchIcon} />
-        </form>
-      </section>
-
-      {/* 3. App Discount Banner with Slanted Ribbons */}
+      {/* 3. Hero Carousel (Dark navy with animated drifting ribbons & parallax) */}
       <section
-        className={`${styles.discountBanner} wex-ribbon`}
-        onClick={() => navigate('/products')}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => { if (e.key === 'Enter') navigate('/products'); }}
-        aria-label="خصم الطلب بالتطبيق"
+        className={styles.heroSection}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        aria-label="عروض المتجر"
       >
-        <div className={styles.discountContent}>
-          <span className={styles.discountChip}>خصم الطلب بالتطبيق</span>
-          <h3 className={styles.discountHeading}>خصم 3% لو طلبت من التطبيق</h3>
-          <p className={styles.discountSub}>
-            السعر بيتثبت ليك لمدة {priceLockHours} ساعات عشان تحول
-          </p>
+        <div className={styles.heroParallaxBg} ref={heroParallax}>
+          <div className={styles.heroRibbon1} />
+          <div className={styles.heroRibbon2} />
         </div>
 
-        <div className={styles.discountBadgeCircle}>
-          <span className={styles.badgeNum}>-3%</span>
-          <span className={styles.badgeLabel}>تخفيض</span>
+        <div className={styles.slidesContainer}>
+          {/* Slide 1: New Arrivals */}
+          <div className={`${styles.slide} ${activeSlide === 0 ? styles.slideActive : ''}`}>
+            <div className={styles.slideContent}>
+              <span className={styles.slideBadge}>{t('home.rails.newArrivals')}</span>
+              <h2 className={styles.slideTitle}>{t('home.hero.slide1Title')}</h2>
+              <p className={styles.slideDesc}>{t('home.hero.slide1Subtitle')}</p>
+              <Link to="/products?sort=newest" className={styles.slideCta}>
+                <span>{t('home.hero.slide1Cta')}</span>
+                <ArrowLeft size={16} />
+              </Link>
+            </div>
+            <div className={styles.slideVisual}>
+              <LaptopSvg silhouette="modern" accentColor="#00B7FF" />
+            </div>
+          </div>
+
+          {/* Slide 2: Price Lock Guarantee */}
+          <div className={`${styles.slide} ${activeSlide === 1 ? styles.slideActive : ''}`}>
+            <div className={styles.slideContent}>
+              <span className={styles.slideBadge}>ضمان السعر</span>
+              <h2 className={styles.slideTitle}>{t('home.hero.slide2Title')}</h2>
+              <p className={styles.slideDesc}>
+                {t('home.hero.slide2Subtitle', { hours: priceLockHours })}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  const el = document.getElementById('how-to-order-section');
+                  el?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className={styles.slideCta}
+              >
+                <span>{t('home.hero.slide2Cta')}</span>
+                <ArrowLeft size={16} />
+              </button>
+            </div>
+            <div className={styles.slideVisualLock}>
+              <div className={styles.lockIllustration}>
+                <Lock size={44} className={styles.lockIcon} />
+                <Clock size={28} className={styles.clockIcon} />
+              </div>
+            </div>
+          </div>
+
+          {/* Slide 3: Accessories */}
+          <div className={`${styles.slide} ${activeSlide === 2 ? styles.slideActive : ''}`}>
+            <div className={styles.slideContent}>
+              <span className={styles.slideBadge}>{t('home.categories.accessories')}</span>
+              <h2 className={styles.slideTitle}>{t('home.hero.slide3Title')}</h2>
+              <p className={styles.slideDesc}>{t('home.hero.slide3Subtitle')}</p>
+              <Link to="/products?category=accessories" className={styles.slideCta}>
+                <span>{t('home.hero.slide3Cta')}</span>
+                <ArrowLeft size={16} />
+              </Link>
+            </div>
+            <div className={styles.slideVisual}>
+              <Headphones size={68} strokeWidth={1.5} className={styles.accessoriesIcon} />
+            </div>
+          </div>
+        </div>
+
+        {/* Carousel Progress Dots */}
+        <div className={styles.carouselDots} role="tablist" aria-label="مؤشرات الشرائح">
+          {[0, 1, 2].map((idx) => (
+            <button
+              key={idx}
+              type="button"
+              role="tab"
+              aria-selected={activeSlide === idx}
+              onClick={() => setActiveSlide(idx)}
+              className={`${styles.dot} ${activeSlide === idx ? styles.dotActive : ''}`}
+              aria-label={`شريحة ${idx + 1}`}
+            />
+          ))}
         </div>
       </section>
 
-      {/* 4. Categories Scroll Row */}
-      <section className={styles.categoriesSection} aria-label="التصنيفات">
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>التصنيفات</h2>
-          <Link to="/products" className={styles.viewAllLink}>
-            عرض الكل
+      {/* 4. Quick Actions Row (4 round icon tiles) */}
+      <section className={styles.quickActionsSection} aria-label="روابط سريعة">
+        <div className={styles.quickActionsGrid}>
+          <Link to="/products" className={styles.actionTile}>
+            <div className={styles.actionIconBubble}>
+              <Laptop size={22} />
+            </div>
+            <span className={styles.actionLabel}>{t('home.quickActions.browse')}</span>
+          </Link>
+
+          <Link to="/orders" className={styles.actionTile}>
+            <div className={styles.actionIconBubble}>
+              <PackageCheck size={22} />
+            </div>
+            <span className={styles.actionLabel}>{t('home.quickActions.track')}</span>
+          </Link>
+
+          <a
+            href="https://wa.me/249912345678"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.actionTile}
+          >
+            <div className={`${styles.actionIconBubble} ${styles.actionWhatsapp}`}>
+              <MessageCircle size={22} />
+            </div>
+            <span className={styles.actionLabel}>{t('home.quickActions.whatsapp')}</span>
+          </a>
+
+          <button
+            type="button"
+            onClick={() => {
+              const el = document.getElementById('shop-card');
+              el?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className={styles.actionTile}
+          >
+            <div className={styles.actionIconBubble}>
+              <MapPin size={22} />
+            </div>
+            <span className={styles.actionLabel}>{t('home.quickActions.location')}</span>
+          </button>
+        </div>
+      </section>
+
+      {/* 5. Category Tiles & Condition Chips */}
+      <section className={styles.categoriesSection} aria-label="التصنيفات وحالة الأجهزة">
+        <div className={styles.categoriesRow}>
+          <Link to="/products?category=laptops" className={styles.catCard}>
+            <Laptop size={20} className={styles.catIcon} />
+            <span className={styles.catName}>{t('home.categories.laptops')}</span>
+          </Link>
+
+          <Link to="/products?category=phones" className={styles.catCard}>
+            <Smartphone size={20} className={styles.catIcon} />
+            <span className={styles.catName}>{t('home.categories.phones')}</span>
+          </Link>
+
+          <Link to="/products?category=accessories" className={styles.catCard}>
+            <Headphones size={20} className={styles.catIcon} />
+            <span className={styles.catName}>{t('home.categories.accessories')}</span>
           </Link>
         </div>
 
-        <div className={styles.categoriesScroll}>
-          {categories.map((cat, idx) => {
-            const catType = cat.type || (idx === 0 ? 'box' : idx === 1 ? 'briefcase' : idx === 2 ? 'gamepad' : idx === 3 ? 'graduation' : 'ultrabook');
-            const targetUrl = cat.slug ? `/products?category=${encodeURIComponent(cat.slug)}` : '/products';
-
-            return (
-              <Link key={cat.id || idx} to={targetUrl} className={styles.categoryChipItem}>
-                <div className={styles.categoryIconBubble}>
-                  <CategoryIcon type={catType} />
-                </div>
-                <span className={styles.categoryTitle}>{cat.name_ar || cat.name}</span>
-              </Link>
-            );
-          })}
+        <div className={styles.conditionChipsRow}>
+          <Link to="/products?condition=new" className={styles.conditionChip}>
+            <span className={styles.conditionDotNew} />
+            <span>{t('home.categories.conditionNew')}</span>
+          </Link>
+          <Link to="/products?condition=used" className={styles.conditionChip}>
+            <span className={styles.conditionDotUsed} />
+            <span>{t('home.categories.conditionUsed')}</span>
+          </Link>
         </div>
       </section>
 
       {error && <ErrorState message={error} onRetry={loadHomeData} />}
 
-      {/* 5. Featured Products (2-Column Grid) */}
-      <section className={styles.featuredSection} aria-label="أجهزة مختارة">
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>أجهزة مختارة</h2>
-          <Link to="/products" className={styles.viewAllLink}>
-            <span>كل الأجهزة</span>
-            <ArrowLeft size={14} />
-          </Link>
-        </div>
+      {/* 6. Rails from API with Scroll-Snap */}
+      {/* Rail 1: New Arrivals */}
+      {(loading || newArrivals.length > 0) && (
+        <section className={styles.railSection} aria-label={t('home.rails.newArrivals')}>
+          <div className={styles.sectionHeader}>
+            <div>
+              <h2 className={styles.sectionTitle}>{t('home.rails.newArrivals')}</h2>
+            </div>
+            <Link to="/products?sort=newest" className={styles.viewAllLink}>
+              <span>{t('home.rails.viewAll')}</span>
+              <ChevronRight size={16} className={styles.viewAllArrow} />
+            </Link>
+          </div>
 
-        <div className={styles.productGrid}>
-          {loading ? (
-            Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
-          ) : featuredProducts.length > 0 ? (
-            featuredProducts.map((prod) => (
-              <ProductCard key={prod.id} product={prod} />
-            ))
-          ) : !error ? (
-            <p className={styles.emptyNotice}>لا توجد أجهزة متوفرة حالياً</p>
-          ) : null}
-        </div>
-      </section>
+          <div className={styles.railTrack}>
+            {loading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className={styles.railCardWrapper}>
+                  <ProductCardSkeleton />
+                </div>
+              ))
+            ) : (
+              newArrivals.map((prod, idx) => (
+                <div key={prod.id} className={styles.railCardWrapper}>
+                  <ProductCard product={prod} index={idx} />
+                </div>
+              ))
+            )}
+          </div>
+        </section>
+      )}
 
-      {/* 6. Store Feature Notice (PriceNotice) */}
-      <section className={styles.priceLockNotice} aria-label="طريقة تثبيت السعر">
-        <PriceNotice
-          variant="full"
-          lockHours={priceLockHours}
-          pricesUpdatedAt={shopInfo?.prices_updated_at}
-          showLastUpdated={true}
-        />
-      </section>
+      {/* Rail 2: Suitable for Study */}
+      {(loading || studyLaptops.length > 0) && (
+        <section className={styles.railSection} aria-label={t('home.rails.study')}>
+          <div className={styles.sectionHeader}>
+            <div>
+              <h2 className={styles.sectionTitle}>{t('home.rails.study')}</h2>
+            </div>
+            <Link to="/products?category=budget" className={styles.viewAllLink}>
+              <span>{t('home.rails.viewAll')}</span>
+              <ChevronRight size={16} className={styles.viewAllArrow} />
+            </Link>
+          </div>
 
-      {/* 7. Shop Info Card */}
-      <section className={styles.shopSection} aria-label="معلومات المتجر">
-        <div className={styles.shopCard}>
-          <div className={styles.shopMain}>
-            <h3 className={styles.shopTitle}>متجر ويكس تكنولوجي — أم درمان</h3>
-            <p className={styles.shopDesc}>
-              محل لابتوبات وإلكترونيات في مول الواحة بأم درمان. أجهزة جديدة ومستعملة فحص دقيق ومعاينة مباشرة قبل الدفع.
-            </p>
-            <div className={styles.shopMetaRow}>
-              <div className={styles.metaItem}>
-                <MapPin size={16} className={styles.metaIcon} />
-                <span>مول الواحة — الشهداء — أم درمان</span>
+          <div className={styles.railTrack}>
+            {loading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className={styles.railCardWrapper}>
+                  <ProductCardSkeleton />
+                </div>
+              ))
+            ) : (
+              studyLaptops.map((prod, idx) => (
+                <div key={prod.id} className={styles.railCardWrapper}>
+                  <ProductCard product={prod} index={idx} />
+                </div>
+              ))
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Rail 3: Suitable for Work */}
+      {(loading || workLaptops.length > 0) && (
+        <section className={styles.railSection} aria-label={t('home.rails.work')}>
+          <div className={styles.sectionHeader}>
+            <div>
+              <h2 className={styles.sectionTitle}>{t('home.rails.work')}</h2>
+            </div>
+            <Link to="/products?category=business" className={styles.viewAllLink}>
+              <span>{t('home.rails.viewAll')}</span>
+              <ChevronRight size={16} className={styles.viewAllArrow} />
+            </Link>
+          </div>
+
+          <div className={styles.railTrack}>
+            {loading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className={styles.railCardWrapper}>
+                  <ProductCardSkeleton />
+                </div>
+              ))
+            ) : (
+              workLaptops.map((prod, idx) => (
+                <div key={prod.id} className={styles.railCardWrapper}>
+                  <ProductCard product={prod} index={idx} />
+                </div>
+              ))
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Rail 4: Accessories (if available) */}
+      {accessories.length > 0 && (
+        <section className={styles.railSection} aria-label={t('home.rails.accessories')}>
+          <div className={styles.sectionHeader}>
+            <div>
+              <h2 className={styles.sectionTitle}>{t('home.rails.accessories')}</h2>
+            </div>
+            <Link to="/products?category=accessories" className={styles.viewAllLink}>
+              <span>{t('home.rails.viewAll')}</span>
+              <ChevronRight size={16} className={styles.viewAllArrow} />
+            </Link>
+          </div>
+
+          <div className={styles.railTrack}>
+            {accessories.map((prod, idx) => (
+              <div key={prod.id} className={styles.railCardWrapper}>
+                <ProductCard product={prod} index={idx} />
               </div>
-              <div className={styles.metaItem}>
-                <Clock size={16} className={styles.metaIcon} />
-                <span>السبت - الخميس: 10:00 ص - 10:00 م</span>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 7. "How to Order" (4 animated steps with connecting ribbon line) */}
+      <Reveal direction="up" delay={50}>
+        <section id="how-to-order-section" className={styles.howToOrderSection} aria-label="كيف تطلب من المتجر">
+          <div className={styles.howToOrderHeader}>
+            <h2 className={styles.howToOrderTitle}>{t('home.howToOrder.title')}</h2>
+            <p className={styles.howToOrderSub}>{t('home.howToOrder.subtitle')}</p>
+          </div>
+
+          <div className={styles.stepsContainer}>
+            <div className={styles.stepConnectorLine} aria-hidden="true" />
+
+            <Stagger staggerDelay={80} className={styles.stepsList}>
+              <div className={styles.stepCard}>
+                <div className={styles.stepIconBubble}>
+                  <Laptop size={20} />
+                  <span className={styles.stepBadge}>1</span>
+                </div>
+                <h3 className={styles.stepHeading}>{t('home.howToOrder.step1Title')}</h3>
+                <p className={styles.stepDescription}>{t('home.howToOrder.step1Desc')}</p>
+              </div>
+
+              <div className={styles.stepCard}>
+                <div className={styles.stepIconBubble}>
+                  <ShieldCheck size={20} />
+                  <span className={styles.stepBadge}>2</span>
+                </div>
+                <h3 className={styles.stepHeading}>{t('home.howToOrder.step2Title')}</h3>
+                <p className={styles.stepDescription}>{t('home.howToOrder.step2Desc')}</p>
+              </div>
+
+              <div className={styles.stepCard}>
+                <div className={styles.stepIconBubble}>
+                  <Banknote size={20} />
+                  <span className={styles.stepBadge}>3</span>
+                </div>
+                <h3 className={styles.stepHeading}>{t('home.howToOrder.step3Title')}</h3>
+                <p className={styles.stepDescription}>{t('home.howToOrder.step3Desc')}</p>
+              </div>
+
+              <div className={styles.stepCard}>
+                <div className={styles.stepIconBubble}>
+                  <Truck size={20} />
+                  <span className={styles.stepBadge}>4</span>
+                </div>
+                <h3 className={styles.stepHeading}>{t('home.howToOrder.step4Title')}</h3>
+                <p className={styles.stepDescription}>{t('home.howToOrder.step4Desc')}</p>
+              </div>
+            </Stagger>
+          </div>
+        </section>
+      </Reveal>
+
+      {/* 8. Price Notice Card (Generic SDG-only Notice) */}
+      <Reveal direction="up" delay={50}>
+        <section className={styles.priceNoticeSection} aria-label="تنبيه أسعار الصرف">
+          <PriceNotice
+            variant="full"
+            lockHours={priceLockHours}
+            pricesUpdatedAt={shopInfo?.prices_updated_at}
+            showLastUpdated={true}
+          />
+        </section>
+      </Reveal>
+
+      {/* 9. Shop Location & Hours Card */}
+      <Reveal direction="up" delay={50}>
+        <section id="shop-card" className={styles.shopSection} aria-label="معلومات وموقع المتجر">
+          <div className={styles.shopCard}>
+            <div className={styles.shopCardRibbon} />
+            <div className={styles.shopHeader}>
+              <h3 className={styles.shopTitle}>{t('home.shopInfo.title')}</h3>
+              <p className={styles.shopLocationHighlight}>مول الواحة — الشهداء — أم درمان</p>
+            </div>
+
+            <div className={styles.shopDetails}>
+              <div className={styles.shopDetailRow}>
+                <MapPin size={18} className={styles.shopIcon} />
+                <span>{t('home.shopInfo.address')}</span>
+              </div>
+              <div className={styles.shopDetailRow}>
+                <Clock size={18} className={styles.shopIcon} />
+                <div>
+                  <p>{t('home.shopInfo.hours')}</p>
+                  <span className={styles.shopNote}>{t('home.shopInfo.openHoursNote')}</span>
+                </div>
               </div>
             </div>
 
-            <a
-              href="https://wa.me/249912345678"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.whatsappBtn}
-            >
-              <MessageCircle size={18} />
-              <span>تواصل عبر واتساب للاستفسار</span>
-            </a>
+            <div className={styles.shopActions}>
+              <a
+                href="https://maps.google.com/?q=Al-Waha+Mall+Omdurman"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.shopMapBtn}
+              >
+                <ExternalLink size={16} />
+                <span>{t('home.shopInfo.openMap')}</span>
+              </a>
+              <a
+                href="https://wa.me/249912345678"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.shopWhatsappBtn}
+              >
+                <MessageCircle size={16} />
+                <span>{t('home.shopInfo.whatsappChat')}</span>
+              </a>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </Reveal>
+
+      {/* 10. Floating WhatsApp Button (Bottom-start, auto-hides on scroll down) */}
+      <a
+        href="https://wa.me/249912345678"
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`${styles.floatingWhatsapp} ${showWhatsappFab ? styles.floatingWhatsappVisible : styles.floatingWhatsappHidden}`}
+        title={t('home.floatingWhatsapp')}
+        aria-label={t('home.floatingWhatsapp')}
+      >
+        <MessageCircle size={24} />
+      </a>
     </div>
   );
 }

@@ -327,7 +327,20 @@ Calm, trustworthy, production-ready UI/UX tailored for Sudanese customers and el
   - Upgraded `Card.module.css`, `Chip.module.css`, `Modal.module.css`, `Input.module.css`, `Select.module.css`: soft navy-tinted elevation, active press scale, removed `box-shadow` and `all` from transitions.
   - Refactored `Countdown.jsx` & `Countdown.module.css`: transform-based `scaleX(var(--progress, 1))` with `transform-origin: right center` replacing `transition: width 1s linear`.
   - Verification: 0 lint errors, 11 test files and 51 tests passed (100%), production build 121.23 kB gzip initial JS.
-- [ ] **Phase 3: New Home Screen & Product Card**
+- [x] **Phase 3: New Home Screen & Product Card**
+  - Upgraded `ProductCard.jsx` & `ProductCard.module.css`: 4:3 aspect ratio image container on ice-to-white gradient (`#EAF3FF` to `#FFFFFF`), condition badge (`جديد` / `مستعمل استيراد`), 2-line title, clean spec line (`i5 · 8GB · 256GB`), large SDG price with tabular numerals, morphing quick-add button with checkmark feedback, haptics (`navigator.vibrate`), cart badge bump event, and WAAPI fly-to-cart animation clone targeting `#app-bar-cart-btn`. Container queries `@container` ensure fluid card layout in 1-column and 2-column rails.
+  - Implemented 10-section `HomePage.jsx` & `HomePage.module.css`:
+    1. App Bar (StoreLayout integration with unread bell and animated cart count).
+    2. Greeting line with signed-in user name / guest greeting + rotating search placeholder examples ("ابحث عن جهاز، مثل: Dell Latitude", "Lenovo ThinkPad", "HP EliteBook", "شاحن أصيل") with popular search chips on focus.
+    3. Hero carousel with dark navy background, animated drifting slanted ribbons, `useParallax`, auto-advance 5s, touch swipe, touch pause, and active progress dots across 3 slides (وصل حديثًا, ضمان تثبيت السعر, ملحقات الحاسوب).
+    4. Quick actions row (4 round icon tiles: تصفح الأجهزة, تتبع طلبي, تواصل عبر واتساب, موقع المحل).
+    5. Category tiles (حواسيب محمولة, هواتف, ملحقات) + condition chips (جديد, مستعمل استيراد).
+    6. Four API-driven horizontal rails with scroll-snap and peeking next cards ("وصل حديثًا", "مناسبة للدراسة", "مناسبة للعمل", "ملحقات"), with skeletons during loading and graceful empty handling.
+    7. "كيف تطلب" section with 4 animated steps connected by a brand gradient ribbon line.
+    8. Price notice card with generic SDG fluctuation string and freshness indicator.
+    9. Shop location card with Al-Waha Mall address, operating hours, Google Maps and WhatsApp CTAs, and slanted ribbon background accent.
+    10. Floating WhatsApp button above bottom tab bar with scroll-direction detection (hides on scroll down, reappears on scroll up).
+  - Verification: 0 lint errors, 11 test files and 51 tests passing, production build 121.41 kB gzip initial JS.
 - [ ] **Phase 4: Catalog, Product Page, Search & Cart Flight Animation**
 - [ ] **Phase 5: Cart, Checkout, Price-Lock Ring, Receipt & Orders Flow**
 - [ ] **Phase 6: Responsiveness & Accessibility Audits**
