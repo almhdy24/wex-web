@@ -209,3 +209,4 @@ export const api = {
 };
 
 export { axiosInstance } from './axios';
+export { mapApiError } from './errorMapper';

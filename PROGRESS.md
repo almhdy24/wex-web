@@ -744,14 +744,22 @@ Hotfix of critical storefront issues identified during phone testing:
   - Automated check added to `scripts/audit.sh` (Check 5) to block any future reintroduction of invented warranty or trial period claims.
   - Verification: 0 lint errors, 0 lint warnings, 165/165 unit tests green, production build 151.56 kB gzip.
 
-- [x] **Phase 7: Shopping Journey & Purchase Continuity Optimization**
-  - Root Cause Fixed (Redirect to Home after login): In `RouteGuard.jsx`, `GuestRoute` evaluated `location.state?.from?.pathname` which failed on string state (e.g. `{ state: { from: '/checkout' } }`) and ignored `returnTo` search parameters. Fixed to parse string state, object pathname, and `?returnTo=`, ensuring customers return directly to `/checkout` instead of being dumped on `/`.
-  - Root Cause Fixed (Auth Navigation Continuity): In `LoginPage.jsx` and `VerifyOtpPage.jsx`, email OTP verification and Google sign-in both propagate `returnTo` as query parameter and state, guaranteeing that switching to email apps or tab restarts on mobile browsers preserves the return destination.
-  - Draft State Persistence: Moved `wex_checkout_draft` to `localStorage` (with dual-sync to `sessionStorage`), ensuring order type, delivery zone, delivery address, contact phone, and notes are 100% preserved across authentication interruptions and tab reloads.
-  - Checkout Guest Transparency: Added clean guest shopping notice banner on `CheckoutPage` informing customers that they can fill delivery details and seamlessly register or login during price lock submission, with an option to sign in upfront.
-  - Mobile AppBar Decluttering: Removed distracting notifications bell from mobile storefront headers (`/cart`, `/checkout`, `/orders/*`, etc.) to prevent accidental taps that redirected users to notifications instead of completing purchases. Moved unread notifications indicator to the Account tab in `BottomTabBar`.
-  - Contact Auto-Population: Automatically populates user phone into contact phone field once authenticated if left blank.
-  - Verification: 31 test files, 181/181 unit tests green (including new continuity and navigation tests in `cart-checkout.test.jsx`), 0 ESLint warnings, check-i18n pass, and clean production build.
+- [x] **Phase A: Payment Proof Upload Fix (Web)**
+  - Fixed Axios Multipart Header stripping: configured `axiosInstance` request interceptor to delete `Content-Type` whenever `config.data instanceof FormData`, allowing Axios to automatically set `multipart/form-data; boundary=...`.
+  - Added shared Arabic API error mapper (`src/api/errorMapper.js`) ensuring all HTTP codes (401, 403, 404, 409, 413, 422, 429, 500, and offline status 0) are mapped to user-friendly Arabic text with zero English network traces.
+  - Hardened client image compressor (`src/utils/imageCompressor.js`):
+    - Generates normalized filenames ending in `.jpg` (e.g. `receipt-${Date.now()}.jpg`), resolving nameless mobile camera pastes (`blob`) and extensionless files.
+    - Handles EXIF orientation via modern `createImageBitmap({ imageOrientation: 'from-image' })` with canvas fallback.
+    - Added fallback: if client compression fails, sends original only if `<= 4 MB`, otherwise throws user-friendly Arabic error.
+  - Upgraded Order Detail Page (`src/pages/store/OrderDetailPage.jsx`):
+    - Inline Arabic error alert next to upload dropzone with retry button.
+    - Preserves selected file on upload failure so users do not have to pick it again.
+    - Disables double submission while `uploading` is in progress.
+    - Supports replacement uploads: when an order is in `payment_review` and price lock is active, customer can click "تحديث الإشعار أو إرسال صورة أخرى" to replace prior pending proof.
+  - Added unmount cleanup for receipt image blob URLs in `AdminPaymentsPage.jsx`.
+  - Created unit tests in `src/__tests__/errorMapper.test.js` and expanded `src/__tests__/receipt-compression.test.js`.
+  - Verification: 0 lint errors, 0 lint warnings, check-i18n pass, and production build succeeded.
+
 
 
 

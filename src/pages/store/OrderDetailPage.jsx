@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Check, MessageCircle, RefreshCw, Upload, CheckCircle2, Clock, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Check, MessageCircle, RefreshCw, Upload, CheckCircle2, Clock, ShieldCheck, ArrowRight, AlertCircle } from 'lucide-react';
 import { ordersApi } from '../../api/orders';
 import { formatSdg, formatDate, getOrderStatusInfo } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
 import ErrorState from '../../components/common/ErrorState';
 import { Skeleton } from '../../components/common/Skeleton';
 import { compressProofImage } from '../../utils/imageCompressor';
+import { mapApiError } from '../../api/errorMapper';
 import PriceNotice from '../../components/common/PriceNotice';
 import PaymentAccountsDisplay from '../../components/store/PaymentAccountsDisplay';
 import styles from './OrderDetailPage.module.css';
@@ -42,6 +43,8 @@ export default function OrderDetailPage() {
   const [senderName, setSenderName] = useState('');
   const [referenceNumber, setReferenceNumber] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+  const [showReplaceForm, setShowReplaceForm] = useState(false);
   const [reordering, setReordering] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -86,29 +89,35 @@ export default function OrderDetailPage() {
   }, [secondsRemaining]);
 
   const isPending = order?.status === 'pending_payment';
-  const hasProof = !!order?.payment_proof || order?.status === 'payment_uploaded' || order?.status === 'under_review';
+  const isReview = order?.status === 'payment_review' || order?.status === 'payment_uploaded' || order?.status === 'under_review';
+  const hasProof = !!order?.payment_proof || isReview;
 
   // Process selected file with client-side compression
   const processAndSetFile = async (file) => {
     if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      toastError('يرجى اختيار ملف صورة صالح (JPG, PNG, WEBP)');
+    setUploadError(null);
+    if (!file.type || !file.type.startsWith('image/')) {
+      const msg = 'يرجى اختيار ملف صورة صالح (JPG, PNG, WEBP)';
+      setUploadError(msg);
+      toastError(msg);
       return;
     }
 
     try {
       const processed = await compressProofImage(file);
-      setProofFile(processed);
+      const namedFile = (processed instanceof File && processed.name)
+        ? processed
+        : new File([processed], `receipt-${Date.now()}.jpg`, { type: 'image/jpeg' });
+      setProofFile(namedFile);
 
       const reader = new FileReader();
       reader.onload = () => setProofPreview(reader.result);
-      reader.readAsDataURL(processed);
+      reader.readAsDataURL(namedFile);
       success('تم تجهيز صورة الإشعار بنجاح');
-    } catch {
-      setProofFile(file);
-      const reader = new FileReader();
-      reader.onload = () => setProofPreview(reader.result);
-      reader.readAsDataURL(file);
+    } catch (err) {
+      const msg = mapApiError(err, 'فشل تجهيز الصورة، يرجى اختيار صورة أصغر');
+      setUploadError(msg);
+      toastError(msg);
     }
   };
 
@@ -137,7 +146,7 @@ export default function OrderDetailPage() {
   // Clipboard Paste (Ctrl+V) handler
   useEffect(() => {
     const handlePaste = (e) => {
-      if (!isPending || hasProof) return;
+      if ((!isPending && !showReplaceForm) || (!showReplaceForm && hasProof)) return;
       const items = e.clipboardData?.items;
       if (!items) return;
       for (let i = 0; i < items.length; i++) {
@@ -154,19 +163,30 @@ export default function OrderDetailPage() {
 
     window.addEventListener('paste', handlePaste);
     return () => window.removeEventListener('paste', handlePaste);
-  }, [isPending, hasProof]);
+  }, [isPending, hasProof, showReplaceForm]);
 
   // Submit Payment Proof
   const handleUploadSubmit = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
+    if (uploading) return; // Prevent double submit
+
     if (!proofFile) {
-      toastError('يرجى اختيار صورة إشعار التحويل');
+      const msg = 'يرجى اختيار صورة إشعار التحويل';
+      setUploadError(msg);
+      toastError(msg);
       return;
     }
 
     setUploading(true);
+    setUploadError(null);
+
+    // Enforce proof_image field with named File
+    const uploadFile = (proofFile instanceof File && proofFile.name)
+      ? proofFile
+      : new File([proofFile], `receipt-${Date.now()}.jpg`, { type: proofFile.type || 'image/jpeg' });
+
     const formData = new FormData();
-    formData.append('proof_image', proofFile);
+    formData.append('proof_image', uploadFile);
     if (senderName.trim()) formData.append('sender_name', senderName.trim());
     if (referenceNumber.trim()) formData.append('reference_number', referenceNumber.trim());
 
@@ -177,9 +197,14 @@ export default function OrderDetailPage() {
       setProofPreview(null);
       setSenderName('');
       setReferenceNumber('');
+      setUploadError(null);
+      setShowReplaceForm(false);
       loadOrder(false);
     } catch (err) {
-      toastError(err.message || 'فشل رفع الإشعار، حاول مرة أخرى');
+      const errorMsg = mapApiError(err, 'فشل رفع الإشعار، حاول مرة أخرى');
+      setUploadError(errorMsg);
+      toastError(errorMsg);
+      // File remains selected in proofFile so the user can easily retry!
     } finally {
       setUploading(false);
     }
@@ -403,20 +428,31 @@ export default function OrderDetailPage() {
           )}
 
           {/* 4. Receipt Upload Dropzone (with Drag/Drop & Ctrl+V Paste) */}
-          {!isExpired && isPending && (
+          {!isExpired && (isPending || isReview) && (
             <div className={styles.receiptCard}>
               <h4 className={styles.receiptTitle}>رفع إشعار التحويل البنكي</h4>
               <p className={styles.receiptDesc}>
                 بعد إتمام التحويل، يرجى رفع صورة الإشعار البنكي هنا أو سحبها أو لصقها مباشرة.
               </p>
 
-              {hasProof ? (
+              {hasProof && !showReplaceForm ? (
                 <div className={styles.proofSuccessBox}>
-                  <CheckCircle2 size={24} className={styles.successIcon} />
-                  <div>
-                    <div className={styles.proofSuccessTitle}>تم استلام إشعار التحويل</div>
-                    <div className={styles.proofSuccessSub}>الطلب قيد المراجعة حالياً ومطابقة العملية.</div>
+                  <div className={styles.proofSuccessHeader}>
+                    <CheckCircle2 size={24} className={styles.successIcon} />
+                    <div>
+                      <div className={styles.proofSuccessTitle}>تم استلام إشعار التحويل</div>
+                      <div className={styles.proofSuccessSub}>الطلب قيد المراجعة حالياً ومطابقة العملية.</div>
+                    </div>
                   </div>
+                  {!isExpired && (
+                    <button
+                      type="button"
+                      className={styles.replaceProofBtn}
+                      onClick={() => setShowReplaceForm(true)}
+                    >
+                      تحديث الإشعار أو إرسال صورة أخرى
+                    </button>
+                  )}
                 </div>
               ) : (
                 <form onSubmit={handleUploadSubmit} className={styles.uploadForm}>
@@ -454,6 +490,25 @@ export default function OrderDetailPage() {
                     </div>
                   )}
 
+                  {uploadError && (
+                    <div className={styles.uploadErrorAlert} role="alert">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <AlertCircle size={16} style={{ flexShrink: 0 }} />
+                        <span>{uploadError}</span>
+                      </div>
+                      {proofFile && (
+                        <button
+                          type="button"
+                          className={styles.retryBtn}
+                          onClick={handleUploadSubmit}
+                          disabled={uploading}
+                        >
+                          إعادة المحاولة
+                        </button>
+                      )}
+                    </div>
+                  )}
+
                   <div className={styles.formRow}>
                     <input
                       type="text"
@@ -471,14 +526,28 @@ export default function OrderDetailPage() {
                     />
                   </div>
 
-                  <button
-                    type="submit"
-                    disabled={uploading || !proofFile}
-                    className={`${styles.uploadBtn} btn-vivid`}
-                  >
-                    <Check size={16} />
-                    <span>{uploading ? 'جاري رفع الإشعار...' : 'تأكيد ورفع الإشعار'}</span>
-                  </button>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <button
+                      type="submit"
+                      disabled={uploading || !proofFile}
+                      className={`${styles.uploadBtn} btn-vivid`}
+                    >
+                      <Check size={16} />
+                      <span>{uploading ? 'جاري رفع الإشعار...' : (showReplaceForm ? 'تأكيد واستبدال الإشعار' : 'تأكيد ورفع الإشعار')}</span>
+                    </button>
+                    {showReplaceForm && (
+                      <button
+                        type="button"
+                        className={styles.cancelReplaceBtn}
+                        onClick={() => {
+                          setShowReplaceForm(false);
+                          setUploadError(null);
+                        }}
+                      >
+                        إلغاء التحديث
+                      </button>
+                    )}
+                  </div>
                 </form>
               )}
             </div>

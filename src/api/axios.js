@@ -23,6 +23,17 @@ axiosInstance.interceptors.request.use((config) => {
   if (token && !config.headers.Authorization) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+  // When uploading FormData, remove Content-Type header so Axios/browser sets multipart boundary correctly
+  if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+    if (config.headers) {
+      delete config.headers['Content-Type'];
+      if (typeof config.headers.delete === 'function') {
+        config.headers.delete('Content-Type');
+      }
+    }
+  }
+
   return config;
 });
 

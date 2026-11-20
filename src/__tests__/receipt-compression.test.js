@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculateDownscaledDimensions, compressProofImage } from '../utils/imageCompressor';
+import { calculateDownscaledDimensions, compressProofImage, getJpegFilename } from '../utils/imageCompressor';
 
 describe('Receipt Image Compression Math & Rules', () => {
   it('does not downscale images that are already below 1600px', () => {
@@ -37,5 +37,14 @@ describe('Receipt Image Compression Math & Rules', () => {
   it('gracefully handles null or undefined file input', async () => {
     expect(await compressProofImage(null)).toBeNull();
     expect(await compressProofImage(undefined)).toBeUndefined();
+  });
+
+  it('correctly normalizes filenames to .jpg including nameless blobs and extensionless files', () => {
+    expect(getJpegFilename({ name: 'blob' })).toBe('blob.jpg');
+    expect(getJpegFilename({ name: 'receipt' })).toBe('receipt.jpg');
+    expect(getJpegFilename({ name: 'screenshot.png' })).toBe('screenshot.jpg');
+    expect(getJpegFilename({ name: 'photo.webp' })).toBe('photo.jpg');
+    expect(getJpegFilename(null)).toMatch(/^receipt-\d+\.jpg$/);
+    expect(getJpegFilename({})).toMatch(/^receipt-\d+\.jpg$/);
   });
 });

@@ -79,6 +79,12 @@ export default function AdminPaymentsPage() {
 
   useEffect(() => {
     fetchQueue();
+    return () => {
+      if (prevBlobUrlRef.current) {
+        URL.revokeObjectURL(prevBlobUrlRef.current);
+        prevBlobUrlRef.current = null;
+      }
+    };
   }, [fetchQueue]);
 
   // Load details and receipt image for the active item
