@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Copy, Check } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
+import LatinText from './LatinText';
 import styles from './CopyField.module.css';
 
 export default function CopyField({
@@ -29,10 +30,18 @@ export default function CopyField({
         document.body.removeChild(textarea);
       }
       setCopied(true);
-      showToast(toastMessage, 'success');
+      showToast({
+        title: toastMessage || 'تم النسخ',
+        detail: textToCopy ? <LatinText>{textToCopy}</LatinText> : null,
+        type: 'success',
+        dedupeKey: `copy-${textToCopy}`,
+      });
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      showToast('تعذر النسخ تلقائياً', 'error');
+      showToast({
+        title: 'تعذر النسخ تلقائياً',
+        type: 'error',
+      });
     }
   };
 

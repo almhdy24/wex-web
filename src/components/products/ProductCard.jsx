@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Check, Heart } from 'lucide-react';
 import { formatSdg, getProductImageUrl, getConditionLabel } from '../../utils/formatters';
 import { useCart } from '../../context/CartContext';
@@ -7,6 +7,7 @@ import { useFavorites } from '../../context/FavoritesContext';
 import { useToast } from '../../context/ToastContext';
 import { t } from '../../content/ar';
 import LaptopSvg from '../common/LaptopSvg';
+import LatinText from '../common/LatinText';
 import styles from './ProductCard.module.css';
 
 /**
@@ -34,6 +35,7 @@ function getQuickSpecs(product) {
 }
 
 export default function ProductCard({ product, index = 0 }) {
+  const navigate = useNavigate();
   const { addItem } = useCart();
   const { toggleFavorite, isFavorite } = useFavorites();
   const { success } = useToast();
@@ -67,7 +69,15 @@ export default function ProductCard({ product, index = 0 }) {
       }
     }
 
-    success(t('cart.addedItemSuccess', { name: product.name }) || `تمت إضافة "${product.name}" إلى السلة`);
+    success({
+      title: t('toast.addedToCartTitle', 'أُضيف إلى السلة'),
+      detail: <LatinText>{product.name}</LatinText>,
+      action: {
+        label: t('toast.viewCartAction', 'عرض السلة'),
+        onClick: () => navigate('/cart'),
+      },
+      dedupeKey: `cart-${product.id}`,
+    });
 
     // Fly-to-cart WAAPI animation
     if (typeof window !== 'undefined' && imgRef.current) {

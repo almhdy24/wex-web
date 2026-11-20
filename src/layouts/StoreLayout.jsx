@@ -235,12 +235,14 @@ export default function StoreLayout() {
   }
 
   // PHONE & TABLET APP SHELL (< 1024px)
+  const bottomOffset = isKeyboardOpen ? '16px' : (hideBottomNav ? '80px' : '68px');
+
   return (
     <div className={styles.desktopViewport}>
       <a href="#main-content" className={styles.skipLink}>انتقل إلى المحتوى الرئيسي</a>
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
 
-      <div className={styles.appShell}>
+      <div className={styles.appShell} style={{ '--bottom-offset': bottomOffset }}>
         <AppBar
           title={routeInfo.title}
           showLogo={routeInfo.isHome}

@@ -142,6 +142,7 @@
   --desktop-side-padding: clamp(24px, 4vw, 48px);
   --app-bar-height: 56px;
   --bottom-tab-height: 56px;
+  --bottom-offset: 68px;
   --touch-target: 44px;
 
   /* Motion Tokens */

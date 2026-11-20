@@ -23,6 +23,7 @@ import { useFavorites } from '../../context/FavoritesContext';
 import { useToast } from '../../context/ToastContext';
 import { t } from '../../content/ar';
 import LaptopSvg from '../../components/common/LaptopSvg';
+import LatinText from '../../components/common/LatinText';
 import ErrorState from '../../components/common/ErrorState';
 import { Skeleton } from '../../components/common/Skeleton';
 import ProductCard from '../../components/products/ProductCard';
@@ -196,7 +197,15 @@ export default function ProductDetailPage() {
       }
     }
 
-    success(t('cart.addedItemSuccess', { name: product.name }) || `تمت إضافة "${product.name}" إلى السلة`);
+    success({
+      title: t('toast.addedToCartTitle', 'أُضيف إلى السلة'),
+      detail: <LatinText>{product.name}</LatinText>,
+      action: {
+        label: t('toast.viewCartAction', 'عرض السلة'),
+        onClick: () => navigate('/cart'),
+      },
+      dedupeKey: `cart-${product.id}`,
+    });
 
     // WAAPI Fly-to-Cart animation
     if (typeof window !== 'undefined' && heroImgRef.current) {

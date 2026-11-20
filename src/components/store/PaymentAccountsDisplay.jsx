@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Copy, Check, Building2, Info } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 import { ar } from '../../content/ar';
+import LatinText from '../common/LatinText';
 import styles from './PaymentAccountsDisplay.module.css';
 
 export default function PaymentAccountsDisplay({
@@ -19,16 +20,21 @@ export default function PaymentAccountsDisplay({
 
   const handleCopy = (text, key, successMsg) => {
     if (!text) return;
-    if (navigator?.clipboard?.writeText) {
-      navigator.clipboard.writeText(String(text)).then(() => {
-        setCopiedKey(key);
-        success(successMsg);
-        setTimeout(() => setCopiedKey(null), 2000);
-      });
-    } else {
+    const str = String(text);
+    const triggerSuccess = () => {
       setCopiedKey(key);
-      success(successMsg);
+      success({
+        title: successMsg || 'تم النسخ',
+        detail: <LatinText>{str}</LatinText>,
+        dedupeKey: `copy-${str}`,
+      });
       setTimeout(() => setCopiedKey(null), 2000);
+    };
+
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(str).then(triggerSuccess);
+    } else {
+      triggerSuccess();
     }
   };
 

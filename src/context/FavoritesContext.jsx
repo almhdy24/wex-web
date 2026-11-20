@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useToast } from './ToastContext';
+import LatinText from '../components/common/LatinText';
+import { t } from '../content/ar';
 
 export const FavoritesContext = createContext(null);
 const FAVORITES_STORAGE_KEY = 'wex_favorite_items';
@@ -28,10 +30,18 @@ export function FavoritesProvider({ children }) {
     setFavorites((prev) => {
       const exists = prev.some((p) => p.id === product.id);
       if (exists) {
-        info(`تم حذف "${product.name}" من المفضلة`);
+        info({
+          title: 'أُزيل من المفضلة',
+          detail: <LatinText>{product.name}</LatinText>,
+          dedupeKey: `fav-rem-${product.id}`,
+        });
         return prev.filter((p) => p.id !== product.id);
       } else {
-        success(`تمت إضافة "${product.name}" إلى المفضلة`);
+        success({
+          title: t('toast.addedToFavoritesTitle', 'أُضيف إلى المفضلة'),
+          detail: <LatinText>{product.name}</LatinText>,
+          dedupeKey: `fav-${product.id}`,
+        });
         return [...prev, product];
       }
     });

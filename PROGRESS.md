@@ -706,11 +706,14 @@ Hotfix of critical storefront issues identified during phone testing:
   - Fixed PriceNotice copy to exact required MSA string: "الأسعار تتغيّر مع تقلّب سعر الصرف. عند إتمام الطلب نثبّت لك السعر لمدة {hours} ساعات لتتمكّن من التحويل."
   - Runtime safety: `t()` throws loud error in dev/test for missing keys and returns empty string in production (never leaks raw dot keys).
   - Test suite `src/__tests__/i18n-integrity.test.jsx` passes 100%. Controls without visible label audit fixed.
-- [ ] **Phase 2: Toast System Overhaul**
-  - ToastProvider with queue, deduplication (2s window), max 2 visible toasts.
-  - Semantic icons (color + shape), bold title, detail line, action buttons, 44px close target, remaining time progress bar, swipe dismiss.
-  - Layering above bottom navigation with `--bottom-offset` variable.
-  - LatinText wrapper `<bdi dir="ltr">` for product names avoiding bidi quote flips.
+- [x] **Phase 2: Toast System Overhaul**
+  - Re-implemented `ToastProvider` with queue, 2-second deduplication window, max 2 visible toasts.
+  - Toast anatomy: semantic icons with distinct color AND shape (`CheckCircle2` success, `AlertCircle` error, `AlertTriangle` warning, `Info` info), bold title, detail line, action button, 44px close target, and dynamic progress bar.
+  - Layering above bottom navigation using `--bottom-offset` CSS variable.
+  - Pause timer on touch, hover, and focus; swipe-to-dismiss gesture support.
+  - `LatinText` helper `<bdi dir="ltr">` preventing bidi text and quote flips for Latin product names.
+  - Standardized toasts for cart, compare, favorites, and clipboard copy.
+  - Test suite `src/__tests__/toast-system.test.jsx` passes 100%. Lint clean with 0 warnings.
 - [ ] **Phase 3: Compare Feature**
   - Cross-tab store, max 3 items, strict product type matching.
   - CompareTray floating bar with thumbnails, counter, "قارن الآن" and "مسح".
