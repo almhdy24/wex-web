@@ -27,6 +27,18 @@ export default function StoreLayout() {
   const scrollPositions = useRef({});
   const prevPathRef = useRef(location.pathname);
   const [navDirection, setNavDirection] = useState('forward');
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+
+  // Detect virtual on-screen keyboard via visualViewport
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.visualViewport) return;
+    const handleResize = () => {
+      const isShrunk = window.visualViewport.height < window.innerHeight * 0.78;
+      setIsKeyboardOpen(isShrunk);
+    };
+    window.visualViewport.addEventListener('resize', handleResize);
+    return () => window.visualViewport.removeEventListener('resize', handleResize);
+  }, []);
 
   // Track navigation depth to determine RTL slide direction
   useEffect(() => {
@@ -157,8 +169,8 @@ export default function StoreLayout() {
           </div>
         </main>
 
-        {/* Fixed Bottom Tab Bar (4 Tabs) */}
-        {!hideBottomNav && (
+        {/* Fixed Bottom Tab Bar (4 Tabs) - Hidden when virtual keyboard is open */}
+        {!hideBottomNav && !isKeyboardOpen && (
           <BottomTabBar activeOrderCount={activeOrderCount} />
         )}
 

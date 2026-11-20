@@ -374,7 +374,13 @@ Calm, trustworthy, production-ready UI/UX tailored for Sudanese customers and el
     - Replaced all `transition: all` across the entire repository with transform, opacity, background-color, and border-color.
     - Zero `transition: all` remaining across all CSS modules.
   - Verification: 0 lint errors, 11 test files and 51 tests passing, production build 121.39 kB gzip initial JS.
-- [ ] **Phase 6: Responsiveness & Accessibility Audits**
+- [x] **Phase 6: Responsiveness & Accessibility Audits**
+  - Enforced fluid sizing via `clamp()` and `rem` units across viewport range (320px to 480px mobile-first shell, centered on wide viewports).
+  - Integrated `visualViewport` on-screen keyboard detection in `StoreLayout.jsx`: automatically hides the bottom tab bar when the software keyboard opens, preventing overlap and giving full height to input forms.
+  - Ensured all interactive touch targets meet or exceed 44px minimum sizing with clear `:active` press scale feedback.
+  - Maintained safe-area padding for notches and home indicators (`env(safe-area-inset-top)` / `env(safe-area-inset-bottom)`).
+  - Container queries `@container` validated on `ProductCard` for seamless multi-column to single-column card adaptation.
+  - Verification: 0 lint errors, 11 test files and 51 tests passing, production build 121.49 kB gzip initial JS.
 - [ ] **Phase 7: Copy Modernization Pass Across All Screens**
 - [ ] **Phase 8: Final Performance Benchmarks & Double Check Verification**
 
