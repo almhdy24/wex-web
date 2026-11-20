@@ -17,6 +17,7 @@ import { formatAed, formatSdg, resolveImageUrl, formatCondition } from '../../ut
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
 import Tag from '../../components/common/Tag';
+import Select from '../../components/common/Select';
 import ErrorState from '../../components/common/ErrorState';
 import DataList from '../../components/admin/DataList';
 import FilterBar from '../../components/admin/FilterBar';
@@ -276,75 +277,6 @@ export default function AdminProductsPage() {
     }
   };
 
-  // FilterBar configuration
-  const filterControls = useMemo(
-    () => [
-      {
-        key: 'category_id',
-        label: adminAr.products.allCategories,
-        value: categoryFilter,
-        options: [
-          { value: '', label: adminAr.products.allCategories },
-          ...categories.map((c) => ({ value: String(c.id), label: c.name_ar || c.name })),
-        ],
-      },
-      {
-        key: 'type',
-        label: 'كافة الأنواع',
-        value: typeFilter,
-        options: [
-          { value: '', label: 'كافة الأنواع' },
-          { value: 'laptop', label: 'لابتوبات' },
-          { value: 'phone', label: 'هواتف' },
-          { value: 'accessory', label: 'ملحقات' },
-        ],
-      },
-      {
-        key: 'brand_id',
-        label: adminAr.products.allBrands,
-        value: brandFilter,
-        options: [
-          { value: '', label: adminAr.products.allBrands },
-          ...brands.map((b) => ({ value: String(b.id), label: b.name })),
-        ],
-      },
-      {
-        key: 'condition',
-        label: adminAr.products.allConditions,
-        value: conditionFilter,
-        options: [
-          { value: '', label: adminAr.products.allConditions },
-          { value: 'brand_new', label: 'جديد' },
-          { value: 'open_box', label: 'كرتونة مفتوحة' },
-          { value: 'used', label: 'مستعمل استيراد' },
-          { value: 'refurbished', label: 'مجدد' },
-        ],
-      },
-      {
-        key: 'stock',
-        label: adminAr.products.stockAll,
-        value: stockFilter,
-        options: [
-          { value: '', label: adminAr.products.stockAll },
-          { value: 'in_stock', label: adminAr.products.stockInStock },
-          { value: 'low_stock', label: adminAr.products.stockLow },
-          { value: 'out_of_stock', label: adminAr.products.stockOut },
-        ],
-      },
-      {
-        key: 'is_active',
-        label: adminAr.products.activeStatus,
-        value: activeFilter,
-        options: [
-          { value: '', label: 'كافة الحالات' },
-          { value: '1', label: adminAr.products.activeLabel },
-          { value: '0', label: adminAr.products.inactiveLabel },
-        ],
-      },
-    ],
-    [categoryFilter, typeFilter, brandFilter, conditionFilter, stockFilter, activeFilter, categories, brands]
-  );
-
   const activeFiltersCount = useMemo(() => {
     let count = 0;
     if (categoryFilter) count++;
@@ -560,14 +492,75 @@ export default function AdminProductsPage() {
 
       {/* Filter and Search Bar */}
       <FilterBar
-        searchValue={searchQuery}
+        search={searchQuery}
         onSearchChange={(val) => updateParam('q', val)}
         searchPlaceholder={adminAr.products.searchPlaceholder}
-        filters={filterControls}
-        onFilterChange={(key, val) => updateParam(key, val)}
-        activeFiltersCount={activeFiltersCount}
+        filterCount={activeFiltersCount}
         onClearFilters={handleClearFilters}
-      />
+      >
+        <Select
+          label="القسم"
+          value={categoryFilter}
+          onChange={(e) => updateParam('category_id', e.target.value)}
+          options={[
+            { value: '', label: adminAr.products.allCategories },
+            ...categories.map((c) => ({ value: String(c.id), label: c.name_ar || c.name })),
+          ]}
+        />
+        <Select
+          label="النوع"
+          value={typeFilter}
+          onChange={(e) => updateParam('type', e.target.value)}
+          options={[
+            { value: '', label: 'كافة الأنواع' },
+            { value: 'laptop', label: 'لابتوبات' },
+            { value: 'phone', label: 'هواتف' },
+            { value: 'accessory', label: 'ملحقات' },
+          ]}
+        />
+        <Select
+          label="الماركة"
+          value={brandFilter}
+          onChange={(e) => updateParam('brand_id', e.target.value)}
+          options={[
+            { value: '', label: adminAr.products.allBrands },
+            ...brands.map((b) => ({ value: String(b.id), label: b.name })),
+          ]}
+        />
+        <Select
+          label="الحالة"
+          value={conditionFilter}
+          onChange={(e) => updateParam('condition', e.target.value)}
+          options={[
+            { value: '', label: adminAr.products.allConditions },
+            { value: 'brand_new', label: 'جديد' },
+            { value: 'open_box', label: 'كرتونة مفتوحة' },
+            { value: 'used', label: 'مستعمل استيراد' },
+            { value: 'refurbished', label: 'مجدد' },
+          ]}
+        />
+        <Select
+          label="المخزون"
+          value={stockFilter}
+          onChange={(e) => updateParam('stock', e.target.value)}
+          options={[
+            { value: '', label: adminAr.products.stockAll },
+            { value: 'in_stock', label: adminAr.products.stockInStock },
+            { value: 'low_stock', label: adminAr.products.stockLow },
+            { value: 'out_of_stock', label: adminAr.products.stockOut },
+          ]}
+        />
+        <Select
+          label="حالة العرض"
+          value={activeFilter}
+          onChange={(e) => updateParam('is_active', e.target.value)}
+          options={[
+            { value: '', label: 'كافة الحالات' },
+            { value: '1', label: adminAr.products.activeLabel },
+            { value: '0', label: adminAr.products.inactiveLabel },
+          ]}
+        />
+      </FilterBar>
 
       {/* Bulk Actions Toolbar (Visible when 1 or more items selected) */}
       {selectedIds.length > 0 && (

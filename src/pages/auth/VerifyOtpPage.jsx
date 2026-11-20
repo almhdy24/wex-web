@@ -67,7 +67,10 @@ export default function VerifyOtpPage() {
         const { user, access_token, refresh_token } = res.data;
         loginWithSession(user, access_token, refresh_token);
         success(`أهلاً بك يا ${user.name}`);
-        navigate(from, { replace: true });
+        const target = (user.role === 'admin' || user.role === 'staff')
+          ? (from !== '/' && from.startsWith('/admin') ? from : '/admin')
+          : from;
+        navigate(target, { replace: true });
       } catch (err) {
         if (err.errors?.name) {
           setNeedsName(true);

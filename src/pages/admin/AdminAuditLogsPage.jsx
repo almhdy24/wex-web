@@ -1,37 +1,101 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Eye, RefreshCw } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { formatDate } from '../../utils/formatters';
 import Modal from '../../components/common/Modal';
 import Tag from '../../components/common/Tag';
 import Button from '../../components/common/Button';
-import Input from '../../components/common/Input';
 import Select from '../../components/common/Select';
-import { TableSkeleton } from '../../components/common/Skeleton';
-import EmptyState from '../../components/common/EmptyState';
+import DataList from '../../components/admin/DataList';
+import FilterBar from '../../components/admin/FilterBar';
 import ErrorState from '../../components/common/ErrorState';
-import styles from './AdminCommon.module.css';
+import styles from './AdminAuditLogsPage.module.css';
+
+/**
+ * Human-readable Arabic sentence generator for audit entries.
+ */
+function formatAuditSentence(log) {
+  if (!log) return '';
+  const actor = log.user_name || log.user?.name || 'المدير';
+  let details = {};
+  if (log.details) {
+    try {
+      details = typeof log.details === 'string' ? JSON.parse(log.details) : log.details;
+    } catch {
+      // ignore
+    }
+  }
+
+  const action = log.action || '';
+  const entity = log.entity || log.entity_type || '';
+
+  if (action === 'update_rate' || (entity === 'rates' && action.includes('update'))) {
+    if (details.old_rate && details.new_rate) {
+      return `قام ${actor} بتحديث سعر الصرف من ${details.old_rate} إلى ${details.new_rate} ج.س`;
+    }
+    if (details.rate) {
+      return `قام ${actor} بتحديث سعر الصرف إلى ${details.rate} ج.س`;
+    }
+    return `قام ${actor} بتحديث سعر الصرف المعتمد`;
+  }
+
+  if (action === 'approve_proof' || action === 'approve_payment') {
+    return `قام ${actor} باعتماد إشعار التحويل البنكي للطلب #${details.order_number || log.entity_id || ''}`;
+  }
+
+  if (action === 'reject_proof' || action === 'reject_payment') {
+    const reason = details.note || details.reason ? ` (${details.note || details.reason})` : '';
+    return `قام ${actor} برفض إشعار التحويل للطلب #${details.order_number || log.entity_id || ''}${reason}`;
+  }
+
+  if (action === 'update_status' || action.includes('status')) {
+    const oldStatus = details.old_status ? `من "${details.old_status}" ` : '';
+    const newStatus = details.new_status ? `إلى "${details.new_status}"` : '';
+    return `قام ${actor} بتعديل مسار الطلب #${details.order_number || log.entity_id || ''} ${oldStatus}${newStatus}`.trim();
+  }
+
+  if (action.includes('create') && entity === 'products') {
+    return `قام ${actor} بإضافة جهاز جديد: ${details.name || `#${log.entity_id}`}`;
+  }
+
+  if (action.includes('update') && entity === 'products') {
+    return `قام ${actor} بتعديل بيانات الجهاز: ${details.name || `#${log.entity_id}`}`;
+  }
+
+  if (action.includes('stock')) {
+    return `قام ${actor} بتعديل مخزون الجهاز #${log.entity_id} إلى ${details.new_stock ?? details.stock_quantity ?? ''}`;
+  }
+
+  if (action.includes('role')) {
+    return `قام ${actor} بتعديل صلاحيات المستخدم #${log.entity_id} إلى دور "${details.role || details.new_role || ''}"`;
+  }
+
+  return `قام ${actor} بإجراء ${action} على ${entity} #${log.entity_id || ''}`;
+}
 
 export default function AdminAuditLogsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [logs, setLogs] = useState([]);
   const [meta, setMeta] = useState({ page: 1, per_page: 25, total: 0, total_pages: 1 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Filters
-  const [actionFilter, setActionFilter] = useState('');
-  const [entityFilter, setEntityFilter] = useState('');
-  const [page, setPage] = useState(1);
+  // Filters from URL
+  const actionFilter = searchParams.get('action') || '';
+  const entityFilter = searchParams.get('entity') || '';
+  const currentPage = Number(searchParams.get('page')) || 1;
 
   // Details Modal
   const [detailsModal, setDetailsModal] = useState({ open: false, log: null });
 
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       const params = {
-        page,
+        page: currentPage,
         per_page: 25,
       };
       if (actionFilter) params.action = actionFilter;
@@ -43,168 +107,182 @@ export default function AdminAuditLogsPage() {
         setMeta(res.meta);
       }
     } catch (err) {
-      setError(err.message || 'الاتصال ضعيف. حاول تاني.');
+      setError(err.message || 'فشل في تحميل سجل العمليات');
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, actionFilter, entityFilter]);
 
   useEffect(() => {
     fetchLogs();
-  }, [page, actionFilter, entityFilter]);
+  }, [fetchLogs]);
+
+  const updateParam = (key, val) => {
+    const next = new URLSearchParams(searchParams);
+    if (val !== undefined && val !== null && val !== '') {
+      next.set(key, val);
+    } else {
+      next.delete(key);
+    }
+    if (key !== 'page') next.delete('page');
+    setSearchParams(next);
+  };
 
   const getActionVariant = (action) => {
-    if (action.includes('delete')) return 'danger';
-    if (action.includes('update') || action.includes('review') || action.includes('status')) return 'info';
+    if (action.includes('delete') || action.includes('reject')) return 'danger';
+    if (action.includes('update') || action.includes('status')) return 'info';
     if (action.includes('create') || action.includes('approve')) return 'success';
     return 'neutral';
   };
 
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (entityFilter) count++;
+    if (actionFilter) count++;
+    return count;
+  }, [entityFilter, actionFilter]);
+
+  const columns = [
+    {
+      key: 'sentence',
+      label: 'العملية',
+      isPrimary: true,
+      render: (log) => (
+        <div className={styles.sentenceCell}>
+          <span className={styles.sentenceText}>{formatAuditSentence(log)}</span>
+          <div className={styles.sentenceMeta}>
+            <span>{log.user_name || 'المدير'}</span>
+            <span>·</span>
+            <span>{formatDate(log.created_at)}</span>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'action',
+      label: 'الإجراء',
+      render: (log) => <Tag variant={getActionVariant(log.action)}>{log.action}</Tag>,
+    },
+    {
+      key: 'entity',
+      label: 'الكيان',
+      render: (log) => (
+        <span style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-navy)' }}>
+          {log.entity || log.entity_type}
+        </span>
+      ),
+    },
+    {
+      key: 'ip',
+      label: 'عنوان IP',
+      hideOnMobile: true,
+      render: (log) => (
+        <span className={styles.ipText} dir="ltr">
+          {log.ip || log.ip_address || '—'}
+        </span>
+      ),
+    },
+    {
+      key: 'details',
+      label: 'التفاصيل',
+      isStatus: true,
+      render: (log) => (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => setDetailsModal({ open: true, log })}
+          aria-label="عرض تفاصيل العملية"
+        >
+          <Eye size={14} />
+          <span>عرض</span>
+        </Button>
+      ),
+    },
+  ];
+
   return (
     <div className={styles.container}>
+      {/* Header */}
       <header className={styles.header}>
         <div className={styles.titleInfo}>
-          <h1 className={styles.title}>سجل العمليات الإدارية (Audit Trail)</h1>
+          <h1 className={styles.title}>سجل العمليات الإدارية (Audit Log)</h1>
           <p className={styles.subtitle}>
-            تتبع كافة الإجراءات والقرارات التي تم اتخاذها في لوحة التحكم وتاريخها
+            تتبع زمني لكافة القرارات وتعديلات الأسعار والطلبات التي تمت في لوحة التحكم
           </p>
         </div>
 
         <Button variant="outline" size="sm" onClick={fetchLogs}>
           <RefreshCw size={14} />
-          <span>تحديث</span>
+          <span>تحديث السجل</span>
         </Button>
       </header>
 
-      {/* Brand graphic divider */}
+      {/* Decorative Ribbon */}
       <div className={styles.titleDivider} aria-hidden="true" />
 
-      {/* Filters Toolbar */}
-      <div className={styles.toolbarCard}>
-        <div className={styles.toolbarForm}>
-          <Select
-            label="الكيان"
-            value={entityFilter}
-            onChange={(e) => {
-              setEntityFilter(e.target.value);
-              setPage(1);
-            }}
-            options={[
-              { value: '', label: 'جميع الكيانات' },
-              { value: 'orders', label: 'الطلبات (Orders)' },
-              { value: 'payment_proofs', label: 'إشعارات الدفع (Proofs)' },
-              { value: 'products', label: 'الأجهزة والمنتجات (Products)' },
-              { value: 'settings', label: 'إعدادات المتجر (Settings)' },
-              { value: 'rates', label: 'أسعار الصرف (Rates)' },
-              { value: 'users', label: 'المستخدمين (Users)' },
-              { value: 'shipping_zones', label: 'مناطق التوصيل (Shipping Zones)' },
-            ]}
-          />
-
-          <Input
-            label="نوع الإجراء"
-            placeholder="مثال: approve, update_status..."
-            value={actionFilter}
-            onChange={(e) => {
-              setActionFilter(e.target.value);
-              setPage(1);
-            }}
-          />
-        </div>
-      </div>
-
-      {loading ? (
-        <TableSkeleton rows={10} cols={6} />
-      ) : error ? (
-        <ErrorState message={error} onRetry={fetchLogs} />
-      ) : logs.length === 0 ? (
-        <EmptyState
-          title="لا توجد عمليات مسجلة"
-          description="لم يتم تسجيل أي عمليات تطابق معايير التصفية الحالية."
+      {/* Filter Bar */}
+      <FilterBar
+        filterCount={activeFiltersCount}
+        onClearFilters={() => setSearchParams(new URLSearchParams())}
+      >
+        <Select
+          label="الكيان"
+          value={entityFilter}
+          onChange={(e) => updateParam('entity', e.target.value)}
+          options={[
+            { value: '', label: 'كافة الكيانات' },
+            { value: 'orders', label: 'الطلبات' },
+            { value: 'payment_proofs', label: 'إشعارات الدفع' },
+            { value: 'products', label: 'الأجهزة والمنتجات' },
+            { value: 'rates', label: 'أسعار الصرف' },
+            { value: 'settings', label: 'إعدادات المتجر' },
+            { value: 'users', label: 'المستخدمين والصلاحيات' },
+            { value: 'shipping_zones', label: 'مناطق التوصيل' },
+          ]}
         />
-      ) : (
-        <div className={styles.card}>
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>التاريخ والوقت</th>
-                  <th>المستخدم / الموظف</th>
-                  <th>الإجراء</th>
-                  <th>الكيان المستهدف</th>
-                  <th>المعرف</th>
-                  <th>عنوان IP</th>
-                  <th style={{ width: '60px', textAlign: 'center' }}>التفاصيل</th>
-                </tr>
-              </thead>
-              <tbody>
-                {logs.map((log) => (
-                  <tr key={log.id}>
-                    <td className={styles.dateText}>{formatDate(log.created_at)}</td>
-                    <td>
-                      <div>
-                        <strong>{log.user_name || 'النظام'}</strong>
-                        {log.user_email && (
-                          <div style={{ fontSize: '11px', color: 'var(--color-slate-400)' }} dir="ltr">
-                            {log.user_email}
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                    <td>
-                      <Tag variant={getActionVariant(log.action)}>{log.action}</Tag>
-                    </td>
-                    <td><strong>{log.entity_type}</strong></td>
-                    <td dir="ltr">{log.entity_id || '—'}</td>
-                    <td dir="ltr" style={{ fontSize: '11px', color: 'var(--color-slate-500)' }}>
-                      {log.ip_address || '—'}
-                    </td>
-                    <td style={{ textAlign: 'center' }}>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setDetailsModal({ open: true, log })}
-                      >
-                        <Eye size={14} />
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <Select
+          label="نوع الإجراء"
+          value={actionFilter}
+          onChange={(e) => updateParam('action', e.target.value)}
+          options={[
+            { value: '', label: 'كافة الإجراءات' },
+            { value: 'approve_proof', label: 'اعتماد إشعار' },
+            { value: 'reject_proof', label: 'رفض إشعار' },
+            { value: 'update_status', label: 'تحديث مسار الطلب' },
+            { value: 'update_rate', label: 'تحديث سعر الصرف' },
+            { value: 'update_stock', label: 'تحديث المخزون' },
+            { value: 'update_role', label: 'تعديل الصلاحيات' },
+          ]}
+        />
+      </FilterBar>
 
-          {meta.total_pages > 1 && (
-            <nav className={styles.pagination} aria-label="تنقل الصفحات">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={page <= 1}
-                onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-              >
-                السابق
-              </Button>
-              <span className={styles.pageCount}>
-                صفحة {meta.page} من {meta.total_pages} (الإجمالي: {meta.total} سجل)
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={page >= meta.total_pages}
-                onClick={() => setPage((prev) => Math.min(meta.total_pages, prev + 1))}
-              >
-                التالي
-              </Button>
-            </nav>
-          )}
-        </div>
+      {/* Main Content */}
+      {error && !loading ? (
+        <ErrorState message={error} onRetry={fetchLogs} />
+      ) : (
+        <DataList
+          columns={columns}
+          data={logs}
+          loading={loading}
+          emptyMessage="لا توجد عمليات مسجلة تطابق التصفية الحالية"
+          pagination={
+            meta.total_pages > 1
+              ? {
+                  currentPage: meta.page,
+                  totalPages: meta.total_pages,
+                  onPageChange: (newPage) => updateParam('page', newPage),
+                }
+              : null
+          }
+        />
       )}
 
       {/* Details Modal */}
       <Modal
         isOpen={detailsModal.open}
         onClose={() => setDetailsModal({ open: false, log: null })}
-        title="تفاصيل العملية والبيانات"
+        title="تفاصيل العملية الإدارية"
         footer={
           <Button variant="ghost" onClick={() => setDetailsModal({ open: false, log: null })}>
             إغلاق
@@ -212,59 +290,39 @@ export default function AdminAuditLogsPage() {
         }
       >
         {detailsModal.log && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', fontSize: 'var(--text-xs)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
             <div>
-              <strong>الإجراء:</strong> {detailsModal.log.action} على {detailsModal.log.entity_type} (معرف: {detailsModal.log.entity_id})
-            </div>
-            <div>
-              <strong>الوقت:</strong> {formatDate(detailsModal.log.created_at)}
-            </div>
-            <div>
-              <strong>المستخدم:</strong> {detailsModal.log.user_name || 'النظام'} ({detailsModal.log.user_email || '—'})
-            </div>
-            <div>
-              <strong>IP:</strong> <span dir="ltr">{detailsModal.log.ip_address}</span>
+              <strong style={{ fontSize: 'var(--text-sm)', color: 'var(--color-navy)' }}>
+                الوصف المقروء:
+              </strong>
+              <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-slate-700)', margin: '4px 0 0' }}>
+                {formatAuditSentence(detailsModal.log)}
+              </p>
             </div>
 
-            {detailsModal.log.old_values && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-2)' }}>
               <div>
-                <div style={{ fontWeight: 700, marginBottom: 4 }}>القيم السابقة:</div>
-                <pre
-                  dir="ltr"
-                  style={{
-                    backgroundColor: 'var(--color-slate-100)',
-                    padding: 'var(--space-2)',
-                    borderRadius: 'var(--radius-md)',
-                    overflowX: 'auto',
-                    fontSize: '11px',
-                  }}
-                >
-                  {typeof detailsModal.log.old_values === 'string'
-                    ? detailsModal.log.old_values
-                    : JSON.stringify(detailsModal.log.old_values, null, 2)}
-                </pre>
+                <span style={{ fontSize: '11px', color: 'var(--color-slate-500)' }}>المستخدم:</span>
+                <div style={{ fontSize: 'var(--text-sm)', fontWeight: 600 }}>
+                  {detailsModal.log.user_name || 'المدير'}
+                </div>
               </div>
-            )}
+              <div>
+                <span style={{ fontSize: '11px', color: 'var(--color-slate-500)' }}>التاريخ والوقت:</span>
+                <div style={{ fontSize: 'var(--text-sm)', fontWeight: 600 }}>
+                  {formatDate(detailsModal.log.created_at)}
+                </div>
+              </div>
+            </div>
 
-            {detailsModal.log.new_values && (
-              <div>
-                <div style={{ fontWeight: 700, marginBottom: 4 }}>القيم الجديدة:</div>
-                <pre
-                  dir="ltr"
-                  style={{
-                    backgroundColor: 'var(--color-slate-100)',
-                    padding: 'var(--space-2)',
-                    borderRadius: 'var(--radius-md)',
-                    overflowX: 'auto',
-                    fontSize: '11px',
-                  }}
-                >
-                  {typeof detailsModal.log.new_values === 'string'
-                    ? detailsModal.log.new_values
-                    : JSON.stringify(detailsModal.log.new_values, null, 2)}
-                </pre>
-              </div>
-            )}
+            <div>
+              <span style={{ fontSize: '11px', color: 'var(--color-slate-500)' }}>البيانات الفنية (JSON):</span>
+              <pre className={styles.detailsJson}>
+                {typeof detailsModal.log.details === 'string'
+                  ? detailsModal.log.details
+                  : JSON.stringify(detailsModal.log.details, null, 2)}
+              </pre>
+            </div>
           </div>
         )}
       </Modal>
