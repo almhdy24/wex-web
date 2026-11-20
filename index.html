@@ -42,21 +42,33 @@
   <body>
     <a href="#main-content" class="skip-link">انتقل إلى المحتوى الأساسي</a>
     <div id="root">
-      <!-- Pre-hydration brand fallback: seamlessly replaced once React hydrates -->
-      <div id="wex-preboot" style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#061A55;color:#FFFFFF;z-index:9999;user-select:none;">
-        <svg width="68" height="68" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="margin-bottom:16px;border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,0.35);">
-          <defs>
-            <linearGradient id="preGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#0B3FBF"/>
-              <stop offset="100%" stop-color="#1E6BFF"/>
-            </linearGradient>
-          </defs>
-          <rect width="128" height="128" rx="28" fill="url(#preGrad)"/>
-          <path d="M26 40 L44 92 L58 56 L68 78 L84 40 L96 40 L76 92 L62 60 L50 92 L18 40 Z" fill="#FFFFFF"/>
-          <circle cx="96" cy="44" r="6" fill="#00B7FF"/>
-        </svg>
-        <span style="font-size:11px;font-weight:700;letter-spacing:2px;color:#00B7FF;text-transform:uppercase;margin-bottom:4px;">WEX TECHNOLOGY</span>
-        <span style="font-size:20px;font-weight:800;color:#FFFFFF;">ويكس تكنولوجي</span>
+      <!-- Pre-hydration brand fallback: pixel-for-pixel matched with React SplashScreen -->
+      <div id="wex-preboot" style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background-color:#061A55;background-image:radial-gradient(circle at 50% 40%, #082370 0%, #061A55 65%, #030D2C 100%);color:#FFFFFF;z-index:9999;user-select:none;text-align:center;padding:16px;">
+        <div style="width:76px;height:76px;border-radius:20px;display:flex;align-items:center;justify-content:center;margin-bottom:22px;box-shadow:0 12px 30px rgba(0,0,0,0.4),0 0 16px rgba(0,183,255,0.18);">
+          <svg width="76" height="76" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;">
+            <defs>
+              <linearGradient id="preGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#0B3FBF"/>
+                <stop offset="100%" stop-color="#1E6BFF"/>
+              </linearGradient>
+            </defs>
+            <rect width="128" height="128" rx="28" fill="url(#preGrad)"/>
+            <path d="M26 40 L44 92 L58 56 L68 78 L84 40 L96 40 L76 92 L62 60 L50 92 L18 40 Z" fill="#FFFFFF"/>
+            <circle cx="96" cy="44" r="6" fill="#00B7FF"/>
+          </svg>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:16px;">
+          <span style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;color:#00B7FF;text-transform:uppercase;">WEX TECHNOLOGY</span>
+          <h1 style="font-family:'Tajawal',system-ui,sans-serif;font-size:24px;font-weight:800;color:#FFFFFF;margin:0;line-height:1.25;">ويكس تكنولوجي</h1>
+          <p style="font-family:'Tajawal',system-ui,sans-serif;font-size:14px;font-weight:500;color:#CBD5E1;margin:0;line-height:1.4;">أجهزة الحواسيب المحمولة والإلكترونيات</p>
+        </div>
+        <div style="display:inline-flex;align-items:center;gap:8px;padding:5px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:9999px;font-family:'Tajawal',system-ui,sans-serif;font-size:12px;font-weight:600;color:#E2E8F0;margin-bottom:28px;">
+          <span style="width:6px;height:6px;border-radius:50%;background-color:#00B7FF;box-shadow:0 0 6px rgba(0,183,255,0.6);display:inline-block;"></span>
+          <span>أم درمان · مول الواحة</span>
+        </div>
+        <div style="width:150px;height:2px;background:rgba(255,255,255,0.12);border-radius:2px;overflow:hidden;position:relative;">
+          <div style="width:40%;height:100%;border-radius:2px;background:linear-gradient(90deg,transparent 0%,#1E6BFF 50%,#00B7FF 100%);"></div>
+        </div>
       </div>
     </div>
     <script type="module" src="/src/main.jsx"></script>

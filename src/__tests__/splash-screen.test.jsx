@@ -87,11 +87,6 @@ describe('WEX Brand Loading Screen & First Impression', () => {
       vi.useFakeTimers();
       const onFinish = vi.fn();
 
-      // Mount with isReady=true
-      const TestContainer = () => {
-        return <SplashScreen isReady={true} onFinish={onFinish} />;
-      };
-
       // Since renderToStaticMarkup does not run useEffects in node, we test the logic directly
       // by validating that exit timeout triggers in <= 240ms rather than 1300ms
       let isExiting = false;
