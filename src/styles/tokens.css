@@ -1,50 +1,108 @@
 :root {
-  /* Brand Palette (Wex Technology Brand Guide) */
-  --color-navy: #061A55;
-  --color-royal: #0B3FBF;
-  --color-vivid: #1E6BFF;
-  --color-cyan: #00B7FF;
-  --color-ice: #EAF3FF;
-  --color-white: #FFFFFF;
+  /* =========================================================================
+     Brand Palette (Wex Technology Brand Guide & Approved Mockup)
+     ========================================================================= */
+  --wex-navy: #061A55;
+  --wex-royal: #0B3FBF;
+  --wex-vivid: #1E6BFF;
+  --wex-cyan: #00B7FF;
+  --wex-ice: #EAF3FF;
+  --wex-ice-light: #F4F8FE;
+  --wex-white: #FFFFFF;
 
   /* Aliases for backwards compatibility */
-  --color-royal-blue: #0B3FBF;
-  --color-royal-blue-hover: #1E6BFF;
-  --color-ice-blue: #EAF3FF;
+  --color-navy: var(--wex-navy);
+  --color-royal: var(--wex-royal);
+  --color-royal-blue: var(--wex-royal);
+  --color-royal-blue-hover: var(--wex-vivid);
+  --color-vivid: var(--wex-vivid);
+  --color-cyan: var(--wex-cyan);
+  --color-ice: var(--wex-ice);
+  --color-ice-blue: var(--wex-ice);
+  --color-white: var(--wex-white);
 
-  /* Neutral Slate Scale */
-  --color-slate-900: #0F172A;
-  --color-slate-800: #1E293B;
-  --color-slate-700: #334155;
-  --color-slate-600: #475569;
+  /* Neutral & Functional Colors */
+  --wex-gray-100: #F1F5F9;
+  --wex-gray-200: #E2E8F0;
+  --wex-gray-300: #CBD5E1;
+  --wex-gray-400: #94A3B8;
+  --wex-gray-600: #475569;
+  --wex-gray-800: #1E293B;
+
+  /* Slate Scale Aliases */
+  --color-slate-50: var(--wex-ice-light);
+  --color-slate-100: var(--wex-gray-100);
+  --color-slate-200: var(--wex-gray-200);
+  --color-slate-300: var(--wex-gray-300);
+  --color-slate-400: var(--wex-gray-400);
   --color-slate-500: #64748B;
-  --color-slate-400: #94A3B8;
-  --color-slate-300: #CBD5E1;
-  --color-slate-200: #E2E8F0;
-  --color-slate-100: #F1F5F9;
-  --color-slate-50: #F8FAFC;
+  --color-slate-600: var(--wex-gray-600);
+  --color-slate-700: #334155;
+  --color-slate-800: var(--wex-gray-800);
+  --color-slate-900: #0F172A;
+  --color-border: var(--wex-gray-200);
+  --color-border-subtle: var(--wex-ice);
 
-  /* Semantic Feedback Colors */
-  --color-success: #059669;
-  --color-success-bg: #ECFDF5;
+  /* Status Colors */
+  --wex-success: #10B981;
+  --wex-success-bg: #ECFDF5;
+  --wex-warning: #F59E0B;
+  --wex-warning-bg: #FFFBEB;
+  --wex-danger: #EF4444;
+  --wex-danger-bg: #FEF2F2;
+  --wex-info: #0284C7;
+  --wex-info-bg: #F0F9FF;
+
+  /* Aliases for existing status styles */
+  --color-success: var(--wex-success);
+  --color-success-bg: var(--wex-success-bg);
   --color-success-border: #A7F3D0;
-  --color-warning: #D97706;
-  --color-warning-bg: #FFFBEB;
+  --color-warning: var(--wex-warning);
+  --color-warning-bg: var(--wex-warning-bg);
   --color-warning-border: #FDE68A;
-  --color-danger: #DC2626;
-  --color-danger-bg: #FEF2F2;
+  --color-danger: var(--wex-danger);
+  --color-danger-bg: var(--wex-danger-bg);
   --color-danger-border: #FECACA;
-  --color-info: #0284C7;
-  --color-info-bg: #F0F9FF;
+  --color-info: var(--wex-info);
+  --color-info-bg: var(--wex-info-bg);
   --color-info-border: #BAE6FD;
 
-  /* Typography: Self-hosted Tajawal only, Western tabular digits */
-  --font-family: 'Tajawal', system-ui, -apple-system, sans-serif;
-  --font-arabic: var(--font-family);
+  /* Typography: Self-hosted Tajawal */
+  --font-arabic: 'Tajawal', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family: var(--font-arabic);
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Type Scale (Mobile-first, min 12px) */
-  --text-xs: 0.75rem;       /* 12px - minimum allowed */
+  /* Gradients (Mockup brand gradients) */
+  --wex-grad-brand: linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 50%, #00B7FF 100%);
+  --wex-grad-ribbon: linear-gradient(115deg, rgba(11, 63, 191, 0.95) 0%, rgba(30, 107, 255, 0.9) 60%, rgba(0, 183, 255, 0.85) 100%);
+  --wex-grad-surface: linear-gradient(180deg, #FFFFFF 0%, #EAF3FF 100%);
+  --wex-grad-navy: linear-gradient(135deg, #061A55 0%, #0B3FBF 100%);
+  --wex-grad-urgent: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+
+  /* Border Radii (Mockup values win when they conflict) */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+
+  --radius-input: var(--radius-md);
+  --radius-btn: var(--radius-md);
+  --radius-card: var(--radius-lg);
+
+  /* Shadows (Cards and floating elements) */
+  --shadow-sm: 0 2px 6px rgba(6, 26, 85, 0.04);
+  --shadow-md: 0 8px 20px rgba(6, 26, 85, 0.08);
+  --shadow-lg: 0 16px 32px rgba(6, 26, 85, 0.12);
+  --shadow-floating: 0 12px 30px rgba(30, 107, 255, 0.25);
+  --shadow-float: var(--shadow-floating);
+  --shadow-toast: var(--shadow-lg);
+  --shadow-sheet: 0 -8px 28px -4px rgba(6, 26, 85, 0.14);
+  --shadow-xs: var(--shadow-sm);
+
+  /* Type Scale */
+  --text-xs: 0.75rem;       /* 12px */
   --text-sm: 0.875rem;      /* 14px */
   --text-base: 1rem;         /* 16px */
   --text-body: 1rem;         /* 16px */
@@ -58,31 +116,7 @@
   /* Line Heights */
   --leading-tight: 1.3;
   --leading-normal: 1.5;
-  --leading-relaxed: 1.7;   /* For Arabic paragraphs */
-
-  /* Surfaces & Radii */
-  --radius-xs: 4px;
-  --radius-sm: 6px;
-  --radius-input: 10px;
-  --radius-btn: 10px;
-  --radius-card: 12px;
-  --radius-lg: 12px;
-  --radius-full: 9999px;
-
-  /* Borders: 1px slate-200 */
-  --border-subtle: 1px solid var(--color-slate-200);
-  --border-focus: 2px solid var(--color-cyan);
-
-  /* Shadows: ONLY for floating elements (bottom bar, sheets, toasts) */
-  --shadow-float: 0 8px 24px -4px rgba(6, 26, 85, 0.12), 0 2px 6px -1px rgba(6, 26, 85, 0.08);
-  --shadow-toast: 0 10px 30px -5px rgba(6, 26, 85, 0.16);
-  --shadow-sheet: 0 -8px 28px -4px rgba(6, 26, 85, 0.14);
-
-  /* Legacy shadow aliases to prevent breakages */
-  --shadow-xs: none;
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: var(--shadow-float);
+  --leading-relaxed: 1.7;
 
   /* Spacing Scale */
   --space-1: 0.25rem;       /* 4px */
@@ -96,16 +130,13 @@
   --space-12: 3rem;         /* 48px */
   --space-16: 4rem;         /* 64px */
 
-  /* Touch Target */
+  /* App Shell Dimensions */
+  --app-shell-max-width: 480px;
+  --app-bar-height: 56px;
+  --bottom-tab-height: 56px;
   --touch-target: 44px;
 
-  /* Layout */
-  --container-max: 1200px;
-  --header-height: 64px;
-  --bottom-nav-height: 60px;
-  --sidebar-width: 250px;
-
-  /* Motion: 150-200ms ease */
+  /* Motion */
   --transition-fast: 150ms ease;
   --transition-normal: 200ms ease;
 }

@@ -1,6 +1,44 @@
 # Wex Technology Web - Project Progress Tracker
 
-## Redesign & Hardening Track (Branch: redesign)
+## App Shell Track (Branch: app-shell) — Current
+
+Rebuilding storefront UI as ONE mobile-app-style experience identical on phone and desktop matching `~/projects/wex-mockup` (source of truth).
+
+- [x] **Phase 0: Study Mockup, MOCKUP-MAP & Token Merge**
+  - Read `~/projects/wex-mockup/index.html`, `css/style.css`, `js/app.js`, `js/data.js` completely.
+  - Created `docs/MOCKUP-MAP.md` mapping every mockup screen (splash, home, catalog, product details, checkout, price-lock/payment, orders, tracking, notifications, account, sign-in) with elements in order, spacing, sizes, colors, gradients, ribbons, icons, and React routes.
+  - Merged mockup CSS variables into `src/styles/tokens.css` (mockup values prioritized for radii, shadows, brand gradients, and palette).
+- [ ] **Phase 1: App Shell Architecture & Foundation**
+  - Root layout: single 480px max-width column, centered on ice background `#D9E6F6` / `#EAF3FF` on wide viewports, 100dvh height, only middle content scrolls.
+  - Safe area padding `env(safe-area-inset-top/bottom)`, `viewport-fit=cover`, theme-color `#061A55`, manifest `standalone` portrait.
+  - Fixed 56px App Bar (title or logo, RTL back button, action icons).
+  - Fixed 56px Bottom Tab Bar (4 tabs with exact mockup inline SVGs: الرئيسية، المتجر، طلباتي، حسابي), active tab in vivid blue `#1E6BFF`, unread badge, hidden on Product/Checkout with sticky action bar.
+  - Splash screen overlay with slanted brand ribbons (~1.2s on first session visit).
+  - Native feel: `overscroll-behavior: contain`, `-webkit-tap-highlight-color: transparent`, `:active` press feedback, toasts, sheets, pull-to-refresh skeleton.
+- [ ] **Phase 2: Home, Catalog & Product Detail Screens**
+  - Home: greeting, search, rate chip, app-discount banner, category icon bubbles, 2-column featured grid, store notice.
+  - Catalog: search, filter chips scroll (category, brand, sort), 2-column live grid, empty state.
+  - Product Card & LaptopSvg component (inline vector fallback).
+  - Product Details: hero image card, specs table, price box with rate chip & notice, sticky "اطلب الآن" bar.
+- [ ] **Phase 3: Cart, Checkout & Sign-In Screens**
+  - Cart & Checkout: 1-column mobile layout, delivery selector (pickup vs delivery), address fields, financial calculation summary, price-lock notice, sticky CTA.
+  - Sign-in: Google first + 6-box auto-advance OTP input with splash-style ribbon styling.
+- [ ] **Phase 4: Price-Lock/Payment, Orders, Tracking, Notifications & Account**
+  - Price Lock + Payment: live countdown digits banner, urgent state (< 1h), expired state with reorder, Bankak card with copy shortcuts, receipt upload box with preview & compression.
+  - Orders list with status chips.
+  - Order tracking 5-step timeline.
+  - Notifications screen with type badges.
+  - Account screen with profile card, menu list, WhatsApp CTA, store info card.
+- [ ] **Phase 5: Polish & Quality Pass**
+  - Loading skeletons, empty/error states with retry, offline handling.
+  - A11y, touch targets >= 44px, copy review (zero forbidden marketing puffery).
+  - Performance audit (initial JS <= 150 KB gzip).
+- [ ] **Phase 6: Parity Audit & Final Verification**
+  - Create `docs/PARITY.md` verifying 100% element parity with mockup.
+  - Automated greps (0 style={{}}, 0 emojis, 0 forbidden words, 0 max-width 1200 in storefront).
+  - Lint, test, build verification.
+
+---
 
 - [x] **Redesign Phase 1: Design System & Base Components**
   - Self-hosted Tajawal font weights (400, 500, 700, 800) via `@fontsource/tajawal` with Arabic and Latin woff2 preloaded in `index.html`. Removed Cairo/Inter.
