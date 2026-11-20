@@ -355,7 +355,25 @@ Calm, trustworthy, production-ready UI/UX tailored for Sudanese customers and el
     - WAAPI fly-to-cart animation clone targeting `#app-bar-cart-btn`.
     - Customer privacy strictly enforced: SDG prices only, zero AED, zero exchange rate.
   - Verification: 0 lint errors, 11 test files and 51 tests passing, production build 121.38 kB gzip initial JS.
-- [ ] **Phase 5: Cart, Checkout, Price-Lock Ring, Receipt & Orders Flow**
+- [x] **Phase 5: Cart, Checkout, Price-Lock Ring, Receipt & Orders Flow**
+  - Upgraded `CartPage.jsx` & `CartPage.module.css`:
+    - Animated collapse on item removal (`collapseOut` animation).
+    - Preserved exact neutral price change notification string: *"تغير سعر هذا الجهاز"* with previous and new SDG amounts.
+    - Updated copy to use centralized `ar.cart` Fusha strings.
+    - Removed all `transition: all`.
+  - Upgraded `CheckoutPage.module.css`:
+    - Refined 3-step structured cards (Pickup/Delivery, Phone/Address, Financial Summary).
+    - Replaced all `transition: all` with transform and border-color transitions.
+  - Upgraded `OrderDetailPage.jsx` & `OrderDetailPage.module.css`:
+    - Circular SVG countdown progress ring with dynamic `stroke-dashoffset` calculated from lock expiration.
+    - Urgent warning pulse under 30 minutes.
+    - 12-particle transform-only ribbon confetti celebration burst on confirmed and completed orders (active only in `full` motion mode, disabled in `reduced` or `lite`).
+    - Customer privacy strictly enforced: *"السعر مثبت: {total} ج.س"* and *"ينتهي التثبيت الساعة {HH:MM}"*, zero rate, zero AED.
+    - Replaced all 5 `transition: all` occurrences.
+  - Upgraded `OrdersPage.module.css`, `NotificationsPage.module.css`, `Auth.module.css`, `AccountPage.module.css`, and `AdminPaymentsPage.module.css`:
+    - Replaced all `transition: all` across the entire repository with transform, opacity, background-color, and border-color.
+    - Zero `transition: all` remaining across all CSS modules.
+  - Verification: 0 lint errors, 11 test files and 51 tests passing, production build 121.39 kB gzip initial JS.
 - [ ] **Phase 6: Responsiveness & Accessibility Audits**
 - [ ] **Phase 7: Copy Modernization Pass Across All Screens**
 - [ ] **Phase 8: Final Performance Benchmarks & Double Check Verification**

@@ -156,7 +156,7 @@
   font-size: 13px;
   font-weight: 800;
   box-shadow: 0 4px 14px rgba(37, 211, 102, 0.3);
-  transition: all 0.2s ease;
+  transition: transform var(--motion-fast, 150ms) var(--ease-standard);
   box-sizing: border-box;
 }
 
@@ -205,7 +205,7 @@
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background-color var(--motion-fast, 150ms) var(--ease-standard);
 }
 
 .logoutBtn:hover {

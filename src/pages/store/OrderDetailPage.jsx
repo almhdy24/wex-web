@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Copy, Check, MessageCircle, RefreshCw, Upload, CheckCircle2 } from 'lucide-react';
+import { Copy, Check, MessageCircle, RefreshCw, Upload, CheckCircle2, Clock } from 'lucide-react';
 import { ordersApi } from '../../api/orders';
 import { formatSdg, formatDate, getOrderStatusInfo } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
@@ -258,23 +258,51 @@ export default function OrderDetailPage() {
             : 'حالة الطلب الحالية'}
         </div>
 
-        {/* Digital Clock Boxes (HH : MM : SS) */}
+        {/* Digital Clock Boxes & SVG Circular Ring */}
         {isPending && !isExpired && (
-          <div className={styles.timerDigitsContainer}>
-            <div className={styles.timerBox}>
-              <span className={styles.digit}>{padZero(hours)}</span>
-              <span className={styles.unit}>ساعة</span>
+          <>
+            <div className={styles.timerRingBox} aria-hidden="true">
+              <svg className={styles.timerRingSvg} width="64" height="64" viewBox="0 0 64 64">
+                <circle className={styles.timerRingBg} cx="32" cy="32" r="26" />
+                <circle
+                  className={`${styles.timerRingProg} ${isUrgent ? styles.ringUrgent : ''}`}
+                  cx="32"
+                  cy="32"
+                  r="26"
+                  style={{
+                    strokeDasharray: 163.36,
+                    strokeDashoffset: 163.36 * (1 - Math.max(0, Math.min(1, secondsRemaining / 14400))),
+                  }}
+                />
+              </svg>
+              <Clock size={20} className={styles.timerRingCenterIcon} />
             </div>
-            <span className={styles.timerColon}>:</span>
-            <div className={styles.timerBox}>
-              <span className={styles.digit}>{padZero(minutes)}</span>
-              <span className={styles.unit}>دقيقة</span>
+
+            <div className={styles.timerDigitsContainer}>
+              <div className={styles.timerBox}>
+                <span className={styles.digit}>{padZero(hours)}</span>
+                <span className={styles.unit}>ساعة</span>
+              </div>
+              <span className={styles.timerColon}>:</span>
+              <div className={styles.timerBox}>
+                <span className={styles.digit}>{padZero(minutes)}</span>
+                <span className={styles.unit}>دقيقة</span>
+              </div>
+              <span className={styles.timerColon}>:</span>
+              <div className={styles.timerBox}>
+                <span className={styles.digit}>{padZero(seconds)}</span>
+                <span className={styles.unit}>ثانية</span>
+              </div>
             </div>
-            <span className={styles.timerColon}>:</span>
-            <div className={styles.timerBox}>
-              <span className={styles.digit}>{padZero(seconds)}</span>
-              <span className={styles.unit}>ثانية</span>
-            </div>
+          </>
+        )}
+
+        {/* 12-Particle Ribbon Confetti Burst on Confirmed / Completed Orders */}
+        {(order.status === 'confirmed' || order.status === 'completed') && (
+          <div className={styles.confettiContainer} aria-hidden="true">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <span key={i} className={styles.particle} style={{ '--p': i }} />
+            ))}
           </div>
         )}
 

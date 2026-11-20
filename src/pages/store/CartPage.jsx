@@ -7,6 +7,7 @@ import { formatSdg, getProductImageUrl } from '../../utils/formatters';
 import LaptopSvg from '../../components/common/LaptopSvg';
 import EmptyState from '../../components/common/EmptyState';
 import PriceNotice from '../../components/common/PriceNotice';
+import { t } from '../../content/ar';
 import styles from './CartPage.module.css';
 
 export default function CartPage() {
@@ -25,6 +26,7 @@ export default function CartPage() {
   } = useCart();
   const navigate = useNavigate();
   const [shopInfo, setShopInfo] = useState(null);
+  const [removingIds, setRemovingIds] = useState(new Set());
 
   useEffect(() => {
     refreshCartPrices();
@@ -33,13 +35,25 @@ export default function CartPage() {
       .catch(() => {});
   }, [refreshCartPrices]);
 
+  const handleRemove = (id) => {
+    setRemovingIds((prev) => new Set([...prev, id]));
+    setTimeout(() => {
+      removeItem(id);
+      setRemovingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }, 220);
+  };
+
   if (items.length === 0) {
     return (
       <div className={styles.container}>
         <EmptyState
-          title="السلة فاضية"
-          description="لسه ما ضفت أي جهاز أو ملحق للسلة."
-          actionLabel="تصفح الأجهزة"
+          title={t('cart.emptyTitle')}
+          description={t('cart.emptyDesc')}
+          actionLabel={t('cart.startShopping')}
           onAction={() => navigate('/products')}
         />
       </div>
@@ -72,7 +86,10 @@ export default function CartPage() {
           const lineTotal = (item.price_sdg || 0) * item.quantity;
 
           return (
-            <div key={item.id} className={styles.itemCard}>
+            <div
+              key={item.id}
+              className={`${styles.itemCard} ${removingIds.has(item.id) ? styles.itemCardRemoving : ''}`}
+            >
               {/* Product Thumbnail */}
               <div className={styles.thumbBox}>
                 {imgUrl ? (
@@ -101,7 +118,7 @@ export default function CartPage() {
                   </Link>
                   <button
                     type="button"
-                    onClick={() => removeItem(item.id)}
+                    onClick={() => handleRemove(item.id)}
                     className={styles.removeBtn}
                     aria-label={`حذف ${item.name}`}
                   >

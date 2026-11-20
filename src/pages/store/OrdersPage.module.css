@@ -48,7 +48,8 @@
   color: var(--wex-navy, #061A55);
   white-space: nowrap;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: border-color var(--motion-fast, 150ms) var(--ease-standard),
+              background-color var(--motion-fast, 150ms) var(--ease-standard);
 }
 
 .filterTab:hover {
@@ -78,7 +79,8 @@
   flex-direction: column;
   gap: 10px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform var(--motion-fast, 150ms) var(--ease-standard),
+              border-color var(--motion-fast, 150ms) var(--ease-standard);
   user-select: none;
 }
 

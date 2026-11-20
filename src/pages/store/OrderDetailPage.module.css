@@ -181,11 +181,11 @@
   font-size: 13px;
   font-weight: 800;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform var(--motion-fast, 150ms) var(--ease-standard);
 }
 
 .reorderBtn:hover {
-  filter: brightness(1.1);
+  transform: scale(1.02);
 }
 
 /* 3. Bankak Card */
@@ -273,7 +273,8 @@
   font-weight: 700;
   color: var(--wex-royal, #0B3FBF);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background-color var(--motion-fast, 150ms) var(--ease-standard),
+              color var(--motion-fast, 150ms) var(--ease-standard);
 }
 
 .copyBtn:hover {
@@ -350,7 +351,8 @@
   padding: 20px 14px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: border-color var(--motion-fast, 150ms) var(--ease-standard),
+              background-color var(--motion-fast, 150ms) var(--ease-standard);
   user-select: none;
 }
 
@@ -430,7 +432,7 @@
   font-weight: 800;
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(30, 107, 255, 0.35);
-  transition: all 0.2s ease;
+  transition: transform var(--motion-fast, 150ms) var(--ease-standard);
 }
 
 .uploadBtn:disabled {
@@ -634,10 +636,125 @@
   font-size: 13px;
   font-weight: 800;
   box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
-  transition: all 0.2s ease;
+  transition: transform var(--motion-fast, 150ms) var(--ease-standard);
   box-sizing: border-box;
 }
 
 .whatsappActionBtn:active {
   transform: scale(0.98);
+}
+
+/* Circular SVG Countdown Progress Ring */
+.timerRingBox {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 8px;
+}
+
+.timerRingSvg {
+  position: absolute;
+  inset: 0;
+  transform: rotate(-90deg);
+}
+
+.timerRingBg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.2);
+  stroke-width: 4;
+}
+
+.timerRingProg {
+  fill: none;
+  stroke: var(--wex-cyan, #00B7FF);
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear;
+}
+
+.ringUrgent {
+  stroke: #F59E0B;
+  animation: urgentPulse 1.5s infinite ease-in-out;
+}
+
+@keyframes urgentPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.timerRingCenterIcon {
+  color: #FFFFFF;
+  position: relative;
+  z-index: 2;
+}
+
+/* 12-Particle Transform-Only Confetti Burst */
+.confettiContainer {
+  position: absolute;
+  top: 50%;
+  inset-inline-start: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 30;
+}
+
+.particle {
+  position: absolute;
+  width: 6px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--wex-cyan, #00B7FF);
+  animation: burstParticle 1.4s var(--ease-exit) forwards;
+}
+
+.particle:nth-child(2n) {
+  background: var(--wex-vivid, #1E6BFF);
+}
+.particle:nth-child(3n) {
+  background: #F59E0B;
+}
+.particle:nth-child(4n) {
+  background: #10B981;
+}
+
+@keyframes burstParticle {
+  0% {
+    opacity: 1;
+    transform: rotate(calc(var(--p) * 30deg)) translateY(0) scale(0.4);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(calc(var(--p) * 30deg)) translateY(-95px) rotate(120deg) scale(1);
+  }
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  .timerRingProg, .reorderBtn, .copyBtn, .dropzone, .uploadBtn, .whatsappActionBtn {
+    transition: none !important;
+  }
+  .ringUrgent, .particle {
+    animation: none !important;
+    display: none !important;
+  }
+}
+
+:global(html[data-motion="reduced"]) .timerRingProg,
+:global(html[data-motion="reduced"]) .reorderBtn,
+:global(html[data-motion="reduced"]) .copyBtn,
+:global(html[data-motion="reduced"]) .dropzone,
+:global(html[data-motion="reduced"]) .uploadBtn,
+:global(html[data-motion="reduced"]) .whatsappActionBtn {
+  transition: none !important;
+}
+
+:global(html[data-motion="reduced"]) .ringUrgent,
+:global(html[data-motion="reduced"]) .particle,
+:global(html[data-motion="lite"]) .particle {
+  animation: none !important;
+  display: none !important;
 }
