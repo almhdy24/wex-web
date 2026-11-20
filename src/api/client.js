@@ -7,7 +7,7 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api/v1';
 
-// In-memory access token storage
+// In-memory access token storage (never stored in localStorage/sessionStorage)
 let memoryAccessToken = null;
 let refreshPromise = null;
 let onAuthFailedCallback = null;
@@ -36,26 +36,25 @@ export class ApiError extends Error {
 
 /**
  * Executes a token refresh request, sharing the promise across concurrent callers.
+ * Web clients use HttpOnly cookie automatically; mobile clients may supply a refresh token.
  */
-async function performTokenRefresh() {
+export async function performTokenRefresh(optionalRefreshToken = null) {
   if (refreshPromise) {
     return refreshPromise;
   }
 
   refreshPromise = (async () => {
     try {
-      const storedRefreshToken = localStorage.getItem('wex_refresh_token');
-      if (!storedRefreshToken) {
-        throw new Error('لا يوجد رمز تجديد جلسة');
-      }
+      const body = optionalRefreshToken ? { refresh_token: optionalRefreshToken } : {};
 
       const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: JSON.stringify({ refresh_token: storedRefreshToken }),
+        body: JSON.stringify(body),
       });
 
       const envelope = await response.json().catch(() => null);
@@ -64,20 +63,21 @@ async function performTokenRefresh() {
         throw new Error(envelope?.message || 'انتهت صلاحية الجلسة، يرجى تسجيل الدخول مجدداً');
       }
 
-      const { access_token, refresh_token } = envelope.data;
+      const { access_token } = envelope.data;
       memoryAccessToken = access_token;
-      sessionStorage.setItem('wex_access_token', access_token);
-      if (refresh_token) {
-        localStorage.setItem('wex_refresh_token', refresh_token);
-      }
 
       return access_token;
     } catch (err) {
-      // Clear invalid session
+      // Clear invalid memory session
       memoryAccessToken = null;
-      sessionStorage.removeItem('wex_access_token');
-      localStorage.removeItem('wex_refresh_token');
-      localStorage.removeItem('wex_user');
+
+      // Clean up legacy keys if lingering from old sessions
+      try {
+        sessionStorage.removeItem('wex_access_token');
+        localStorage.removeItem('wex_refresh_token');
+      } catch {
+        // ignore storage errors
+      }
 
       if (typeof onAuthFailedCallback === 'function') {
         onAuthFailedCallback();
@@ -116,8 +116,8 @@ export async function apiClient(endpoint, options = {}, retryOn401 = true) {
     headers.set('Content-Type', 'application/json');
   }
 
-  // Attach Bearer token if available
-  const token = memoryAccessToken || sessionStorage.getItem('wex_access_token');
+  // Attach Bearer token from React memory if available
+  const token = memoryAccessToken;
   if (token && !headers.has('Authorization')) {
     headers.set('Authorization', `Bearer ${token}`);
   }
@@ -125,6 +125,7 @@ export async function apiClient(endpoint, options = {}, retryOn401 = true) {
   try {
     const response = await fetch(url, {
       ...options,
+      credentials: options.credentials || 'include',
       headers,
     });
 
@@ -138,7 +139,11 @@ export async function apiClient(endpoint, options = {}, retryOn401 = true) {
         if (!isFormData && options.body && !newHeaders.has('Content-Type')) {
           newHeaders.set('Content-Type', 'application/json');
         }
-        return await apiClient(endpoint, { ...options, headers: newHeaders }, false);
+        return await apiClient(endpoint, {
+          ...options,
+          credentials: options.credentials || 'include',
+          headers: newHeaders,
+        }, false);
       } catch {
         throw new ApiError('انتهت صلاحية الجلسة، يرجى تسجيل الدخول مجدداً', 401);
       }

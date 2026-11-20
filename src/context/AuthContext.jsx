@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { authApi } from '../api/auth';
 import { setMemoryAccessToken, setOnAuthFailed } from '../api/client';
 
@@ -8,14 +8,29 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [accessToken, setAccessTokenState] = useState(null);
   const [loading, setLoading] = useState(true);
+  const refreshTimerRef = useRef(null);
+
+  const clearRefreshTimer = useCallback(() => {
+    if (refreshTimerRef.current) {
+      clearTimeout(refreshTimerRef.current);
+      refreshTimerRef.current = null;
+    }
+  }, []);
 
   const clearSession = useCallback(() => {
+    clearRefreshTimer();
     setUser(null);
     setAccessTokenState(null);
     setMemoryAccessToken(null);
-    sessionStorage.removeItem('wex_access_token');
-    localStorage.removeItem('wex_refresh_token');
-    localStorage.removeItem('wex_user');
+
+    // Clean up any legacy or stored tokens
+    try {
+      sessionStorage.removeItem('wex_access_token');
+      localStorage.removeItem('wex_refresh_token');
+      localStorage.removeItem('wex_user');
+    } catch {
+      // Storage unavailable
+    }
 
     if (typeof window !== 'undefined' && 'caches' in window) {
       caches.keys().then((names) => {
@@ -26,7 +41,24 @@ export function AuthProvider({ children }) {
         });
       }).catch(() => {});
     }
-  }, []);
+  }, [clearRefreshTimer]);
+
+  const scheduleProactiveRefresh = useCallback(() => {
+    clearRefreshTimer();
+    // Access token lifetime is 15 minutes. Proactively refresh at 14 minutes (840s).
+    refreshTimerRef.current = setTimeout(async () => {
+      try {
+        const res = await authApi.refresh();
+        if (res?.data?.access_token) {
+          setAccessTokenState(res.data.access_token);
+          setMemoryAccessToken(res.data.access_token);
+          scheduleProactiveRefresh();
+        }
+      } catch {
+        // If proactive refresh fails, subsequent requests will trigger 401 retry or logout
+      }
+    }, 14 * 60 * 1000);
+  }, [clearRefreshTimer]);
 
   // Hook global 401 unrecoverable failure
   useEffect(() => {
@@ -35,68 +67,67 @@ export function AuthProvider({ children }) {
     });
   }, [clearSession]);
 
-  const loginWithSession = useCallback((userData, newAccessToken, newRefreshToken) => {
+  const loginWithSession = useCallback((userData, newAccessToken) => {
     setUser(userData);
     setAccessTokenState(newAccessToken);
     setMemoryAccessToken(newAccessToken);
 
     try {
       localStorage.setItem('wex_user', JSON.stringify(userData));
-      sessionStorage.setItem('wex_access_token', newAccessToken);
-      if (newRefreshToken) {
-        localStorage.setItem('wex_refresh_token', newRefreshToken);
-      }
+      // Remove any legacy tokens from web storage
+      sessionStorage.removeItem('wex_access_token');
+      localStorage.removeItem('wex_refresh_token');
     } catch {
       // Storage unavailable
     }
-  }, []);
 
-  // Initialize session on mount
+    scheduleProactiveRefresh();
+  }, [scheduleProactiveRefresh]);
+
+  // Initialize session on mount using HttpOnly cookie
   useEffect(() => {
     let isMounted = true;
 
     async function initSession() {
-      const storedToken = sessionStorage.getItem('wex_access_token');
-      const storedRefreshToken = localStorage.getItem('wex_refresh_token');
-      const storedUser = localStorage.getItem('wex_user');
+      try {
+        // Attempt silent refresh via HttpOnly wex_refresh_token cookie
+        const res = await authApi.refresh();
+        if (res?.data && isMounted) {
+          const { access_token, user: sessionUser } = res.data;
+          setAccessTokenState(access_token);
+          setMemoryAccessToken(access_token);
 
-      if (storedUser) {
-        try {
-          setUser(JSON.parse(storedUser));
-        } catch {
-          // ignore corrupted user JSON
-        }
-      }
-
-      if (storedToken) {
-        setAccessTokenState(storedToken);
-        setMemoryAccessToken(storedToken);
-      } else if (storedRefreshToken) {
-        // Try refreshing on startup if access token expired/missing in session
-        try {
-          const res = await authApi.refresh(storedRefreshToken);
-          if (res?.data && isMounted) {
-            const { access_token, refresh_token } = res.data;
-            setAccessTokenState(access_token);
-            setMemoryAccessToken(access_token);
-            sessionStorage.setItem('wex_access_token', access_token);
-            if (refresh_token) {
-              localStorage.setItem('wex_refresh_token', refresh_token);
+          if (sessionUser) {
+            setUser(sessionUser);
+            try {
+              localStorage.setItem('wex_user', JSON.stringify(sessionUser));
+            } catch {
+              // ignore storage errors
             }
-            // Fetch fresh /me
+          } else {
+            // Fetch fresh profile via /me
             const meRes = await authApi.getMe();
             if (meRes?.data && isMounted) {
               setUser(meRes.data);
-              localStorage.setItem('wex_user', JSON.stringify(meRes.data));
+              try {
+                localStorage.setItem('wex_user', JSON.stringify(meRes.data));
+              } catch {
+                // ignore storage errors
+              }
             }
           }
-        } catch {
-          if (isMounted) clearSession();
-        }
-      }
 
-      if (isMounted) {
-        setLoading(false);
+          scheduleProactiveRefresh();
+        }
+      } catch {
+        // Refresh token missing, expired, or invalid -> start unauthenticated
+        if (isMounted) {
+          clearSession();
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
 
@@ -104,17 +135,15 @@ export function AuthProvider({ children }) {
 
     return () => {
       isMounted = false;
+      clearRefreshTimer();
     };
-  }, [clearSession]);
+  }, [clearSession, scheduleProactiveRefresh, clearRefreshTimer]);
 
   const logout = useCallback(async () => {
-    const refreshToken = localStorage.getItem('wex_refresh_token');
-    if (refreshToken) {
-      try {
-        await authApi.logout(refreshToken);
-      } catch {
-        // Continue clearing even if API call fails
-      }
+    try {
+      await authApi.logout();
+    } catch {
+      // Continue clearing even if API call fails
     }
     clearSession();
   }, [clearSession]);

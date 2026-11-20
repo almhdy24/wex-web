@@ -27,17 +27,19 @@ export const authApi = {
   },
 
   /**
-   * Refresh access token using active refresh token
+   * Refresh access token using active refresh token (via HttpOnly cookie or optional explicit token)
    */
-  refresh(refreshToken) {
-    return api.post('/auth/refresh', { refresh_token: refreshToken });
+  refresh(refreshToken = null) {
+    const payload = refreshToken ? { refresh_token: refreshToken } : {};
+    return api.post('/auth/refresh', payload);
   },
 
   /**
    * Logout current session
    */
-  logout(refreshToken) {
-    return api.post('/auth/logout', { refresh_token: refreshToken });
+  logout(refreshToken = null) {
+    const payload = refreshToken ? { refresh_token: refreshToken } : {};
+    return api.post('/auth/logout', payload);
   },
 
   /**

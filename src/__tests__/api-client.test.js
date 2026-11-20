@@ -106,4 +106,99 @@ describe('Central API Client Unit Tests', () => {
 
     expect(capturedHeaders.has('Content-Type')).toBe(false);
   });
+
+  it('always includes credentials: "include" for CORS cookie persistence', async () => {
+    let capturedOptions = null;
+    global.fetch = vi.fn().mockImplementation((url, opts) => {
+      capturedOptions = opts;
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ success: true, data: {} }),
+      });
+    });
+
+    await apiClient('/products');
+    expect(capturedOptions.credentials).toBe('include');
+  });
+
+  it('handles concurrent requests on 401 with a single refresh call and retries', async () => {
+    setMemoryAccessToken('initial-expired-token');
+    let refreshCalls = 0;
+    let productsCalls = 0;
+    let ordersCalls = 0;
+
+    global.fetch = vi.fn().mockImplementation((url, opts) => {
+      if (url.includes('/auth/refresh')) {
+        refreshCalls++;
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          headers: new Headers({ 'content-type': 'application/json' }),
+          json: async () => ({
+            success: true,
+            data: { access_token: 'new-rotated-token' },
+          }),
+        });
+      }
+
+      if (url.includes('/products')) {
+        productsCalls++;
+        const authHeader = opts.headers?.get('Authorization');
+        if (authHeader === 'Bearer initial-expired-token') {
+          return Promise.resolve({
+            ok: false,
+            status: 401,
+            headers: new Headers({ 'content-type': 'application/json' }),
+            json: async () => ({ success: false, message: 'Unauthenticated' }),
+          });
+        }
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          headers: new Headers({ 'content-type': 'application/json' }),
+          json: async () => ({ success: true, data: [{ id: 1 }] }),
+        });
+      }
+
+      if (url.includes('/orders')) {
+        ordersCalls++;
+        const authHeader = opts.headers?.get('Authorization');
+        if (authHeader === 'Bearer initial-expired-token') {
+          return Promise.resolve({
+            ok: false,
+            status: 401,
+            headers: new Headers({ 'content-type': 'application/json' }),
+            json: async () => ({ success: false, message: 'Unauthenticated' }),
+          });
+        }
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          headers: new Headers({ 'content-type': 'application/json' }),
+          json: async () => ({ success: true, data: [{ id: 101 }] }),
+        });
+      }
+
+      return Promise.reject(new Error('Unknown endpoint'));
+    });
+
+    // Fire 2 concurrent requests that both receive 401
+    const [resProducts, resOrders] = await Promise.all([
+      apiClient('/products'),
+      apiClient('/orders'),
+    ]);
+
+    // Single-flight deduplication: exactly 1 refresh call
+    expect(refreshCalls).toBe(1);
+    expect(productsCalls).toBe(2); // 1st 401 + 2nd retry
+    expect(ordersCalls).toBe(2);   // 1st 401 + 2nd retry
+    expect(resProducts.data[0].id).toBe(1);
+    expect(resOrders.data[0].id).toBe(101);
+
+    // Refresh token must NOT be in localStorage or sessionStorage
+    expect(global.localStorage.getItem('wex_refresh_token')).toBeNull();
+    expect(global.sessionStorage.getItem('wex_access_token')).toBeNull();
+  });
 });
