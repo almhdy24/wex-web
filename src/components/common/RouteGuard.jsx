@@ -2,6 +2,7 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Skeleton } from './Skeleton';
+import styles from './RouteGuard.module.css';
 
 export function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -9,9 +10,9 @@ export function ProtectedRoute({ children }) {
 
   if (loading) {
     return (
-      <div className="container" style={{ padding: 'var(--space-12) var(--space-4)', textAlign: 'center' }}>
-        <Skeleton height="40px" width="200px" style={{ margin: '0 auto var(--space-4)' }} />
-        <Skeleton height="150px" style={{ margin: '0 auto' }} />
+      <div className={styles.loadingContainer}>
+        <Skeleton height="40px" width="200px" className={styles.topSkeleton} />
+        <Skeleton height="150px" className={styles.mainSkeleton} />
       </div>
     );
   }
@@ -29,9 +30,9 @@ export function RoleGuard({ allowedRoles = ['admin'], children }) {
 
   if (loading) {
     return (
-      <div className="container" style={{ padding: 'var(--space-12) var(--space-4)', textAlign: 'center' }}>
-        <Skeleton height="40px" width="200px" style={{ margin: '0 auto var(--space-4)' }} />
-        <Skeleton height="150px" style={{ margin: '0 auto' }} />
+      <div className={styles.loadingContainer}>
+        <Skeleton height="40px" width="200px" className={styles.topSkeleton} />
+        <Skeleton height="150px" className={styles.mainSkeleton} />
       </div>
     );
   }
@@ -49,13 +50,20 @@ export function RoleGuard({ allowedRoles = ['admin'], children }) {
 
 export function GuestRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
-    return null;
+    return (
+      <div className={styles.loadingContainer}>
+        <Skeleton height="40px" width="200px" className={styles.topSkeleton} />
+        <Skeleton height="150px" className={styles.mainSkeleton} />
+      </div>
+    );
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    const from = location.state?.from?.pathname || '/';
+    return <Navigate to={from} replace />;
   }
 
   return children;

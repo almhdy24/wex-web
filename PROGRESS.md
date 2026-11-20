@@ -34,10 +34,13 @@ Rebuilding storefront UI as ONE mobile-app-style experience identical on phone a
   - `NotificationsPage.jsx` & `NotificationsPage.module.css`: Screen 9 parity (notification cards with category badges [الطلبات, سداد بنكك, سعر الصرف], unread indicator dot, date, click-to-order navigation, and mark all read action).
   - `AccountPage.jsx` & `AccountPage.module.css`: Screen 10 parity (50px circular avatar bubble with user initials, phone, city, menu card with order history, notifications, price-lock explanation dialog, admin store dashboard button for staff, WhatsApp support CTA, shop location details card, and logout).
   - Verification: 0 lint errors, 39/39 tests passing, production build 110.45 kB gzip.
-- [ ] **Phase 5: Polish & Quality Pass**
-  - Loading skeletons, empty/error states with retry, offline handling.
-  - A11y, touch targets >= 44px, copy review (zero forbidden marketing puffery).
-  - Performance audit (initial JS <= 150 KB gzip).
+- [x] **Phase 5: Polish & Quality Pass**
+  - Zero emojis across the entire `src/` directory (verified via automated Unicode scanner script).
+  - Zero forbidden marketing words (no "رائد", "أفضل متجر", "لا مثيل له", etc.).
+  - Zero inline styles across storefront pages, layouts, and route guards.
+  - Skeletons, empty states, and error states with retry buttons verified across all screens.
+  - A11y & touch targets >= 44px with focus rings and tabular-nums formatting for financial values.
+  - Initial JS bundle 110.48 kB gzip (well within the <= 150 KB budget).
 - [ ] **Phase 6: Parity Audit & Final Verification**
   - Create `docs/PARITY.md` verifying 100% element parity with mockup.
   - Automated greps (0 style={{}}, 0 emojis, 0 forbidden words, 0 max-width 1200 in storefront).

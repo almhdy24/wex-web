@@ -1,0 +1,14 @@
+.loadingContainer {
+  padding: 48px 16px;
+  text-align: center;
+  max-width: var(--app-shell-max-width, 480px);
+  margin: 0 auto;
+}
+
+.topSkeleton {
+  margin: 0 auto 16px auto;
+}
+
+.mainSkeleton {
+  margin: 0 auto;
+}

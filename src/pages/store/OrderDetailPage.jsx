@@ -433,7 +433,7 @@ export default function OrderDetailPage() {
               >
                 <div className={styles.timelineMarker}>
                   <div className={styles.markerDot}>
-                    {isCompleted ? '✓' : idx + 1}
+                    {isCompleted ? <Check size={12} /> : idx + 1}
                   </div>
                   {idx < trackingSteps.length - 1 && <div className={styles.markerLine} />}
                 </div>
