@@ -28,12 +28,12 @@ Rebuilding storefront UI as ONE mobile-app-style experience identical on phone a
   - `CheckoutPage.jsx` & `CheckoutPage.module.css`: Screen 5 parity (items summary card, 2-column delivery selector [Pickup from Al-Waha mall vs Delivery with zones and address fields], contact phone and notes, financial calculation summary with SDG base, 3% discount, shipping fee, final total, amber payment policy card, and sticky submit order button).
   - `LoginPage.jsx`, `VerifyOtpPage.jsx`, and `Auth.module.css`: splash brand theme with slanted gradient ribbons, white card with logo, Google sign-in integration, Sudanese email/phone OTP input, 6-digit auto-advancing code boxes with 60s resend countdown.
   - Verification: 0 lint errors, 39/39 tests passing, production build 110.46 kB gzip.
-- [ ] **Phase 4: Price-Lock/Payment, Orders, Tracking, Notifications & Account**
-  - Price Lock + Payment: live countdown digits banner, urgent state (< 1h), expired state with reorder, Bankak card with copy shortcuts, receipt upload box with preview & compression.
-  - Orders list with status chips.
-  - Order tracking 5-step timeline.
-  - Notifications screen with type badges.
-  - Account screen with profile card, menu list, WhatsApp CTA, store info card.
+- [x] **Phase 4: Price-Lock/Payment, Orders, Tracking, Notifications & Account**
+  - `OrderDetailPage.jsx` & `OrderDetailPage.module.css`: Screen 6 & Screen 8 parity (Hero digital countdown banner with `[HH] : [MM] : [SS]` clock boxes, urgent state `< 1h` with warm amber/orange gradient, expired state with clean reorder button, locked price summary line, Bankak account transfer card with copy shortcut, receipt upload dropzone with client-side image compression & instant preview, 5-step order tracking timeline with completed/current states, and WhatsApp direct assistance CTA).
+  - `OrdersPage.jsx` & `OrdersPage.module.css`: Screen 7 parity (status filter tabs [الكل, بانتظار الدفع, المؤكدة, المكتملة], order cards with `#order_number`, status chip, date, total SDG, price lock countdown indicator, and zero inline styles).
+  - `NotificationsPage.jsx` & `NotificationsPage.module.css`: Screen 9 parity (notification cards with category badges [الطلبات, سداد بنكك, سعر الصرف], unread indicator dot, date, click-to-order navigation, and mark all read action).
+  - `AccountPage.jsx` & `AccountPage.module.css`: Screen 10 parity (50px circular avatar bubble with user initials, phone, city, menu card with order history, notifications, price-lock explanation dialog, admin store dashboard button for staff, WhatsApp support CTA, shop location details card, and logout).
+  - Verification: 0 lint errors, 39/39 tests passing, production build 110.45 kB gzip.
 - [ ] **Phase 5: Polish & Quality Pass**
   - Loading skeletons, empty/error states with retry, offline handling.
   - A11y, touch targets >= 44px, copy review (zero forbidden marketing puffery).

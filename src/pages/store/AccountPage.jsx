@@ -1,33 +1,17 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { LogOut, ShieldAlert, Check } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { LogOut, Package, Bell, Shield, MessageCircle, ChevronLeft, Store } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { authApi } from '../../api/auth';
-import Button from '../../components/common/Button';
-import Input from '../../components/common/Input';
-import Modal from '../../components/common/Modal';
-import Tag from '../../components/common/Tag';
 import styles from './AccountPage.module.css';
 
 export default function AccountPage() {
-  const { user, updateUserProfile, logout, logoutAll } = useAuth();
-  const { success, error: toastError } = useToast();
+  const { user, updateUserProfile, logout } = useAuth();
+  const { success } = useToast();
   const navigate = useNavigate();
 
-  // Profile Edit State
-  const [name, setName] = useState(user?.name || '');
-  const [phone, setPhone] = useState(user?.phone || '');
-  const [updatingProfile, setUpdatingProfile] = useState(false);
-  const [profileErrors, setProfileErrors] = useState({});
-
-  // Email Notifications Preference
-  const [emailNotif, setEmailNotif] = useState(user?.email_notifications ?? true);
-  const [updatingNotif, setUpdatingNotif] = useState(false);
-
-  // Modals
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+  const [priceLockModalOpen, setPriceLockModalOpen] = useState(false);
 
   // Refresh profile from API on mount
   useEffect(() => {
@@ -37,9 +21,6 @@ export default function AccountPage() {
       .then((res) => {
         if (res?.data && isMounted) {
           updateUserProfile(res.data);
-          setName(res.data.name || '');
-          setPhone(res.data.phone || '');
-          setEmailNotif(res.data.email_notifications ?? true);
         }
       })
       .catch(() => {});
@@ -48,227 +29,151 @@ export default function AccountPage() {
     };
   }, [updateUserProfile]);
 
-  const handleProfileSubmit = async (e) => {
-    e.preventDefault();
-    setUpdatingProfile(true);
-    setProfileErrors({});
-
-    try {
-      const res = await authApi.updateMe({
-        name: name.trim(),
-        phone: phone.trim() || undefined,
-      });
-      updateUserProfile(res.data);
-      success('تم تحديث البيانات');
-    } catch (err) {
-      if (err.errors) {
-        setProfileErrors(err.errors);
-      }
-      toastError(err.message || 'الاتصال ضعيف. حاول تاني.');
-    } finally {
-      setUpdatingProfile(false);
-    }
-  };
-
-  const handleToggleNotifications = async (e) => {
-    const val = e.target.checked;
-    setEmailNotif(val);
-    setUpdatingNotif(true);
-
-    try {
-      await authApi.updatePreferences(val);
-      updateUserProfile({ email_notifications: val });
-      success(val ? 'تم تفعيل إشعارات البريد' : 'تم إيقاف إشعارات البريد');
-    } catch (err) {
-      setEmailNotif(!val);
-      toastError(err.message || 'الاتصال ضعيف. حاول تاني.');
-    } finally {
-      setUpdatingNotif(false);
-    }
-  };
-
   const handleLogout = async () => {
     await logout();
-    success('تم تسجيل الخروج');
+    success('تم تسجيل الخروج بنجاح');
     navigate('/');
   };
 
-  const handleLogoutAll = async () => {
-    await logoutAll();
-    success('تم إنهاء جميع الجلسات');
-    navigate('/auth/login');
-  };
-
-  const handleDeleteAccount = async () => {
-    setDeleting(true);
-    try {
-      await authApi.deleteMe();
-      await logout();
-      success('تم حذف الحساب');
-      navigate('/');
-    } catch (err) {
-      toastError(err.message || 'فشل حذف الحساب. حاول تاني.');
-    } finally {
-      setDeleting(false);
-      setDeleteModalOpen(false);
+  // Generate initials from name or fallback
+  const getInitials = (nameStr) => {
+    if (!nameStr) return 'W';
+    const parts = nameStr.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return `${parts[0][0]}.${parts[1][0]}`;
     }
+    return parts[0].slice(0, 2);
   };
 
-  const roleLabelMap = {
-    admin: { label: 'مدير عام', variant: 'warning' },
-    staff: { label: 'موظف', variant: 'info' },
-    customer: { label: 'عميل', variant: 'neutral' },
-  };
-
-  const currentRole = roleLabelMap[user?.role] || { label: 'عميل', variant: 'neutral' };
+  const displayName = user?.name || 'مستخدم جديد';
+  const displayPhone = user?.phone || user?.email || 'لا يوجد هاتف مسجل';
+  const isAdmin = user?.role === 'admin' || user?.role === 'super_admin';
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>حسابي</h1>
-        <p className={styles.subtitle}>
-          إدارة بياناتك الشخصية، رقم الهاتف السوداني، وإعدادات الإشعارات
-        </p>
-      </header>
-
-      <div className={styles.grid}>
-        {/* Profile Card */}
-        <div className={styles.card}>
-          <div className={styles.cardHeader}>
-            <h2 className={styles.cardTitle}>البيانات الشخصية</h2>
-            <Tag variant={currentRole.variant}>{currentRole.label}</Tag>
-          </div>
-          <div className={styles.cardBody}>
-            <form onSubmit={handleProfileSubmit} className={styles.form}>
-              <div className={styles.readOnlyField}>
-                <label className={styles.fieldLabel} htmlFor="account_email">
-                  البريد الإلكتروني
-                </label>
-                <input
-                  id="account_email"
-                  type="text"
-                  disabled
-                  value={user?.email || ''}
-                  className={styles.readOnlyInput}
-                  dir="ltr"
-                />
-                <span className={styles.fieldHint}>
-                  معرف الحساب الأساسي ولا يمكن تغييره
-                </span>
-              </div>
-
-              <Input
-                label="الاسم الكريم"
-                name="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                error={profileErrors.name}
-              />
-
-              <Input
-                label="رقم الهاتف (سوداني)"
-                name="phone"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="0912345678"
-                dir="ltr"
-                hint="يستخدم للتواصل وتأكيد التسليم (09 أو 01)"
-                error={profileErrors.phone}
-              />
-
-              <Button
-                type="submit"
-                variant="primary"
-                loading={updatingProfile}
-                disabled={updatingProfile}
-              >
-                <Check size={16} />
-                <span>حفظ التعديلات</span>
-              </Button>
-            </form>
-          </div>
+      {/* 1. User Profile Card (Mockup Parity: 50px initials bubble) */}
+      <div className={styles.profileCard}>
+        <div className={styles.avatarBubble}>
+          {getInitials(user?.name)}
         </div>
 
-        {/* Preferences & Security Column */}
-        <div className={styles.actionsColumn}>
-          {/* Notifications Card */}
-          <div className={styles.card}>
-            <div className={styles.cardHeader}>
-              <h2 className={styles.cardTitle}>إشعارات البريد</h2>
-            </div>
-            <div className={styles.cardBody}>
-              <label className={styles.checkboxLabel}>
-                <input
-                  type="checkbox"
-                  checked={emailNotif}
-                  onChange={handleToggleNotifications}
-                  disabled={updatingNotif}
-                  className={styles.checkbox}
-                />
-                <div>
-                  <div className={styles.checkboxTitle}>
-                    استلام تحديثات الطلبات عبر البريد
-                  </div>
-                  <div className={styles.checkboxDesc}>
-                    تنبيهات بتثبيت السعر، اعتماد إشعار التحويل، وجاهزية الجهاز للاستلام.
-                  </div>
-                </div>
-              </label>
-            </div>
+        <div className={styles.profileInfo}>
+          <h2 className={styles.userName}>{displayName}</h2>
+          <div className={styles.userPhone} dir="ltr">
+            {displayPhone}
           </div>
-
-          {/* Sessions & Security */}
-          <div className={styles.card}>
-            <div className={styles.cardHeader}>
-              <h2 className={styles.cardTitle}>الجلسات والأمان</h2>
-            </div>
-            <div className={styles.cardBody}>
-              <Button variant="outline" onClick={handleLogout}>
-                <LogOut size={16} />
-                <span>تسجيل الخروج من هذا الجهاز</span>
-              </Button>
-
-              <Button variant="outline" onClick={handleLogoutAll}>
-                <LogOut size={16} />
-                <span>تسجيل الخروج من كافة الأجهزة</span>
-              </Button>
-
-              <div className={styles.dangerSection}>
-                <Button variant="danger" size="sm" onClick={() => setDeleteModalOpen(true)}>
-                  <ShieldAlert size={14} />
-                  <span>حذف الحساب</span>
-                </Button>
-              </div>
-            </div>
-          </div>
+          <div className={styles.userLocation}>أم درمان، السودان</div>
         </div>
       </div>
 
-      {/* Account Deletion Confirmation Modal */}
-      <Modal
-        isOpen={deleteModalOpen}
-        onClose={() => setDeleteModalOpen(false)}
-        title="تأكيد حذف الحساب"
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
-              إلغاء
-            </Button>
-            <Button
-              variant="danger"
-              loading={deleting}
-              onClick={handleDeleteAccount}
+      {/* 2. Navigation Menu List Card */}
+      <div className={styles.menuCard}>
+        <Link to="/orders" className={styles.menuItem}>
+          <div className={styles.menuItemLeft}>
+            <Package size={18} className={styles.menuIcon} />
+            <span className={styles.menuItemTitle}>سجل الطلبات</span>
+          </div>
+          <div className={styles.menuItemRight}>
+            <span className={styles.menuMetaText}>متابعة الحالات</span>
+            <ChevronLeft size={16} />
+          </div>
+        </Link>
+
+        <Link to="/notifications" className={styles.menuItem}>
+          <div className={styles.menuItemLeft}>
+            <Bell size={18} className={styles.menuIcon} />
+            <span className={styles.menuItemTitle}>الإشعارات والتنبيهات</span>
+          </div>
+          <div className={styles.menuItemRight}>
+            <span className={styles.menuMetaText}>التحديثات</span>
+            <ChevronLeft size={16} />
+          </div>
+        </Link>
+
+        <div
+          className={styles.menuItem}
+          onClick={() => setPriceLockModalOpen(true)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === 'Enter') setPriceLockModalOpen(true); }}
+        >
+          <div className={styles.menuItemLeft}>
+            <Shield size={18} className={styles.menuIcon} />
+            <span className={styles.menuItemTitle}>طريقة تثبيت السعر</span>
+          </div>
+          <div className={styles.menuItemRight}>
+            <span className={styles.menuCyanText}>تفاصيل</span>
+            <ChevronLeft size={16} />
+          </div>
+        </div>
+
+        {isAdmin && (
+          <Link to="/admin" className={styles.menuItem}>
+            <div className={styles.menuItemLeft}>
+              <Store size={18} className={styles.menuIcon} />
+              <span className={styles.menuItemTitle}>لوحة إدارة المتجر</span>
+            </div>
+            <div className={styles.menuItemRight}>
+              <span className={styles.menuAdminBadge}>المدير</span>
+              <ChevronLeft size={16} />
+            </div>
+          </Link>
+        )}
+      </div>
+
+      {/* 3. WhatsApp Direct Support Button (Mockup Parity) */}
+      <div className={styles.supportSection}>
+        <a
+          href="https://wa.me/249912345678?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D9%85%D8%AA%D8%AC%D8%B1%20%D9%88%D9%8A%D9%83%D8%B3"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.whatsappBtn}
+        >
+          <MessageCircle size={18} />
+          <span>تواصل معانا واتساب</span>
+        </a>
+      </div>
+
+      {/* 4. Shop Info Card */}
+      <div className={styles.shopCard}>
+        <div className={styles.shopName}>Wex Technology (ويكس تكنولوجي)</div>
+        <div className={styles.shopDetail}>
+          الموقع: مول الواحة، الشهداء، أم درمان
+        </div>
+        <div className={styles.shopDetail}>
+          ساعات العمل: السبت - الخميس من 10 ص إلى 10 م | الجمعة من 4 م
+        </div>
+        <div className={styles.shopDetail}>
+          الهاتف: 0912345678
+        </div>
+      </div>
+
+      {/* 5. Logout Button */}
+      <div className={styles.logoutWrapper}>
+        <button type="button" onClick={handleLogout} className={styles.logoutBtn}>
+          <LogOut size={16} />
+          <span>تسجيل الخروج</span>
+        </button>
+      </div>
+
+      {/* Price Lock Explanation Dialog */}
+      {priceLockModalOpen && (
+        <div className={styles.modalOverlay} onClick={() => setPriceLockModalOpen(false)}>
+          <div className={styles.modalDialog} onClick={(e) => e.stopPropagation()}>
+            <h3 className={styles.modalTitle}>نظام تثبيت السعر في ويكس</h3>
+            <p className={styles.modalBody}>
+              أسعار اللابتوبات مربوطة بسعر صرف الدرهم وتتغير حسب تقلبات السوق. عند تقديم الطلب عبر التطبيق، يقوم نظام ويكس بتثبيت السعر لمدة 4 ساعات كاملة. خلال هذه المدة، تقوم بتحويل المبلغ المطلوب عبر بنكك ورفع صورة الإشعار دون أي تأثر بتغيرات الصرف اللاحقة.
+            </p>
+            <button
+              type="button"
+              className={styles.modalCloseBtn}
+              onClick={() => setPriceLockModalOpen(false)}
             >
-              نعم، احذف حسابي
-            </Button>
-          </>
-        }
-      >
-        <p style={{ color: 'var(--color-slate-700)', fontSize: 'var(--text-sm)', lineHeight: 1.6, margin: 0 }}>
-          هل أنت متأكد من رغبتك في حذف حسابك؟ سيتم إيقاف تفعيل الحساب ولن تتمكن من الوصول إلى سجل طلباتك السابقة.
-        </p>
-      </Modal>
+              فهمت، شكراً
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,15 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Clock, UploadCloud, MessageCircle, RefreshCw } from 'lucide-react';
+import { Copy, Check, MessageCircle, RefreshCw, Upload, CheckCircle2 } from 'lucide-react';
 import { ordersApi } from '../../api/orders';
-import { formatSdg, formatDate, getOrderStatusInfo, getProofStatusInfo } from '../../utils/formatters';
+import { formatSdg, formatDate, getOrderStatusInfo } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
-import Tag from '../../components/common/Tag';
-import Button from '../../components/common/Button';
-import Input from '../../components/common/Input';
-import Modal from '../../components/common/Modal';
-import CopyField from '../../components/common/CopyField';
-import Countdown from '../../components/common/Countdown';
 import ErrorState from '../../components/common/ErrorState';
 import { Skeleton } from '../../components/common/Skeleton';
 import { compressProofImage } from '../../utils/imageCompressor';
@@ -24,21 +18,17 @@ export default function OrderDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Live Lock Countdown
+  // Live Lock Countdown State
   const [secondsRemaining, setSecondsRemaining] = useState(0);
   const timerRef = useRef(null);
 
-  // Proof Upload Modal State
-  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  // Proof Upload State
   const [proofFile, setProofFile] = useState(null);
   const [proofPreview, setProofPreview] = useState(null);
   const [senderName, setSenderName] = useState('');
   const [referenceNumber, setReferenceNumber] = useState('');
   const [uploading, setUploading] = useState(false);
-
-  // Cancel & Reorder State
-  const [cancelModalOpen, setCancelModalOpen] = useState(false);
-  const [cancelling, setCancelling] = useState(false);
+  const [copiedAccount, setCopiedAccount] = useState(false);
   const [reordering, setReordering] = useState(false);
 
   // Load Order Data
@@ -51,7 +41,7 @@ export default function OrderDetailPage() {
       setOrder(data);
       setSecondsRemaining(data.seconds_remaining || 0);
     } catch (err) {
-      setError(err.message || 'الاتصال ضعيف. حاول تاني.');
+      setError(err.message || 'تعذر تحميل بيانات الطلب');
     } finally {
       if (showLoading) setLoading(false);
     }
@@ -61,7 +51,7 @@ export default function OrderDetailPage() {
     loadOrder(true);
   }, [orderNumber]);
 
-  // Handle Live Countdown
+  // Handle Live Countdown Timer
   useEffect(() => {
     if (secondsRemaining <= 0) return;
 
@@ -95,6 +85,9 @@ export default function OrderDetailPage() {
       reader.readAsDataURL(processed);
     } catch {
       setProofFile(file);
+      const reader = new FileReader();
+      reader.onload = () => setProofPreview(reader.result);
+      reader.readAsDataURL(file);
     }
   };
 
@@ -114,36 +107,29 @@ export default function OrderDetailPage() {
 
     try {
       await ordersApi.uploadPaymentProof(orderNumber, formData);
-      success('تم رفع إشعار التحويل بنجاح، جاري مراجعته');
-      setUploadModalOpen(false);
+      success('تم رفع إشعار التحويل بنجاح، جاري مراجعته وتأكيد الطلب');
       setProofFile(null);
       setProofPreview(null);
       setSenderName('');
       setReferenceNumber('');
       loadOrder(false);
     } catch (err) {
-      toastError(err.message || 'فشل رفع إشعار التحويل. حاول تاني.');
+      toastError(err.message || 'فشل رفع الإشعار، حاول مرة أخرى');
     } finally {
       setUploading(false);
     }
   };
 
-  // Cancel Order
-  const handleCancelOrder = async () => {
-    setCancelling(true);
-    try {
-      await ordersApi.cancelOrder(orderNumber);
-      success('تم إلغاء الطلب');
-      setCancelModalOpen(false);
-      loadOrder(false);
-    } catch (err) {
-      toastError(err.message || 'فشل إلغاء الطلب');
-    } finally {
-      setCancelling(false);
-    }
+  // Copy Account Number
+  const handleCopyAccount = (accountNo) => {
+    navigator.clipboard?.writeText(accountNo).then(() => {
+      setCopiedAccount(true);
+      success('تم نسخ رقم الحساب');
+      setTimeout(() => setCopiedAccount(false), 2000);
+    });
   };
 
-  // Reorder
+  // Reorder expired
   const handleReorder = async () => {
     setReordering(true);
     try {
@@ -152,7 +138,7 @@ export default function OrderDetailPage() {
       success(`تم إنشاء طلب جديد برقم #${newOrder.order_number}`);
       navigate(`/orders/${newOrder.order_number}`, { replace: true });
     } catch (err) {
-      toastError(err.message || 'فشل إعادة الطلب. حاول تاني.');
+      toastError(err.message || 'تعذر إعادة الطلب بالسعر الحالي');
     } finally {
       setReordering(false);
     }
@@ -161,11 +147,9 @@ export default function OrderDetailPage() {
   if (loading) {
     return (
       <div className={styles.container}>
-        <Skeleton height="36px" width="50%" />
-        <div style={{ height: 16 }} />
-        <Skeleton height="160px" borderRadius="var(--radius-lg)" />
-        <div style={{ height: 16 }} />
-        <Skeleton height="240px" borderRadius="var(--radius-lg)" />
+        <Skeleton height="180px" borderRadius="var(--radius-xl)" />
+        <Skeleton height="120px" borderRadius="var(--radius-lg)" />
+        <Skeleton height="200px" borderRadius="var(--radius-lg)" />
       </div>
     );
   }
@@ -182,439 +166,342 @@ export default function OrderDetailPage() {
     );
   }
 
-  const statusInfo = getOrderStatusInfo(order.status);
   const isPending = order.status === 'pending_payment';
-  const isExpired = order.status === 'expired';
-  const isCancelled = order.status === 'cancelled';
-  const bankDetails = order.bank_details;
+  const isExpired = order.status === 'expired' && !order.payment_proof;
+  const isUrgent = isPending && secondsRemaining > 0 && secondsRemaining < 3600;
+  const hasProof = !!order.payment_proof || order.status === 'payment_uploaded' || order.status === 'under_review';
+  const bankDetails = order.bank_details || {
+    bank_name: 'بنك الخرطوم (بنكك)',
+    account_number: '2849102',
+    account_name: 'متجر ويكس تكنولوجي',
+    branch_name: 'فرع أم درمان - الشهداء',
+  };
+
+  // Time calculation
+  const hours = Math.floor(secondsRemaining / 3600);
+  const minutes = Math.floor((secondsRemaining % 3600) / 60);
+  const seconds = secondsRemaining % 60;
+
+  const padZero = (n) => String(n).padStart(2, '0');
+
+  // Tracking Timeline Steps
+  const trackingSteps = [
+    {
+      title: 'تم تسجيل الطلب وتثبيت السعر',
+      desc: 'بدأ وقت تثبيت السعر وحجز الجهاز.',
+      time: formatDate(order.created_at),
+    },
+    {
+      title: 'رفع إشعار التحويل',
+      desc: hasProof ? 'تم استلام صورة الإشعار بنجاح.' : 'بانتظار رفع صورة إشعار بنكك.',
+      time: hasProof ? 'تم الرفع' : 'معلق',
+    },
+    {
+      title: 'مراجعة التحويل',
+      desc: 'مطابقة العملية في حساب بنكك وتأكيد السداد.',
+      time: order.status === 'confirmed' || order.status === 'completed' ? 'تم التأكيد' : 'قيد المراجعة',
+    },
+    {
+      title: order.order_type === 'pickup' ? 'تجهيز الجهاز للاستلام في المحل' : 'تجهيز الجهاز للتوصيل',
+      desc: 'فحص الجهاز وشحن البطارية والتغليف.',
+      time: order.status === 'completed' ? 'مكتمل' : 'قيد التجهيز',
+    },
+    {
+      title: order.order_type === 'pickup' ? 'استلام العميل من المحل' : 'تسليم الطلب مع المندوب',
+      desc: 'معاينة الجهاز واستلامه بنجاح.',
+      time: order.status === 'completed' ? 'تم التسليم' : 'الخطوة الأخيرة',
+    },
+  ];
+
+  let currentStepIdx = 0;
+  if (isPending && !hasProof) currentStepIdx = 1;
+  else if (hasProof && (order.status === 'pending_payment' || order.status === 'payment_uploaded' || order.status === 'under_review')) currentStepIdx = 2;
+  else if (order.status === 'confirmed' || order.status === 'processing') currentStepIdx = 3;
+  else if (order.status === 'completed') currentStepIdx = 4;
+  else if (isExpired) currentStepIdx = 0;
+
+  const statusInfo = getOrderStatusInfo(order.status);
 
   return (
     <div className={styles.container}>
-      {/* Top Header */}
-      <header className={styles.header}>
-        <div className={styles.headerInfo}>
-          <span className={styles.headerSub}>تفاصيل ومتابعة الطلب</span>
-          <h1 className={styles.orderNumber}>#{order.order_number}</h1>
-          <span className={styles.orderDate}>
-            تاريخ الإنشاء: {formatDate(order.created_at)}
-          </span>
+      {/* 1. Hero Countdown & Price Lock Banner (Mockup Screen 6 Parity) */}
+      <div
+        className={`${styles.priceLockBanner} ${
+          isExpired ? styles.bannerExpired : isUrgent ? styles.bannerUrgent : ''
+        }`}
+      >
+        <div className={styles.lockHeader}>
+          <div className={styles.lockStatusBadge}>
+            <span>{isExpired ? 'انتهت المهلة' : isPending ? 'السعر مثبت' : statusInfo.label}</span>
+          </div>
+          <span className={styles.orderNumberLabel}>طلب #{order.order_number}</span>
         </div>
 
-        <Tag variant={statusInfo.variant}>{statusInfo.label}</Tag>
-      </header>
-
-      {/* Live Tabular Countdown Banner (if Pending Payment) */}
-      {isPending && secondsRemaining > 0 && (
-        <section className={styles.countdownCard} aria-label="الوقت المتبقي لتثبيت السعر">
-          <div className={styles.countdownHeader}>
-            <div className={styles.countdownLabel}>
-              <Clock size={16} />
-              <span>الوقت المتبقي لتثبيت السعر والتحويل:</span>
-            </div>
-          </div>
-
-          <Countdown
-            initialSeconds={secondsRemaining}
-            onExpire={() => loadOrder(false)}
-          />
-
-          <div className={styles.rateBanner}>
-            <div>
-              <span>المبلغ المطلوب تحويله: </span>
-              <strong className={styles.rateBannerTotal}>
-                {formatSdg(order.total_sdg)}
-              </strong>
-            </div>
-            <div>
-              <span>سعر الصرف المثبت: </span>
-              <strong>1 درهم = {order.exchange_rate_sdg} جنيه</strong>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Expired State Notice */}
-      {isExpired && (
-        <div className={styles.expiredBanner}>
-          <h2 className={styles.expiredTitle}>انتهت مدة تثبيت السعر (4 ساعات)</h2>
-          <p className={styles.expiredDesc}>
-            السعر بالدرهم وبيتغير مع الصرف. لما تطلب، بنثبت ليك السعر لمدة 4 ساعات وبتحول فيها. لو المدة انتهت بيرجع السعر للصرف الحالي. تقدر تطلب الجهاز من جديد بالسعر الحالي.
-          </p>
-          <Button
-            variant="primary"
-            size="md"
-            loading={reordering}
-            onClick={handleReorder}
-          >
-            <RefreshCw size={16} />
-            <span>إعادة الطلب بالسعر الحالي</span>
-          </Button>
-        </div>
-      )}
-
-      {/* Cancelled Notice */}
-      {isCancelled && (
-        <div className={styles.expiredBanner}>
-          <h2 className={styles.expiredTitle}>الطلب ملغي</h2>
-          <p className={styles.expiredDesc}>
-            تم إلغاء هذا الطلب واسترجاع الأجهزة للمخزن.
-          </p>
-          <Button
-            variant="outline"
-            size="md"
-            loading={reordering}
-            onClick={handleReorder}
-          >
-            <RefreshCw size={16} />
-            <span>إنشاء طلب جديد</span>
-          </Button>
-        </div>
-      )}
-
-      {/* Bankak Details Card with CopyFields */}
-      {isPending && bankDetails && (
-        <section className={styles.bankCard} aria-label="بيانات التحويل البنكي">
-          <div className={styles.bankHeader}>
-            <div>
-              <h2 className={styles.bankTitle}>
-                {bankDetails.bank_name || 'بنك الخرطوم (تطبيق بنكك)'}
-              </h2>
-              <div className={styles.bankSubtitle}>
-                الحساب الرسمي المعتمد لمتجر ويكس تكنولوجي
-              </div>
-            </div>
-            <Tag variant="success">تحويل بنكك</Tag>
-          </div>
-
-          <div className={styles.bankGrid}>
-            <CopyField
-              label="رقم الحساب"
-              value={bankDetails.account_number}
-            />
-
-            <CopyField
-              label="اسم الحساب"
-              value={bankDetails.account_name}
-            />
-
-            <CopyField
-              label="المبلغ المطلوب (جنيه سوداني)"
-              value={String(bankDetails.amount_sdg || order.total_sdg)}
-            />
-
-            <CopyField
-              label="ملاحظة التحويل (رقم الطلب)"
-              value={`#${order.order_number}`}
-            />
-          </div>
-
-          <div className={styles.bankActions}>
-            <Button
-              variant="primary"
-              size="lg"
-              block
-              onClick={() => setUploadModalOpen(true)}
-            >
-              <UploadCloud size={18} />
-              <span>ارفع إشعار التحويل</span>
-            </Button>
-          </div>
-        </section>
-      )}
-
-      {/* Order Items Table */}
-      <section className={styles.card} aria-label="المنتجات المطلوبة">
-        <div className={styles.cardHeader}>
-          <h2 className={styles.cardTitle}>المنتجات المطلوبة</h2>
-        </div>
-        <div className={styles.tableWrapper}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>الجهاز</th>
-                <th>سعر القطعة</th>
-                <th>الكمية</th>
-                <th>المجموع</th>
-              </tr>
-            </thead>
-            <tbody>
-              {order.items?.map((item) => (
-                <tr key={item.id}>
-                  <td>
-                    <strong>{item.product_name}</strong>
-                    {item.specs_snapshot && (
-                      <div style={{ fontSize: '11px', color: 'var(--color-slate-500)' }}>
-                        {item.specs_snapshot.cpu || ''} {item.specs_snapshot.ram ? `· ${item.specs_snapshot.ram}` : ''}
-                      </div>
-                    )}
-                  </td>
-                  <td>{formatSdg(item.unit_price_sdg)}</td>
-                  <td>{item.quantity}</td>
-                  <td>{formatSdg(item.subtotal_sdg)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className={styles.countdownTitle}>
+          {isExpired
+            ? 'انتهت مدة تثبيت السعر المحددة'
+            : isPending
+            ? 'الوقت المتبقي للتحويل ورفع الإشعار'
+            : 'حالة الطلب الحالية'}
         </div>
 
-        {/* Calculations Footer */}
-        <div className={styles.tableFooter}>
-          <div className={styles.footerRow}>
-            <span>المجموع الفرعي:</span>
-            <span>{formatSdg(order.subtotal_sdg)}</span>
-          </div>
-
-          {order.discount_sdg > 0 && (
-            <div className={styles.footerRow} style={{ color: 'var(--color-success)' }}>
-              <span>خصم التطبيق (3%):</span>
-              <span>-{formatSdg(order.discount_sdg)}</span>
+        {/* Digital Clock Boxes (HH : MM : SS) */}
+        {isPending && !isExpired && (
+          <div className={styles.timerDigitsContainer}>
+            <div className={styles.timerBox}>
+              <span className={styles.digit}>{padZero(hours)}</span>
+              <span className={styles.unit}>ساعة</span>
             </div>
-          )}
-
-          <div className={styles.footerRow}>
-            <span>رسوم التوصيل:</span>
-            <span>
-              {order.delivery_fee_sdg === 0 ? 'مجاناً (استلام من المحل)' : formatSdg(order.delivery_fee_sdg)}
-            </span>
-          </div>
-
-          <div className={styles.footerTotalRow}>
-            <span>المبلغ الإجمالي المثبت:</span>
-            <span className={styles.totalSdg}>{formatSdg(order.total_sdg)}</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Delivery and Customer Information */}
-      <div className={styles.infoGrid}>
-        <div className={styles.card} style={{ marginBottom: 0 }}>
-          <div className={styles.cardHeader}>
-            <h2 className={styles.cardTitle}>بيانات الاستلام</h2>
-          </div>
-          <div className={styles.cardBody}>
-            <div className={styles.infoList}>
-              <div>
-                <span className={styles.infoLabel}>طريقة الاستلام: </span>
-                <strong>
-                  {order.delivery_type === 'pickup'
-                    ? 'استلام من المحل (مول الواحة - الشهداء - أم درمان)'
-                    : 'توصيل للعنوان'}
-                </strong>
-              </div>
-
-              {order.delivery_type === 'delivery' && (
-                <>
-                  {order.shipping_zone && (
-                    <div>
-                      <span className={styles.infoLabel}>الولاية / المنطقة: </span>
-                      <span>{order.shipping_zone.state_name_ar}</span>
-                    </div>
-                  )}
-                  <div>
-                    <span className={styles.infoLabel}>العنوان: </span>
-                    <span>{order.delivery_address}</span>
-                  </div>
-                </>
-              )}
-
-              <div>
-                <span className={styles.infoLabel}>هاتف التواصل: </span>
-                <span dir="ltr"><strong>{order.contact_phone}</strong></span>
-              </div>
-
-              {order.customer_notes && (
-                <div>
-                  <span className={styles.infoLabel}>ملاحظات: </span>
-                  <span>{order.customer_notes}</span>
-                </div>
-              )}
+            <span className={styles.timerColon}>:</span>
+            <div className={styles.timerBox}>
+              <span className={styles.digit}>{padZero(minutes)}</span>
+              <span className={styles.unit}>دقيقة</span>
             </div>
-          </div>
-        </div>
-
-        {/* Submitted Proofs Status */}
-        {order.proofs && order.proofs.length > 0 && (
-          <div className={styles.card} style={{ marginBottom: 0 }}>
-            <div className={styles.cardHeader}>
-              <h2 className={styles.cardTitle}>إشعارات التحويل المرفوعة</h2>
-            </div>
-            <div className={styles.cardBody}>
-              <div className={styles.infoList}>
-                {order.proofs.map((proof) => {
-                  const proofStatus = getProofStatusInfo(proof.status);
-                  return (
-                    <div
-                      key={proof.id}
-                      style={{
-                        padding: 'var(--space-3)',
-                        borderRadius: 'var(--radius-md)',
-                        backgroundColor: 'var(--color-slate-50)',
-                        border: '1px solid var(--color-border-subtle)',
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                        <span style={{ fontSize: '11px', color: 'var(--color-slate-500)' }}>
-                          {formatDate(proof.created_at)}
-                        </span>
-                        <Tag variant={proofStatus.variant}>{proofStatus.label}</Tag>
-                      </div>
-                      {proof.sender_name && (
-                        <div style={{ fontSize: '12px' }}>المحوّل: {proof.sender_name}</div>
-                      )}
-                      {proof.reference_number && (
-                        <div style={{ fontSize: '12px' }} dir="ltr">رقم الإشعار: {proof.reference_number}</div>
-                      )}
-                      {proof.reviewer_note && (
-                        <div style={{ fontSize: '12px', color: 'var(--color-danger)', marginTop: 4 }}>
-                          ملاحظة: {proof.reviewer_note}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+            <span className={styles.timerColon}>:</span>
+            <div className={styles.timerBox}>
+              <span className={styles.digit}>{padZero(seconds)}</span>
+              <span className={styles.unit}>ثانية</span>
             </div>
           </div>
         )}
+
+        {/* Locked Price Summary Row */}
+        <div className={styles.bannerSummaryRow}>
+          <div>
+            <div className={styles.bannerSummaryLabel}>المبلغ المطلوب تحويله:</div>
+            <div className={styles.bannerAmount}>
+              {formatSdg(order.total_amount_sdg)}
+            </div>
+          </div>
+          <div className={styles.bannerRateCol}>
+            <div className={styles.bannerSummaryLabel}>سعر الصرف المحجوز:</div>
+            <div className={styles.bannerRateVal}>
+              1 درهم = {order.exchange_rate_used || 650} جنيه
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Timeline Events */}
-      {order.events && order.events.length > 0 && (
-        <section className={styles.card} aria-label="مسار الطلب">
-          <div className={styles.cardHeader}>
-            <h2 className={styles.cardTitle}>مسار مراحل الطلب</h2>
-          </div>
-          <div className={styles.cardBody}>
-            <div className={styles.timeline}>
-              {order.events.map((evt) => (
-                <div key={evt.id} className={styles.timelineItem}>
-                  <div className={styles.timelineDot} />
-                  <span className={styles.timelineStatus}>
-                    {evt.status_ar || evt.new_status}
-                  </span>
-                  <span className={styles.timelineDate}>
-                    {formatDate(evt.created_at)}
-                  </span>
-                  {evt.note && <span className={styles.timelineNote}>{evt.note}</span>}
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+      {/* 2. Expired State Action Box */}
+      {isExpired && (
+        <div className={styles.expiredBox}>
+          <h3 className={styles.expiredTitle}>انتهت مدة تثبيت السعر (4 ساعات)</h3>
+          <p className={styles.expiredDesc}>
+            سعر اللابتوب بالدرهم وبيتغير مع الصرف. لما تطلب، بنثبت ليك السعر لمدة محددة وبتحول فيها عبر بنكك. تقدر تعيد الطلب الآن بالسعر المحدث حالياً.
+          </p>
+          <button
+            type="button"
+            disabled={reordering}
+            onClick={handleReorder}
+            className={styles.reorderBtn}
+          >
+            <RefreshCw size={16} />
+            <span>{reordering ? 'جاري إعادة الحجز...' : 'إعادة الطلب بالسعر الحالي'}</span>
+          </button>
+        </div>
       )}
 
-      {/* Support & Actions row */}
-      <footer className={styles.supportRow}>
-        <a
-          href={`https://wa.me/249912345678?text=${encodeURIComponent(`مرحباً، أستفسر بخصوص الطلب رقم #${order.order_number}`)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.whatsappSupportBtn}
-        >
-          <MessageCircle size={18} />
-          <span>استفسار عن الطلب عبر واتساب</span>
-        </a>
-
-        {isPending && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setCancelModalOpen(true)}
-          >
-            إلغاء الطلب
-          </Button>
-        )}
-      </footer>
-
-      {/* Modal: Upload Bankak Payment Proof */}
-      <Modal
-        isOpen={uploadModalOpen}
-        onClose={() => setUploadModalOpen(false)}
-        title="رفع إشعار تحويل بنكك"
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setUploadModalOpen(false)}>
-              إلغاء
-            </Button>
-            <Button
-              variant="primary"
-              loading={uploading}
-              disabled={!proofFile || uploading}
-              onClick={handleUploadSubmit}
-            >
-              تأكيد ورفع الإشعار
-            </Button>
-          </>
-        }
-      >
-        <form onSubmit={handleUploadSubmit} className={styles.modalForm}>
-          <div className={styles.fileUploadArea}>
-            <label htmlFor="proof_image_input" style={{ fontSize: 'var(--text-sm)', fontWeight: 600 }}>
-              صورة الإشعار (لقطة الشاشة من تطبيق بنكك)
-            </label>
-            <input
-              id="proof_image_input"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={handleFileChange}
-              required
-            />
-            <span style={{ fontSize: '11px', color: 'var(--color-slate-500)' }}>
-              يتم ضغط الصورة تلقائياً لتسريع الرفع
-            </span>
+      {/* 3. Bankak Payment Details Card (Mockup Parity) */}
+      {!isExpired && isPending && (
+        <div className={styles.bankCard}>
+          <div className={styles.bankHeader}>
+            <div>
+              <h4 className={styles.bankName}>{bankDetails.bank_name}</h4>
+              <div className={styles.bankBranch}>{bankDetails.branch_name}</div>
+            </div>
+            <span className={styles.bankTag}>تحويل بنكك</span>
           </div>
 
-          {proofPreview && (
-            <div className={styles.previewContainer}>
-              <img
-                src={proofPreview}
-                alt="معاينة إشعار التحويل"
-                className={styles.previewImage}
-              />
+          <div className={styles.bankRow}>
+            <span className={styles.bankLabel}>رقم الحساب:</span>
+            <div className={styles.accountBox}>
+              <span className={styles.accountNumber}>{bankDetails.account_number}</span>
+              <button
+                type="button"
+                onClick={() => handleCopyAccount(bankDetails.account_number)}
+                className={styles.copyBtn}
+                title="نسخ رقم الحساب"
+              >
+                {copiedAccount ? <Check size={14} /> : <Copy size={14} />}
+                <span>{copiedAccount ? 'تم النسخ' : 'نسخ'}</span>
+              </button>
+            </div>
+          </div>
+
+          <div className={styles.bankRow}>
+            <span className={styles.bankLabel}>اسم الحساب:</span>
+            <span className={styles.bankVal}>{bankDetails.account_name}</span>
+          </div>
+
+          <div className={styles.bankRow}>
+            <span className={styles.bankLabel}>ملاحظة التحويل:</span>
+            <span className={styles.orderRefHint}>اكتب رقم الطلب #{order.order_number}</span>
+          </div>
+        </div>
+      )}
+
+      {/* 4. Receipt Upload Dropzone */}
+      {!isExpired && isPending && (
+        <div className={styles.receiptCard}>
+          <h4 className={styles.receiptTitle}>رفع إشعار التحويل:</h4>
+          <p className={styles.receiptDesc}>
+            بعد ما تحول في بنكك، ارفع صورة الإشعار هنا عشان نراجعها ونجهز جهازك.
+          </p>
+
+          {hasProof ? (
+            <div className={styles.proofSuccessBox}>
+              <CheckCircle2 size={24} className={styles.successIcon} />
+              <div>
+                <div className={styles.proofSuccessTitle}>تم استلام إشعار التحويل</div>
+                <div className={styles.proofSuccessSub}>الطلب قيد المراجعة حالياً ومطابقة العملية.</div>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleUploadSubmit} className={styles.uploadForm}>
+              <div
+                className={styles.dropzone}
+                onClick={() => document.getElementById('receiptFileInput').click()}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter') document.getElementById('receiptFileInput').click(); }}
+              >
+                <input
+                  type="file"
+                  id="receiptFileInput"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className={styles.hiddenFile}
+                />
+                <Upload size={24} className={styles.uploadIcon} />
+                <div className={styles.dropzoneTitle}>
+                  {proofFile ? proofFile.name : 'اضغط هنا لاختيار صورة إشعار بنكك'}
+                </div>
+                <div className={styles.dropzoneSub}>صورة عادية أو لقطة شاشة من الهاتف</div>
+              </div>
+
+              {proofPreview && (
+                <div className={styles.previewBox}>
+                  <img src={proofPreview} alt="معاينة الإشعار" className={styles.previewImg} />
+                </div>
+              )}
+
+              <div className={styles.formRow}>
+                <input
+                  type="text"
+                  placeholder="اسم المحول في بنكك (اختياري)"
+                  value={senderName}
+                  onChange={(e) => setSenderName(e.target.value)}
+                  className={styles.smallInput}
+                />
+                <input
+                  type="text"
+                  placeholder="الرقم المرجعي للإشعار (اختياري)"
+                  value={referenceNumber}
+                  onChange={(e) => setReferenceNumber(e.target.value)}
+                  className={styles.smallInput}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={uploading || !proofFile}
+                className={`${styles.uploadBtn} btn-vivid`}
+              >
+                <Check size={16} />
+                <span>{uploading ? 'جاري رفع الإشعار...' : 'تأكيد ورفع الإشعار'}</span>
+              </button>
+            </form>
+          )}
+        </div>
+      )}
+
+      {/* 5. 5-Step Order Tracking Timeline (Mockup Screen 8 Parity) */}
+      <div className={styles.timelineCard}>
+        <h4 className={styles.timelineHeading}>مراحل الطلب</h4>
+
+        <div className={styles.trackingTimeline}>
+          {trackingSteps.map((step, idx) => {
+            const isCompleted = idx < currentStepIdx;
+            const isCurrent = idx === currentStepIdx;
+
+            return (
+              <div
+                key={idx}
+                className={`${styles.timelineStep} ${
+                  isCompleted ? styles.stepCompleted : isCurrent ? styles.stepCurrent : ''
+                }`}
+              >
+                <div className={styles.timelineMarker}>
+                  <div className={styles.markerDot}>
+                    {isCompleted ? '✓' : idx + 1}
+                  </div>
+                  {idx < trackingSteps.length - 1 && <div className={styles.markerLine} />}
+                </div>
+
+                <div className={styles.timelineContent}>
+                  <div className={styles.stepTitleRow}>
+                    <h5 className={styles.stepTitle}>{step.title}</h5>
+                    <span className={styles.stepTime}>{step.time}</span>
+                  </div>
+                  <p className={styles.stepDesc}>{step.desc}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 6. Order Items & Delivery Summary */}
+      <div className={styles.detailsCard}>
+        <h4 className={styles.detailsTitle}>عناصر الطلب</h4>
+        <div className={styles.itemsTable}>
+          {order.items?.map((item, idx) => (
+            <div key={idx} className={styles.itemRow}>
+              <div>
+                <span className={styles.itemName}>{item.product_name || item.name}</span>
+                <span className={styles.itemQty}> × {item.quantity}</span>
+              </div>
+              <span className={styles.itemTotal}>
+                {formatSdg((item.price_sdg || item.unit_price_sdg) * item.quantity)}
+              </span>
+            </div>
+          ))}
+
+          {order.discount_sdg > 0 && (
+            <div className={styles.discountRow}>
+              <span>خصم الطلب بالتطبيق (3%):</span>
+              <span>- {formatSdg(order.discount_sdg)}</span>
             </div>
           )}
 
-          <Input
-            label="اسم صاحب الحساب المحوّل (اختياري)"
-            placeholder="مثال: أحمد محمد عثمان"
-            value={senderName}
-            onChange={(e) => setSenderName(e.target.value)}
-          />
+          {order.shipping_fee_sdg > 0 && (
+            <div className={styles.itemRow}>
+              <span>رسوم التوصيل:</span>
+              <span>{formatSdg(order.shipping_fee_sdg)}</span>
+            </div>
+          )}
 
-          <Input
-            label="الرقم المرجعي للإشعار (اختياري)"
-            placeholder="مثال: 12345678"
-            value={referenceNumber}
-            onChange={(e) => setReferenceNumber(e.target.value)}
-            dir="ltr"
-          />
-        </form>
-      </Modal>
+          <div className={styles.grandTotalRow}>
+            <span>الإجمالي:</span>
+            <span className={styles.grandTotalVal}>{formatSdg(order.total_amount_sdg)}</span>
+          </div>
+        </div>
+      </div>
 
-      {/* Modal: Cancel Order Confirmation */}
-      <Modal
-        isOpen={cancelModalOpen}
-        onClose={() => setCancelModalOpen(false)}
-        title="تأكيد إلغاء الطلب"
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setCancelModalOpen(false)}>
-              تراجع
-            </Button>
-            <Button
-              variant="danger"
-              loading={cancelling}
-              onClick={handleCancelOrder}
-            >
-              نعم، إلغاء الطلب
-            </Button>
-          </>
-        }
-      >
-        <p style={{ color: 'var(--color-slate-700)', fontSize: 'var(--text-sm)', lineHeight: 1.6, margin: 0 }}>
-          هل أنت متأكد من رغبتك في إلغاء هذا الطلب؟ سيتم إلغاء تثبيت السعر فوراً وإرجاع الأجهزة للمخزن.
-        </p>
-      </Modal>
+      {/* 7. WhatsApp Direct Assistance CTA */}
+      <div className={styles.whatsappCard}>
+        <a
+          href={`https://wa.me/249912345678?text=${encodeURIComponent(
+            `مرحباً، لدي استفسار عن طلبي رقم #${order.order_number}`
+          )}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.whatsappActionBtn}
+        >
+          <MessageCircle size={18} />
+          <span>تواصل عبر واتساب لمتابعة الطلب</span>
+        </a>
+      </div>
     </div>
   );
 }

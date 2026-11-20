@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Calendar, Truck, Store, Clock, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Clock, ArrowLeft } from 'lucide-react';
 import { ordersApi } from '../../api/orders';
 import { formatSdg, formatDate, getOrderStatusInfo } from '../../utils/formatters';
-import Button from '../../components/common/Button';
-import Tag from '../../components/common/Tag';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import { Skeleton } from '../../components/common/Skeleton';
@@ -29,7 +27,7 @@ export default function OrdersPage() {
       setOrders(res.data || []);
       setMeta(res.meta || null);
     } catch (err) {
-      setError(err.message || 'الاتصال ضعيف. حاول تاني.');
+      setError(err.message || 'تعذر تحميل سجل الطلبات');
     } finally {
       setLoading(false);
     }
@@ -49,7 +47,7 @@ export default function OrdersPage() {
           </p>
         </div>
 
-        {/* Status Filter Tabs */}
+        {/* Status Filter Tabs (Mockup Parity) */}
         <div className={styles.filterTabs} role="tablist" aria-label="تصفية الطلبات">
           {[
             { key: '', label: 'الكل' },
@@ -81,12 +79,10 @@ export default function OrdersPage() {
       ) : loading ? (
         <div className={styles.ordersList}>
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className={styles.orderCard}>
-              <Skeleton width="40%" height="22px" />
-              <div style={{ height: 8 }} />
-              <Skeleton width="60%" height="16px" />
-              <div style={{ height: 12 }} />
-              <Skeleton width="25%" height="24px" />
+            <div key={i} className={styles.skeletonCard}>
+              <Skeleton width="40%" height="20px" />
+              <Skeleton width="70%" height="16px" />
+              <Skeleton width="30%" height="22px" />
             </div>
           ))}
         </div>
@@ -105,93 +101,90 @@ export default function OrdersPage() {
         <div className={styles.ordersList}>
           {orders.map((order) => {
             const statusInfo = getOrderStatusInfo(order.status);
+            const isPending = order.status === 'pending_payment';
+
             return (
-              <article key={order.order_number} className={styles.orderCard}>
-                <div className={styles.cardTop}>
+              <article
+                key={order.id}
+                className={styles.orderCard}
+                onClick={() => navigate(`/orders/${order.order_number}`)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') navigate(`/orders/${order.order_number}`);
+                }}
+              >
+                <div className={styles.cardHeader}>
                   <div>
-                    <span style={{ fontSize: '11px', color: 'var(--color-slate-500)' }}>
-                      رقم الطلب
+                    <span className={styles.orderNumber}>
+                      #{order.order_number}
                     </span>
-                    <div className={styles.orderNumber}>#{order.order_number}</div>
+                    <div className={styles.orderDate}>
+                      {formatDate(order.created_at)}
+                    </div>
                   </div>
-                  <Tag variant={statusInfo.variant}>{statusInfo.label}</Tag>
+
+                  <span className={`${styles.statusChip} ${styles[order.status] || ''}`}>
+                    {statusInfo.label}
+                  </span>
                 </div>
 
-                <div className={styles.orderMetaGrid}>
-                  <div className={styles.metaItem}>
-                    <Calendar size={14} className={styles.metaIcon} />
-                    <span>{formatDate(order.created_at)}</span>
+                <div className={styles.cardBody}>
+                  <div className={styles.productSummary}>
+                    {order.items?.length > 0
+                      ? order.items.map((it) => it.product_name).join('، ')
+                      : 'أجهزة وإلكترونيات'}
                   </div>
 
-                  <div className={styles.metaItem}>
-                    {order.delivery_type === 'pickup' ? (
-                      <>
-                        <Store size={14} className={styles.metaIcon} />
-                        <span>استلام من المحل</span>
-                      </>
-                    ) : (
-                      <>
-                        <Truck size={14} className={styles.metaIcon} />
-                        <span>توصيل</span>
-                      </>
-                    )}
-                  </div>
-
-                  {order.status === 'pending_payment' && order.seconds_remaining > 0 && (
-                    <div className={`${styles.metaItem} ${styles.remainingAlert}`}>
-                      <Clock size={14} />
-                      <span>
-                        متبقي للحجز: {Math.ceil(order.seconds_remaining / 60)} دقيقة
+                  <div className={styles.priceRow}>
+                    <div className={styles.priceCol}>
+                      <span className={styles.priceLabel}>الإجمالي:</span>
+                      <span className={styles.priceVal}>
+                        {formatSdg(order.total_amount_sdg)}
                       </span>
                     </div>
-                  )}
-                </div>
 
-                <div className={styles.cardBottom}>
-                  <div>
-                    <span style={{ fontSize: '11px', color: 'var(--color-slate-500)' }}>
-                      المبلغ المثبت:{' '}
-                    </span>
-                    <span className={styles.totalPrice}>
-                      {formatSdg(order.total_sdg)}
+                    {isPending && (
+                      <span className={styles.countdownPill}>
+                        <Clock size={12} />
+                        <span>السعر محجوز</span>
+                      </span>
+                    )}
+
+                    <span className={styles.detailsLink}>
+                      <span>تفاصيل الطلب</span>
+                      <ArrowLeft size={14} />
                     </span>
                   </div>
-
-                  <Link to={`/orders/${order.order_number}`}>
-                    <Button variant="outline" size="sm">
-                      <span>تفاصيل ومتابعة الطلب</span>
-                      <ArrowLeft size={14} />
-                    </Button>
-                  </Link>
                 </div>
               </article>
             );
           })}
+        </div>
+      )}
 
-          {/* Pagination */}
-          {meta && meta.total_pages > 1 && (
-            <nav className={styles.pagination} aria-label="تنقل الصفحات">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => p - 1)}
-              >
-                السابق
-              </Button>
-              <span className={styles.pageCount}>
-                صفحة {meta.page} من {meta.total_pages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={page >= meta.total_pages}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                التالي
-              </Button>
-            </nav>
-          )}
+      {/* Pagination */}
+      {meta && meta.last_page > 1 && (
+        <div className={styles.pagination}>
+          <button
+            type="button"
+            disabled={page <= 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            className={styles.pageBtn}
+          >
+            السابق
+          </button>
+          <span className={styles.pageInfo}>
+            صفحة {page} من {meta.last_page}
+          </span>
+          <button
+            type="button"
+            disabled={page >= meta.last_page}
+            onClick={() => setPage((p) => Math.min(meta.last_page, p + 1))}
+            className={styles.pageBtn}
+          >
+            التالي
+          </button>
         </div>
       )}
     </div>

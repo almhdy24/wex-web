@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CheckCheck } from 'lucide-react';
 import { notificationsApi } from '../../api/notifications';
 import { formatDate } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
-import Button from '../../components/common/Button';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import { Skeleton } from '../../components/common/Skeleton';
@@ -15,6 +15,7 @@ export default function NotificationsPage() {
   const [error, setError] = useState(null);
   const [markingAll, setMarkingAll] = useState(false);
   const { success, error: toastError } = useToast();
+  const navigate = useNavigate();
 
   const fetchNotifications = async () => {
     setLoading(true);
@@ -23,7 +24,7 @@ export default function NotificationsPage() {
       const res = await notificationsApi.getNotifications({ page: 1, per_page: 20 });
       setNotifications(res.data || []);
     } catch (err) {
-      setError(err.message || 'الاتصال ضعيف. حاول تاني.');
+      setError(err.message || 'تعذر تحميل الإشعارات');
     } finally {
       setLoading(false);
     }
@@ -33,14 +34,22 @@ export default function NotificationsPage() {
     fetchNotifications();
   }, []);
 
-  const handleMarkRead = async (id) => {
-    try {
-      await notificationsApi.markRead(id);
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
-      );
-    } catch {
-      // ignore
+  const handleNotificationClick = async (notif) => {
+    if (!notif.is_read) {
+      try {
+        await notificationsApi.markRead(notif.id);
+        setNotifications((prev) =>
+          prev.map((n) => (n.id === notif.id ? { ...n, is_read: true } : n))
+        );
+      } catch {
+        // ignore
+      }
+    }
+
+    if (notif.order_number) {
+      navigate(`/orders/${notif.order_number}`);
+    } else if (notif.data?.order_number) {
+      navigate(`/orders/${notif.data.order_number}`);
     }
   };
 
@@ -51,7 +60,7 @@ export default function NotificationsPage() {
       setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
       success('تم تحديد جميع الإشعارات كمقروءة');
     } catch (err) {
-      toastError(err.message || 'الاتصال ضعيف. حاول تاني.');
+      toastError(err.message || 'تعذر تحديث الإشعارات');
     } finally {
       setMarkingAll(false);
     }
@@ -63,22 +72,22 @@ export default function NotificationsPage() {
     <div className={styles.container}>
       <header className={styles.header}>
         <div>
-          <h1 className={styles.title}>الإشعارات</h1>
+          <h1 className={styles.title}>الإشعارات والتنبيهات</h1>
           <p className={styles.subtitle}>
-            متابعة إشعارات تأكيد الطلبات، مراجعة التحويلات، وتحديثات التسليم
+            متابعة إشعارات تأكيد الطلبات، مراجعة التحويلات، وتحديثات الأسعار
           </p>
         </div>
 
         {unreadCount > 0 && (
-          <Button
-            variant="outline"
-            size="sm"
-            loading={markingAll}
+          <button
+            type="button"
+            disabled={markingAll}
             onClick={handleMarkAllRead}
+            className={styles.markAllBtn}
           >
-            <CheckCheck size={16} />
+            <CheckCheck size={14} />
             <span>تحديد الكل كمقروء ({unreadCount})</span>
-          </Button>
+          </button>
         )}
       </header>
 
@@ -87,10 +96,9 @@ export default function NotificationsPage() {
       ) : loading ? (
         <div className={styles.list}>
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className={styles.card}>
-              <Skeleton width="45%" height="20px" />
-              <div style={{ height: 8 }} />
-              <Skeleton width="80%" height="16px" />
+            <div key={i} className={styles.skeletonCard}>
+              <Skeleton width="45%" height="18px" />
+              <Skeleton width="85%" height="14px" />
             </div>
           ))}
         </div>
@@ -98,33 +106,51 @@ export default function NotificationsPage() {
         <EmptyState
           title="لا توجد إشعارات حالياً"
           description="ستصلك هنا كافة التنبيهات المتعلقة بحالة طلباتك أو مراجعة إشعار بنكك."
+          actionLabel="العودة للرئيسية"
+          onAction={() => navigate('/')}
         />
       ) : (
         <div className={styles.list}>
-          {notifications.map((item) => (
-            <article
-              key={item.id}
-              onClick={() => !item.is_read && handleMarkRead(item.id)}
-              className={`${styles.card} ${!item.is_read ? styles.unreadCard : ''}`}
-              role={!item.is_read ? 'button' : undefined}
-              tabIndex={!item.is_read ? 0 : undefined}
-              onKeyDown={(e) => {
-                if (!item.is_read && (e.key === 'Enter' || e.key === ' ')) {
-                  handleMarkRead(item.id);
-                }
-              }}
-            >
-              <div className={styles.cardTop}>
-                <h2 className={styles.cardTitle}>
-                  {!item.is_read && <span className={styles.unreadDot} aria-hidden="true" />}
-                  <span>{item.title}</span>
-                </h2>
-                <span className={styles.cardDate}>{formatDate(item.created_at)}</span>
-              </div>
+          {notifications.map((notif) => {
+            const isUnread = !notif.is_read;
+            const notifType = notif.type || 'order_update';
 
-              <p className={styles.cardMessage}>{item.message}</p>
-            </article>
-          ))}
+            let typeLabel = 'تنبيه';
+            if (notifType.includes('price_lock') || notifType.includes('order')) typeLabel = 'الطلبات';
+            else if (notifType.includes('payment') || notifType.includes('proof')) typeLabel = 'سداد بنكك';
+            else if (notifType.includes('rate')) typeLabel = 'سعر الصرف';
+
+            return (
+              <article
+                key={notif.id}
+                className={`${styles.card} ${isUnread ? styles.cardUnread : ''}`}
+                onClick={() => handleNotificationClick(notif)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleNotificationClick(notif);
+                }}
+              >
+                <div className={styles.cardTop}>
+                  <div className={styles.badgeWrapper}>
+                    <span className={styles.typeBadge}>{typeLabel}</span>
+                    {isUnread && <span className={styles.unreadDot} />}
+                  </div>
+                  <span className={styles.timeLabel}>
+                    {formatDate(notif.created_at)}
+                  </span>
+                </div>
+
+                <h3 className={styles.cardHeading}>
+                  {notif.title || notif.subject || 'تحديث من ويكس تكنولوجي'}
+                </h3>
+
+                <p className={styles.cardBody}>
+                  {notif.message || notif.body || notif.content}
+                </p>
+              </article>
+            );
+          })}
         </div>
       )}
     </div>

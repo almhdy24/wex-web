@@ -1,135 +1,261 @@
+/* Wex Mockup Account Screen (Screen 10 Parity) */
 .container {
-  max-width: 860px;
-  margin-inline: auto;
-  padding: var(--space-6) var(--space-4) var(--space-16);
-}
-
-.header {
-  margin-bottom: var(--space-6);
-}
-
-.title {
-  font-size: var(--text-2xl);
-  font-weight: 800;
-  color: var(--color-navy);
-  margin: 0 0 var(--space-1);
-}
-
-.subtitle {
-  font-size: var(--text-sm);
-  color: var(--color-slate-500);
-  margin: 0;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-6);
-}
-
-@media (min-width: 768px) {
-  .grid {
-    grid-template-columns: 1.2fr 1fr;
-  }
-}
-
-.card {
-  background-color: var(--color-white);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-
-.cardHeader {
+  padding: 16px;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* 1. Profile Card */
+.profileCard {
+  background: var(--wex-white, #FFFFFF);
+  border-radius: var(--radius-xl, 28px);
+  padding: 18px 16px;
+  border: 1px solid var(--wex-ice, #EAF3FF);
+  display: flex;
   align-items: center;
-  padding: var(--space-4) var(--space-5);
-  border-bottom: 1px solid var(--color-border-subtle);
+  gap: 14px;
+  box-shadow: var(--shadow-sm);
 }
 
-.cardTitle {
-  font-size: var(--text-base);
-  font-weight: 700;
-  color: var(--color-navy);
+.avatarBubble {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--wex-grad-brand, linear-gradient(135deg, #061A55 0%, #0B3FBF 60%, #1E6BFF 100%));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  font-size: 17px;
+  font-weight: 800;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(11, 63, 191, 0.25);
+}
+
+.profileInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.userName {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--wex-navy, #061A55);
   margin: 0;
 }
 
-.cardBody {
-  padding: var(--space-5);
+.userPhone {
+  font-size: 12px;
+  color: var(--wex-gray-600, #5A6B85);
+  margin-top: 2px;
+  direction: ltr;
+  text-align: start;
+}
+
+.userLocation {
+  font-size: 11px;
+  color: var(--wex-gray-400, #9AA8BC);
+  margin-top: 4px;
+}
+
+/* 2. Menu Card */
+.menuCard {
+  background: var(--wex-white, #FFFFFF);
+  border-radius: var(--radius-lg, 20px);
+  border: 1px solid var(--wex-ice, #EAF3FF);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
 }
 
-.readOnlyField {
+.menuItem {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.fieldLabel {
-  font-size: var(--text-xs);
-  font-weight: 600;
-  color: var(--color-slate-700);
-}
-
-.readOnlyInput {
-  padding: 10px 14px;
-  background-color: var(--color-slate-100);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  color: var(--color-slate-600);
-  font-size: var(--text-sm);
-  font-variant-numeric: tabular-nums;
-}
-
-.fieldHint {
-  font-size: var(--text-xs);
-  color: var(--color-slate-500);
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.checkboxLabel {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--wex-ice, #EAF3FF);
+  text-decoration: none;
+  color: inherit;
   cursor: pointer;
+  transition: background 0.15s ease;
 }
 
-.checkbox {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--color-royal-blue);
-  margin-top: 2px;
+.menuItem:last-child {
+  border-bottom: none;
 }
 
-.checkboxTitle {
-  font-size: var(--text-sm);
-  font-weight: 600;
-  color: var(--color-navy);
+.menuItem:hover {
+  background: var(--wex-ice-light, #F4F8FD);
 }
 
-.checkboxDesc {
-  font-size: var(--text-xs);
-  color: var(--color-slate-500);
-  line-height: 1.5;
-  margin-top: 2px;
+.menuItem:active {
+  background: #E0EDFD;
 }
 
-.actionsColumn {
+.menuItemLeft {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
+  align-items: center;
+  gap: 10px;
 }
 
-.dangerSection {
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--color-border-subtle);
-  margin-top: var(--space-2);
+.menuIcon {
+  color: var(--wex-royal, #0B3FBF);
+}
+
+.menuItemTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--wex-navy, #061A55);
+}
+
+.menuItemRight {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--wex-gray-400, #9AA8BC);
+}
+
+.menuMetaText {
+  font-size: 11px;
+  color: var(--wex-gray-400, #9AA8BC);
+}
+
+.menuCyanText {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--wex-royal, #0B3FBF);
+}
+
+.menuAdminBadge {
+  font-size: 10px;
+  font-weight: 800;
+  background: var(--wex-navy, #061A55);
+  color: #FFFFFF;
+  padding: 2px 8px;
+  border-radius: var(--radius-full, 9999px);
+}
+
+/* 3. WhatsApp Support Button */
+.supportSection {
+  margin-top: 2px;
+}
+
+.whatsappBtn {
+  width: 100%;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #25D366;
+  color: #FFFFFF;
+  text-decoration: none;
+  border-radius: var(--radius-md, 14px);
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.3);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.whatsappBtn:active {
+  transform: scale(0.98);
+}
+
+/* 4. Shop Info Card */
+.shopCard {
+  background: var(--wex-ice-light, #F4F8FD);
+  border-radius: var(--radius-lg, 20px);
+  padding: 14px 16px;
+  border: 1px solid var(--wex-ice, #EAF3FF);
+  font-size: 11px;
+  color: var(--wex-gray-600, #5A6B85);
+  line-height: 1.6;
+}
+
+.shopName {
+  font-weight: 800;
+  color: var(--wex-navy, #061A55);
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.shopDetail {
+  margin-top: 2px;
+}
+
+/* 5. Logout Button */
+.logoutWrapper {
+  margin-top: 4px;
+}
+
+.logoutBtn {
+  width: 100%;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid #FECACA;
+  border-radius: var(--radius-md, 14px);
+  color: var(--color-error, #D32F2F);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.logoutBtn:hover {
+  background: #FEF2F2;
+}
+
+/* Modal */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 26, 85, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 16px;
+}
+
+.modalDialog {
+  background: #FFFFFF;
+  border-radius: var(--radius-xl, 28px);
+  padding: 24px 20px;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: var(--shadow-floating);
+}
+
+.modalTitle {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--wex-navy, #061A55);
+  margin: 0 0 10px 0;
+}
+
+.modalBody {
+  font-size: 12px;
+  color: var(--wex-gray-600, #5A6B85);
+  line-height: 1.7;
+  margin: 0 0 16px 0;
+}
+
+.modalCloseBtn {
+  width: 100%;
+  height: 40px;
+  background: var(--wex-royal, #0B3FBF);
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-md, 14px);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
 }

@@ -1,91 +1,136 @@
+/* Wex Mockup Notifications Screen (Screen 9 Parity) */
 .container {
-  max-width: 760px;
-  margin-inline: auto;
-  padding: var(--space-6) var(--space-4) var(--space-16);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  margin-bottom: var(--space-6);
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .title {
-  font-size: var(--text-2xl);
-  font-weight: 800;
-  color: var(--color-navy);
-  margin: 0 0 var(--space-1);
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--wex-navy, #061A55);
+  margin: 0;
 }
 
 .subtitle {
-  font-size: var(--text-sm);
-  color: var(--color-slate-500);
-  margin: 0;
+  font-size: 12px;
+  color: var(--wex-gray-600, #5A6B85);
+  margin: 2px 0 0 0;
+}
+
+.markAllBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--wex-ice, #EAF3FF);
+  border: 1px solid rgba(11, 63, 191, 0.15);
+  border-radius: var(--radius-sm, 8px);
+  padding: 5px 10px;
+  color: var(--wex-royal, #0B3FBF);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.markAllBtn:hover {
+  background: var(--wex-royal, #0B3FBF);
+  color: #FFFFFF;
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: 10px;
 }
 
 .card {
-  padding: var(--space-4) var(--space-5);
-  background-color: var(--color-white);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  border-inline-start: 4px solid transparent;
-  transition: all var(--transition-fast);
-}
-
-.unreadCard {
-  background-color: var(--color-ice-blue);
-  border-inline-start-color: var(--color-royal-blue);
+  background: var(--wex-white, #FFFFFF);
+  border-radius: var(--radius-lg, 20px);
+  padding: 14px;
+  border: 1px solid var(--wex-ice, #EAF3FF);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
 }
 
-.unreadCard:hover {
-  box-shadow: 0 2px 8px rgba(6, 26, 85, 0.05);
+.card:hover {
+  transform: translateY(-2px);
+  border-color: #CBE2FF;
+}
+
+.cardUnread {
+  background: #F8FAFD;
+  border-inline-start: 4px solid var(--wex-vivid, #1E6BFF);
 }
 
 .cardTop {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
-  gap: var(--space-2);
-  margin-bottom: 4px;
+  align-items: center;
 }
 
-.cardTitle {
-  font-size: var(--text-sm);
-  font-weight: 700;
-  color: var(--color-navy);
-  margin: 0;
+.badgeWrapper {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: 6px;
+}
+
+.typeBadge {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--wex-royal, #0B3FBF);
+  background: var(--wex-ice, #EAF3FF);
+  padding: 2px 8px;
+  border-radius: var(--radius-full, 9999px);
 }
 
 .unreadDot {
-  width: 8px;
-  height: 8px;
-  border-radius: var(--radius-full);
-  background-color: var(--color-cyan);
+  width: 7px;
+  height: 7px;
+  background: var(--wex-cyan, #00B7FF);
+  border-radius: 50%;
 }
 
-.cardDate {
+.timeLabel {
   font-size: 11px;
-  color: var(--color-slate-400);
-  font-variant-numeric: tabular-nums;
-  flex-shrink: 0;
+  color: var(--wex-gray-400, #9AA8BC);
 }
 
-.cardMessage {
-  font-size: var(--text-xs);
-  color: var(--color-slate-600);
+.cardHeading {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--wex-navy, #061A55);
   margin: 0;
-  line-height: 1.6;
+  line-height: 1.35;
+}
+
+.cardBody {
+  font-size: 12px;
+  color: var(--wex-gray-600, #5A6B85);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.skeletonCard {
+  background: var(--wex-white, #FFFFFF);
+  border-radius: var(--radius-lg, 20px);
+  padding: 14px;
+  border: 1px solid var(--wex-ice, #EAF3FF);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
