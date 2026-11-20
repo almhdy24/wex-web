@@ -1,20 +1,22 @@
-import { useState, useEffect } from 'react';
-import { Coins, Check, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Coins, Check, RefreshCw, AlertTriangle, TrendingUp } from 'lucide-react';
 import { adminApi } from '../../api/admin';
-import { formatDate } from '../../utils/formatters';
+import { adminAr } from '../../content/admin.ar';
+import { formatDate, formatSdg, formatAed } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
-import Modal from '../../components/common/Modal';
+import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import { TableSkeleton } from '../../components/common/Skeleton';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
-import styles from './AdminCommon.module.css';
+import styles from './AdminRatesPage.module.css';
 
 export default function AdminRatesPage() {
   const { success, error: toastError } = useToast();
   const [rates, setRates] = useState([]);
-  const [currentRate, setCurrentRate] = useState(null);
+  const [currentRateObj, setCurrentRateObj] = useState(null);
+  const [sampleProducts, setSampleProducts] = useState([]);
   const [meta, setMeta] = useState({ page: 1, per_page: 20, total: 0, total_pages: 1 });
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -22,20 +24,40 @@ export default function AdminRatesPage() {
 
   // Form input
   const [newRateInput, setNewRateInput] = useState('');
-  const [confirmModal, setConfirmModal] = useState({ open: false, submitting: false });
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const fetchRates = async () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await adminApi.getRates({ page, per_page: 15 });
-      const items = res.data || [];
+      const [ratesRes, prodsRes] = await Promise.all([
+        adminApi.getRates({ page, per_page: 30 }),
+        adminApi.getProducts({ per_page: 20 }),
+      ]);
+
+      const items = ratesRes.data || [];
       setRates(items);
       if (items.length > 0 && page === 1) {
-        setCurrentRate(items[0].rate_sdg || items[0].rate || null);
+        setCurrentRateObj(items[0]);
       }
-      if (res.meta) {
-        setMeta(res.meta);
+      if (ratesRes.meta) {
+        setMeta(ratesRes.meta);
+      }
+
+      // Pick sample products (e.g. cheapest, median, most expensive)
+      const pList = prodsRes.data || [];
+      if (pList.length > 0) {
+        const sorted = [...pList].sort((a, b) => Number(a.price_aed) - Number(b.price_aed));
+        const samples = [];
+        samples.push(sorted[0]); // cheapest
+        if (sorted.length > 2) {
+          samples.push(sorted[Math.floor(sorted.length / 2)]); // median
+        }
+        if (sorted.length > 1) {
+          samples.push(sorted[sorted.length - 1]); // highest
+        }
+        setSampleProducts(samples);
       }
     } catch (err) {
       setError(err.message || 'فشل في تحميل سجل أسعار الصرف');
@@ -48,43 +70,75 @@ export default function AdminRatesPage() {
     fetchRates();
   }, [page]);
 
+  const currentRate = currentRateObj ? Number(currentRateObj.rate_sdg || currentRateObj.rate) : 0;
+  const newRateNum = Number(newRateInput) || 0;
+
+  // Rate change percentage
+  const rateChangePercent = useMemo(() => {
+    if (!currentRate || !newRateNum) return 0;
+    return Math.abs(((newRateNum - currentRate) / currentRate) * 100);
+  }, [currentRate, newRateNum]);
+
+  const isLargeChange = rateChangePercent > 10;
+
   const handleUpdateClick = (e) => {
     e.preventDefault();
-    const val = Number(newRateInput);
-    if (!val || val <= 0) {
+    if (!newRateNum || newRateNum <= 0) {
       toastError('يرجى إدخال سعر صرف صحيح أكبر من الصفر');
       return;
     }
-    setConfirmModal({ open: true, submitting: false });
+    setConfirmOpen(true);
   };
 
   const handleConfirmSubmit = async () => {
-    const val = Number(newRateInput);
     try {
-      setConfirmModal((prev) => ({ ...prev, submitting: true }));
-      await adminApi.updateRate(val);
-      success('تم تحديث سعر الصرف بنجاح');
-      setConfirmModal({ open: false, submitting: false });
+      setSubmitting(true);
+      await adminApi.updateRate(newRateNum);
+      success('تم تحديث سعر الصرف وتحديث أسعار المتجر فوراً');
+      setConfirmOpen(false);
       setNewRateInput('');
       setPage(1);
       fetchRates();
     } catch (err) {
       toastError(err.message || 'فشل تحديث سعر الصرف');
-      setConfirmModal((prev) => ({ ...prev, submitting: false }));
+    } finally {
+      setSubmitting(false);
     }
   };
 
+  // Sparkline coordinates generator
+  const sparklinePoints = useMemo(() => {
+    if (!rates || rates.length < 2) return '';
+    // Use chronological order (oldest to newest)
+    const reversed = [...rates].reverse();
+    const values = reversed.map((r) => Number(r.rate_sdg || r.rate) || 0);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min || 1;
+
+    const width = 500;
+    const height = 70;
+    const padding = 10;
+
+    return values
+      .map((val, idx) => {
+        const x = (idx / (values.length - 1)) * (width - padding * 2) + padding;
+        const y = height - ((val - min) / range) * (height - padding * 2) - padding;
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      })
+      .join(' ');
+  }, [rates]);
+
   return (
     <div className={styles.container}>
+      {/* Header */}
       <header className={styles.header}>
         <div className={styles.titleInfo}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <h1 className={styles.title}>إدارة أسعار الصرف (AED ↔ SDG)</h1>
-            <span className={styles.adminOnlyBadge}>للإدارة فقط</span>
+          <div className={styles.titleRow}>
+            <h1 className={styles.title}>{adminAr.rates.title}</h1>
+            <span className={styles.adminBadge}>للإدارة فقط</span>
           </div>
-          <p className={styles.subtitle}>
-            تحديث سعر صرف الدرهم الإماراتي مقابل الجنيه السوداني وتتبع التغيرات التاريخية
-          </p>
+          <p className={styles.subtitle}>{adminAr.rates.subtitle}</p>
         </div>
 
         <Button variant="outline" size="sm" onClick={fetchRates}>
@@ -93,63 +147,139 @@ export default function AdminRatesPage() {
         </Button>
       </header>
 
-      {/* Brand graphic divider */}
+      {/* Decorative Ribbon */}
       <div className={styles.titleDivider} aria-hidden="true" />
 
-      {/* Current Rate & Update Form */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-4)' }}>
+      {/* Top Grid: Current Rate & Update Form */}
+      <div className={styles.topGrid}>
+        {/* Active Rate Card */}
         <div className={styles.card}>
           <div className={styles.cardHeader}>
-            <h2 className={styles.cardTitle}>سعر الصرف الحالي النشط</h2>
-            <Coins size={18} style={{ color: 'var(--color-royal-blue)' }} />
+            <h2 className={styles.cardTitle}>سعر الصرف المعتمد حالياً</h2>
+            <Coins size={18} color="var(--color-royal-blue)" />
           </div>
           <div className={styles.cardBody}>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-2)' }}>
-              <span style={{ fontSize: 'var(--text-xl)', fontWeight: 800, color: 'var(--color-navy)' }}>
-                1 درهم =
+            <div className={styles.rateDisplay}>
+              <span className={styles.ratePrefix}>1 درهم إماراتي =</span>
+              <span className={styles.rateValue}>
+                {currentRate ? currentRate.toLocaleString('en-US') : '—'}
               </span>
-              <span style={{ fontSize: 'var(--text-3xl)', fontWeight: 800, color: 'var(--color-royal-blue)', fontVariantNumeric: 'tabular-nums' }}>
-                {currentRate ? `${Number(currentRate).toLocaleString('en-US')} جنيه` : '—'}
-              </span>
+              <span className={styles.rateUnit}>جنيه سوداني</span>
             </div>
-            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)', margin: 'var(--space-2) 0 0' }}>
-              تعتمد كافة أسعار المنتجات المعروضة بالمتجر على هذا السعر الحالي.
-            </p>
+
+            {currentRateObj && (
+              <div className={styles.metaText}>
+                {adminAr.rates.lastUpdateInfo
+                  .replace('{date}', formatDate(currentRateObj.created_at))
+                  .replace('{user}', currentRateObj.creator_name || currentRateObj.user_name || 'المدير العام')}
+              </div>
+            )}
           </div>
         </div>
 
+        {/* Update Form */}
         <div className={styles.card}>
           <div className={styles.cardHeader}>
             <h2 className={styles.cardTitle}>تحديث سعر الصرف</h2>
+            <TrendingUp size={18} color="var(--color-royal-blue)" />
           </div>
           <div className={styles.cardBody}>
             <form onSubmit={handleUpdateClick} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
               <Input
-                label="سعر الصرف الجديد (جنيه لكل درهم)"
+                label={adminAr.rates.newRateLabel}
                 type="number"
-                placeholder="مثال: 660"
+                placeholder="مثال: 680"
                 min="1"
                 step="any"
                 value={newRateInput}
                 onChange={(e) => setNewRateInput(e.target.value)}
                 required
                 dir="ltr"
-                hint="يتم تطبيقه فوراً على جميع الأجهزة في المتجر"
+                helperText="يتم تطبيقه فوراً على جميع الأجهزة في المتجر"
               />
+
+              {isLargeChange && (
+                <div className={styles.warningBox} role="alert">
+                  <AlertTriangle size={16} />
+                  <span>{adminAr.rates.largeChangeWarning}</span>
+                </div>
+              )}
 
               <Button type="submit" variant="primary" size="md">
                 <Check size={16} />
-                <span>حفظ السعر الجديد</span>
+                <span>معاينة وتأكيد السعر الجديد</span>
               </Button>
             </form>
           </div>
         </div>
       </div>
 
+      {/* Price Impact Preview (When user enters a new rate) */}
+      {newRateNum > 0 && sampleProducts.length > 0 && (
+        <div className={styles.impactCard}>
+          <div className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>{adminAr.rates.impactPreviewTitle}</h2>
+          </div>
+          <div style={{ overflowX: 'auto' }}>
+            <table className={styles.impactTable}>
+              <thead>
+                <tr>
+                  <th>الجهاز التجريبي</th>
+                  <th>السعر بالدرهم</th>
+                  <th>{adminAr.rates.oldPrice}</th>
+                  <th>{adminAr.rates.newPrice}</th>
+                  <th>{adminAr.rates.priceDifference}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sampleProducts.map((p) => {
+                  const oldSdg = Math.round(Number(p.price_aed) * currentRate);
+                  const newSdg = Math.round(Number(p.price_aed) * newRateNum);
+                  const diff = newSdg - oldSdg;
+                  return (
+                    <tr key={p.id}>
+                      <td><strong>{p.name}</strong></td>
+                      <td>{formatAed(p.price_aed)}</td>
+                      <td>{formatSdg(oldSdg)}</td>
+                      <td style={{ fontWeight: 800, color: 'var(--color-royal-blue)' }}>
+                        {formatSdg(newSdg)}
+                      </td>
+                      <td className={diff >= 0 ? styles.diffPos : styles.diffNeg}>
+                        {diff >= 0 ? `+${formatSdg(diff)}` : formatSdg(diff)}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* 30-Day SVG Sparkline */}
+      {sparklinePoints && (
+        <div className={styles.sparklineCard}>
+          <div className={styles.sparklineHeader}>
+            <h2 className={styles.cardTitle}>مخطط حركة سعر الصرف (آخر 30 تحديث)</h2>
+            <span style={{ fontSize: '11px', color: 'var(--color-slate-500)' }}>رسم بياني خفيف</span>
+          </div>
+          <svg className={styles.sparklineSvg} viewBox="0 0 500 70" preserveAspectRatio="none">
+            <polyline
+              fill="none"
+              stroke="var(--color-royal-blue)"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              points={sparklinePoints}
+            />
+          </svg>
+        </div>
+      )}
+
       {/* Rate History Table */}
       <div className={styles.card}>
         <div className={styles.cardHeader}>
-          <h2 className={styles.cardTitle}>سجل التغيرات التاريخية لسعر الصرف</h2>
+          <h2 className={styles.cardTitle}>{adminAr.rates.rateHistoryTitle}</h2>
         </div>
 
         {loading ? (
@@ -162,8 +292,8 @@ export default function AdminRatesPage() {
             description="لم يتم تسجيل أي تغيرات سابقة في أسعار الصرف."
           />
         ) : (
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
+          <div style={{ overflowX: 'auto' }}>
+            <table className={styles.impactTable}>
               <thead>
                 <tr>
                   <th>تاريخ التحديث</th>
@@ -174,11 +304,11 @@ export default function AdminRatesPage() {
               <tbody>
                 {rates.map((r, i) => (
                   <tr key={r.id || i}>
-                    <td className={styles.dateText}>{formatDate(r.created_at)}</td>
-                    <td className={styles.totalPrice}>
+                    <td>{formatDate(r.created_at)}</td>
+                    <td style={{ fontWeight: 800, color: 'var(--color-navy)' }}>
                       1 AED = {Number(r.rate_sdg || r.rate).toLocaleString('en-US')} SDG
                     </td>
-                    <td>{r.creator_name || r.user_name || 'النظام'}</td>
+                    <td>{r.creator_name || r.user_name || 'المدير العام'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -187,7 +317,7 @@ export default function AdminRatesPage() {
         )}
 
         {meta.total_pages > 1 && (
-          <nav className={styles.pagination} aria-label="تنقل الصفحات">
+          <div style={{ padding: 'var(--space-3) var(--space-4)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Button
               variant="outline"
               size="sm"
@@ -196,7 +326,7 @@ export default function AdminRatesPage() {
             >
               السابق
             </Button>
-            <span className={styles.pageCount}>
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)' }}>
               صفحة {meta.page} من {meta.total_pages}
             </span>
             <Button
@@ -207,43 +337,21 @@ export default function AdminRatesPage() {
             >
               التالي
             </Button>
-          </nav>
+          </div>
         )}
       </div>
 
-      {/* Confirmation Modal */}
-      <Modal
-        isOpen={confirmModal.open}
-        onClose={() => setConfirmModal({ open: false, submitting: false })}
-        title="تأكيد تحديث سعر الصرف"
-        footer={
-          <>
-            <Button
-              variant="ghost"
-              onClick={() => setConfirmModal({ open: false, submitting: false })}
-            >
-              إلغاء
-            </Button>
-            <Button
-              variant="primary"
-              loading={confirmModal.submitting}
-              onClick={handleConfirmSubmit}
-            >
-              تأكيد التحديث
-            </Button>
-          </>
-        }
-      >
-        <p style={{ color: 'var(--color-slate-700)', fontSize: 'var(--text-sm)', lineHeight: 1.6, margin: 0 }}>
-          هل أنت متأكد من رغبتك في تحديث سعر الصرف المعتمد إلى:
-          <br />
-          <strong style={{ color: 'var(--color-royal-blue)', fontSize: 'var(--text-lg)', fontVariantNumeric: 'tabular-nums' }}>
-            1 AED = {Number(newRateInput).toLocaleString('en-US')} SDG
-          </strong>؟
-          <br />
-          سيتم تحديث أسعار جميع الأجهزة فوراً.
-        </p>
-      </Modal>
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={handleConfirmSubmit}
+        title={adminAr.rates.confirmRateTitle}
+        message={`هل أنت متأكد من تحديث سعر الصرف إلى (1 AED = ${newRateNum.toLocaleString('en-US')} SDG)؟ ${adminAr.rates.confirmRateDesc}`}
+        confirmText="تأكيد تحديث السعر"
+        variant="primary"
+        loading={submitting}
+      />
     </div>
   );
 }

@@ -597,7 +597,25 @@ Ground-up redesign of the administration panel tailored for store operators and 
     - Sticky bottom save bar with "حفظ التعديلات" (primary) and "معاينة في المتجر" (`target="_blank"` to customer product page).
   - Added unit test suite `src/__tests__/admin-phase4.test.jsx` (2 unit tests).
   - Verification: 0 lint errors, 0 warnings, 20 test files and 91 tests passing (100%), production build clean (137.90 kB gzip initial JS <= 170 kB budget, 13.78 kB gzip global CSS <= 45 kB budget).
-- [ ] **Phase 5: Exchange Rate, Settings & Shipping Zones**
+- [x] **Phase 5: Exchange Rate, Settings & Shipping Zones**
+  - Upgraded `AdminRatesPage.jsx` & `AdminRatesPage.module.css`:
+    - Today's active exchange rate prominently displayed with last updated date, creator, and "للإدارة فقط" badge.
+    - Quick rate update form with immediate impact preview on 3 sample devices (cheapest, median, most expensive) showing Old SDG -> New SDG and difference.
+    - Large change warning alert when proposed rate difference exceeds 10%.
+    - Lightweight, dependency-free SVG sparkline chart of exchange rate history (30 data points).
+    - Plain-words `ConfirmDialog` stating consequence of rate modification across the entire storefront.
+  - Upgraded `AdminSettingsPage.jsx` & `AdminSettingsPage.module.css`:
+    - Split into three independently saveable cards, each with dedicated submit button and isolated loading/success states:
+      - 1. Shop Info & Contact (name, address, hours, phone, WhatsApp)
+      - 2. Bankak Account (bank name, account name, account number)
+      - 3. Operations & Pricing (price lock duration hours with `<Stepper>`, app discount percentage with `<Stepper>`, rounding step SDG, low-stock threshold with `<Stepper>`).
+  - Upgraded `AdminShippingZonesPage.jsx` & `AdminShippingZonesPage.module.css`:
+    - Responsive `<DataList>` table/cards for delivery states and fees in SDG.
+    - 1-tap active/inactive toggle for delivery zones.
+    - Modal for adding and updating shipping zones with validation.
+    - Delete zone with plain-words `ConfirmDialog`.
+  - Added unit test suite `src/__tests__/admin-phase5.test.jsx` (3 unit tests).
+  - Verification: 0 lint errors, 0 warnings, 21 test files and 94 tests passing (100%), production build clean (137.97 kB gzip initial JS <= 170 kB budget, 13.88 kB gzip global CSS <= 45 kB budget).
 - [ ] **Phase 6: Users, Audit Log, Role-Based Navigation & Login Redirect**
 - [ ] **Phase 7: Polish (A11y, Idle Timer, Admin PWA Manifest, Error Recovery)**
 - [ ] **Phase 8: Tests, Documentation & Final Double Check Verification**
