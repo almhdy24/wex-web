@@ -721,8 +721,13 @@ Hotfix of critical storefront issues identified during phone testing:
   - Upgraded `/compare` matrix table: sticky spec column, horizontal snap scroll, "إظهار الفروق فقط" toggle, neutral "الأقل سعرًا" badge, "+ إضافة جهاز" slot, and clean empty state.
   - Added compare toggle buttons on `ProductCard` and `ProductDetailPage` with `aria-pressed` and Lucide icons.
   - Test suite `src/__tests__/compare-feature.test.jsx` passes 100%. Lint clean with 0 warnings.
-- [ ] **Phase 4: Text Direction, Spec Table & Product Page Polish**
-  - Spec value normalization with non-breaking spaces and LTR direction.
-  - Rebalanced specs grid, Arabic document titles, equal-height action buttons.
+- [x] **Phase 4: Text Direction, Spec Table & Product Page Polish**
+  - Built `formatSpecValue` and `SpecValue` component inserting non-breaking spaces `\u00A0` between numbers and units (`GB`, `TB`, `GHz`, `"`, `W`, etc.) and enforcing LTR bidi direction `<bdi dir="ltr">`.
+  - Rebalanced specs table in `ProductDetailPage`: CSS grid with `minmax(96px, 34%)` label column and `1fr` value column.
+  - Warranty row formatted cleanly using `pluralAr`: "ضمان المحل: 3 أشهر" under the standardized label "الضمان".
+  - Product page App Bar title dynamically displays product name in `<LatinText>` with single-line ellipsis.
+  - Aligned CTA buttons on desktop and mobile: primary "اطلب الآن" with lock icon, secondary "أضف إلى السلة" with shopping cart, equal 48px heights without wrapping on 360px viewports.
+  - Arabic-first document titles: `ويكس تكنولوجي | {اسم الصفحة}`. Quantity stepper inputMode="numeric".
+  - Test suite `src/__tests__/spec-value-bidi.test.jsx` passes 100%. Lint clean with 0 warnings.
 - [ ] **Phase 5: Audits & Final Verification**
 

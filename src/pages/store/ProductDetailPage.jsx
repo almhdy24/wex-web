@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import {
   ShoppingCart,
   Plus,
@@ -13,9 +13,12 @@ import {
   GitCompare,
   Heart,
   Truck,
+  Lock,
 } from 'lucide-react';
 import { productsApi } from '../../api/products';
 import { formatSdg, getProductImageUrl, getConditionLabel } from '../../utils/formatters';
+import { pluralAr } from '../../utils/pluralAr';
+import SpecValue from '../../utils/formatSpecValue';
 import PriceNotice from '../../components/common/PriceNotice';
 import { useCart } from '../../context/CartContext';
 import { useCompare } from '../../context/CompareContext';
@@ -34,6 +37,8 @@ const RECENTLY_VIEWED_KEY = 'wex_recently_viewed';
 export default function ProductDetailPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const outletCtx = useOutletContext();
+  const setCustomTitle = outletCtx?.setCustomTitle;
   const { addItem } = useCart();
   const { addToCompare, removeFromCompare, isInCompare } = useCompare();
   const { toggleFavorite, isFavorite } = useFavorites();
@@ -145,6 +150,20 @@ export default function ProductDetailPage() {
       // Storage unavailable
     }
   };
+
+  useEffect(() => {
+    if (product?.name) {
+      if (setCustomTitle) {
+        setCustomTitle(<LatinText>{product.name}</LatinText>);
+      }
+      if (typeof document !== 'undefined') {
+        document.title = `ويكس تكنولوجي | ${product.name}`;
+      }
+    }
+    return () => {
+      if (setCustomTitle) setCustomTitle(null);
+    };
+  }, [product?.name, setCustomTitle]);
 
   if (loading) {
     return (
@@ -310,9 +329,10 @@ export default function ProductDetailPage() {
     if (product.screen_size) specList.push({ key: 'مقاس الشاشة', val: product.screen_size });
   }
 
+  const defaultWarranty = `ضمان المحل: ${pluralAr(3, { one: 'شهر', two: 'شهران', few: 'أشهر', many: 'شهراً', other: 'شهر' })}`;
   specList.push({
-    key: t('product.warranty'),
-    val: product.warranty_text || (product.condition === 'new' ? 'ضمان معتمد لمدة سنة' : t('product.warrantyDefault')),
+    key: 'الضمان',
+    val: product.warranty_text || (product.condition === 'new' ? 'ضمان معتمد لمدة سنة' : defaultWarranty),
     highlight: true,
   });
 
@@ -452,7 +472,7 @@ export default function ProductDetailPage() {
                   title={isAdded ? t('product.addedToCart') : t('product.addToCart')}
                 >
                   {isAdded ? <Check size={18} /> : <ShoppingCart size={18} />}
-                  <span>{isAdded ? t('product.addedToCart') : t('product.addToCart')}</span>
+                  <span>{isAdded ? t('product.addedToCart') : 'أضف إلى السلة'}</span>
                 </button>
 
                 <button
@@ -461,8 +481,8 @@ export default function ProductDetailPage() {
                   onClick={handleInstantOrder}
                   disabled={isOutOfStock}
                 >
-                  <span>{isOutOfStock ? t('product.outOfStockBadge') : 'اطلب الآن وثبّت السعر'}</span>
-                  <Check size={18} />
+                  <Lock size={18} />
+                  <span>{isOutOfStock ? t('product.outOfStockBadge') : 'اطلب الآن'}</span>
                 </button>
               </div>
 
@@ -547,7 +567,7 @@ export default function ProductDetailPage() {
                 <div key={idx} className={styles.specTableRow}>
                   <div className={styles.specTableKey}>{spec.key}</div>
                   <div className={spec.highlight ? styles.specTableValHighlight : styles.specTableVal}>
-                    {spec.val}
+                    <SpecValue value={spec.val} />
                   </div>
                 </div>
               ))}
@@ -645,23 +665,23 @@ export default function ProductDetailPage() {
 
       {/* Sticky Bottom Action Bar (Mobile Only) */}
       <div className={styles.mobileStickyActionBar}>
-        <div className={styles.mobileQtyControls}>
+        <div className={styles.mobileQtyControls} aria-label="اختيار الكمية">
           <button
             type="button"
             className={styles.qtyBtn}
             disabled={quantity <= 1 || isOutOfStock}
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            aria-label="تقليل"
+            aria-label="تقليل الكمية"
           >
             <Minus size={14} />
           </button>
-          <span className={styles.qtyNum}>{quantity}</span>
+          <span className={styles.qtyNum} inputMode="numeric">{quantity}</span>
           <button
             type="button"
             className={styles.qtyBtn}
             disabled={quantity >= 10 || isOutOfStock}
             onClick={() => setQuantity((q) => Math.min(10, q + 1))}
-            aria-label="زيادة"
+            aria-label="زيادة الكمية"
           >
             <Plus size={14} />
           </button>
@@ -675,8 +695,8 @@ export default function ProductDetailPage() {
           title={isAdded ? t('product.addedToCart') : t('product.addToCart')}
           aria-label={isAdded ? t('product.addedToCart') : t('product.addToCart')}
         >
-          {isAdded ? <Check size={18} /> : <ShoppingCart size={18} />}
-          <span>{isAdded ? t('product.addedToCart') : 'أضف للسلة'}</span>
+          {isAdded ? <Check size={17} /> : <ShoppingCart size={17} />}
+          <span>{isAdded ? t('product.addedToCart') : 'أضف إلى السلة'}</span>
         </button>
 
         <button
@@ -685,8 +705,8 @@ export default function ProductDetailPage() {
           onClick={handleInstantOrder}
           disabled={isOutOfStock}
         >
-          <span>{isOutOfStock ? t('product.outOfStockBadge') : 'اطلب وثبّت السعر'}</span>
-          <Check size={18} />
+          <Lock size={17} />
+          <span>{isOutOfStock ? t('product.outOfStockBadge') : 'اطلب الآن'}</span>
         </button>
       </div>
     </div>

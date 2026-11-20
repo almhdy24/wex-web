@@ -45,6 +45,7 @@ export default function StoreLayout() {
   const [shopInfo, setShopInfo] = useState(null);
   const [announcements, setAnnouncements] = useState([]);
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
+  const [customTitle, setCustomTitle] = useState(null);
   const viewportRef = useRef(null);
   const scrollPositions = useRef({});
   const prevPathRef = useRef(location.pathname);
@@ -92,26 +93,36 @@ export default function StoreLayout() {
       setNavDirection(isDeeper ? 'forward' : 'backward');
       prevPathRef.current = current;
     }
+    setCustomTitle(null);
   }, [location.pathname]);
 
   // Route title mapping for AppBar
   const getRouteInfo = (pathname) => {
-    if (pathname === '/') return { isHome: true, title: ar.common.appName };
-    if (pathname === '/products') return { title: ar.catalog.title, showBack: true, backTo: '/' };
-    if (pathname.startsWith('/products/')) return { title: ar.product.specifications, showBack: true, backTo: '/products' };
-    if (pathname === '/cart') return { title: ar.cart.title, showBack: true, backTo: '/products' };
-    if (pathname === '/checkout') return { title: ar.checkout.title, showBack: true, backTo: '/cart' };
-    if (pathname === '/orders') return { title: ar.ordersList.title, showBack: false };
-    if (pathname.startsWith('/orders/')) return { title: ar.orderDetail.priceLockedNotice, showBack: true, backTo: '/orders' };
-    if (pathname === '/notifications') return { title: ar.notifications.title, showBack: true, backTo: '/' };
-    if (pathname === '/account') return { title: ar.account.title, showBack: false };
-    if (pathname === '/faq') return { title: ar.desktop.footer.faq, showBack: true, backTo: '/' };
-    if (pathname === '/login') return { title: ar.auth.loginTitle, showBack: true, backTo: '/' };
-    if (pathname === '/auth/verify') return { title: ar.auth.verifyTitle, showBack: true, backTo: '/login' };
-    return { title: ar.common.appName, showBack: true, backTo: '/' };
+    if (pathname === '/') return { isHome: true, title: ar.common.appName, titleText: 'الرئيسية' };
+    if (pathname === '/products') return { title: ar.catalog.title, titleText: 'المتجر', showBack: true, backTo: '/' };
+    if (pathname.startsWith('/products/')) return { title: ar.product.specifications, titleText: 'تفاصيل الجهاز', showBack: true, backTo: '/products' };
+    if (pathname === '/cart') return { title: ar.cart.title, titleText: 'سلة المشتريات', showBack: true, backTo: '/products' };
+    if (pathname === '/checkout') return { title: ar.checkout.title, titleText: 'إتمام الطلب', showBack: true, backTo: '/cart' };
+    if (pathname === '/orders') return { title: ar.ordersList.title, titleText: 'طلباتي', showBack: false };
+    if (pathname.startsWith('/orders/')) return { title: ar.orderDetail.priceLockedNotice, titleText: 'تفاصيل الطلب', showBack: true, backTo: '/orders' };
+    if (pathname === '/compare') return { title: ar.compare?.title || 'مقارنة الأجهزة', titleText: 'مقارنة الأجهزة', showBack: true, backTo: '/products' };
+    if (pathname === '/notifications') return { title: ar.notifications.title, titleText: 'الإشعارات', showBack: true, backTo: '/' };
+    if (pathname === '/account') return { title: ar.account.title, titleText: 'حسابي', showBack: false };
+    if (pathname === '/faq') return { title: ar.desktop.footer.faq, titleText: 'الأسئلة الشائعة', showBack: true, backTo: '/' };
+    if (pathname === '/login') return { title: ar.auth.loginTitle, titleText: 'تسجيل الدخول', showBack: true, backTo: '/' };
+    if (pathname === '/auth/verify') return { title: ar.auth.verifyTitle, titleText: 'رمز التحقق', showBack: true, backTo: '/login' };
+    return { title: ar.common.appName, titleText: 'المتجر الإلكتروني', showBack: true, backTo: '/' };
   };
 
   const routeInfo = getRouteInfo(location.pathname);
+  const activeTitle = customTitle || routeInfo.title;
+
+  // Arabic-first Document Title: "ويكس تكنولوجي | {اسم الصفحة}"
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const pageName = routeInfo.titleText || routeInfo.title || 'المتجر';
+    document.title = `ويكس تكنولوجي | ${pageName}`;
+  }, [location.pathname, routeInfo]);
 
   // Hide bottom tab bar on screens where sticky bottom action takes over
   const hideBottomNav =
@@ -246,7 +257,7 @@ export default function StoreLayout() {
 
       <div className={styles.appShell} style={{ '--bottom-offset': bottomOffset }}>
         <AppBar
-          title={routeInfo.title}
+          title={activeTitle}
           showLogo={routeInfo.isHome}
           showBack={routeInfo.showBack}
           backTo={routeInfo.backTo}
@@ -276,7 +287,7 @@ export default function StoreLayout() {
                 : styles.screenContentBackward
             }
           >
-            <Outlet />
+            <Outlet context={{ setCustomTitle }} />
           </div>
         </main>
 

@@ -9,6 +9,7 @@ import { useToast } from '../../context/ToastContext';
 import { t } from '../../content/ar';
 import LaptopSvg from '../common/LaptopSvg';
 import LatinText from '../common/LatinText';
+import SpecValue from '../../utils/formatSpecValue';
 import styles from './ProductCard.module.css';
 
 /**
@@ -192,14 +193,14 @@ export default function ProductCard({ product, index = 0 }) {
         <div className={styles.info}>
           {brandName && <span className={styles.brand}>{brandName}</span>}
           <h3 className={styles.name} title={product.name}>
-            {product.name}
+            <LatinText>{product.name}</LatinText>
           </h3>
 
           {/* Quick Specs Line */}
           {quickSpecs.length > 0 && (
             <div className={styles.quickSpecs}>
               <span className={styles.specsLine}>
-                {quickSpecs.join(' · ')}
+                <SpecValue value={quickSpecs.join(' · ')} />
               </span>
             </div>
           )}
