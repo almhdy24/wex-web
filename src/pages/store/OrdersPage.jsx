@@ -6,6 +6,7 @@ import { formatSdg, formatDate, getOrderStatusInfo } from '../../utils/formatter
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import { Skeleton } from '../../components/common/Skeleton';
+import { t } from '../../content/ar';
 import styles from './OrdersPage.module.css';
 
 export default function OrdersPage() {
@@ -41,19 +42,19 @@ export default function OrdersPage() {
     <div className={styles.container}>
       <header className={styles.header}>
         <div>
-          <h1 className={styles.title}>طلباتي</h1>
+          <h1 className={styles.title}>{t('ordersList.title')}</h1>
           <p className={styles.subtitle}>
-            متابعة حالة الطلبات، إشعارات الدفع، وتأكيدات الاستلام
+            {t('ordersList.subtitle')}
           </p>
         </div>
 
-        {/* Status Filter Tabs (Mockup Parity) */}
+        {/* Status Filter Tabs */}
         <div className={styles.filterTabs} role="tablist" aria-label="تصفية الطلبات">
           {[
-            { key: '', label: 'الكل' },
-            { key: 'pending_payment', label: 'بانتظار الدفع' },
-            { key: 'confirmed', label: 'المؤكدة' },
-            { key: 'completed', label: 'المكتملة' },
+            { key: '', label: t('ordersList.tabAll') },
+            { key: 'pending_payment', label: t('ordersList.tabPending') },
+            { key: 'confirmed', label: t('ordersList.tabConfirmed') },
+            { key: 'completed', label: t('ordersList.tabCompleted') },
           ].map((tab) => (
             <button
               key={tab.key}
@@ -88,13 +89,13 @@ export default function OrdersPage() {
         </div>
       ) : orders.length === 0 ? (
         <EmptyState
-          title="لا توجد طلبات مسجلة"
+          title={t('ordersList.noOrdersTitle')}
           description={
             statusFilter
               ? 'لا توجد طلبات تطابق هذه الحالة المحددة.'
-              : 'لم تقم بإنشاء أي طلبات حتى الآن. استكشف المعروضات وابدأ طلبك.'
+              : t('ordersList.noOrdersDesc')
           }
-          actionLabel="تصفح الأجهزة"
+          actionLabel={t('cart.startShopping')}
           onAction={() => navigate('/products')}
         />
       ) : (

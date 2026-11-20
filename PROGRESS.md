@@ -381,7 +381,15 @@ Calm, trustworthy, production-ready UI/UX tailored for Sudanese customers and el
   - Maintained safe-area padding for notches and home indicators (`env(safe-area-inset-top)` / `env(safe-area-inset-bottom)`).
   - Container queries `@container` validated on `ProductCard` for seamless multi-column to single-column card adaptation.
   - Verification: 0 lint errors, 11 test files and 51 tests passing, production build 121.49 kB gzip initial JS.
-- [ ] **Phase 7: Copy Modernization Pass Across All Screens**
+- [x] **Phase 7: Copy Modernization Pass Across All Screens**
+  - Audited all JSX files across the codebase against the Fusha dictionary `src/content/ar.js`.
+  - Upgraded `NotificationsPage.jsx` and `OrdersPage.jsx` to use centralized Fusha strings (`t('notifications.xxx')` and `t('ordersList.xxx')`).
+  - Grep audits verified:
+    - 0 instances of marketing puffery (`الأفضل`, `مميز`, `احترافي`, `حصري`, `ضمان حقيقي`, `وارد دبي`).
+    - 0 customer-facing instances of AED, dirham, dollar, or reference exchange rate text.
+    - 0 emojis across all `src/` files.
+    - Western Arabic numerals (0-9) used consistently for financial tabular amounts.
+  - Verification: 0 lint errors, 11 test files and 51 tests passing, production build 121.48 kB gzip initial JS.
 - [ ] **Phase 8: Final Performance Benchmarks & Double Check Verification**
 
 

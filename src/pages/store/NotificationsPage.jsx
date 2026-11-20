@@ -7,6 +7,7 @@ import { useToast } from '../../context/ToastContext';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import { Skeleton } from '../../components/common/Skeleton';
+import { t } from '../../content/ar';
 import styles from './NotificationsPage.module.css';
 
 export default function NotificationsPage() {
@@ -72,9 +73,9 @@ export default function NotificationsPage() {
     <div className={styles.container}>
       <header className={styles.header}>
         <div>
-          <h1 className={styles.title}>الإشعارات والتنبيهات</h1>
+          <h1 className={styles.title}>{t('notifications.title')}</h1>
           <p className={styles.subtitle}>
-            متابعة إشعارات تأكيد الطلبات، مراجعة التحويلات، وتحديثات الأسعار
+            {t('notifications.subtitle')}
           </p>
         </div>
 
@@ -86,7 +87,7 @@ export default function NotificationsPage() {
             className={styles.markAllBtn}
           >
             <CheckCheck size={14} />
-            <span>تحديد الكل كمقروء ({unreadCount})</span>
+            <span>{t('notifications.markAllRead')} ({unreadCount})</span>
           </button>
         )}
       </header>
@@ -104,9 +105,9 @@ export default function NotificationsPage() {
         </div>
       ) : notifications.length === 0 ? (
         <EmptyState
-          title="لا توجد إشعارات حالياً"
-          description="ستصلك هنا كافة التنبيهات المتعلقة بحالة طلباتك أو مراجعة إشعار بنكك."
-          actionLabel="العودة للرئيسية"
+          title={t('notifications.noNotificationsTitle')}
+          description={t('notifications.noNotificationsDesc')}
+          actionLabel={t('common.backToHome')}
           onAction={() => navigate('/')}
         />
       ) : (
@@ -115,10 +116,10 @@ export default function NotificationsPage() {
             const isUnread = !notif.is_read;
             const notifType = notif.type || 'order_update';
 
-            let typeLabel = 'تنبيه';
-            if (notifType.includes('price_lock') || notifType.includes('order')) typeLabel = 'الطلبات';
-            else if (notifType.includes('payment') || notifType.includes('proof')) typeLabel = 'سداد بنكك';
-            else if (notifType.includes('rate')) typeLabel = 'تحديث الأسعار';
+            let typeLabel = t('notifications.typeGeneral');
+            if (notifType.includes('price_lock') || notifType.includes('order')) typeLabel = t('notifications.typeOrders');
+            else if (notifType.includes('payment') || notifType.includes('proof')) typeLabel = t('notifications.typePayment');
+            else if (notifType.includes('rate') || notifType.includes('price')) typeLabel = t('notifications.typePriceUpdate');
 
             return (
               <article
