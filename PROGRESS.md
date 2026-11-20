@@ -543,7 +543,24 @@ Ground-up redesign of the administration panel tailored for store operators and 
   - Updated `src/layouts/AdminLayout.jsx` to wrap nested routes with `AdminShell`.
   - Added unit test suite `src/__tests__/admin-primitives.test.jsx` (8 unit tests).
   - Verification: 0 lint errors, 17 test files and 85 tests passing (100%), production build clean (136.42 kB gzip initial JS, 13.78 kB gzip global CSS).
-- [ ] **Phase 2: Today Dashboard & Payments Review Queue**
+- [x] **Phase 2: Today Dashboard & Payments Review Queue**
+  - Upgraded `AdminDashboardPage.jsx` & `AdminDashboardPage.module.css`:
+    - Top "تحتاج إلى إجراء" section: prominent hero card for pending reviews with direct CTA, quick operational flow badges (to prepare, ready for pickup, out for delivery), and low-stock alert banner.
+    - Rate card with 1-tap quick update modal and "للإدارة فقط" labeling.
+    - Key metrics (today orders, revenue in SDG, price lock duration).
+    - Status distribution list and low-stock table with direct navigation.
+    - 30-second background polling with tab visibility guard.
+  - Redesigned `AdminPaymentsPage.jsx` & `AdminPaymentsPage.module.css`:
+    - Queue sorting oldest first with countdown badge showing remaining price lock time.
+    - High-performance `ImageViewer` (transform-only zoom, pan, 90° rotate) fetching authorized blob image and revoking URL on cleanup.
+    - Compact "المطلوب" panel: order number, customer name and phone (1-tap call & WhatsApp), expected amount with 1-tap copy, sender name, transfer reference, and upload time.
+    - Approve flow: confirmation modal displaying the exact amount before status update.
+    - Reject flow: requires reason selection from canned chips (`المبلغ المحول أقل من المطلوب`, `الإشعار غير واضح`, etc.) + optional custom customer-visible note.
+    - Auto-advance to next item in queue after decision; empty state when all reviews are complete.
+    - Phone: sticky bottom action bar above safe area. Desktop: keyboard shortcuts (`A` approve, `R` reject, `J` next, `K` prev).
+  - Added `formatRelativeTime` in `src/utils/formatters.js`.
+  - Added unit test suite `src/__tests__/admin-phase2.test.jsx`.
+  - Verification: 0 lint errors, 18 test files and 87 tests passing (100%), production build clean (136.58 kB gzip initial JS, 13.78 kB gzip global CSS).
 - [ ] **Phase 3: Orders List & Order Detail with Next-Step Actions**
 - [ ] **Phase 4: Products List & Multi-Section Product Form**
 - [ ] **Phase 5: Exchange Rate, Settings & Shipping Zones**

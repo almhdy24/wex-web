@@ -41,6 +41,34 @@ export function formatDate(isoString) {
 }
 
 /**
+ * Format timestamp to relative human-readable Arabic time (e.g. "منذ 5 دقائق")
+ */
+export function formatRelativeTime(isoString) {
+  if (!isoString) return '';
+  try {
+    const diffMs = Date.now() - new Date(isoString).getTime();
+    const isFuture = diffMs < 0;
+    const absDiffSec = Math.floor(Math.abs(diffMs) / 1000);
+
+    if (absDiffSec < 60) {
+      return isFuture ? 'بعد لحظات' : 'الآن';
+    }
+    const minutes = Math.floor(absDiffSec / 60);
+    if (minutes < 60) {
+      return isFuture ? `خلال ${minutes} دقيقة` : `منذ ${minutes} دقيقة`;
+    }
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) {
+      return isFuture ? `خلال ${hours} ساعة` : `منذ ${hours} ساعة`;
+    }
+    const days = Math.floor(hours / 24);
+    return isFuture ? `خلال ${days} يوم` : `منذ ${days} يوم`;
+  } catch {
+    return formatDate(isoString);
+  }
+}
+
+/**
  * Stock status pill mapping
  */
 export function getStockStatusInfo(status) {

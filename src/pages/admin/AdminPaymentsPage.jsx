@@ -1,311 +1,586 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Check, X, RefreshCw, FileText } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import {
+  RefreshCw,
+  Phone,
+  MessageCircle,
+  Copy,
+  Check,
+  ChevronRight,
+  ChevronLeft,
+  Clock,
+  ShieldCheck,
+  AlertTriangle,
+} from 'lucide-react';
 import { adminApi } from '../../api/admin';
-import { formatSdg, formatDate } from '../../utils/formatters';
+import { adminAr } from '../../content/admin.ar';
+import { formatSdg, formatRelativeTime } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
-import { TableSkeleton } from '../../components/common/Skeleton';
+import { Skeleton } from '../../components/common/Skeleton';
+import ImageViewer from '../../components/admin/ImageViewer';
 import styles from './AdminPaymentsPage.module.css';
 
-const CANNED_REJECTION_NOTES = [
-  'الإشعار غير واضح',
-  'المبلغ لا يطابق المطلوب',
-  'رقم الإشعار غير صحيح',
-];
-
 export default function AdminPaymentsPage() {
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const { success, error: toastError } = useToast();
 
-  // Review Modal State
-  const [reviewModalOpen, setReviewModalOpen] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [selectedProof, setSelectedProof] = useState(null);
-  const [reviewAction, setReviewAction] = useState('approve');
-  const [reviewNote, setReviewNote] = useState('');
-  const [reviewing, setReviewing] = useState(false);
-  const [proofImageBlobUrl, setProofImageBlobUrl] = useState(null);
-  const [loadingProofImage, setLoadingProofImage] = useState(false);
+  const [queue, setQueue] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [loadingQueue, setLoadingQueue] = useState(true);
+  const [error, setError] = useState(null);
 
-  const fetchPendingPayments = async () => {
-    setLoading(true);
+  // Active Order & Proof Details
+  const [currentOrder, setCurrentOrder] = useState(null);
+  const [currentProof, setCurrentProof] = useState(null);
+  const [imageBlobUrl, setImageBlobUrl] = useState(null);
+  const [loadingProof, setLoadingProof] = useState(false);
+  const [copiedAmount, setCopiedAmount] = useState(false);
+
+  // Approve Confirmation Modal
+  const [approveModalOpen, setApproveModalOpen] = useState(false);
+  const [approving, setApproving] = useState(false);
+
+  // Reject Reason Modal
+  const [rejectModalOpen, setRejectModalOpen] = useState(false);
+  const [selectedRejectReason, setSelectedRejectReason] = useState('');
+  const [customRejectNote, setCustomRejectNote] = useState('');
+  const [rejecting, setRejecting] = useState(false);
+
+  const prevBlobUrlRef = useRef(null);
+
+  // Clean up blob URL on unmount
+  useEffect(() => {
+    return () => {
+      if (prevBlobUrlRef.current) {
+        URL.revokeObjectURL(prevBlobUrlRef.current);
+      }
+    };
+  }, []);
+
+  // Fetch pending review orders queue
+  const fetchQueue = useCallback(async () => {
+    setLoadingQueue(true);
     setError(null);
     try {
       const res = await adminApi.getOrders({ status: 'payment_review', per_page: 50 });
-      setOrders(res.data || []);
+      const orders = res.data || [];
+      // Sort oldest first
+      orders.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+      setQueue(orders);
+      setCurrentIndex(0);
     } catch (err) {
-      setError(err.message || 'الاتصال ضعيف. حاول تاني.');
+      setError(err.message || 'الاتصال ضعيف. حاول مجدداً.');
     } finally {
-      setLoading(false);
+      setLoadingQueue(false);
     }
-  };
-
-  useEffect(() => {
-    fetchPendingPayments();
   }, []);
 
-  const openReviewModal = async (orderItem, action) => {
-    setSelectedOrder(orderItem);
-    setReviewAction(action);
-    setReviewNote('');
-    setReviewModalOpen(true);
-    setLoadingProofImage(true);
-    setProofImageBlobUrl(null);
+  useEffect(() => {
+    fetchQueue();
+  }, [fetchQueue]);
 
-    try {
-      const orderRes = await adminApi.getOrderDetail(orderItem.order_number);
-      const proofs = orderRes.data?.proofs || [];
-      const pendingProof = proofs.find((p) => p.status === 'pending') || proofs[0];
+  // Load details and receipt image for the active item
+  const activeQueueItem = queue[currentIndex];
 
-      if (pendingProof) {
-        setSelectedProof(pendingProof);
-        const blob = await adminApi.getPaymentProofImage(orderItem.order_number, pendingProof.id);
-        setProofImageBlobUrl(URL.createObjectURL(blob));
+  useEffect(() => {
+    if (!activeQueueItem) {
+      setCurrentOrder(null);
+      setCurrentProof(null);
+      if (prevBlobUrlRef.current) {
+        URL.revokeObjectURL(prevBlobUrlRef.current);
+        prevBlobUrlRef.current = null;
       }
-    } catch {
-      toastError('تعذر تحميل ملف الإشعار');
-    } finally {
-      setLoadingProofImage(false);
-    }
-  };
-
-  const handleReviewSubmit = async (e) => {
-    if (e) e.preventDefault();
-    if (!selectedOrder || !selectedProof) return;
-
-    if (reviewAction === 'reject' && !reviewNote.trim()) {
-      toastError('يرجى تحديد سبب الرفض');
+      setImageBlobUrl(null);
       return;
     }
 
-    setReviewing(true);
+    let isSubscribed = true;
+    setLoadingProof(true);
+
+    const loadActiveProof = async () => {
+      try {
+        const orderRes = await adminApi.getOrderDetail(activeQueueItem.order_number);
+        if (!isSubscribed) return;
+
+        const orderData = orderRes.data;
+        setCurrentOrder(orderData);
+
+        const proofs = orderData?.proofs || [];
+        const pendingProof = proofs.find((p) => p.status === 'pending') || proofs[0];
+
+        if (pendingProof) {
+          setCurrentProof(pendingProof);
+          const blob = await adminApi.getPaymentProofImage(orderData.order_number, pendingProof.id);
+          if (!isSubscribed) return;
+
+          if (prevBlobUrlRef.current) {
+            URL.revokeObjectURL(prevBlobUrlRef.current);
+          }
+          const url = URL.createObjectURL(blob);
+          prevBlobUrlRef.current = url;
+          setImageBlobUrl(url);
+        } else {
+          setCurrentProof(null);
+          setImageBlobUrl(null);
+        }
+      } catch {
+        if (isSubscribed) {
+          toastError('تعذر تحميل ملف الإشعار للطلب');
+        }
+      } finally {
+        if (isSubscribed) setLoadingProof(false);
+      }
+    };
+
+    loadActiveProof();
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, [activeQueueItem, toastError]);
+
+  // Handle decisions & queue advance
+  const advanceQueue = useCallback(() => {
+    if (currentIndex < queue.length - 1) {
+      setCurrentIndex((idx) => idx + 1);
+    } else {
+      // Re-fetch queue to see if more arrived, or show empty state
+      fetchQueue();
+    }
+  }, [currentIndex, queue.length, fetchQueue]);
+
+  const handleApproveConfirm = async () => {
+    if (!currentOrder || !currentProof) return;
+    setApproving(true);
     try {
-      await adminApi.reviewPaymentProof(selectedOrder.order_number, selectedProof.id, {
-        action: reviewAction,
-        note: reviewNote.trim() || undefined,
+      await adminApi.reviewPaymentProof(currentOrder.order_number, currentProof.id, {
+        action: 'approve',
       });
-      success(reviewAction === 'approve' ? 'تم اعتماد التحويل وتأكيد الطلب' : 'تم رفض الإشعار');
-      setReviewModalOpen(false);
-      fetchPendingPayments();
+      success(`تم اعتماد تحويل الطلب #${currentOrder.order_number} بنجاح`);
+      setApproveModalOpen(false);
+      // Remove approved order from local queue
+      setQueue((prev) => prev.filter((o) => o.order_number !== currentOrder.order_number));
+      advanceQueue();
     } catch (err) {
-      toastError(err.message || 'فشل تنفيذ الإجراء. حاول تاني.');
+      toastError(err.message || 'فشل اعتماد الإشعار');
     } finally {
-      setReviewing(false);
+      setApproving(false);
     }
   };
 
+  const handleRejectConfirm = async (e) => {
+    if (e) e.preventDefault();
+    if (!currentOrder || !currentProof) return;
+
+    const finalReason = [selectedRejectReason, customRejectNote.trim()].filter(Boolean).join(' - ');
+    if (!finalReason) {
+      toastError(adminAr.payments.rejectReasonRequired);
+      return;
+    }
+
+    setRejecting(true);
+    try {
+      await adminApi.reviewPaymentProof(currentOrder.order_number, currentProof.id, {
+        action: 'reject',
+        note: finalReason,
+      });
+      success(`تم رفض إشعار الطلب #${currentOrder.order_number} وإبلاغ العميل`);
+      setRejectModalOpen(false);
+      setSelectedRejectReason('');
+      setCustomRejectNote('');
+      // Remove rejected order from local queue
+      setQueue((prev) => prev.filter((o) => o.order_number !== currentOrder.order_number));
+      advanceQueue();
+    } catch (err) {
+      toastError(err.message || 'فشل رفض الإشعار');
+    } finally {
+      setRejecting(false);
+    }
+  };
+
+  // Keyboard Shortcuts (A: Approve, R: Reject, J: Next, K: Prev)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handleKeyDown = (e) => {
+      // Ignore when typing inside input / textarea or modal is open
+      if (
+        document.activeElement?.tagName === 'INPUT' ||
+        document.activeElement?.tagName === 'TEXTAREA' ||
+        approveModalOpen ||
+        rejectModalOpen
+      ) {
+        return;
+      }
+
+      if (e.key === 'a' || e.key === 'A') {
+        e.preventDefault();
+        if (currentProof) setApproveModalOpen(true);
+      } else if (e.key === 'r' || e.key === 'R') {
+        e.preventDefault();
+        if (currentProof) setRejectModalOpen(true);
+      } else if (e.key === 'j' || e.key === 'J') {
+        e.preventDefault();
+        if (currentIndex < queue.length - 1) setCurrentIndex((i) => i + 1);
+      } else if (e.key === 'k' || e.key === 'K') {
+        e.preventDefault();
+        if (currentIndex > 0) setCurrentIndex((i) => i - 1);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [approveModalOpen, rejectModalOpen, currentProof, currentIndex, queue.length]);
+
+  const handleCopyAmount = () => {
+    if (!currentOrder) return;
+    navigator.clipboard.writeText(String(currentOrder.total_sdg));
+    setCopiedAmount(true);
+    setTimeout(() => setCopiedAmount(false), 2000);
+  };
+
+  if (loadingQueue) {
+    return (
+      <div className={styles.container}>
+        <Skeleton height="36px" width="300px" />
+        <div style={{ height: 16 }} />
+        <Skeleton height="480px" borderRadius="var(--radius-lg)" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return <ErrorState message={error} onRetry={fetchQueue} />;
+  }
+
+  if (queue.length === 0) {
+    return (
+      <div className={styles.container}>
+        <header className={styles.header}>
+          <div className={styles.titleInfo}>
+            <h1 className={styles.title}>{adminAr.payments.title}</h1>
+            <p className={styles.subtitle}>{adminAr.payments.subtitle}</p>
+          </div>
+          <Button variant="outline" size="sm" onClick={fetchQueue}>
+            <RefreshCw size={14} />
+            <span>{adminAr.common.refresh}</span>
+          </Button>
+        </header>
+
+        <div className={styles.titleDivider} aria-hidden="true" />
+
+        <div className={styles.emptyCard}>
+          <EmptyState
+            title={adminAr.payments.emptyTitle}
+            description={adminAr.payments.emptyDesc}
+            action={
+              <Button variant="outline" size="sm" onClick={fetchQueue}>
+                <RefreshCw size={14} />
+                <span>تحديث الطابور</span>
+              </Button>
+            }
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Calculate remaining lock time
+  const lockExpiresAt = currentOrder?.price_locked_until;
+
   return (
     <div className={styles.container}>
+      {/* Top Header & Queue Navigation */}
       <header className={styles.header}>
         <div className={styles.titleInfo}>
-          <h1 className={styles.pageTitle}>مراجعة إشعارات الدفع والتحويلات</h1>
-          <p className={styles.pageSubtitle}>
-            مطابقة إشعارات تطبيق بنكك واعتماد الطلبات
-          </p>
+          <h1 className={styles.title}>{adminAr.payments.title}</h1>
+          <div className={styles.queueCounter}>
+            <span>{adminAr.payments.queueProgress.replace('{current}', currentIndex + 1).replace('{total}', queue.length)}</span>
+            {lockExpiresAt && (
+              <span className={styles.lockBadge}>
+                <Clock size={12} />
+                <span>ينتهي الحجز: {formatRelativeTime(lockExpiresAt)}</span>
+              </span>
+            )}
+          </div>
         </div>
 
-        <Button variant="outline" size="sm" onClick={fetchPendingPayments}>
-          <RefreshCw size={14} />
-          <span>تحديث القائمة</span>
-        </Button>
+        <div className={styles.queueControls}>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={currentIndex <= 0}
+            onClick={() => setCurrentIndex((i) => i - 1)}
+            aria-label="الإشعار السابق"
+          >
+            <ChevronRight size={16} />
+            <span>السابق</span>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={currentIndex >= queue.length - 1}
+            onClick={() => setCurrentIndex((i) => i + 1)}
+            aria-label="الإشعار التالي"
+          >
+            <span>التالي</span>
+            <ChevronLeft size={16} />
+          </Button>
+          <Button variant="outline" size="sm" onClick={fetchQueue} title="تحديث الطابور">
+            <RefreshCw size={14} />
+          </Button>
+        </div>
       </header>
 
-      {/* Brand Graphic: thin divider under admin page title */}
+      {/* Brand Divider */}
       <div className={styles.titleDivider} aria-hidden="true" />
 
-      {error ? (
-        <ErrorState message={error} onRetry={fetchPendingPayments} />
-      ) : loading ? (
-        <TableSkeleton rows={5} cols={5} />
-      ) : orders.length === 0 ? (
-        <EmptyState
-          title="لا توجد إشعارات تنتظر المراجعة"
-          description="تمت مراجعة جميع إشعارات التحويل البنكي المرفوعة من العملاء."
-        />
-      ) : (
-        <div className={styles.card}>
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>رقم الطلب</th>
-                  <th>العميل</th>
-                  <th>هاتف التواصل</th>
-                  <th>المبلغ المطلوب</th>
-                  <th>تاريخ الإنشاء</th>
-                  <th>الإجراءات</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((o) => (
-                  <tr key={o.order_number}>
-                    <td className={styles.orderNumber}>#{o.order_number}</td>
-                    <td>{o.user_name || o.customer_name || 'عميل'}</td>
-                    <td dir="ltr">{o.contact_phone}</td>
-                    <td className={styles.totalPrice}>{formatSdg(o.total_sdg)}</td>
-                    <td className={styles.dateText}>{formatDate(o.created_at)}</td>
-                    <td>
-                      <div className={styles.rowActions}>
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          onClick={() => openReviewModal(o, 'approve')}
-                        >
-                          <Check size={14} />
-                          <span>اعتماد</span>
-                        </Button>
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          onClick={() => openReviewModal(o, 'reject')}
-                        >
-                          <X size={14} />
-                          <span>رفض</span>
-                        </Button>
-                        <Link to={`/admin/orders/${o.order_number}`}>
-                          <Button variant="ghost" size="sm">
-                            <FileText size={14} />
-                            <span>التفاصيل</span>
-                          </Button>
-                        </Link>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+      {/* Side-by-Side Review Grid */}
+      <div className={styles.reviewGrid}>
+        {/* Left Column: Interactive Receipt Image Viewer */}
+        <div className={styles.imageColumn}>
+          {loadingProof ? (
+            <div className={styles.imageSkeletonBox}>
+              <Skeleton height="100%" width="100%" borderRadius="var(--radius-lg)" />
+            </div>
+          ) : imageBlobUrl ? (
+            <ImageViewer src={imageBlobUrl} alt={`إشعار الطلب #${currentOrder?.order_number}`} />
+          ) : (
+            <div className={styles.noImageBox}>
+              <AlertTriangle size={32} className={styles.noImageIcon} />
+              <span>لم يتم العثور على صورة إشعار مرفوعة</span>
+            </div>
+          )}
         </div>
-      )}
 
-      {/* Split-View Review Modal */}
+        {/* Right Column: Required Verification Details ("المطلوب") */}
+        <div className={styles.detailsColumn}>
+          {currentOrder && (
+            <div className={styles.verificationCard}>
+              <div className={styles.cardHeader}>
+                <div>
+                  <span className={styles.orderNumberLabel}>طلب رقم</span>
+                  <h2 className={styles.orderNumber}>#{currentOrder.order_number}</h2>
+                </div>
+                <div className={styles.expectedAmountBox}>
+                  <span className={styles.amountLabel}>{adminAr.payments.expectedAmount}</span>
+                  <div className={styles.amountRow}>
+                    <span className={styles.amountValue}>{formatSdg(currentOrder.total_sdg)}</span>
+                    <button
+                      type="button"
+                      className={styles.copyBtn}
+                      onClick={handleCopyAmount}
+                      title={adminAr.payments.copyAmount}
+                      aria-label="نسخ المبلغ"
+                    >
+                      {copiedAmount ? <Check size={16} className={styles.copiedIcon} /> : <Copy size={16} />}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Customer Contact */}
+              <div className={styles.sectionBlock}>
+                <span className={styles.blockTitle}>{adminAr.payments.customerName}</span>
+                <div className={styles.customerRow}>
+                  <span className={styles.customerName}>{currentOrder.customer_name || 'عميل'}</span>
+                  <div className={styles.contactButtons}>
+                    {currentOrder.customer_phone && (
+                      <>
+                        <a
+                          href={`tel:${currentOrder.customer_phone}`}
+                          className={styles.contactBtn}
+                          title={adminAr.payments.callCustomer}
+                        >
+                          <Phone size={14} />
+                          <span>اتصال</span>
+                        </a>
+                        <a
+                          href={`https://wa.me/${currentOrder.customer_phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                            adminAr.orders.whatsappTemplate
+                              .replace('{name}', currentOrder.customer_name || '')
+                              .replace('{orderNumber}', currentOrder.order_number)
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`${styles.contactBtn} ${styles.whatsappBtn}`}
+                          title={adminAr.payments.whatsappCustomer}
+                        >
+                          <MessageCircle size={14} />
+                          <span>واتساب</span>
+                        </a>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Uploaded Proof Bank Details */}
+              {currentProof && (
+                <div className={styles.sectionBlock}>
+                  <span className={styles.blockTitle}>بيانات الإشعار المسجلة</span>
+                  <div className={styles.proofGrid}>
+                    <div className={styles.proofItem}>
+                      <span className={styles.proofItemLabel}>{adminAr.payments.senderName}</span>
+                      <span className={styles.proofItemValue}>{currentProof.sender_name || 'غير محدد'}</span>
+                    </div>
+                    <div className={styles.proofItem}>
+                      <span className={styles.proofItemLabel}>{adminAr.payments.transferRef}</span>
+                      <span className={styles.proofItemValue}>{currentProof.reference_number || 'غير متوفر'}</span>
+                    </div>
+                    <div className={styles.proofItem}>
+                      <span className={styles.proofItemLabel}>{adminAr.payments.uploadTime}</span>
+                      <span className={styles.proofItemValue}>{formatRelativeTime(currentProof.created_at)}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Desktop Decision Actions */}
+              <div className={styles.desktopActions}>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  onClick={() => setApproveModalOpen(true)}
+                  disabled={!currentProof || approving}
+                  className={styles.approveBtn}
+                >
+                  <ShieldCheck size={18} />
+                  <span>{adminAr.payments.approveAction}</span>
+                </Button>
+                <Button
+                  variant="danger"
+                  size="lg"
+                  onClick={() => setRejectModalOpen(true)}
+                  disabled={!currentProof || rejecting}
+                  className={styles.rejectBtn}
+                >
+                  <span>{adminAr.payments.rejectAction}</span>
+                </Button>
+              </div>
+
+              <div className={styles.keyboardHelpNotice}>
+                {adminAr.payments.keyboardHelp}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ====================================================================
+          Phone Sticky Bottom Actions Bar (< 768px)
+          ==================================================================== */}
+      <div className={styles.mobileStickyActions}>
+        <Button
+          variant="primary"
+          size="lg"
+          onClick={() => setApproveModalOpen(true)}
+          disabled={!currentProof || approving}
+          className={styles.mobileApproveBtn}
+        >
+          <ShieldCheck size={18} />
+          <span>قبول التحويل</span>
+        </Button>
+        <Button
+          variant="danger"
+          size="lg"
+          onClick={() => setRejectModalOpen(true)}
+          disabled={!currentProof || rejecting}
+          className={styles.mobileRejectBtn}
+        >
+          <span>رفض</span>
+        </Button>
+      </div>
+
+      {/* ====================================================================
+          Approve Confirmation Modal
+          ==================================================================== */}
       <Modal
-        isOpen={reviewModalOpen}
-        onClose={() => setReviewModalOpen(false)}
-        title={reviewAction === 'approve' ? 'اعتماد إشعار التحويل البنكي' : 'رفض إشعار التحويل البنكي'}
-        maxWidth="800px"
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setReviewModalOpen(false)}>
-              إلغاء
+        isOpen={approveModalOpen}
+        onClose={() => setApproveModalOpen(false)}
+        title={adminAr.payments.approveConfirmTitle}
+      >
+        <div className={styles.modalContent}>
+          <p className={styles.modalDesc}>{adminAr.payments.approveConfirmDesc}</p>
+          <div className={styles.confirmAmountBox}>
+            <span>المبلغ المعتمد:</span>
+            <strong>{formatSdg(currentOrder?.total_sdg)}</strong>
+          </div>
+          <div className={styles.modalActions}>
+            <Button
+              variant="primary"
+              size="md"
+              onClick={handleApproveConfirm}
+              loading={approving}
+            >
+              {adminAr.payments.confirmApproveBtn}
             </Button>
             <Button
-              variant={reviewAction === 'approve' ? 'primary' : 'danger'}
-              loading={reviewing}
-              disabled={loadingProofImage || !selectedProof || reviewing}
-              onClick={handleReviewSubmit}
+              variant="outline"
+              size="md"
+              onClick={() => setApproveModalOpen(false)}
+              disabled={approving}
             >
-              {reviewAction === 'approve' ? 'تأكيد الاعتماد' : 'تأكيد الرفض'}
+              {adminAr.common.cancel}
             </Button>
-          </>
-        }
-      >
-        <div className={styles.splitView}>
-          {/* Left / First Pane: Receipt Image Preview */}
-          <div className={styles.imagePreviewPane}>
-            {loadingProofImage ? (
-              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)' }}>
-                جاري تحميل ملف الإشعار...
-              </span>
-            ) : proofImageBlobUrl ? (
-              <img
-                src={proofImageBlobUrl}
-                alt="إشعار التحويل"
-                className={styles.receiptImg}
-              />
-            ) : (
-              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-danger)' }}>
-                تعذر تحميل ملف الإشعار
-              </span>
-            )}
-          </div>
-
-          {/* Right / Second Pane: Order Details & Actions */}
-          <div className={styles.detailsPane}>
-            {selectedOrder && (
-              <div className={styles.summaryBox}>
-                <div>
-                  طلب رقم: <strong>#{selectedOrder.order_number}</strong>
-                </div>
-                <div>
-                  المبلغ المطلوب: <strong>{formatSdg(selectedOrder.total_sdg)}</strong>
-                </div>
-                <div>
-                  العميل: <strong>{selectedOrder.user_name || selectedOrder.customer_name || 'عميل'}</strong>
-                </div>
-                <div>
-                  هاتف التواصل: <span dir="ltr">{selectedOrder.contact_phone}</span>
-                </div>
-              </div>
-            )}
-
-            {selectedProof && (
-              <div className={styles.summaryBox}>
-                <div>
-                  صاحب الحساب المحوّل: <strong>{selectedProof.sender_name || 'غير محدد'}</strong>
-                </div>
-                <div>
-                  الرقم المرجعي للإشعار: <strong dir="ltr">{selectedProof.reference_number || 'غير محدد'}</strong>
-                </div>
-              </div>
-            )}
-
-            {/* Toggle Action */}
-            <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-              <Button
-                variant={reviewAction === 'approve' ? 'primary' : 'outline'}
-                size="sm"
-                onClick={() => setReviewAction('approve')}
-              >
-                اعتماد
-              </Button>
-              <Button
-                variant={reviewAction === 'reject' ? 'danger' : 'outline'}
-                size="sm"
-                onClick={() => setReviewAction('reject')}
-              >
-                رفض
-              </Button>
-            </div>
-
-            {reviewAction === 'reject' && (
-              <div className={styles.cannedNotesSection}>
-                <label className={styles.cannedNotesLabel} htmlFor="review_note_input">
-                  سبب الرفض (إلزامي):
-                </label>
-
-                {/* Canned note quick chips */}
-                <div className={styles.cannedChips}>
-                  {CANNED_REJECTION_NOTES.map((note) => (
-                    <button
-                      key={note}
-                      type="button"
-                      className={styles.cannedChip}
-                      onClick={() => setReviewNote(note)}
-                    >
-                      {note}
-                    </button>
-                  ))}
-                </div>
-
-                <textarea
-                  id="review_note_input"
-                  className={styles.textarea}
-                  placeholder="اكتب سبب الرفض بالتفصيل..."
-                  value={reviewNote}
-                  onChange={(e) => setReviewNote(e.target.value)}
-                  required
-                />
-              </div>
-            )}
           </div>
         </div>
+      </Modal>
+
+      {/* ====================================================================
+          Reject Reason Modal
+          ==================================================================== */}
+      <Modal
+        isOpen={rejectModalOpen}
+        onClose={() => setRejectModalOpen(false)}
+        title={adminAr.payments.rejectReasonTitle}
+      >
+        <form onSubmit={handleRejectConfirm} className={styles.modalContent}>
+          <p className={styles.modalDesc}>{adminAr.payments.rejectReasonDesc}</p>
+
+          {/* Quick Reason Chips */}
+          <div className={styles.rejectionChipsList}>
+            {adminAr.payments.rejectionChips.map((chip) => (
+              <button
+                key={chip}
+                type="button"
+                className={`${styles.rejectionChip} ${selectedRejectReason === chip ? styles.activeChip : ''}`}
+                onClick={() => setSelectedRejectReason(chip)}
+              >
+                {chip}
+              </button>
+            ))}
+          </div>
+
+          <textarea
+            className={styles.rejectTextarea}
+            placeholder={adminAr.payments.customNotePlaceholder}
+            rows={3}
+            value={customRejectNote}
+            onChange={(e) => setCustomRejectNote(e.target.value)}
+          />
+
+          <div className={styles.modalActions}>
+            <Button
+              variant="danger"
+              size="md"
+              type="submit"
+              loading={rejecting}
+            >
+              {adminAr.payments.confirmRejectBtn}
+            </Button>
+            <Button
+              variant="outline"
+              size="md"
+              type="button"
+              onClick={() => setRejectModalOpen(false)}
+              disabled={rejecting}
+            >
+              {adminAr.common.cancel}
+            </Button>
+          </div>
+        </form>
       </Modal>
     </div>
   );

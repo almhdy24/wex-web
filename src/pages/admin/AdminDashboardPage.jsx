@@ -1,54 +1,109 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { AlertCircle, RefreshCw, Package, Coins, Clock, CreditCard } from 'lucide-react';
+import {
+  AlertCircle,
+  RefreshCw,
+  Package,
+  CreditCard,
+  TrendingUp,
+  Clock,
+  Truck,
+  Store,
+  ChevronLeft,
+  CheckCircle2,
+  AlertTriangle,
+} from 'lucide-react';
 import { adminApi } from '../../api/admin';
-import { formatSdg, getOrderStatusInfo, getProductTypeLabel } from '../../utils/formatters';
+import { adminAr } from '../../content/admin.ar';
+import { formatSdg } from '../../utils/formatters';
+import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
-import Tag from '../../components/common/Tag';
+import Modal from '../../components/common/Modal';
+import Input from '../../components/common/Input';
 import ErrorState from '../../components/common/ErrorState';
 import { Skeleton } from '../../components/common/Skeleton';
+import StatusChip from '../../components/admin/StatusChip';
 import styles from './AdminDashboardPage.module.css';
 
 export default function AdminDashboardPage() {
+  const { success, error: toastError } = useToast();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const loadDashboard = async () => {
-    setLoading(true);
+  // Quick Rate Modal
+  const [rateModalOpen, setRateModalOpen] = useState(false);
+  const [newRateInput, setNewRateInput] = useState('');
+  const [savingRate, setSavingRate] = useState(false);
+
+  const loadDashboard = async (silent = false) => {
+    if (!silent) setLoading(true);
     setError(null);
     try {
       const res = await adminApi.getDashboard();
       setData(res.data);
     } catch (err) {
-      setError(err.message || 'الاتصال ضعيف. حاول تاني.');
+      if (!silent) {
+        setError(err.message || 'الاتصال ضعيف. حاول مجدداً.');
+      }
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
   useEffect(() => {
     loadDashboard();
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && !document.hidden) {
+        loadDashboard(true);
+      }
+    }, 30000);
+    return () => clearInterval(interval);
   }, []);
+
+  const handleQuickRateSubmit = async (e) => {
+    e.preventDefault();
+    const val = Number(newRateInput);
+    if (!val || val <= 0) {
+      toastError('يرجى إدخال سعر صرف صحيح');
+      return;
+    }
+
+    setSavingRate(true);
+    try {
+      await adminApi.updateRate(val);
+      success('تم تحديث سعر الصرف بنجاح');
+      setRateModalOpen(false);
+      setNewRateInput('');
+      loadDashboard(true);
+    } catch (err) {
+      toastError(err.message || 'فشل تحديث سعر الصرف');
+    } finally {
+      setSavingRate(false);
+    }
+  };
 
   if (loading) {
     return (
       <div className={styles.container}>
-        <Skeleton height="32px" width="300px" />
-        <div style={{ height: 16 }} />
+        <div className={styles.skeletonHeader}>
+          <Skeleton height="32px" width="240px" />
+          <Skeleton height="16px" width="360px" />
+        </div>
+        <div style={{ height: 20 }} />
+        <Skeleton height="120px" borderRadius="var(--radius-lg)" />
+        <div style={{ height: 20 }} />
         <div className={styles.metricsGrid}>
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} height="110px" borderRadius="var(--radius-lg)" />
+            <Skeleton key={i} height="100px" borderRadius="var(--radius-lg)" />
           ))}
         </div>
-        <div style={{ height: 16 }} />
-        <Skeleton height="240px" borderRadius="var(--radius-lg)" />
       </div>
     );
   }
 
   if (error || !data) {
-    return <ErrorState message={error || 'تعذر جلب مؤشرات لوحة التحكم'} onRetry={loadDashboard} />;
+    return <ErrorState message={error || adminAr.common.errorTitle} onRetry={() => loadDashboard()} />;
   }
 
   const {
@@ -60,145 +115,227 @@ export default function AdminDashboardPage() {
     price_lock_hours = 4,
   } = data;
 
+  // Urgent pending counts
+  const toPrepareCount = orders_by_status.confirmed || 0;
+  const readyPickupCount = orders_by_status.ready_for_pickup || 0;
+  const outDeliveryCount = orders_by_status.out_for_delivery || 0;
+
   return (
     <div className={styles.container}>
-      {/* Title */}
+      {/* Title & Header */}
       <header className={styles.header}>
         <div className={styles.titleInfo}>
-          <h1 className={styles.title}>لوحة العمليات والمؤشرات</h1>
-          <p className={styles.subtitle}>
-            متابعة حالة الطلبات اليومية، مراجعة إشعارات بنكك، ومخزون الأجهزة
-          </p>
+          <h1 className={styles.title}>{adminAr.dashboard.title}</h1>
+          <p className={styles.subtitle}>{adminAr.dashboard.subtitle}</p>
         </div>
 
-        <Button variant="outline" size="sm" onClick={loadDashboard}>
-          <RefreshCw size={14} />
-          <span>تحديث البيانات</span>
-        </Button>
+        <div className={styles.headerActions}>
+          <Button variant="outline" size="sm" onClick={() => loadDashboard()}>
+            <RefreshCw size={14} />
+            <span>{adminAr.common.refresh}</span>
+          </Button>
+        </div>
       </header>
 
-      {/* Brand graphic: thin divider under admin page title */}
+      {/* Brand divider */}
       <div className={styles.titleDivider} aria-hidden="true" />
 
-      {/* Action Banner for Pending Reviews */}
-      {pending_reviews_count > 0 && (
-        <aside className={styles.alertBanner} aria-label="تنبيه إشعارات معلقة">
-          <div className={styles.alertContent}>
-            <AlertCircle size={24} className={styles.alertIcon} />
-            <div>
-              <div className={styles.alertTitle}>
-                يوجد {pending_reviews_count} إشعار تحويل بنكي بانتظار المراجعة والاعتماد
+      {/* Section: Requires Action (تحتاج إلى إجراء) */}
+      <section className={styles.urgentSection} aria-label="تحتاج إلى إجراء">
+        {/* Pending Payments Review Hero Card */}
+        {pending_reviews_count > 0 ? (
+          <aside className={styles.urgentCard} aria-label="إشعارات بانتظار المراجعة">
+            <div className={styles.urgentHeader}>
+              <div className={styles.urgentIconBox}>
+                <AlertCircle size={24} className={styles.urgentIcon} />
               </div>
-              <div className={styles.alertSub}>
-                قم بمطابقة صورة التحويل برقم الحساب لتأكيد الطلب قبل انتهاء مدة الحجز.
+              <div className={styles.urgentInfo}>
+                <h2 className={styles.urgentTitle}>
+                  {pending_reviews_count} {adminAr.dashboard.pendingReviewsAlert}
+                </h2>
+                <p className={styles.urgentSub}>
+                  قم بمطابقة إشعار التحويل البنكي وتأكيد الطلب قبل انتهاء مهلة تثبيت السعر.
+                </p>
               </div>
             </div>
-          </div>
 
-          <Link to="/admin/payments">
-            <Button variant="primary" size="sm">
-              <CreditCard size={14} />
-              <span>مراجعة الإشعارات الآن</span>
-            </Button>
+            <Link to="/admin/payments" className={styles.urgentActionBtn}>
+              <Button variant="primary" size="md">
+                <CreditCard size={16} />
+                <span>{adminAr.dashboard.reviewNowCTA}</span>
+              </Button>
+            </Link>
+          </aside>
+        ) : (
+          <div className={styles.allCaughtUpCard}>
+            <CheckCircle2 size={20} className={styles.allCaughtUpIcon} />
+            <span>تمت مراجعة كافة إشعارات التحويل البنكي — لا توجد إشعارات معلقة.</span>
+          </div>
+        )}
+
+        {/* Operational Flow Badges (To Prepare, Ready for Pickup, Out for Delivery) */}
+        <div className={styles.flowBadgesGrid}>
+          <Link to="/admin/orders?status=confirmed" className={styles.flowBadgeCard}>
+            <div className={styles.flowBadgeIconBox}>
+              <Package size={18} />
+            </div>
+            <div className={styles.flowBadgeContent}>
+              <span className={styles.flowBadgeLabel}>بانتظار التجهيز</span>
+              <span className={styles.flowBadgeValue}>{toPrepareCount}</span>
+            </div>
+            <ChevronLeft size={16} className={styles.flowBadgeArrow} />
+          </Link>
+
+          <Link to="/admin/orders?status=ready_for_pickup" className={styles.flowBadgeCard}>
+            <div className={styles.flowBadgeIconBox}>
+              <Store size={18} />
+            </div>
+            <div className={styles.flowBadgeContent}>
+              <span className={styles.flowBadgeLabel}>جاهز للاستلام بالمحل</span>
+              <span className={styles.flowBadgeValue}>{readyPickupCount}</span>
+            </div>
+            <ChevronLeft size={16} className={styles.flowBadgeArrow} />
+          </Link>
+
+          <Link to="/admin/orders?status=out_for_delivery" className={styles.flowBadgeCard}>
+            <div className={styles.flowBadgeIconBox}>
+              <Truck size={18} />
+            </div>
+            <div className={styles.flowBadgeContent}>
+              <span className={styles.flowBadgeLabel}>مع مندوب التوصيل</span>
+              <span className={styles.flowBadgeValue}>{outDeliveryCount}</span>
+            </div>
+            <ChevronLeft size={16} className={styles.flowBadgeArrow} />
+          </Link>
+        </div>
+      </section>
+
+      {/* Low Stock Warning Banner if items are low */}
+      {low_stock_products.length > 0 && (
+        <aside className={styles.lowStockBanner} aria-label="تنبيه انخفاض المخزون">
+          <AlertTriangle size={18} className={styles.lowStockBannerIcon} />
+          <div className={styles.lowStockBannerContent}>
+            <strong>{low_stock_products.length} أجهزة قارب مخزونها على النفاد.</strong>
+            <span> يرجى مراجعة المخزون وتحديث الكميات المتوفرة.</span>
+          </div>
+          <Link to="/admin/products" className={styles.lowStockBannerLink}>
+            عرض الأجهزة ←
           </Link>
         </aside>
       )}
 
-      {/* Key Metrics Grid */}
-      <section className={styles.metricsGrid} aria-label="المؤشرات الرئيسية">
+      {/* Key Metrics Row */}
+      <section className={styles.metricsGrid} aria-label="المؤشرات التشغيلية">
+        {/* Today Orders */}
         <div className={styles.metricCard}>
           <div className={styles.metricHeader}>
-            <span className={styles.metricLabel}>طلبات اليوم</span>
+            <span className={styles.metricLabel}>{adminAr.dashboard.todayOrders}</span>
             <Package size={18} className={styles.metricIcon} />
           </div>
           <div className={styles.metricValue}>{today_orders.count || 0}</div>
           <span className={styles.metricSub}>
-            بإجمالي: {formatSdg(today_orders.revenue_sdg || 0)}
+            {formatSdg(today_orders.revenue_sdg || 0)}
           </span>
         </div>
 
+        {/* Pending Reviews */}
         <div className={styles.metricCard}>
           <div className={styles.metricHeader}>
-            <span className={styles.metricLabel}>إشعارات قيد المراجعة</span>
+            <span className={styles.metricLabel}>{adminAr.dashboard.pendingPaymentsCount}</span>
             <CreditCard size={18} className={styles.metricIcon} />
           </div>
           <div className={styles.metricValue}>{pending_reviews_count}</div>
-          <span className={styles.metricSub}>تتطلب قرار اعتماد أو رفض</span>
+          <span className={styles.metricSub}>
+            {pending_reviews_count > 0 ? 'تتطلب قرار فوري' : 'تم التدقيق بالكامل'}
+          </span>
         </div>
 
+        {/* Active Exchange Rate with 1-tap update */}
         <div className={styles.metricCard}>
           <div className={styles.metricHeader}>
-            <span className={styles.metricLabel}>سعر الصرف المعتمد</span>
-            <Coins size={18} className={styles.metricIcon} />
+            <span className={styles.metricLabel}>{adminAr.dashboard.activeRate}</span>
+            <TrendingUp size={18} className={styles.metricIcon} />
           </div>
           <div className={styles.metricValue}>
             {exchange_rate.rate_sdg || 650} ج.س
           </div>
-          <span className={styles.metricSub}>لكل 1 درهم إماراتي</span>
+          <div className={styles.rateCardFooter}>
+            <span className={styles.adminOnlyTag}>{adminAr.brand.forAdminOnly}</span>
+            <button
+              type="button"
+              className={styles.quickRateBtn}
+              onClick={() => {
+                setNewRateInput(String(exchange_rate.rate_sdg || ''));
+                setRateModalOpen(true);
+              }}
+            >
+              {adminAr.dashboard.quickUpdateRate}
+            </button>
+          </div>
         </div>
 
+        {/* Price Lock Duration */}
         <div className={styles.metricCard}>
           <div className={styles.metricHeader}>
-            <span className={styles.metricLabel}>مدة تثبيت السعر</span>
+            <span className={styles.metricLabel}>{adminAr.dashboard.priceLockDuration}</span>
             <Clock size={18} className={styles.metricIcon} />
           </div>
           <div className={styles.metricValue}>{price_lock_hours} ساعات</div>
-          <span className={styles.metricSub}>مهلة التحويل ورفع الإشعار</span>
+          <span className={styles.metricSub}>مهلة التحويل المتاحة للعميل</span>
         </div>
       </section>
 
-      {/* Two Column Grid */}
+      {/* Two Column Grid: Orders Distribution & Low Stock Inventory */}
       <div className={styles.sectionGrid}>
-        {/* Orders by Status */}
-        <section className={styles.card} aria-label="الطلبات حسب الحالة">
+        {/* Orders Status Distribution */}
+        <section className={styles.card} aria-label={adminAr.dashboard.ordersByStatusTitle}>
           <div className={styles.cardHeader}>
-            <h2 className={styles.cardTitle}>حالات الطلبات الحالية</h2>
-            <Link to="/admin/orders" style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--color-royal-blue)' }}>
-              عرض كل الطلبات ←
+            <h2 className={styles.cardTitle}>{adminAr.dashboard.ordersByStatusTitle}</h2>
+            <Link to="/admin/orders" className={styles.cardHeaderLink}>
+              {adminAr.dashboard.viewAllOrders} ←
             </Link>
           </div>
           <div className={styles.cardBody}>
             <div className={styles.statusList}>
-              {Object.entries(orders_by_status).map(([statusKey, count]) => {
-                const info = getOrderStatusInfo(statusKey);
-                return (
-                  <div key={statusKey} className={styles.statusRow}>
-                    <Tag variant={info.variant}>{info.label}</Tag>
-                    <span className={styles.statusCount}>{count}</span>
-                  </div>
-                );
-              })}
+              {Object.entries(orders_by_status).map(([statusKey, count]) => (
+                <Link
+                  key={statusKey}
+                  to={`/admin/orders?status=${statusKey}`}
+                  className={styles.statusRow}
+                >
+                  <StatusChip status={statusKey} />
+                  <span className={styles.statusCount}>{count}</span>
+                </Link>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* Low Stock Products */}
-        <section className={styles.card} aria-label="تنبيهات المخزون المنخفض">
+        {/* Low Stock Inventory */}
+        <section className={styles.card} aria-label={adminAr.dashboard.lowStockTitle}>
           <div className={styles.cardHeader}>
-            <h2 className={styles.cardTitle}>تنبيهات انخفاض المخزون</h2>
-            <Link to="/admin/products" style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--color-royal-blue)' }}>
-              إدارة المخزون ←
+            <h2 className={styles.cardTitle}>{adminAr.dashboard.lowStockTitle}</h2>
+            <Link to="/admin/products" className={styles.cardHeaderLink}>
+              {adminAr.dashboard.viewAllProducts} ←
             </Link>
           </div>
           <div className={styles.cardBody}>
             {low_stock_products.length === 0 ? (
-              <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)', margin: 0 }}>
-                المخزون متوفر لكافة الأجهزة
+              <p className={styles.emptyNotice}>
+                {adminAr.dashboard.lowStockAllGood}
               </p>
             ) : (
               <div className={styles.lowStockList}>
                 {low_stock_products.map((prod) => (
                   <div key={prod.id} className={styles.lowStockItem}>
-                    <div>
+                    <div className={styles.lowStockDetails}>
                       <Link to={`/admin/products/${prod.id}/edit`} className={styles.lowStockName}>
                         {prod.name}
                       </Link>
-                      <div style={{ fontSize: '11px', color: 'var(--color-slate-400)' }}>
-                        {getProductTypeLabel(prod.type)}
-                      </div>
+                      <span className={styles.lowStockType}>{prod.type}</span>
                     </div>
-                    <span className={styles.lowStockQty}>
-                      متبقي: {prod.stock_quantity}
+                    <span className={styles.lowStockQtyBadge}>
+                      المتبقي: {prod.stock_quantity}
                     </span>
                   </div>
                 ))}
@@ -207,6 +344,43 @@ export default function AdminDashboardPage() {
           </div>
         </section>
       </div>
+
+      {/* Quick Rate Update Modal */}
+      <Modal
+        isOpen={rateModalOpen}
+        onClose={() => setRateModalOpen(false)}
+        title={adminAr.dashboard.quickUpdateRate}
+      >
+        <form onSubmit={handleQuickRateSubmit} className={styles.quickRateForm}>
+          <Input
+            label={adminAr.rates.newRateLabel}
+            type="number"
+            step="1"
+            min="100"
+            value={newRateInput}
+            onChange={(e) => setNewRateInput(e.target.value)}
+            required
+            autoFocus
+          />
+          <p className={styles.quickRateNote}>
+            {adminAr.rates.confirmRateDesc}
+          </p>
+          <div className={styles.quickRateActions}>
+            <Button variant="primary" size="md" type="submit" loading={savingRate}>
+              {adminAr.common.save}
+            </Button>
+            <Button
+              variant="outline"
+              size="md"
+              type="button"
+              onClick={() => setRateModalOpen(false)}
+              disabled={savingRate}
+            >
+              {adminAr.common.cancel}
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }
