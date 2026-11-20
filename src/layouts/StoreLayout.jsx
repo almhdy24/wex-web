@@ -118,6 +118,7 @@ export default function StoreLayout() {
     if (pathname === '/orders') return { title: ar.ordersList.title, titleText: 'طلباتي', showBack: false };
     if (pathname.startsWith('/orders/')) return { title: ar.orderDetail.priceLockedNotice, titleText: 'تفاصيل الطلب', showBack: true, backTo: '/orders' };
     if (pathname === '/compare') return { title: ar.compare?.title || 'مقارنة الأجهزة', titleText: 'مقارنة الأجهزة', showBack: true, backTo: '/products' };
+    if (pathname === '/favorites' || pathname === '/wishlist') return { title: ar.wishlist?.title || 'المفضلة', titleText: ar.wishlist?.title || 'المفضلة', showBack: true, backTo: '/' };
     if (pathname === '/notifications') return { title: ar.notifications.title, titleText: 'الإشعارات', showBack: true, backTo: '/' };
     if (pathname === '/account') return { title: ar.account.title, titleText: 'حسابي', showBack: false };
     if (pathname === '/faq') return { title: ar.desktop.footer.faq, titleText: 'الأسئلة الشائعة', showBack: true, backTo: '/' };
@@ -292,6 +293,7 @@ export default function StoreLayout() {
           backTo={routeInfo.backTo}
           unreadCount={unreadCount}
           showNotifications={false}
+          showWishlist={routeInfo.isHome || location.pathname === '/products'}
           showCart={location.pathname !== '/checkout'}
         />
         {shopInfo && shopInfo.orders_enabled === false && (

@@ -79,6 +79,7 @@ export const router = createBrowserRouter([
       { path: 'products/:slug', element: load(ProductDetailPage) },
       { path: 'compare', element: load(ComparePage) },
       { path: 'favorites', element: load(FavoritesPage) },
+      { path: 'wishlist', element: load(FavoritesPage) },
       { path: 'faq', element: load(FaqPage) },
       {
         path: 'login',

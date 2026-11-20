@@ -13,11 +13,13 @@ import {
   LogOut,
   Package,
   Sliders,
+  Heart,
 } from 'lucide-react';
 import Popover from '../common/Popover';
 import LaptopSvg from '../common/LaptopSvg';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
+import { useFavorites } from '../../context/FavoritesContext';
 import { productsApi } from '../../api/products';
 import { notificationsApi } from '../../api/notifications';
 import { formatSdg, formatDate } from '../../utils/formatters';
@@ -31,6 +33,7 @@ export default function DesktopHeader({ onOpenCart }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { totalItems } = useCart();
+  const { favoriteCount } = useFavorites();
   const { user, isAuthenticated, logout } = useAuth();
 
   const [isScrolled, setIsScrolled] = useState(false);
@@ -456,6 +459,21 @@ export default function DesktopHeader({ onOpenCart }) {
               </Popover>
             </div>
 
+            {/* Wishlist Button */}
+            <Link
+              to="/favorites"
+              className={styles.iconBtn}
+              aria-label={`${ar.wishlist?.title || 'المفضلة'} ${favoriteCount > 0 ? `(${favoriteCount})` : ''}`}
+              title={ar.wishlist?.title || 'المفضلة'}
+            >
+              <Heart size={20} />
+              {favoriteCount > 0 && (
+                <span className={styles.cartBadge}>
+                  {favoriteCount > 99 ? '99+' : favoriteCount}
+                </span>
+              )}
+            </Link>
+
             {/* Cart Drawer Trigger Button */}
             <button
               type="button"
@@ -515,6 +533,20 @@ export default function DesktopHeader({ onOpenCart }) {
                       </Link>
 
                       <Link
+                        to="/favorites"
+                        className={styles.menuItem}
+                        onClick={() => setIsAccountMenuOpen(false)}
+                      >
+                        <Heart size={17} />
+                        <span>{ar.wishlist?.title || 'المفضلة'}</span>
+                        {favoriteCount > 0 && (
+                          <span className={styles.unreadCountBadge} style={{ marginInlineStart: 'auto' }}>
+                            {favoriteCount}
+                          </span>
+                        )}
+                      </Link>
+
+                      <Link
                         to="/account"
                         className={styles.menuItem}
                         onClick={() => setIsAccountMenuOpen(false)}
@@ -547,6 +579,21 @@ export default function DesktopHeader({ onOpenCart }) {
                     >
                       {ar.desktop.loginNow}
                     </Link>
+                    <div style={{ borderTop: '1px solid var(--border-subtle)', marginTop: 'var(--space-3)', paddingTop: 'var(--space-2)' }}>
+                      <Link
+                        to="/favorites"
+                        className={styles.menuItem}
+                        onClick={() => setIsAccountMenuOpen(false)}
+                      >
+                        <Heart size={17} />
+                        <span>{ar.wishlist?.title || 'المفضلة'}</span>
+                        {favoriteCount > 0 && (
+                          <span className={styles.unreadCountBadge} style={{ marginInlineStart: 'auto' }}>
+                            {favoriteCount}
+                          </span>
+                        )}
+                      </Link>
+                    </div>
                   </div>
                 )}
               </Popover>

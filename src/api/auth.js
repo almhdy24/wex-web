@@ -76,6 +76,20 @@ export const authApi = {
   },
 
   /**
+   * Link Google account to current authenticated profile
+   */
+  linkGoogle(idToken) {
+    return api.post('/me/link-google', { id_token: idToken });
+  },
+
+  /**
+   * Unlink Google account from current authenticated profile
+   */
+  unlinkGoogle() {
+    return api.post('/me/unlink-google', {});
+  },
+
+  /**
    * Soft-delete customer account
    */
   deleteMe() {
