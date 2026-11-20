@@ -25,7 +25,7 @@ const mockProduct = {
   stock_quantity: 5,
   stock_status: 'in_stock',
   price_sdg: 450000,
-  warranty_text: 'ضمان المحل: 3 أشهر',
+  warranty_text: 'معاينة وفحص عند الاستلام',
   specs: [
     { spec_key: 'processor', spec_name: 'المعالج', spec_value: 'Intel Core i5-8250U' },
     { spec_key: 'ram', spec_name: 'الذاكرة (RAM)', spec_value: '16 GB' },

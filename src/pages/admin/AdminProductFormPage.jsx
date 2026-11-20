@@ -53,7 +53,7 @@ export default function AdminProductFormPage() {
     condition: 'used',
     price_aed: '',
     stock_quantity: 1,
-    warranty_text: 'ضمان فحص 7 أيام',
+    warranty_text: 'معاينة وفحص عند الاستلام',
     short_description: '',
     description: '',
     is_active: true,
@@ -68,7 +68,7 @@ export default function AdminProductFormPage() {
     { key: 'كرت الشاشة', value: '' },
     { key: 'الشاشة', value: '' },
     { key: 'البطارية', value: '' },
-    { key: 'الضمان', value: 'فحص 7 أيام' },
+    { key: 'المعاينة', value: 'فحص ومعاينة عند الاستلام' },
   ]);
 
   // Images for Edit Mode
@@ -248,7 +248,7 @@ export default function AdminProductFormPage() {
         { key: 'كرت الشاشة', value: '' },
         { key: 'الشاشة', value: '' },
         { key: 'البطارية', value: '' },
-        { key: 'الضمان', value: 'فحص 7 أيام' },
+        { key: 'المعاينة', value: 'فحص ومعاينة عند الاستلام' },
       ]);
     } else if (presetType === 'phone') {
       setSpecsList([
@@ -257,13 +257,13 @@ export default function AdminProductFormPage() {
         { key: 'البطارية', value: '' },
         { key: 'الكاميرا', value: '' },
         { key: 'اللون', value: '' },
-        { key: 'الضمان', value: 'فحص 7 أيام' },
+        { key: 'المعاينة', value: 'فحص ومعاينة عند الاستلام' },
       ]);
     } else if (presetType === 'accessory') {
       setSpecsList([
         { key: 'النوع', value: '' },
         { key: 'التوافق', value: '' },
-        { key: 'الضمان', value: 'فحص 7 أيام' },
+        { key: 'المعاينة', value: 'فحص ومعاينة عند الاستلام' },
       ]);
     }
   };
@@ -682,11 +682,11 @@ export default function AdminProductFormPage() {
                 </div>
 
                 <Input
-                  label="نص الضمان"
+                  label="نص المعاينة أو الضمان (إن وجد)"
                   name="warranty_text"
                   value={formData.warranty_text}
                   onChange={handleInputChange}
-                  placeholder="مثال: ضمان فحص 7 أيام"
+                  placeholder="مثال: معاينة وفحص عند الاستلام"
                 />
               </div>
             </div>

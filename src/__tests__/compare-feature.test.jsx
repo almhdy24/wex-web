@@ -34,7 +34,7 @@ describe('Phase 3: Compare Feature Unit & UI Tests', () => {
     gpu: 'Intel Iris Xe',
     screen_size: '14 بوصة FHD',
     battery: 'ممتازة 88%',
-    warranty_text: 'ضمان المحل: 3 أشهر',
+    warranty_text: 'معاينة وفحص عند الاستلام',
   };
 
   const sampleLaptop2 = {
@@ -50,7 +50,7 @@ describe('Phase 3: Compare Feature Unit & UI Tests', () => {
     gpu: 'Intel UHD Graphics',
     screen_size: '14 بوصة FHD', // Identical to Laptop 1
     battery: 'ممتازة 92%',
-    warranty_text: 'ضمان المحل: 3 أشهر', // Identical
+    warranty_text: 'معاينة وفحص عند الاستلام', // Identical
   };
 
   const sampleDesktop = {

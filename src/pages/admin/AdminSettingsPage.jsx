@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Store, CreditCard, Sliders, Check, ShoppingBag, Landmark } from 'lucide-react';
+import { Store, CreditCard, Sliders, Check, ShoppingBag, Landmark, FileText } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { adminAr } from '../../content/admin.ar';
 import { useToast } from '../../context/ToastContext';
@@ -35,6 +35,12 @@ export default function AdminSettingsPage() {
     orders_enabled: true,
     orders_disabled_message: 'نعتذر، استقبال الطلبات متوقف مؤقتاً وسنعود لاستقبال طلباتكم قريباً.',
 
+    // Store policies (Inspection, Hand-off & Warranty clarification)
+    policy_inspection_title: 'المعاينة وفحص الأجهزة',
+    policy_inspection: 'أجهزة مستوردة؛ يفحص العميل الجهاز ويعاينه بنفسه بدقة عند الاستلام في المتجر للتأكد من الحالة وسلامة كافة المكونات قبل إتمام الشراء.',
+    policy_pickup: 'يمكنك تشغيل الجهاز وفحصه بنفسك بمقرنا في مول الواحة، الشهداء، أم درمان قبل سداد أي مبلغ.',
+    policy_return: 'نظراً لطبيعة الأجهزة المستوردة وعدم وجود وكيل محلي، لا يتوفر ضمان مصنعي أو استبدال بعد الاستلام والفحص المباشر.',
+
     // Bank account
     bank_name: 'بنك الخرطوم (تطبيق بنكك)',
     bank_account_name: 'ويكس للتكنولوجيا والتجارة',
@@ -50,6 +56,7 @@ export default function AdminSettingsPage() {
   // Independent Saving States
   const [savingSection, setSavingSection] = useState({
     shop: false,
+    policies: false,
     orders: false,
     bank: false,
     ops: false,
@@ -57,6 +64,7 @@ export default function AdminSettingsPage() {
 
   const [savedSection, setSavedSection] = useState({
     shop: false,
+    policies: false,
     orders: false,
     bank: false,
     ops: false,
@@ -119,6 +127,27 @@ export default function AdminSettingsPage() {
       toastError(err.message || 'فشل حفظ معلومات المتجر');
     } finally {
       setSavingSection((prev) => ({ ...prev, shop: false }));
+    }
+  };
+
+  // 1b. Save Store Policies Section
+  const handleSavePolicies = async (e) => {
+    e.preventDefault();
+    try {
+      setSavingSection((prev) => ({ ...prev, policies: true }));
+      await adminApi.updateSettings({
+        policy_inspection_title: formData.policy_inspection_title,
+        policy_inspection: formData.policy_inspection,
+        policy_pickup: formData.policy_pickup,
+        policy_return: formData.policy_return,
+      });
+      setSavedSection((prev) => ({ ...prev, policies: true }));
+      success('تم حفظ سياسات المتجر والمعاينة بنجاح');
+      setTimeout(() => setSavedSection((prev) => ({ ...prev, policies: false })), 4000);
+    } catch (err) {
+      toastError(err.message || 'فشل حفظ سياسات المتجر');
+    } finally {
+      setSavingSection((prev) => ({ ...prev, policies: false }));
     }
   };
 
@@ -413,6 +442,93 @@ export default function AdminSettingsPage() {
             >
               <Check size={14} />
               <span>حفظ بيانات المتجر</span>
+            </Button>
+          </div>
+        </form>
+
+        {/* Section 2b: Store Policies (Inspection, Pickup & Return) */}
+        <form onSubmit={handleSavePolicies} className={styles.card}>
+          <div className={styles.cardHeader}>
+            <div className={styles.cardHeaderTitle}>
+              <FileText size={18} color="var(--color-royal-blue)" />
+              <h2 className={styles.cardTitle}>سياسات المعاينة والاستلام في المتجر</h2>
+            </div>
+          </div>
+          <div className={styles.cardBody}>
+            <Input
+              label="عنوان سياسة المعاينة الرئيسية"
+              name="policy_inspection_title"
+              value={formData.policy_inspection_title || ''}
+              onChange={handleChange}
+              placeholder="مثال: المعاينة وفحص الأجهزة"
+              required
+            />
+
+            <div className={styles.textareaField}>
+              <label className={styles.fieldLabel} htmlFor="policy_inspection">
+                نص سياسة المعاينة والفحص المباشر (يظهر في صفحة تفاصيل المنتج)
+              </label>
+              <textarea
+                id="policy_inspection"
+                name="policy_inspection"
+                className={styles.textarea}
+                rows={3}
+                value={formData.policy_inspection || ''}
+                onChange={handleChange}
+                placeholder="أجهزة مستوردة؛ يفحص العميل الجهاز ويعاينه بنفسه بدقة عند الاستلام في المتجر..."
+                required
+              />
+            </div>
+
+            <div className={styles.textareaField}>
+              <label className={styles.fieldLabel} htmlFor="policy_pickup">
+                نص الاستلام والمعاينة في مقر المحل
+              </label>
+              <textarea
+                id="policy_pickup"
+                name="policy_pickup"
+                className={styles.textarea}
+                rows={2}
+                value={formData.policy_pickup || ''}
+                onChange={handleChange}
+                placeholder="يمكنك تشغيل الجهاز وفحصه بنفسك بمقرنا في مول الواحة بأم درمان قبل سداد أي مبلغ."
+                required
+              />
+            </div>
+
+            <div className={styles.textareaField}>
+              <label className={styles.fieldLabel} htmlFor="policy_return">
+                توضيح الضمان وسياسة الاستبدال (شفافية الأجهزة المستوردة)
+              </label>
+              <textarea
+                id="policy_return"
+                name="policy_return"
+                className={styles.textarea}
+                rows={2}
+                value={formData.policy_return || ''}
+                onChange={handleChange}
+                placeholder="نظراً لطبيعة الأجهزة المستوردة وعدم وجود وكيل محلي، لا يتوفر ضمان مصنعي أو استبدال بعد الاستلام والفحص المباشر."
+                required
+              />
+            </div>
+          </div>
+          <div className={styles.cardFooter}>
+            <div>
+              {savedSection.policies && (
+                <span className={styles.savedBadge}>
+                  <Check size={14} />
+                  <span>تم حفظ السياسات</span>
+                </span>
+              )}
+            </div>
+            <Button
+              type="submit"
+              variant="primary"
+              size="sm"
+              loading={savingSection.policies}
+            >
+              <Check size={14} />
+              <span>حفظ سياسات المتجر</span>
             </Button>
           </div>
         </form>

@@ -46,9 +46,19 @@ else
   echo "PASS: Zero emojis found."
 fi
 
+echo "5. Checking for invented warranty or trial period claims in storefront..."
+WARRANTY_CLAIMS=$(grep -rn -E "ضمان معتمد|ضمان المحل|ضمان فحص 7 أيام|فحص واستبدال|فحص مخبري" src/pages/store/ src/components/store/ src/components/desktop/ || true)
+if [ -n "$WARRANTY_CLAIMS" ]; then
+  echo "FAIL: Found invented warranty/trial claims in storefront:"
+  echo "$WARRANTY_CLAIMS"
+  ERRORS=$((ERRORS + 1))
+else
+  echo "PASS: Zero invented warranty/trial claims found."
+fi
+
 if [ $ERRORS -gt 0 ]; then
   echo "=== AUDIT FAILED with $ERRORS error(s) ==="
   exit 1
 else
-  echo "=== AUDIT PASSED: All 4 quality checks clean ==="
+  echo "=== AUDIT PASSED: All 5 quality checks clean ==="
 fi

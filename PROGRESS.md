@@ -737,4 +737,11 @@ Hotfix of critical storefront issues identified during phone testing:
   - Production build: Initial bundle JS 151.53 kB gzip (under the 170 kB budget). All storefront and admin chunks dynamically code-split.
   - Documentation updated: `docs/UI-CHECKLIST.md`, `docs/DESIGN-SYSTEM.md`, `docs/GLOSSARY-AR.md`, and `PROGRESS.md`.
 
+- [x] **Phase 6: Warranty Purge & Moving Policies to Admin Settings**
+  - Market reality alignment: Removed all invented warranty claims, testing/trial periods ("ضمان معتمد", "ضمان المحل", "ضمان فحص 7 أيام", "فترة تجربة", "فحص مخبري") across customer-facing code, footers, checkout, order details, comparison matrix, and FAQ.
+  - Replaced hardcoded unverified policy copy on `ProductDetailPage` with dynamic, admin-editable settings (`shopInfo.policy_inspection`, `shopInfo.policy_pickup`, `shopInfo.delivery_notes`).
+  - Added dedicated "سياسات المعاينة والاستلام في المتجر" section in `AdminSettingsPage` and exposed keys in `wex-api` (`policy_inspection`, `policy_inspection_title`, `policy_pickup`, `policy_return`).
+  - Automated check added to `scripts/audit.sh` (Check 5) to block any future reintroduction of invented warranty or trial period claims.
+  - Verification: 0 lint errors, 0 lint warnings, 165/165 unit tests green, production build 151.56 kB gzip.
+
 

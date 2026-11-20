@@ -409,7 +409,7 @@ export default function CheckoutPage() {
                   <div className={styles.stepInfo}>
                     <span className={styles.stepItemTitle}>الاستلام أو التوصيل السريع</span>
                     <span className={styles.stepItemDesc}>
-                      فور مراجعة الإشعار يُجهّز جهازك فورًا مع الضمان المعتمد والفاتورة.
+                      فور مراجعة الإشعار يُجهّز جهازك فورًا للمعاينة والاستلام مع فاتورة الشراء.
                     </span>
                   </div>
                 </div>

@@ -17,7 +17,6 @@ import {
 } from 'lucide-react';
 import { productsApi } from '../../api/products';
 import { formatSdg, getProductImageUrl, getConditionLabel } from '../../utils/formatters';
-import { pluralAr } from '../../utils/pluralAr';
 import SpecValue from '../../utils/formatSpecValue';
 import PriceNotice from '../../components/common/PriceNotice';
 import { useCart } from '../../context/CartContext';
@@ -329,11 +328,10 @@ export default function ProductDetailPage() {
     if (product.screen_size) specList.push({ key: 'مقاس الشاشة', val: product.screen_size });
   }
 
-  const defaultWarranty = `ضمان المحل: ${pluralAr(3, { one: 'شهر', two: 'شهران', few: 'أشهر', many: 'شهراً', other: 'شهر' })}`;
   specList.push({
-    key: 'الضمان',
-    val: product.warranty_text || (product.condition === 'new' ? 'ضمان معتمد لمدة سنة' : defaultWarranty),
-    highlight: true,
+    key: 'المعاينة والفحص',
+    val: product.warranty_text || 'فحص ومعاينة شخصية للجهاز عند الاستلام في المحل',
+    highlight: false,
   });
 
   return (
@@ -526,7 +524,7 @@ export default function ProductDetailPage() {
             <div className={styles.guaranteeStrip}>
               <div className={styles.guaranteeCol}>
                 <ShieldCheck size={17} className={styles.guarIcon} />
-                <span>فحص واختبار كامل لكل قطعة</span>
+                <span>معاينة وفحص مباشر عند الاستلام</span>
               </div>
               <div className={styles.guaranteeCol}>
                 <MapPin size={17} className={styles.guarIcon} />
@@ -556,7 +554,7 @@ export default function ProductDetailPage() {
             className={`${styles.tabBtn} ${activeTab === 'warranty' ? styles.tabBtnActive : ''}`}
             onClick={() => setActiveTab('warranty')}
           >
-            الضمان والاستلام
+            المعاينة والاستلام
           </button>
         </div>
 
@@ -578,10 +576,11 @@ export default function ProductDetailPage() {
                 <div className={styles.policyRow}>
                   <ShieldCheck size={20} className={styles.policyIcon} />
                   <div>
-                    <h4 className={styles.policyTitle}>سياسة الضمان المعتمد</h4>
+                    <h4 className={styles.policyTitle}>
+                      {shopInfo?.policy_inspection_title || 'المعاينة وفحص الأجهزة'}
+                    </h4>
                     <p className={styles.policyText}>
-                      جميع أجهزتنا تخضع لعملية فحص شاملة للمكونات الداخلية، البطارية، الشاشة، والمنافذ.
-                      نمنحك فترة تجربة وفحص تمتد لـ 3 أشهر للأجهزة المستعملة استيراد، وسنة كاملة للأجهزة الجديدة.
+                      {shopInfo?.policy_inspection || 'أجهزة مستوردة؛ يفحص العميل الجهاز ويعاينه بنفسه بدقة عند الاستلام في المتجر للتأكد من الحالة وسلامة كافة المكونات قبل إتمام الشراء.'}
                     </p>
                   </div>
                 </div>
@@ -589,9 +588,9 @@ export default function ProductDetailPage() {
                 <div className={styles.policyRow}>
                   <MapPin size={20} className={styles.policyIcon} />
                   <div>
-                    <h4 className={styles.policyTitle}>الاستلام والمعاينة المباشرة</h4>
+                    <h4 className={styles.policyTitle}>الاستلام المباشر</h4>
                     <p className={styles.policyText}>
-                      يمكنك تشغيل الجهاز وتجربته بنفسك بمقرنا في مول الواحة بأم درمان قبل سداد أي مبلغ.
+                      {shopInfo?.policy_pickup || `يمكنك تشغيل الجهاز وفحصه بنفسك بمقرنا في ${shopInfo?.address || 'مول الواحة، الشهداء، أم درمان'} قبل سداد أي مبلغ.`}
                     </p>
                   </div>
                 </div>
@@ -599,9 +598,9 @@ export default function ProductDetailPage() {
                 <div className={styles.policyRow}>
                   <Truck size={20} className={styles.policyIcon} />
                   <div>
-                    <h4 className={styles.policyTitle}>التوصيل الآمن داخل الخرطوم والولايات</h4>
+                    <h4 className={styles.policyTitle}>التوصيل والاستلام</h4>
                     <p className={styles.policyText}>
-                      نوفر شحنًا موثوقًا مع مندوبنا المعتمد لجميع مناطق أم درمان وبحري والخرطوم مع تسليم إشعار رسمي.
+                      {shopInfo?.delivery_notes || 'التوصيل متاح داخل ولاية الخرطوم والولايات الآمنة مع إمكانية الفحص والمعاينة عند الاستلام.'}
                     </p>
                   </div>
                 </div>

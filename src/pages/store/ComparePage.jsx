@@ -51,7 +51,7 @@ export default function ComparePage() {
     { id: 'screen', label: t('compare.screen', 'الشاشة') },
     { id: 'condition', label: t('compare.condition', 'حالة الجهاز') },
     { id: 'battery', label: t('compare.battery', 'البطارية') },
-    { id: 'warranty', label: t('compare.warranty', 'الضمان') },
+    { id: 'warranty', label: t('compare.warranty', 'المعاينة والاستلام') },
   ];
 
   const getSpecValue = (item, specId) => {
@@ -59,7 +59,7 @@ export default function ComparePage() {
       return getConditionLabel(item.condition) || 'مستعمل استيراد';
     }
     if (specId === 'warranty') {
-      return item.warranty_text || (item.condition === 'new' ? 'سنة معتمدة' : '3 أشهر فحص واستبدال');
+      return item.warranty_text || 'فحص ومعاينة عند الاستلام';
     }
     if (specId === 'processor') {
       return item.processor || item.cpu || findInSpecs(item, ['processor', 'cpu', 'معالج']) || '—';
@@ -77,7 +77,7 @@ export default function ComparePage() {
       return item.screen_size || item.screen || findInSpecs(item, ['screen', 'شاشة', 'screen_size']) || '—';
     }
     if (specId === 'battery') {
-      return item.battery || findInSpecs(item, ['battery', 'بطارية']) || 'حالة ممتازة (فحص مخبري)';
+      return item.battery || findInSpecs(item, ['battery', 'بطارية']) || 'حالة ممتازة (مطابقة للمواصفات)';
     }
     return item[specId] || findInSpecs(item, [specId]) || '—';
   };

@@ -561,7 +561,7 @@ export default function OrderDetailPage() {
 
             <div className={styles.guaranteeBox}>
               <ShieldCheck size={16} className={styles.guaranteeIcon} />
-              <span>يشمل الضمان المعتمد 7 أيام فحص واستبدال كامل.</span>
+              <span>يُرجى فحص ومعاينة الجهاز بالكامل عند الاستلام.</span>
             </div>
           </div>
 
