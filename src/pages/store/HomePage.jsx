@@ -32,7 +32,7 @@ const PLACEHOLDERS = [
   'ابحث عن جهاز، مثل: Dell Latitude',
   'ابحث عن جهاز، مثل: Lenovo ThinkPad',
   'ابحث عن جهاز، مثل: HP EliteBook',
-  'ابحث عن ملحقات، مثل: شاحن أصيل',
+  'ابحث عن ملحقات، مثل: شاحن حاسوب',
 ];
 
 const POPULAR_SEARCHES = ['Dell', 'ThinkPad', 'HP', 'Core i5', 'شاحن'];
@@ -268,7 +268,7 @@ export default function HomePage() {
           {/* Slide 2: Price Lock Guarantee */}
           <div className={`${styles.slide} ${activeSlide === 1 ? styles.slideActive : ''}`}>
             <div className={styles.slideContent}>
-              <span className={styles.slideBadge}>ضمان السعر</span>
+              <span className={styles.slideBadge}>{t('home.hero.slide2Title')}</span>
               <h2 className={styles.slideTitle}>{t('home.hero.slide2Title')}</h2>
               <p className={styles.slideDesc}>
                 {t('home.hero.slide2Subtitle', { hours: priceLockHours })}

@@ -80,7 +80,7 @@ export const ar = {
       'ابحث عن جهاز، مثل: Dell Latitude',
       'ابحث عن جهاز، مثل: Lenovo ThinkPad',
       'ابحث عن جهاز، مثل: HP EliteBook',
-      'ابحث عن ملحقات، مثل: شاحن أصيل',
+      'ابحث عن ملحقات، مثل: شاحن حاسوب',
     ],
     recentSearches: 'عمليات البحث الأخيرة',
     popularSearches: 'الأكثر بحثًا',

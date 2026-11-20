@@ -404,4 +404,22 @@ Calm, trustworthy, production-ready UI/UX tailored for Sudanese customers and el
     - Backend API verification (`php vendor/bin/phpunit` in `~/projects/wex-api`): 63 / 63 tests passing (100%), 2,667 assertions. Live curl scans against `http://127.0.0.1:8081` confirm zero customer-facing reference currency or exchange rate leakage.
     - Grep audits: 0 `transition: all`, 0 emojis, 0 forbidden marketing words, 0 customer-facing AED/rate references.
 
+---
+
+# Desktop & Better UX Track (Branch `desktop-ux`)
+
+- [x] **Phase 0: Layout Audit, Tier Plan & Copy Leftovers Fix**
+  - Recorded ADR in `docs/DECISIONS.md`: Replaced "single 480px column on every device" with 3 layout tiers (Phone < 640px, Tablet 640-1023px, Desktop >= 1024px).
+  - Authored comprehensive screen-by-screen breakdown in `docs/RESPONSIVE-MAP.md` covering all 10+ storefront routes across all three tiers with loading/empty/error/offline states.
+  - Fixed copy leftovers: updated search placeholder in `HomePage.jsx` and `ar.js` to "شاحن حاسوب", renamed hero slide badge to "ثبّت السعر عند الطلب", verified zero forbidden words and zero AED/rate leakage.
+  - Verification: 0 lint errors, 11 test files and 51 tests passing, production build 121.48 kB gzip initial JS.
+- [ ] **Phase 1: Layout Tiers Foundation & Overlay Primitives**
+- [ ] **Phase 2: Desktop Header/Footer, Search Dropdown, Notifications Popover, Account Menu, Cart Drawer**
+- [ ] **Phase 3: Desktop Home & Catalog Layouts with Hover States**
+- [ ] **Phase 4: Product Page (Gallery Zoom, Buy Box, Tabs), Compare, Favorites, Recently Viewed, Share**
+- [ ] **Phase 5: Cart Page, Checkout Two-Column Layout, Guest Flow & Pending Order Banner**
+- [ ] **Phase 6: Order Detail & Orders Desktop Layouts, Receipt Drag/Paste, Account/Notifications, FAQ Page**
+- [ ] **Phase 7: General UX Pass: Forms, Undo, Error Recovery, Prefetch, Blur-up & A11y**
+- [ ] **Phase 8: Performance, Tests, Documentation Updates & Double Check Verification**
+
 
