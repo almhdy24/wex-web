@@ -5,7 +5,7 @@
  * deduplication, error normalization with Arabic messages, and multipart FormData handling.
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1';
 
 // In-memory access token storage (never stored in localStorage/sessionStorage)
 let memoryAccessToken = null;
@@ -122,10 +122,14 @@ export async function apiClient(endpoint, options = {}, retryOn401 = true) {
     headers.set('Authorization', `Bearer ${token}`);
   }
 
+  const credentialsMode = options.withCredentials !== undefined
+    ? (options.withCredentials ? 'include' : 'same-origin')
+    : (options.credentials || 'include');
+
   try {
     const response = await fetch(url, {
       ...options,
-      credentials: options.credentials || 'include',
+      credentials: credentialsMode,
       headers,
     });
 
@@ -141,7 +145,7 @@ export async function apiClient(endpoint, options = {}, retryOn401 = true) {
         }
         return await apiClient(endpoint, {
           ...options,
-          credentials: options.credentials || 'include',
+          credentials: credentialsMode,
           headers: newHeaders,
         }, false);
       } catch {
@@ -203,3 +207,5 @@ export const api = {
     }),
   delete: (endpoint, options) => apiClient(endpoint, { ...options, method: 'DELETE' }),
 };
+
+export { axiosInstance } from './axios';

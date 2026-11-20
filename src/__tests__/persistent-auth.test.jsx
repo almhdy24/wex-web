@@ -190,4 +190,20 @@ describe('30-Day Persistent Login & Route Guarding Tests', () => {
     expect(getMemoryAccessToken()).toBeNull();
     expect(authFailedCalled).toBe(true);
   });
+
+  it('configures Axios withCredentials correctly for cross-origin Android cookies', async () => {
+    const { axiosInstance } = await import('../api/axios');
+
+    // withCredentials must be true to allow Android Chrome to transmit HttpOnly cookies
+    expect(axiosInstance.defaults.withCredentials).toBe(true);
+    expect(axiosInstance.defaults.headers['Accept']).toBe('application/json');
+
+    // In-memory token attachment check
+    setMemoryAccessToken('memory-jwt-token-123');
+    const mockConfig = { headers: {} };
+    const requestInterceptor = axiosInstance.interceptors.request.handlers[0].fulfilled;
+    const transformedConfig = requestInterceptor(mockConfig);
+
+    expect(transformedConfig.headers.Authorization).toBe('Bearer memory-jwt-token-123');
+  });
 });
