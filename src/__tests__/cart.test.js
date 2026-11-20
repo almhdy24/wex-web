@@ -35,7 +35,7 @@ describe('Shopping Cart State Operations', () => {
   };
 
   it('adds a new product to empty cart', () => {
-    const product = { id: 101, name: 'Dell Latitude 5420', price_aed: 1200, stock_quantity: 5 };
+    const product = { id: 101, name: 'Dell Latitude 5420', price_sdg: 780000, stock_quantity: 5 };
     addToCart(product, 1);
     expect(cart.length).toBe(1);
     expect(cart[0].product.id).toBe(101);
@@ -43,19 +43,19 @@ describe('Shopping Cart State Operations', () => {
   });
 
   it('caps cart quantity to product available stock', () => {
-    const product = { id: 102, name: 'HP EliteBook 840 G8', price_aed: 1500, stock_quantity: 2 };
+    const product = { id: 102, name: 'HP EliteBook 840 G8', price_sdg: 975000, stock_quantity: 2 };
     addToCart(product, 5);
     expect(cart[0].quantity).toBe(2);
   });
 
   it('caps cart quantity to maximum limit of 10 items', () => {
-    const product = { id: 103, name: 'Logitech Wireless Mouse', price_aed: 50, stock_quantity: 100 };
+    const product = { id: 103, name: 'Logitech Wireless Mouse', price_sdg: 32500, stock_quantity: 100 };
     addToCart(product, 15);
     expect(cart[0].quantity).toBe(10);
   });
 
   it('updates quantity of existing item or removes when 0', () => {
-    const product = { id: 104, name: 'Dell 65W Type-C Charger', price_aed: 80, stock_quantity: 10 };
+    const product = { id: 104, name: 'Dell 65W Type-C Charger', price_sdg: 52000, stock_quantity: 10 };
     addToCart(product, 2);
     updateQuantity(104, 4);
     expect(cart[0].quantity).toBe(4);
@@ -65,8 +65,8 @@ describe('Shopping Cart State Operations', () => {
   });
 
   it('removes item from cart completely', () => {
-    const productA = { id: 1, name: 'Laptop A', price_aed: 1000, stock_quantity: 3 };
-    const productB = { id: 2, name: 'Laptop B', price_aed: 2000, stock_quantity: 3 };
+    const productA = { id: 1, name: 'Laptop A', price_sdg: 650000, stock_quantity: 3 };
+    const productB = { id: 2, name: 'Laptop B', price_sdg: 1300000, stock_quantity: 3 };
     addToCart(productA, 1);
     addToCart(productB, 1);
     expect(cart.length).toBe(2);

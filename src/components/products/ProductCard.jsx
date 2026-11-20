@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
-import { formatSdg, formatAed, getProductImageUrl, getConditionLabel } from '../../utils/formatters';
+import { formatSdg, getProductImageUrl, getConditionLabel } from '../../utils/formatters';
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
 import LaptopSvg from '../common/LaptopSvg';
@@ -98,16 +98,11 @@ export default function ProductCard({ product }) {
             </div>
           )}
 
-          {/* Pricing */}
+          {/* Pricing (SDG Only) */}
           <div className={styles.pricing}>
             <div className={styles.priceSdg}>
               <span>{formatSdg(product.price_sdg)}</span>
             </div>
-            {product.price_aed ? (
-              <div className={styles.priceAed}>
-                {formatAed(product.price_aed)}
-              </div>
-            ) : null}
 
             {isOutOfStock ? (
               <span className={styles.outOfStockNotice}>نفد من المخزن</span>

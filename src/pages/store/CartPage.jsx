@@ -1,14 +1,37 @@
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, Minus, Trash2, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Plus, Minus, Trash2, ArrowLeft, ArrowRight, AlertCircle } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { productsApi } from '../../api/products';
 import { formatSdg, getProductImageUrl } from '../../utils/formatters';
 import LaptopSvg from '../../components/common/LaptopSvg';
 import EmptyState from '../../components/common/EmptyState';
+import PriceNotice from '../../components/common/PriceNotice';
 import styles from './CartPage.module.css';
 
 export default function CartPage() {
-  const { items, updateQuantity, removeItem, clearCart, totalItems, estimatedSubtotalSdg } = useCart();
+  const {
+    items,
+    updateQuantity,
+    removeItem,
+    clearCart,
+    totalItems,
+    estimatedSubtotalSdg,
+    priceChanges,
+    refreshCartPrices,
+    confirmPriceChange,
+    confirmAllPriceChanges,
+    hasUnconfirmedPriceChanges,
+  } = useCart();
   const navigate = useNavigate();
+  const [shopInfo, setShopInfo] = useState(null);
+
+  useEffect(() => {
+    refreshCartPrices();
+    productsApi.getShopInfo()
+      .then((res) => setShopInfo(res?.data || null))
+      .catch(() => {});
+  }, [refreshCartPrices]);
 
   if (items.length === 0) {
     return (
@@ -25,6 +48,7 @@ export default function CartPage() {
 
   const appDiscount = Math.round(estimatedSubtotalSdg * 0.03);
   const estimatedTotal = Math.max(0, estimatedSubtotalSdg - appDiscount);
+  const lockHours = shopInfo?.lock_hours || shopInfo?.price_lock_hours || 4;
 
   return (
     <div className={styles.container}>
@@ -115,6 +139,26 @@ export default function CartPage() {
                     </button>
                   </div>
                 </div>
+
+                {/* Price Change Neutral Alert */}
+                {priceChanges[item.id] && !priceChanges[item.id].confirmed && (
+                  <div className={styles.priceChangeBanner} role="alert">
+                    <AlertCircle size={15} className={styles.priceChangeIcon} />
+                    <div className={styles.priceChangeTextCol}>
+                      <span className={styles.priceChangeLabel}>تغير سعر هذا الجهاز</span>
+                      <span className={styles.priceChangeValues}>
+                        {formatSdg(priceChanges[item.id].old_price_sdg)} ← {formatSdg(priceChanges[item.id].new_price_sdg)}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => confirmPriceChange(item.id)}
+                      className={styles.confirmPriceBtn}
+                    >
+                      تأكيد السعر الجديد
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           );
@@ -140,7 +184,10 @@ export default function CartPage() {
             <div className={styles.totalLabel}>الإجمالي التقديري:</div>
             <div className={styles.totalVal}>{formatSdg(estimatedTotal)}</div>
           </div>
-          <span className={styles.rateHint}>السعر يتثبت 4 ساعات فور الطلب</span>
+        </div>
+
+        <div className={styles.noticeContainer}>
+          <PriceNotice variant="full" lockHours={lockHours} />
         </div>
       </div>
 
@@ -158,14 +205,24 @@ export default function CartPage() {
           <span className={styles.stickyTotal}>{formatSdg(estimatedTotal)}</span>
         </div>
 
-        <button
-          type="button"
-          onClick={() => navigate('/checkout')}
-          className={`${styles.checkoutBtn} btn-vivid`}
-        >
-          <span>متابعة تثبيت السعر والطلب</span>
-          <ArrowLeft size={16} />
-        </button>
+        {hasUnconfirmedPriceChanges ? (
+          <button
+            type="button"
+            onClick={confirmAllPriceChanges}
+            className={`${styles.checkoutBtn} btn-warning`}
+          >
+            <span>تأكيد تحديث الأسعار للمتابعة</span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => navigate('/checkout')}
+            className={`${styles.checkoutBtn} btn-vivid`}
+          >
+            <span>متابعة تثبيت السعر والطلب</span>
+            <ArrowLeft size={16} />
+          </button>
+        )}
       </div>
     </div>
   );

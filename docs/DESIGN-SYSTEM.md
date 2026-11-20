@@ -80,9 +80,19 @@ All base components use scoped CSS Modules (`*.module.css`) and reference `token
 - **Header:**
   - Minimum 120px brand logo.
   - Quick keyword search input.
-  - Live currency ticker: "الدرهم اليوم [rate] جنيه" with live timestamp.
+  - Pricing freshness timestamp: "آخر تحديث للأسعار: اليوم 9:00" from `prices_updated_at` (no exchange rate or reference currency).
   - Notification bell with unread dot.
   - Cart counter badge.
 - **Mobile Bottom Navigation Bar:**
   - 4 fixed tabs: الرئيسية (Home), المتجر (Store), طلباتي (Orders), حسابي (Account).
   - Automatically hidden on Checkout and Product Detail pages to expose sticky bottom action bars.
+
+---
+
+## 6. Copy Rules & Customer-Facing Currency Constraints
+
+- **Never mention reference currency or exchange rate:** Never show `AED`, `د.إ`, `درهم`, `دولار`, or the numerical exchange rate on any customer-facing screen, card, or notification. Reference currency and exchange rates are strictly business-private and admin-only.
+- **SDG Only:** All customer pricing is displayed exclusively in Sudanese Pounds (`ج.س` / SDG): `price_sdg`, `unit_price_sdg`, `line_total_sdg`, `subtotal_sdg`, `discount_sdg`, `delivery_fee_sdg`, and `total_sdg`.
+- **Reusable Customer Notice:** When informing customers about market price fluctuations, use exclusively the standard reusable notice:
+  *"الأسعار بتتغير مع تقلب سعر الصرف. بعد الطلب بنثبت ليك السعر لمدة {N} ساعات تحول فيها."*
+- **Price Lock Presentation:** Locked orders display only `السعر مثبت: {total} ج.س` and `ينتهي التثبيت الساعة {HH:MM}`. Any "locked rate" or "سعر الصرف المحجوز" is strictly forbidden on customer screens.

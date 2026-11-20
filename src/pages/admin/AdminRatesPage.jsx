@@ -78,7 +78,10 @@ export default function AdminRatesPage() {
     <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.titleInfo}>
-          <h1 className={styles.title}>إدارة أسعار الصرف (AED ↔ SDG)</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h1 className={styles.title}>إدارة أسعار الصرف (AED ↔ SDG)</h1>
+            <span className={styles.adminOnlyBadge}>للإدارة فقط</span>
+          </div>
           <p className={styles.subtitle}>
             تحديث سعر صرف الدرهم الإماراتي مقابل الجنيه السوداني وتتبع التغيرات التاريخية
           </p>
@@ -238,7 +241,7 @@ export default function AdminRatesPage() {
             1 AED = {Number(newRateInput).toLocaleString('en-US')} SDG
           </strong>؟
           <br />
-          سيتم تحديث أسعار كافة الأجهزة المعروضة في المتجر فوراً.
+          سيتم تحديث أسعار جميع الأجهزة فوراً.
         </p>
       </Modal>
     </div>

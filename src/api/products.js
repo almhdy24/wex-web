@@ -37,7 +37,7 @@ export const productsApi = {
   },
 
   /**
-   * Fetch public shop information and exchange rate
+   * Fetch public shop information and price update timestamp
    */
   getShopInfo() {
     return api.get('/shop');

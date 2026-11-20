@@ -121,6 +121,19 @@
   font-variant-numeric: tabular-nums;
 }
 
+.lastUpdateLine {
+  font-size: 11px;
+  color: var(--color-slate-500, #64748B);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.priceNoticeWrapper {
+  margin-top: 10px;
+}
+
 .priceAed {
   font-size: 12px;
   color: var(--wex-gray-400, #9AA8BC);

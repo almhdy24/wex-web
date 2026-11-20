@@ -188,3 +188,16 @@
   white-space: pre-wrap;
   word-break: break-all;
 }
+
+.adminOnlyBadge {
+  display: inline-block;
+  background: #EFF6FF;
+  color: #1D4ED8;
+  border: 1px solid #BFDBFE;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  vertical-align: middle;
+  line-height: 1.4;
+}

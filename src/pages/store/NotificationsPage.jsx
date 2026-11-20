@@ -118,7 +118,7 @@ export default function NotificationsPage() {
             let typeLabel = 'تنبيه';
             if (notifType.includes('price_lock') || notifType.includes('order')) typeLabel = 'الطلبات';
             else if (notifType.includes('payment') || notifType.includes('proof')) typeLabel = 'سداد بنكك';
-            else if (notifType.includes('rate')) typeLabel = 'سعر الصرف';
+            else if (notifType.includes('rate')) typeLabel = 'تحديث الأسعار';
 
             return (
               <article

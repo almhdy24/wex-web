@@ -40,12 +40,15 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api\//],
+        navigateFallbackDenylist: [/^\/api\//, /^\/admin/],
         runtimeCaching: [
           {
-            // Only cache explicitly public shop metadata, categories and brands with NetworkFirst
+            // Only cache explicitly public shop metadata, categories and brands with NetworkFirst. Never cache admin or customer orders.
             urlPattern: ({ url }) => {
               const pathname = url.pathname;
+              if (pathname.includes('/admin') || pathname.includes('/me') || pathname.includes('/orders')) {
+                return false;
+              }
               return pathname.startsWith('/api/v1/shop') ||
                      pathname.startsWith('/api/v1/categories') ||
                      pathname.startsWith('/api/v1/brands');

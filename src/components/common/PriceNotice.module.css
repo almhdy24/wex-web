@@ -1,0 +1,46 @@
+.noticeCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background-color: var(--color-ice, #EAF3FF);
+  border: 1px solid rgba(30, 107, 255, 0.15);
+  border-radius: var(--radius-md, 10px);
+  padding: 10px 14px;
+  color: var(--color-navy, #061A55);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.noticeShort {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: rgba(30, 107, 255, 0.08);
+  border-radius: var(--radius-sm, 6px);
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--color-royal, #0B3FBF);
+}
+
+.icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--color-vivid, #1E6BFF);
+}
+
+.noticeContent {
+  flex: 1;
+}
+
+.noticeText {
+  margin: 0;
+  font-weight: 500;
+}
+
+.updatedAtLine {
+  display: block;
+  font-size: 11px;
+  color: var(--color-slate-500, #64748B);
+  margin-top: 4px;
+  font-weight: 400;
+}

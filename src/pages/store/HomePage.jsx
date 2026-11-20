@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Search, ArrowLeft, MessageCircle, MapPin, Clock } from 'lucide-react';
 import { productsApi } from '../../api/products';
 import ProductCard from '../../components/products/ProductCard';
+import PriceNotice, { formatPricesUpdatedAt } from '../../components/common/PriceNotice';
 import { ProductCardSkeleton } from '../../components/common/Skeleton';
 import ErrorState from '../../components/common/ErrorState';
 import styles from './HomePage.module.css';
@@ -104,22 +105,23 @@ export default function HomePage() {
     }
   };
 
-  const exchangeRate = shopInfo?.exchange_rate_sdg || 650;
-  const priceLockHours = shopInfo?.price_lock_hours || 4;
+  const priceLockHours = shopInfo?.lock_hours || shopInfo?.price_lock_hours || 4;
 
   return (
     <div className={styles.container}>
-      {/* 1. User Greeting & Live Rate Chip */}
-      <section className={styles.greetingSection} aria-label="الترحيب وسعر الصرف">
+      {/* 1. User Greeting & Last Update Line */}
+      <section className={styles.greetingSection} aria-label="الترحيب بالمتجر">
         <div>
           <div className={styles.greetingSub}>أهلاً بيك</div>
           <h1 className={styles.greetingTitle}>لابتوبات جديدة ومستعملة</h1>
         </div>
 
-        <div className={styles.rateChip} title="سعر الصرف المعتمد اليوم">
-          <span className={styles.pulseDot} />
-          <span className={styles.rateText}>الدرهم اليوم: {exchangeRate} جنيه</span>
-        </div>
+        {shopInfo?.prices_updated_at && (
+          <div className={styles.rateChip} title="آخر تحديث للأسعار">
+            <span className={styles.pulseDot} />
+            <span className={styles.rateText}>آخر تحديث للأسعار: {formatPricesUpdatedAt(shopInfo.prices_updated_at)}</span>
+          </div>
+        )}
       </section>
 
       {/* 2. Search Input */}
@@ -211,14 +213,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 6. Store Feature Notice (Subtle Ribbon) */}
-      <section className={`${styles.priceLockNotice} wex-ribbon-subtle`} aria-label="طريقة تثبيت السعر">
-        <div>
-          <h4 className={styles.noticeTitle}>طريقة تثبيت السعر</h4>
-          <p className={styles.noticeText}>
-            سعر اللابتوب بالدرهم وبيتغير مع الصرف. لما تطلب، بنثبت ليك السعر لمدة {priceLockHours} ساعات وبتحول فيها عبر بنكك. لو المدة انتهت بيرجع السعر للصرف الحالي.
-          </p>
-        </div>
+      {/* 6. Store Feature Notice (PriceNotice) */}
+      <section className={styles.priceLockNotice} aria-label="طريقة تثبيت السعر">
+        <PriceNotice
+          variant="full"
+          lockHours={priceLockHours}
+          pricesUpdatedAt={shopInfo?.prices_updated_at}
+          showLastUpdated={true}
+        />
       </section>
 
       {/* 7. Shop Info Card */}

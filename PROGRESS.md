@@ -278,23 +278,26 @@ Calm, trustworthy, production-ready UI/UX tailored for Sudanese customers and el
   - Global copy audit verified 0 occurrences of forbidden marketing terms and 0 emojis.
   - Created `docs/PERFORMANCE.md` documenting bundle breakdown, font preloading, and client-side image downsampling.
   - ESLint verified 0 errors, 0 warnings.
-- [x] **Redesign Phase 8: Extended Tests, Design System Docs & Final Audit (current)**
+- [x] **Redesign Phase 8: Extended Tests, Design System Docs & Final Audit**
   - Added unit test suites for Western price formatting, price lock countdown, and receipt image downsampling math (`price-formatting.test.js`, `countdown.test.js`, `receipt-compression.test.js`).
-  - Total test suites expanded to 9 files with 39 passing unit tests (100% passing).
   - Extracted shared `src/utils/imageCompressor.js` with aspect ratio calculations.
   - Authored comprehensive `docs/DESIGN-SYSTEM.md` and `docs/UI-CHECKLIST.md`.
   - Updated `README.md` and `docs/TESTING.md`.
-  - Double check verified:
-    - `npm run lint`: 0 errors, 0 warnings.
-    - `npm run test`: 9 files, 39 passed (100%).
-    - `npm run build`: built in ~1.9s, zero chunk warnings.
-    - Grep audit: 0 inline style blocks, 0 emojis, 0 forbidden words, 0 references to Cairo/Inter fonts.
-    - `~/projects/wex-api`: completely untouched.
 
-## Remaining Redesign Phase
-- All redesign phases (Phases 1 through 8) are fully completed, tested, and documented.
+- [x] **Phase B: Hide Exchange Rate & AED Prices Across Storefront (branch `hide-rate`)**
+  - **B1 Storefront Sanitization:** Removed rate chip ("الدرهم اليوم ..."), AED subtitles under prices, "1 درهم = ..." text, locked-rate text on lock card, and any AED/rate occurrences across all customer storefront components and pages.
+  - **B2 SDG-Only Pricing:** ProductCard, ProductDetailPage, CartPage, CheckoutPage, and OrderDetailPage display exclusively SDG prices received from the API (`price_sdg`, line totals, subtotal, discount, total). No client-side math from AED.
+  - **B3 Shared `<PriceNotice variant="full|short" />` Component:** Implemented reusable component displaying exact required Arabic string: *"الأسعار بتتغير مع تقلب سعر الصرف. بعد الطلب بنثبت ليك السعر لمدة {N} ساعات تحول فيها."* and pricing freshness indicator *"آخر تحديث للأسعار: اليوم 9:00"* using `prices_updated_at`.
+  - **B4 Dynamic Cart Price Change Workflow:** Re-fetches current catalog on cart open and checkout mount. If an item's `price_sdg` has changed, displays a neutral inline alert: *"تغير سعر هذا الجهاز"* with previous and new SDG amounts, requiring explicit user confirmation before placing the order.
+  - **B5 Simplified Price-Lock Card:** OrderDetailPage displays countdown timer, *"السعر مثبت: {total} ج.س"*, and *"ينتهي التثبيت الساعة {HH:MM}"*, with short PriceNotice and zero mention of exchange rates or locked conversion figures.
+  - **B6 Admin Panel Privacy Controls:** Added *"للإدارة فقط"* badges on AED and rate fields. `AdminProductFormPage` takes `price_aed` and provides live preview `"= X ج.س بالسعر الحالي"` using live rate. `AdminRatesPage` maintains audit history and confirm modal with exact copy *"سيتم تحديث أسعار جميع الأجهزة فوراً"*. `AdminOrdersPage` and `AdminOrderDetailPage` display both SDG and AED amounts with the rate snapshot.
+  - **B7 Service Worker & PWA Hardening:** Excluded all `/admin` paths from service worker caching in `vite.config.js`. Updated `AuthContext.clearSession` to purge `wex-public-api-cache` and any API caches on logout.
+  - **B8 Comprehensive Vitest Suite:** Created `src/__tests__/hide-rate.test.jsx` covering PriceNotice variants, `formatPricesUpdatedAt`, ProductCard zero-AED guarantees, countdown banner privacy, and cart price change confirmation workflow. All 10 test files and 47 tests pass (100%).
+  - **B9 Documentation:** Updated `README.md`, `docs/API-CONTRACT.md`, `docs/DESIGN-SYSTEM.md`, `docs/PARITY.md`, `docs/MOCKUP-MAP.md` recording that removal of the rate chip, AED lines, and locked-rate text is an intentional architectural deviation from the mockup.
 
----
+## Verification Checklist
+- [x] `npm run lint`: 0 errors, 0 warnings.
+- [x] `npm run test`: 10 test files, 47 passed (100%).
+- [x] `npm run build`: built in ~2.4s, zero errors.
+- [x] Customer-facing text audit: zero references to AED, dirham, or dollar; only generic fluctuation notice ("تقلب سعر الصرف") is permitted.
 
-## (h) Next Immediate Action
-- Redesign complete. All customer-facing and administrative pages are production-ready. Deliver final comprehensive summary to the user.

@@ -6,7 +6,6 @@ import styles from './Countdown.module.css';
 export default function Countdown({
   expiresAt,
   totalHours = 4,
-  lockedRateSdg,
   onExpire,
 }) {
   const [timeLeft, setTimeLeft] = useState(() => calculateTimeLeft(expiresAt));
@@ -79,7 +78,6 @@ export default function Countdown({
               : isUnder30Min
               ? 'سارع بالتحويل: متبقي أقل من 30 دقيقة على انتهاء تثبيت السعر'
               : 'السعر مثبت لك لإتمام التحويل'}
-            {lockedRateSdg ? ` (الدرهم = ${lockedRateSdg} جنيه)` : ''}
           </span>
         </div>
 

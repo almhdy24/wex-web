@@ -65,14 +65,16 @@ All API endpoints strictly return the following standard JSON structure:
 ## 4. Complete Endpoint Reference
 
 ### 4.1 Public Endpoints
+> **Privacy Rule:** Reference currency (AED) and exchange rates are strictly business-private. Customer and public endpoints NEVER expose AED fields, exchange rate fields, or reference currency terms. All customer pricing is exclusively in SDG.
 - `GET /ping`: Health check, returns service status and UTC timestamp.
-- `GET /shop`: Public shop profile (`name`, `address`, `phone`, `whatsapp`, `working_hours`, `exchange_rate_sdg`, `rate_updated_at`, `price_lock_hours`, `app_discount_percent`). Note: Bank details are NOT public; only returned on order creation.
+- `GET /shop`: Public shop profile (`name`, `address`, `phone`, `whatsapp`, `working_hours`, `lock_hours`, `app_discount_percent`, `prices_updated_at`). Note: Exchange rate is removed; bank details are NOT public; only returned on order creation.
 - `GET /shipping-zones`: Active delivery zones in Sudan states with `fee_sdg`.
 - `GET /categories`: Active categories with names (`name_ar`, `name_en`), `slug`, and `sort_order`.
 - `GET /brands`: Active brands with `name` and `slug`.
 - `GET /products`: Filterable product catalog.
-  - Query parameters: `page`, `per_page`, `type` (`laptop`|`phone`|`accessory`), `category` (slug or id), `brand` (slug or id), `condition` (`new`|`used_imported`), `min_price_aed`, `max_price_aed`, `featured` (bool), `in_stock` (bool), `q` (search term), `sort` (`price_asc`|`price_desc`|`newest`).
-- `GET /products/{slug}`: Product details with full `specs` JSON, warranty, image list, and suggested accessories.
+  - Whitelisted fields: `id`, `name`, `type`, `condition`, `price_sdg`, `stock_quantity`, `specs`, `primary_image_url`, etc. Never returns `price_aed` or `rate_sdg`.
+  - Query parameters: `page`, `per_page`, `type` (`laptop`|`phone`|`accessory`), `category` (slug or id), `brand` (slug or id), `condition` (`new`|`used_imported`), `min_price_sdg`, `max_price_sdg`, `featured` (bool), `in_stock` (bool), `q` (search term), `sort` (`price_asc`|`price_desc`|`newest`).
+- `GET /products/{slug}`: Product details with full `specs` JSON, warranty, image list, and suggested accessories. Whitelisted fields only (no AED or rate).
 
 ### 4.2 Authentication Endpoints
 - `POST /auth/google`: `{"id_token": "..."}` -> returns tokens and user object.

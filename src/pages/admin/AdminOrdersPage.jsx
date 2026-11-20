@@ -164,7 +164,13 @@ export default function AdminOrdersPage() {
                   <th>الهاتف</th>
                   <th>النوع</th>
                   <th>الحالة</th>
-                  <th>المبلغ</th>
+                  <th>المبلغ (SDG)</th>
+                  <th>
+                    المبلغ (AED) <span className={styles.adminOnlyBadge}>للإدارة فقط</span>
+                  </th>
+                  <th>
+                    سعر الصرف <span className={styles.adminOnlyBadge}>للإدارة فقط</span>
+                  </th>
                   <th>التاريخ</th>
                   <th>الإجراء</th>
                 </tr>
@@ -182,6 +188,10 @@ export default function AdminOrdersPage() {
                         <Tag variant={statusInfo.variant}>{statusInfo.label}</Tag>
                       </td>
                       <td className={styles.totalPrice}>{formatSdg(o.total_sdg)}</td>
+                      <td>{o.subtotal_aed ? `${Number(o.subtotal_aed).toLocaleString('en-US')} AED` : '—'}</td>
+                      <td style={{ fontSize: '11px', whiteSpace: 'nowrap' }}>
+                        {o.rate_sdg_snapshot ? `1 AED = ${Number(o.rate_sdg_snapshot).toLocaleString('en-US')}` : '—'}
+                      </td>
                       <td className={styles.dateText}>{formatDate(o.created_at)}</td>
                       <td>
                         <Link to={`/admin/orders/${o.order_number}`}>

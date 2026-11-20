@@ -261,6 +261,64 @@
   color: var(--wex-gray-400, #9AA8BC);
 }
 
+.noticeContainer {
+  margin-top: 12px;
+}
+
+.priceChangeBanner {
+  margin-top: 8px;
+  background-color: #FFFBEB;
+  border: 1px solid #FCD34D;
+  border-radius: var(--radius-sm, 6px);
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.priceChangeIcon {
+  color: #D97706;
+  flex-shrink: 0;
+}
+
+.priceChangeTextCol {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.priceChangeLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: #92400E;
+}
+
+.priceChangeValues {
+  font-size: 11px;
+  color: #B45309;
+  font-variant-numeric: tabular-nums;
+  direction: ltr;
+  text-align: right;
+}
+
+.confirmPriceBtn {
+  background: #D97706;
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-sm, 6px);
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.confirmPriceBtn:hover {
+  background: #B45309;
+}
+
 .continueLink {
   display: inline-flex;
   align-items: center;

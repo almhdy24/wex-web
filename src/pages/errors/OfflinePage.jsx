@@ -15,7 +15,7 @@ export default function OfflinePage() {
       </div>
       <h1 className={styles.title}>مافي اتصال بالإنترنت</h1>
       <p className={styles.message}>
-        أنت غير متصل بالشبكة حالياً. المتجر محتاج اتصال لتحديث أسعار الصرف وحجز الأجهزة ورفع الإشعارات.
+        أنت غير متصل بالشبكة حالياً. المتجر محتاج اتصال لتحديث أسعار الأجهزة وحجزها ورفع إشعارات التحويل.
       </p>
       <Button variant="primary" icon={RotateCcw} onClick={handleReload}>
         حاول تاني

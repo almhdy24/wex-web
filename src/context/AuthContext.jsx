@@ -16,6 +16,16 @@ export function AuthProvider({ children }) {
     sessionStorage.removeItem('wex_access_token');
     localStorage.removeItem('wex_refresh_token');
     localStorage.removeItem('wex_user');
+
+    if (typeof window !== 'undefined' && 'caches' in window) {
+      caches.keys().then((names) => {
+        names.forEach((name) => {
+          if (name.includes('api') || name.includes('wex-public-api-cache')) {
+            caches.delete(name);
+          }
+        });
+      }).catch(() => {});
+    }
   }, []);
 
   // Hook global 401 unrecoverable failure

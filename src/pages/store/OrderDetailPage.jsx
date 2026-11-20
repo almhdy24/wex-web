@@ -7,7 +7,20 @@ import { useToast } from '../../context/ToastContext';
 import ErrorState from '../../components/common/ErrorState';
 import { Skeleton } from '../../components/common/Skeleton';
 import { compressProofImage } from '../../utils/imageCompressor';
+import PriceNotice from '../../components/common/PriceNotice';
 import styles from './OrderDetailPage.module.css';
+
+function formatExpiryTime(dateStr) {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr);
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    return `${hh}:${mm}`;
+  } catch {
+    return '';
+  }
+}
 
 export default function OrderDetailPage() {
   const { orderNumber } = useParams();
@@ -268,26 +281,33 @@ export default function OrderDetailPage() {
         {/* Locked Price Summary Row */}
         <div className={styles.bannerSummaryRow}>
           <div>
-            <div className={styles.bannerSummaryLabel}>المبلغ المطلوب تحويله:</div>
+            <div className={styles.bannerSummaryLabel}>السعر مثبت:</div>
             <div className={styles.bannerAmount}>
-              {formatSdg(order.total_amount_sdg)}
+              {formatSdg(order.total_sdg || order.total_amount_sdg)}
             </div>
           </div>
-          <div className={styles.bannerRateCol}>
-            <div className={styles.bannerSummaryLabel}>سعر الصرف المحجوز:</div>
-            <div className={styles.bannerRateVal}>
-              1 درهم = {order.exchange_rate_used || 650} جنيه
+          {order.lock_expires_at && (
+            <div className={styles.bannerExpiryCol}>
+              <div className={styles.bannerSummaryLabel}>ينتهي التثبيت:</div>
+              <div className={styles.bannerExpiryVal}>
+                الساعة {formatExpiryTime(order.lock_expires_at)}
+              </div>
             </div>
-          </div>
+          )}
+        </div>
+
+        {/* Short price notice on lock card */}
+        <div className={styles.bannerNoticeWrapper}>
+          <PriceNotice variant="short" />
         </div>
       </div>
 
       {/* 2. Expired State Action Box */}
       {isExpired && (
         <div className={styles.expiredBox}>
-          <h3 className={styles.expiredTitle}>انتهت مدة تثبيت السعر (4 ساعات)</h3>
+          <h3 className={styles.expiredTitle}>انتهت مهلة تثبيت السعر</h3>
           <p className={styles.expiredDesc}>
-            سعر اللابتوب بالدرهم وبيتغير مع الصرف. لما تطلب، بنثبت ليك السعر لمدة محددة وبتحول فيها عبر بنكك. تقدر تعيد الطلب الآن بالسعر المحدث حالياً.
+            انتهت مهلة تثبيت السعر لهذا الطلب وتم إلغاء الحجز. يمكنك بسهولة إعادة الطلب بالأسعار المحدثة حالياً.
           </p>
           <button
             type="button"

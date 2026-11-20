@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowRight, Plus, Trash2, Check, Upload, Star } from 'lucide-react';
 import { adminApi } from '../../api/admin';
-import { resolveImageUrl, formatAed } from '../../utils/formatters';
+import { resolveImageUrl, formatAed, formatSdg } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
@@ -21,6 +21,7 @@ export default function AdminProductFormPage() {
   const [submitting, setSubmitting] = useState(false);
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
+  const [currentRate, setCurrentRate] = useState(null);
 
   // Form Fields
   const [formData, setFormData] = useState({
@@ -60,14 +61,19 @@ export default function AdminProductFormPage() {
   useEffect(() => {
     const fetchMetadata = async () => {
       try {
-        const [catRes, brandRes] = await Promise.all([
+        const [catRes, brandRes, rateRes] = await Promise.all([
           adminApi.getCategories(),
           adminApi.getBrands(),
+          adminApi.getRates({ per_page: 1 }),
         ]);
         setCategories(catRes.data || []);
         setBrands(brandRes.data || []);
+        const rateItems = rateRes.data || [];
+        if (rateItems.length > 0) {
+          setCurrentRate(rateItems[0].rate_sdg || rateItems[0].rate || null);
+        }
       } catch {
-        toastError('فشل في تحميل الفئات أو الماركات');
+        toastError('فشل في تحميل الفئات أو الماركات أو سعر الصرف');
       }
     };
     fetchMetadata();
@@ -417,7 +423,12 @@ export default function AdminProductFormPage() {
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--space-3)' }}>
                 <Input
-                  label="السعر الأساسي بالدرهم (AED)"
+                  label={
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                      السعر الأساسي بالدرهم (AED)
+                      <span className={styles.adminOnlyBadge}>للإدارة فقط</span>
+                    </span>
+                  }
                   type="number"
                   name="price_aed"
                   value={formData.price_aed}
@@ -426,7 +437,11 @@ export default function AdminProductFormPage() {
                   min="1"
                   dir="ltr"
                   required
-                  hint="يتم تحويله للسوداني تلقائياً بسعر الصرف المعتمد"
+                  helperText={
+                    currentRate && formData.price_aed
+                      ? `= ${formatSdg((Number(formData.price_aed) || 0) * currentRate)} بالسعر الحالي`
+                      : 'يتم تحويله للسوداني تلقائياً بسعر الصرف المعتمد'
+                  }
                 />
 
                 <Input
@@ -746,7 +761,9 @@ export default function AdminProductFormPage() {
                       <thead>
                         <tr>
                           <th>الملحق</th>
-                          <th>السعر (AED)</th>
+                          <th>
+                            السعر (AED) <span className={styles.adminOnlyBadge}>للإدارة فقط</span>
+                          </th>
                           <th>المخزون</th>
                           <th>إجراء</th>
                         </tr>

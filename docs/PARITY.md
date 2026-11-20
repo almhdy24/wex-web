@@ -115,5 +115,25 @@ This document audits and certifies the 100% UI/UX parity of the rebuilt storefro
 | **Forbidden Words** | `grep -rn -E "رائد|أفضل متجر|لا مثيل|تجربة فريدة"` | 0 marketing puffery words | **0 found** (Clean) |
 | **Container Width** | `grep -rn "1200" src/pages/store src/layouts/StoreLayout*` | No 1200px container in storefront | **0 found** (Clean, max 480px app-shell) |
 | **ESLint Check** | `npm run lint` | 0 errors, 0 warnings | **0 errors, 0 warnings** |
-| **Unit & Integration Tests** | `npm run test` (Vitest) | All tests passing | **39 / 39 passed (100%)** |
-| **Production Build** | `npm run build` (Vite) | Production build success, initial bundle <= 150 kB gzip | **✓ Built in 2.39s (110.48 kB gzip)** |
+| **Unit & Integration Tests** | `npm run test` (Vitest) | All tests passing | **47 / 47 passed (100%)** |
+| **Production Build** | `npm run build` (Vite) | Production build success, initial bundle <= 150 kB gzip | **✓ Built in 2.45s (115 kB gzip)** |
+
+---
+
+## 4. Intentional Architectural Deviations from Mockup
+
+The reference mockups originally depicted public-facing exchange rate strips ("الدرهم اليوم ..."), AED conversion lines under prices, and locked rate callouts on order vouchers. These have been **intentionally removed** in production in accordance with Decision 12 (Business-Private Reference Currency and Exchange Rate):
+
+1. **Removal of Public Exchange Rate Strip / Chip**:
+   - The greeting row chip ("الدرهم اليوم: ...") on the Home page and Product page has been replaced with the generic pricing freshness timestamp ("آخر تحديث للأسعار: اليوم 9:00" from `prices_updated_at`), without displaying any exchange rate.
+2. **Removal of AED Subtitles Under Prices**:
+   - Product cards, catalog items, and product detail headers render strictly in SDG (`price_sdg`). AED amounts are never sent to or rendered on customer-facing screens.
+3. **Price Lock Banner Simplification**:
+   - Screen 6 (Order Detail / Price Lock Banner) displays strictly:
+     - `السعر مثبت: {total} ج.س`
+     - `ينتهي التثبيت الساعة {HH:MM}`
+     - The short reusable notice `<PriceNotice variant="short" />`.
+   - The previous line ("سعر الصرف المحجوز: 1 درهم = ...") has been completely eliminated.
+4. **Customer Price Fluctuation Notice**:
+   - Customers see the standard reusable notice: *"الأسعار بتتغير مع تقلب سعر الصرف. بعد الطلب بنثبت ليك السعر لمدة {N} ساعات تحول فيها."*
+   - AED and the reference currency mechanism are strictly admin-only.

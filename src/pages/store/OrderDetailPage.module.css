@@ -128,14 +128,20 @@
   font-variant-numeric: tabular-nums;
 }
 
-.bannerRateCol {
+.bannerRateCol,
+.bannerExpiryCol {
   text-align: end;
 }
 
-.bannerRateVal {
-  font-size: 11px;
+.bannerRateVal,
+.bannerExpiryVal {
+  font-size: 13px;
   font-weight: 800;
   color: var(--wex-cyan, #00B7FF);
+}
+
+.bannerNoticeWrapper {
+  margin-top: 10px;
 }
 
 /* 2. Expired State Action Box */

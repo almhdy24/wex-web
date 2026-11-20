@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Store, Truck, Lock, ArrowLeft } from 'lucide-react';
+import { Store, Truck, Lock, ArrowLeft, AlertCircle } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -8,10 +8,18 @@ import { productsApi } from '../../api/products';
 import { api } from '../../api/client';
 import { formatSdg, getProductImageUrl } from '../../utils/formatters';
 import LaptopSvg from '../../components/common/LaptopSvg';
+import PriceNotice from '../../components/common/PriceNotice';
 import styles from './CheckoutPage.module.css';
 
 export default function CheckoutPage() {
-  const { items, clearCart, estimatedSubtotalSdg } = useCart();
+  const {
+    items,
+    clearCart,
+    estimatedSubtotalSdg,
+    refreshCartPrices,
+    confirmAllPriceChanges,
+    hasUnconfirmedPriceChanges,
+  } = useCart();
   const { user } = useAuth();
   const { success, error: toastError } = useToast();
   const navigate = useNavigate();
@@ -34,6 +42,8 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     let isMounted = true;
+    refreshCartPrices();
+
     Promise.all([
       productsApi.getShippingZones().catch(() => ({ data: [] })),
       productsApi.getShopInfo().catch(() => ({ data: null })),
@@ -50,18 +60,23 @@ export default function CheckoutPage() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [refreshCartPrices]);
 
   const selectedZone = shippingZones.find((z) => String(z.id) === String(selectedZoneId));
   const deliveryFee = orderType === 'delivery' && selectedZone ? selectedZone.fee_sdg : 0;
   const appDiscount = Math.round(estimatedSubtotalSdg * 0.03);
   const finalTotal = Math.max(0, estimatedSubtotalSdg - appDiscount + deliveryFee);
-  const exchangeRate = shopInfo?.exchange_rate_sdg || 650;
-  const priceLockHours = shopInfo?.price_lock_hours || 4;
+  const priceLockHours = shopInfo?.lock_hours || shopInfo?.price_lock_hours || 4;
 
   const handleSubmitOrder = async (e) => {
     if (e) e.preventDefault();
     if (submitting) return;
+
+    if (hasUnconfirmedPriceChanges) {
+      toastError('تغير سعر بعض الأجهزة في السلة. يرجى تأكيد الأسعار الجديدة قبل المتابعة.');
+      return;
+    }
+
     setErrors({});
 
     if (!contactPhone.trim()) {
@@ -302,19 +317,28 @@ export default function CheckoutPage() {
                 {formatSdg(finalTotal)}
               </div>
             </div>
-            <div className={styles.exchangeRateHint}>
-              سعر الصرف: {exchangeRate}
-            </div>
           </div>
         </div>
 
-        {/* 5. Checkout Notice (Amber Card) */}
-        <div className={styles.noticeCard}>
-          <h4 className={styles.noticeHeading}>ملاحظة الدفع وتثبيت السعر:</h4>
-          <p className={styles.noticeBody}>
-            الدفع كامل قبل التجهيز، للاستلام من المحل أو للتوصيل. السعر بيتثبت ليك لمدة {priceLockHours} ساعات عشان تحول في بنكك وترفع الإشعار.
-          </p>
+        {/* 5. Checkout Price Notice */}
+        <div className={styles.noticeWrapper}>
+          <PriceNotice variant="full" lockHours={priceLockHours} />
         </div>
+
+        {/* Price Change Warning if applicable */}
+        {hasUnconfirmedPriceChanges && (
+          <div className={styles.priceChangeWarning} role="alert">
+            <AlertCircle size={16} />
+            <span>تغير سعر بعض الأجهزة في السلة. يرجى تأكيد الأسعار الجديدة قبل تثبيت الطلب.</span>
+            <button
+              type="button"
+              className={styles.confirmChangesBtn}
+              onClick={confirmAllPriceChanges}
+            >
+              تأكيد الأسعار الجديدة
+            </button>
+          </div>
+        )}
 
         <div className={styles.bottomSpacer} />
 
@@ -322,7 +346,7 @@ export default function CheckoutPage() {
         <div className={styles.stickySubmitBar}>
           <button
             type="submit"
-            disabled={submitting}
+            disabled={submitting || hasUnconfirmedPriceChanges}
             className={`${styles.submitBtn} btn-vivid`}
           >
             <Lock size={16} />

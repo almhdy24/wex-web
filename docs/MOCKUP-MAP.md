@@ -208,4 +208,14 @@ All marketing puffery and forbidden words remain strictly excluded:
 - No "أصلية، أفضل، مميز، احترافي، حصري، ضمان حقيقي، وارد دبي، ذكي، تجربة، !".
 - Condition is "جديد" or "مستعمل استيراد" only.
 - Warranty text originates solely from the API field.
-- Price note: "السعر بالدرهم وبيتغير مع الصرف. بنثبته ليك بعد الطلب."
+- Price note (Standard customer-facing notice): "الأسعار بتتغير مع تقلب سعر الصرف. بعد الطلب بنثبت ليك السعر لمدة {N} ساعات تحول فيها."
+
+---
+
+## 5. Intentional Deviations from Mockup
+
+The reference mockups originally featured public exchange rate tickers ("الدرهم اليوم ..."), AED secondary price labels under SDG prices, and locked rate callouts on order vouchers. These are **INTENTIONALLY REMOVED** as architectural deviations:
+1. **Public Rate Chip Removed**: Replaced on Home and Product Detail pages by generic price update timestamp `آخر تحديث للأسعار: اليوم 9:00` without any mention of AED or the exchange rate.
+2. **AED Subtitles Removed**: All storefront product cards, catalogs, carts, and order cards render strictly in SDG. AED values are never delivered to or displayed in the customer storefront.
+3. **Price Lock Banner Simplified**: Order detail displays `السعر مثبت: {total} ج.س` and `ينتهي التثبيت الساعة {HH:MM}`. Any "locked rate / 1 درهم = ..." copy is eliminated.
+4. **Copy Rules**: Front-end copy never mentions the reference currency or rate. The only allowed mention of currency fluctuation is the generic customer notice: *"الأسعار بتتغير مع تقلب سعر الصرف. بعد الطلب بنثبت ليك السعر لمدة {N} ساعات تحول فيها."*

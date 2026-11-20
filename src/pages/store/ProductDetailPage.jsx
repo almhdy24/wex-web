@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Plus, Minus, ShieldCheck, MapPin, Check } from 'lucide-react';
 import { productsApi } from '../../api/products';
-import { formatSdg, formatAed, getProductImageUrl, getConditionLabel } from '../../utils/formatters';
+import { formatSdg, getProductImageUrl, getConditionLabel } from '../../utils/formatters';
+import PriceNotice, { formatPricesUpdatedAt } from '../../components/common/PriceNotice';
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
 import LaptopSvg from '../../components/common/LaptopSvg';
@@ -89,8 +90,7 @@ export default function ProductDetailPage() {
     product.stock_status === 'out_of_stock' ||
     (product.stock_quantity !== undefined && product.stock_quantity <= 0);
   const displayImage = selectedImage ? getProductImageUrl(selectedImage) : null;
-  const exchangeRate = shopInfo?.exchange_rate_sdg || 650;
-  const priceLockHours = shopInfo?.price_lock_hours || 4;
+  const priceLockHours = shopInfo?.lock_hours || shopInfo?.price_lock_hours || 4;
 
   const handleAddToCart = () => {
     if (isOutOfStock) return;
@@ -187,7 +187,7 @@ export default function ProductDetailPage() {
         ) : null}
       </div>
 
-      {/* 3. Price Box (Mockup Parity: wex-ribbon-subtle) */}
+      {/* 3. Price Box (SDG Only + Transparent Guarantee Notice) */}
       <div className={`${styles.priceBox} wex-ribbon-subtle`}>
         <div className={styles.priceRow}>
           <div>
@@ -195,23 +195,20 @@ export default function ProductDetailPage() {
             <div className={styles.priceSdg}>
               <span>{formatSdg(product.price_sdg)}</span>
             </div>
-            {product.price_aed ? (
-              <div className={styles.priceAed}>
-                ({formatAed(product.price_aed)})
-              </div>
-            ) : null}
           </div>
-
-          <div className={styles.rateChipWrapper}>
-            <div className={styles.rateChip}>
-              <span className={styles.pulseDot} />
-              <span>الدرهم اليوم: {exchangeRate} جنيه</span>
+          {shopInfo?.prices_updated_at && (
+            <div className={styles.lastUpdateLine}>
+              آخر تحديث للأسعار: {formatPricesUpdatedAt(shopInfo.prices_updated_at)}
             </div>
-          </div>
+          )}
         </div>
 
-        <div className={styles.priceLockNote}>
-          <span>سعر اللابتوب بالدرهم وبيتغير مع الصرف. لما تطلب، بنثبت ليك السعر لمدة {priceLockHours} ساعات وبتحول فيها عبر بنكك. لو المدة انتهت بيرجع السعر للصرف الحالي.</span>
+        <div className={styles.priceNoticeWrapper}>
+          <PriceNotice
+            variant="full"
+            lockHours={priceLockHours}
+            pricesUpdatedAt={shopInfo?.prices_updated_at}
+          />
         </div>
       </div>
 

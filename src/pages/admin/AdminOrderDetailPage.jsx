@@ -236,20 +236,28 @@ export default function AdminOrderDetailPage() {
                 <thead>
                   <tr>
                     <th>الجهاز</th>
-                    <th>سعر القطعة</th>
+                    <th>سعر القطعة (SDG)</th>
+                    <th>
+                      سعر القطعة (AED) <span className={styles.adminOnlyBadge}>للإدارة فقط</span>
+                    </th>
                     <th>الكمية</th>
-                    <th>المجموع</th>
+                    <th>المجموع (SDG)</th>
+                    <th>
+                      المجموع (AED) <span className={styles.adminOnlyBadge}>للإدارة فقط</span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {order.items?.map((item) => (
                     <tr key={item.id}>
                       <td>
-                        <strong>{item.product_name}</strong>
+                        <strong>{item.name || item.product_name}</strong>
                       </td>
                       <td>{formatSdg(item.unit_price_sdg)}</td>
+                      <td>{item.unit_price_aed ? `${item.unit_price_aed} AED` : '—'}</td>
                       <td>{item.quantity}</td>
-                      <td>{formatSdg(item.subtotal_sdg)}</td>
+                      <td>{formatSdg(item.line_total_sdg || item.subtotal_sdg)}</td>
+                      <td>{item.line_total_aed ? `${item.line_total_aed} AED` : '—'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -258,7 +266,23 @@ export default function AdminOrderDetailPage() {
 
             <div className={styles.tableFooter}>
               <div className={styles.footerRow}>
-                <span>المجموع الفرعي:</span>
+                <span>
+                  سعر الصرف المعتمد للطلب: <span className={styles.adminOnlyBadge}>للإدارة فقط</span>
+                </span>
+                <span style={{ fontWeight: 700 }}>
+                  {order.rate_sdg_snapshot ? `1 AED = ${Number(order.rate_sdg_snapshot).toLocaleString('en-US')} SDG` : '—'}
+                </span>
+              </div>
+              <div className={styles.footerRow}>
+                <span>
+                  المجموع الفرعي (AED): <span className={styles.adminOnlyBadge}>للإدارة فقط</span>
+                </span>
+                <span style={{ fontWeight: 700 }}>
+                  {order.subtotal_aed ? `${order.subtotal_aed} AED` : '—'}
+                </span>
+              </div>
+              <div className={styles.footerRow}>
+                <span>المجموع الفرعي (SDG):</span>
                 <span>{formatSdg(order.subtotal_sdg)}</span>
               </div>
               {order.discount_sdg > 0 && (
