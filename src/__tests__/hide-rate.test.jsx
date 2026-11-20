@@ -12,14 +12,14 @@ describe('Phase B: Hide Exchange Rate & AED Customer-Facing Tests', () => {
   describe('PriceNotice Component & formatPricesUpdatedAt', () => {
     it('renders full variant with exact required customer copy', () => {
       const html = renderToStaticMarkup(<PriceNotice variant="full" lockHours={4} />);
-      expect(html).toContain('الأسعار بتتغير مع تقلب سعر الصرف. بعد الطلب بنثبت ليك السعر لمدة 4 ساعات تحول فيها.');
+      expect(html).toContain('الأسعار تتغيّر مع تقلّب سعر الصرف. عند إتمام الطلب نثبّت لك السعر لمدة 4 ساعات لتتمكّن من التحويل.');
       // Must not contain reference currency or rate numbers
       expect(html).not.toMatch(/AED|درهم|دولار|[0-9]+\s*جنيه لكل/);
     });
 
     it('renders short variant with exact required customer copy', () => {
       const html = renderToStaticMarkup(<PriceNotice variant="short" lockHours={4} />);
-      expect(html).toContain('الأسعار بتتغير مع تقلب سعر الصرف. بعد الطلب بنثبت ليك السعر لمدة 4 ساعات تحول فيها.');
+      expect(html).toContain('الأسعار تتغيّر مع تقلّب سعر الصرف. عند إتمام الطلب نثبّت لك السعر لمدة 4 ساعات لتتمكّن من التحويل.');
       expect(html).not.toMatch(/AED|درهم|دولار/);
     });
 

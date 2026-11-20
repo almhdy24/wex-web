@@ -111,6 +111,7 @@ export default function OrdersPage() {
                 onClick={() => navigate(`/orders/${order.order_number}`)}
                 role="button"
                 tabIndex={0}
+                aria-label={`عرض تفاصيل الطلب ${order.order_number}`}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') navigate(`/orders/${order.order_number}`);
                 }}

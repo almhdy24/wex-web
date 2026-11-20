@@ -693,3 +693,30 @@ Comprehensive end-to-end review, hardening, and completion of the whole Wex Tech
   - `npm test -- --run`: 26 test suites, 141/141 tests passing (100%).
   - `npm run build`: Production bundle JS 148.12 kB gzip (<= 170 kB budget).
   - `bash scripts/e2e.sh`: Live end-to-end integration test against CodeIgniter 4 backend on port 8081 verified.
+
+---
+
+## Hotfix Storefront Track (Branch: hotfix-compare-i18n) — In Progress
+
+Hotfix of critical storefront issues identified during phone testing:
+
+- [x] **Phase 1: Translation Key Integrity**
+  - Static i18n validator `scripts/check-i18n.mjs` scanning all files in `src/`, integrated into `npm test`, `npm run lint`, and `prebuild` hook.
+  - Added all missing keys in `src/content/ar.js` and `src/content/admin.ar.js` with Modern Standard Arabic copy.
+  - Fixed PriceNotice copy to exact required MSA string: "الأسعار تتغيّر مع تقلّب سعر الصرف. عند إتمام الطلب نثبّت لك السعر لمدة {hours} ساعات لتتمكّن من التحويل."
+  - Runtime safety: `t()` throws loud error in dev/test for missing keys and returns empty string in production (never leaks raw dot keys).
+  - Test suite `src/__tests__/i18n-integrity.test.jsx` passes 100%. Controls without visible label audit fixed.
+- [ ] **Phase 2: Toast System Overhaul**
+  - ToastProvider with queue, deduplication (2s window), max 2 visible toasts.
+  - Semantic icons (color + shape), bold title, detail line, action buttons, 44px close target, remaining time progress bar, swipe dismiss.
+  - Layering above bottom navigation with `--bottom-offset` variable.
+  - LatinText wrapper `<bdi dir="ltr">` for product names avoiding bidi quote flips.
+- [ ] **Phase 3: Compare Feature**
+  - Cross-tab store, max 3 items, strict product type matching.
+  - CompareTray floating bar with thumbnails, counter, "قارن الآن" and "مسح".
+  - Full `/compare` matrix table with sticky specs, differences-only toggle, "الأقل سعرًا" badge.
+- [ ] **Phase 4: Text Direction, Spec Table & Product Page Polish**
+  - Spec value normalization with non-breaking spaces and LTR direction.
+  - Rebalanced specs grid, Arabic document titles, equal-height action buttons.
+- [ ] **Phase 5: Audits & Final Verification**
+

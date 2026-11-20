@@ -20,6 +20,7 @@ export const ar = {
     save: 'حفظ',
     delete: 'حذف',
     back: 'رجوع',
+    backToHome: 'العودة للرئيسية',
     close: 'إغلاق',
     copy: 'نسخ',
     copied: 'تم النسخ',
@@ -189,17 +190,21 @@ export const ar = {
     stockAvailable: 'متوفر بالمخزون: {count}',
     stockLow: 'متبقي {count} أجهزة فقط',
     outOfStock: 'غير متوفر حاليًا',
+    outOfStockBadge: 'غير متوفر',
+    lowStockBadge: 'كمية محدودة',
+    onlyLeft: 'متبقي {count} فقط',
     quickAdd: 'أضف للسلة',
+    addToCart: 'أضف إلى السلة',
     addedToCart: 'تمت الإضافة للسلة',
     inCart: 'موجود بالسلة',
     specifications: 'المواصفات الفنية',
-    warranty: 'الضمان المعتمد',
-    warrantyDefault: 'ضمان فحص وتشغيل معتمد لمدة 7 أيام',
+    warranty: 'الضمان',
+    warrantyDefault: 'ضمان فحص وتشغيل لمدة 7 أيام',
     pickupPolicy: 'استلام فوري من المحل أو توصيل لجميع الولايات',
     description: 'تفاصيل الجهاز والفحص',
     suggestedAccessories: 'ملحقات ملائمة لجهازك',
     addAccessory: 'إضافة الملحق',
-    orderNowAndLock: 'تثبيت السعر وإتمام الطلب',
+    orderNowAndLock: 'اطلب الآن وثبّت السعر',
     addToCartAction: 'إضافة إلى السلة',
   },
 
@@ -226,9 +231,10 @@ export const ar = {
 
   cart: {
     title: 'سلة المشتريات',
-    emptyTitle: 'سلتك فارغة',
+    emptyTitle: 'سلة المشتريات فارغة',
     emptyDesc: 'لم تضف أي جهاز إلى سلتك بعد.',
     startShopping: 'تصفّح الأجهزة الآن',
+    addedItemSuccess: 'تمت إضافة «{name}» إلى سلة المشتريات',
     itemCount: '{count} عناصر',
     unitPrice: 'سعر القطعة:',
     totalItemPrice: 'المجموع:',
@@ -448,25 +454,86 @@ export const ar = {
     liteDesc: 'أداء سلس واقتصادي للأجهزة المحدودة الموارد.',
     reducedDesc: 'حركة ثابتة ومريحة للمستخدمين الحساسين للحركة.',
   },
+
+  compare: {
+    title: 'مقارنة الأجهزة',
+    subtitle: 'مقارنة المواصفات الفنية والأسعار جنبًا إلى جنب',
+    emptyTitle: 'لا توجد أجهزة في المقارنة',
+    emptyDesc: 'يمكنك اختيار حتى 3 أجهزة من المتجر لمقارنة مواصفاتها وأسعارها بدقة جنباً إلى جنب.',
+    browseProducts: 'تصفّح الأجهزة',
+    compareNow: 'قارن الآن',
+    clearAll: 'مسح المقارنة',
+    clearShort: 'مسح',
+    differencesOnly: 'إظهار الفروق فقط',
+    lowestPrice: 'الأقل سعرًا',
+    addDevice: 'إضافة جهاز',
+    removeDevice: 'إزالة من المقارنة',
+    counterText: '{current} من {max}',
+    addedToastTitle: 'أُضيف إلى المقارنة',
+    removedToastTitle: 'أُزيل من المقارنة',
+    maxReachedNotice: 'يمكنك مقارنة 3 أجهزة كحد أقصى. أزل جهازًا لإضافة آخر.',
+    typeMismatchNotice: 'المقارنة متاحة بين أجهزة من النوع نفسه',
+    viewCompareAction: 'عرض المقارنة',
+    manageCompareAction: 'إدارة المقارنة',
+    undoAction: 'تراجع',
+    processor: 'المعالج',
+    ram: 'الذاكرة (RAM)',
+    storage: 'سعة التخزين',
+    screen: 'الشاشة',
+    screenSize: 'مقاس الشاشة',
+    gpu: 'كرت الشاشة',
+    condition: 'حالة الجهاز',
+    battery: 'البطارية',
+    warranty: 'الضمان',
+    price: 'السعر',
+    addToCart: 'أضف للسلة',
+  },
+
+  toast: {
+    addedToCartTitle: 'أُضيف إلى السلة',
+    viewCartAction: 'عرض السلة',
+    addedToCompareTitle: 'أُضيف إلى المقارنة',
+    removedFromCompareTitle: 'أُزيل من المقارنة',
+    viewCompareAction: 'عرض المقارنة',
+    undoAction: 'تراجع',
+    addedToFavoritesTitle: 'أُضيف إلى المفضلة',
+    copiedTitle: 'تم النسخ',
+    closeToast: 'إغلاق الإشعار',
+  },
 };
 
 /**
  * Helper to look up a string using dot-notation path, with parameter interpolation.
  * Example: t('priceNotice.full', { hours: 4 })
+ *
+ * Runtime safety:
+ * - In development and tests, throws an Error on missing keys to enforce 100% dictionary coverage.
+ * - In production, returns an empty string (never exposes raw dot-syntax technical keys).
  */
 export function t(key, vars = {}) {
+  const isProd =
+    (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.PROD) ||
+    (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production');
+
+  if (!key || typeof key !== 'string') {
+    if (isProd) return '';
+    throw new Error(`[i18n] Invalid translation key provided: ${JSON.stringify(key)}`);
+  }
+
   const parts = key.split('.');
   let current = ar;
   for (const part of parts) {
     if (current && typeof current === 'object' && part in current) {
       current = current[part];
     } else {
-      return key; // Fallback to key if not found
+      if (isProd) return '';
+      throw new Error(`[i18n] Missing translation key: "${key}"`);
     }
   }
 
   if (typeof current !== 'string') {
-    return key;
+    if (isProd) return '';
+    throw new Error(`[i18n] Translation key is not a string: "${key}"`);
   }
 
   let result = current;

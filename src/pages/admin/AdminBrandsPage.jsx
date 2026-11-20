@@ -190,13 +190,15 @@ export default function AdminBrandsPage() {
                     </td>
                     <td style={{ textAlign: 'center' }}>
                       <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
-                        <Button variant="ghost" size="sm" onClick={() => openEditModal(b)}>
+                        <Button variant="ghost" size="sm" onClick={() => openEditModal(b)} aria-label="تعديل الماركة" title="تعديل الماركة">
                           <Edit size={14} />
                         </Button>
                         <Button
                           variant="danger"
                           size="sm"
                           onClick={() => setDeleteModal({ open: true, brand: b, loading: false })}
+                          aria-label="حذف الماركة"
+                          title="حذف الماركة"
                         >
                           <Trash2 size={14} />
                         </Button>

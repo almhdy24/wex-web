@@ -1,5 +1,6 @@
 import React from 'react';
 import { ShieldCheck, Info } from 'lucide-react';
+import { t } from '../../content/ar';
 import styles from './PriceNotice.module.css';
 
 /**
@@ -50,18 +51,19 @@ export function formatPricesUpdatedAt(isoString) {
 export default function PriceNotice({
   variant = 'full',
   lockHours = 4,
+  hours: propHours,
   pricesUpdatedAt = null,
   showLastUpdated = false,
   className = '',
 }) {
-  const hours = lockHours || 4;
+  const hours = propHours || lockHours || 4;
 
   if (variant === 'short') {
     return (
       <div className={`${styles.noticeShort} ${className}`.trim()} role="note">
         <Info size={14} className={styles.icon} />
         <span>
-          الأسعار بتتغير مع تقلب سعر الصرف. بعد الطلب بنثبت ليك السعر لمدة {hours} ساعات تحول فيها.
+          {t('priceNotice.full', { hours })}
         </span>
       </div>
     );
@@ -72,11 +74,11 @@ export default function PriceNotice({
       <ShieldCheck size={18} className={styles.icon} />
       <div className={styles.noticeContent}>
         <p className={styles.noticeText}>
-          الأسعار بتتغير مع تقلب سعر الصرف. بعد الطلب بنثبت ليك السعر لمدة {hours} ساعات تحول فيها.
+          {t('priceNotice.full', { hours })}
         </p>
         {showLastUpdated && (
           <span className={styles.updatedAtLine}>
-            آخر تحديث للأسعار: {formatPricesUpdatedAt(pricesUpdatedAt)}
+            {t('priceNotice.pricesUpdatedAt', { time: formatPricesUpdatedAt(pricesUpdatedAt) })}
           </span>
         )}
       </div>

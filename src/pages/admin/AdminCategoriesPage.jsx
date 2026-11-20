@@ -198,13 +198,15 @@ export default function AdminCategoriesPage() {
                     </td>
                     <td style={{ textAlign: 'center' }}>
                       <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
-                        <Button variant="ghost" size="sm" onClick={() => openEditModal(c)}>
+                        <Button variant="ghost" size="sm" onClick={() => openEditModal(c)} aria-label="تعديل التصنيف" title="تعديل التصنيف">
                           <Edit size={14} />
                         </Button>
                         <Button
                           variant="danger"
                           size="sm"
                           onClick={() => setDeleteModal({ open: true, category: c, loading: false })}
+                          aria-label="حذف التصنيف"
+                          title="حذف التصنيف"
                         >
                           <Trash2 size={14} />
                         </Button>
