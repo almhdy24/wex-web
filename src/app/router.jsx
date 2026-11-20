@@ -39,6 +39,7 @@ const AccountPage = lazy(() => import('../pages/store/AccountPage'));
 const NotificationsPage = lazy(() => import('../pages/store/NotificationsPage'));
 const ComparePage = lazy(() => import('../pages/store/ComparePage'));
 const FavoritesPage = lazy(() => import('../pages/store/FavoritesPage'));
+const FaqPage = lazy(() => import('../pages/store/FaqPage'));
 
 // Auth Pages
 const LoginPage = lazy(() => import('../pages/auth/LoginPage'));
@@ -71,6 +72,7 @@ export const router = createBrowserRouter([
       { path: 'products/:slug', element: load(ProductDetailPage) },
       { path: 'compare', element: load(ComparePage) },
       { path: 'favorites', element: load(FavoritesPage) },
+      { path: 'faq', element: load(FaqPage) },
       {
         path: 'login',
         element: (

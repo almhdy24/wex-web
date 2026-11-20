@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Copy, Check, MessageCircle, RefreshCw, Upload, CheckCircle2, Clock } from 'lucide-react';
+import { Copy, Check, MessageCircle, RefreshCw, Upload, CheckCircle2, Clock, ShieldCheck, ArrowRight } from 'lucide-react';
 import { ordersApi } from '../../api/orders';
 import { formatSdg, formatDate, getOrderStatusInfo } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
@@ -43,6 +43,7 @@ export default function OrderDetailPage() {
   const [uploading, setUploading] = useState(false);
   const [copiedAccount, setCopiedAccount] = useState(false);
   const [reordering, setReordering] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   // Load Order Data
   const loadOrder = async (showLoading = true) => {
@@ -84,10 +85,16 @@ export default function OrderDetailPage() {
     };
   }, [secondsRemaining]);
 
-  // Handle Proof File Selection with instant client-side compression
-  const handleFileChange = async (e) => {
-    const file = e.target.files?.[0];
+  const isPending = order?.status === 'pending_payment';
+  const hasProof = !!order?.payment_proof || order?.status === 'payment_uploaded' || order?.status === 'under_review';
+
+  // Process selected file with client-side compression
+  const processAndSetFile = async (file) => {
     if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toastError('يرجى اختيار ملف صورة صالح (JPG, PNG, WEBP)');
+      return;
+    }
 
     try {
       const processed = await compressProofImage(file);
@@ -96,6 +103,7 @@ export default function OrderDetailPage() {
       const reader = new FileReader();
       reader.onload = () => setProofPreview(reader.result);
       reader.readAsDataURL(processed);
+      success('تم تجهيز صورة الإشعار بنجاح');
     } catch {
       setProofFile(file);
       const reader = new FileReader();
@@ -103,6 +111,50 @@ export default function OrderDetailPage() {
       reader.readAsDataURL(file);
     }
   };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) processAndSetFile(file);
+  };
+
+  // Drag and Drop handlers
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer?.files?.[0];
+    if (file) processAndSetFile(file);
+  };
+
+  // Clipboard Paste (Ctrl+V) handler
+  useEffect(() => {
+    const handlePaste = (e) => {
+      if (!isPending || hasProof) return;
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const file = items[i].getAsFile();
+          if (file) {
+            processAndSetFile(file);
+            success('تم لصق صورة الإشعار من الحافظة');
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, [isPending, hasProof]);
 
   // Submit Payment Proof
   const handleUploadSubmit = async (e) => {
@@ -179,10 +231,8 @@ export default function OrderDetailPage() {
     );
   }
 
-  const isPending = order.status === 'pending_payment';
   const isExpired = order.status === 'expired' && !order.payment_proof;
   const isUrgent = isPending && secondsRemaining > 0 && secondsRemaining < 3600;
-  const hasProof = !!order.payment_proof || order.status === 'payment_uploaded' || order.status === 'under_review';
   const bankDetails = order.bank_details || {
     bank_name: 'بنك الخرطوم (بنكك)',
     account_number: '2849102',
@@ -194,7 +244,6 @@ export default function OrderDetailPage() {
   const hours = Math.floor(secondsRemaining / 3600);
   const minutes = Math.floor((secondsRemaining % 3600) / 60);
   const seconds = secondsRemaining % 60;
-
   const padZero = (n) => String(n).padStart(2, '0');
 
   // Tracking Timeline Steps
@@ -237,318 +286,338 @@ export default function OrderDetailPage() {
 
   return (
     <div className={styles.container}>
-      {/* 1. Hero Countdown & Price Lock Banner (Mockup Screen 6 Parity) */}
-      <div
-        className={`${styles.priceLockBanner} ${
-          isExpired ? styles.bannerExpired : isUrgent ? styles.bannerUrgent : ''
-        }`}
-      >
-        <div className={styles.lockHeader}>
-          <div className={styles.lockStatusBadge}>
-            <span>{isExpired ? 'انتهت المهلة' : isPending ? 'السعر مثبت' : statusInfo.label}</span>
-          </div>
-          <span className={styles.orderNumberLabel}>طلب #{order.order_number}</span>
-        </div>
+      {/* Breadcrumb Navigation on Desktop */}
+      <div className={styles.breadcrumbBar}>
+        <button type="button" onClick={() => navigate('/orders')} className={styles.backLink}>
+          <ArrowRight size={16} />
+          <span>العودة إلى سجل الطلبات</span>
+        </button>
+        <span className={styles.orderBadge}>طلب #{order.order_number}</span>
+      </div>
 
-        <div className={styles.countdownTitle}>
-          {isExpired
-            ? 'انتهت مدة تثبيت السعر المحددة'
-            : isPending
-            ? 'الوقت المتبقي للتحويل ورفع الإشعار'
-            : 'حالة الطلب الحالية'}
-        </div>
-
-        {/* Digital Clock Boxes & SVG Circular Ring */}
-        {isPending && !isExpired && (
-          <>
-            <div className={styles.timerRingBox} aria-hidden="true">
-              <svg className={styles.timerRingSvg} width="64" height="64" viewBox="0 0 64 64">
-                <circle className={styles.timerRingBg} cx="32" cy="32" r="26" />
-                <circle
-                  className={`${styles.timerRingProg} ${isUrgent ? styles.ringUrgent : ''}`}
-                  cx="32"
-                  cy="32"
-                  r="26"
-                  style={{
-                    strokeDasharray: 163.36,
-                    strokeDashoffset: 163.36 * (1 - Math.max(0, Math.min(1, secondsRemaining / 14400))),
-                  }}
-                />
-              </svg>
-              <Clock size={20} className={styles.timerRingCenterIcon} />
+      <div className={styles.orderDetailLayout}>
+        {/* Start Column: Countdown Ring + Bank Card + Receipt Upload (Sticky on Desktop) */}
+        <div className={styles.startColumn}>
+          {/* 1. Hero Countdown & Price Lock Banner */}
+          <div
+            className={`${styles.priceLockBanner} ${
+              isExpired ? styles.bannerExpired : isUrgent ? styles.bannerUrgent : ''
+            }`}
+          >
+            <div className={styles.lockHeader}>
+              <div className={styles.lockStatusBadge}>
+                <span>{isExpired ? 'انتهت المهلة' : isPending ? 'السعر مثبت' : statusInfo.label}</span>
+              </div>
+              <span className={styles.orderNumberLabel}>طلب #{order.order_number}</span>
             </div>
 
-            <div className={styles.timerDigitsContainer}>
-              <div className={styles.timerBox}>
-                <span className={styles.digit}>{padZero(hours)}</span>
-                <span className={styles.unit}>ساعة</span>
+            <div className={styles.countdownTitle}>
+              {isExpired
+                ? 'انتهت مدة تثبيت السعر المحددة'
+                : isPending
+                ? 'الوقت المتبقي للتحويل ورفع الإشعار'
+                : 'حالة الطلب الحالية'}
+            </div>
+
+            {/* Digital Clock Boxes & SVG Circular Ring */}
+            {isPending && !isExpired && (
+              <>
+                <div className={styles.timerRingBox} aria-hidden="true">
+                  <svg className={styles.timerRingSvg} width="64" height="64" viewBox="0 0 64 64">
+                    <circle className={styles.timerRingBg} cx="32" cy="32" r="26" />
+                    <circle
+                      className={`${styles.timerRingProg} ${isUrgent ? styles.ringUrgent : ''}`}
+                      cx="32"
+                      cy="32"
+                      r="26"
+                      style={{
+                        strokeDasharray: 163.36,
+                        strokeDashoffset: 163.36 * (1 - Math.max(0, Math.min(1, secondsRemaining / 14400))),
+                      }}
+                    />
+                  </svg>
+                  <Clock size={20} className={styles.timerRingCenterIcon} />
+                </div>
+
+                <div className={styles.timerDigitsContainer}>
+                  <div className={styles.timerBox}>
+                    <span className={styles.digit}>{padZero(hours)}</span>
+                    <span className={styles.unit}>ساعة</span>
+                  </div>
+                  <span className={styles.timerColon}>:</span>
+                  <div className={styles.timerBox}>
+                    <span className={styles.digit}>{padZero(minutes)}</span>
+                    <span className={styles.unit}>دقيقة</span>
+                  </div>
+                  <span className={styles.timerColon}>:</span>
+                  <div className={styles.timerBox}>
+                    <span className={styles.digit}>{padZero(seconds)}</span>
+                    <span className={styles.unit}>ثانية</span>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Locked Price Summary Row */}
+            <div className={styles.bannerSummaryRow}>
+              <div>
+                <div className={styles.bannerSummaryLabel}>السعر مثبت:</div>
+                <div className={styles.bannerAmount}>
+                  {formatSdg(order.total_sdg || order.total_amount_sdg)}
+                </div>
               </div>
-              <span className={styles.timerColon}>:</span>
-              <div className={styles.timerBox}>
-                <span className={styles.digit}>{padZero(minutes)}</span>
-                <span className={styles.unit}>دقيقة</span>
+              {order.lock_expires_at && (
+                <div className={styles.bannerExpiryCol}>
+                  <div className={styles.bannerSummaryLabel}>ينتهي التثبيت:</div>
+                  <div className={styles.bannerExpiryVal}>
+                    الساعة {formatExpiryTime(order.lock_expires_at)}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Short price notice on lock card */}
+            <div className={styles.bannerNoticeWrapper}>
+              <PriceNotice variant="short" />
+            </div>
+          </div>
+
+          {/* 2. Expired State Action Box */}
+          {isExpired && (
+            <div className={styles.expiredBox}>
+              <h3 className={styles.expiredTitle}>انتهت مهلة تثبيت السعر</h3>
+              <p className={styles.expiredDesc}>
+                انتهت مهلة تثبيت السعر لهذا الطلب وتم إلغاء الحجز. يمكنك بسهولة إعادة الطلب بالأسعار المحدثة حالياً.
+              </p>
+              <button
+                type="button"
+                disabled={reordering}
+                onClick={handleReorder}
+                className={styles.reorderBtn}
+              >
+                <RefreshCw size={16} />
+                <span>{reordering ? 'جاري إعادة الحجز...' : 'إعادة الطلب بالسعر الحالي'}</span>
+              </button>
+            </div>
+          )}
+
+          {/* 3. Bankak Payment Details Card */}
+          {!isExpired && isPending && (
+            <div className={styles.bankCard}>
+              <div className={styles.bankHeader}>
+                <div>
+                  <h4 className={styles.bankName}>{bankDetails.bank_name}</h4>
+                  <div className={styles.bankBranch}>{bankDetails.branch_name}</div>
+                </div>
+                <span className={styles.bankTag}>تحويل بنكك</span>
               </div>
-              <span className={styles.timerColon}>:</span>
-              <div className={styles.timerBox}>
-                <span className={styles.digit}>{padZero(seconds)}</span>
-                <span className={styles.unit}>ثانية</span>
+
+              <div className={styles.bankRow}>
+                <span className={styles.bankLabel}>رقم الحساب:</span>
+                <div className={styles.accountBox}>
+                  <span className={styles.accountNumber}>{bankDetails.account_number}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyAccount(bankDetails.account_number)}
+                    className={styles.copyBtn}
+                    title="نسخ رقم الحساب"
+                  >
+                    {copiedAccount ? <Check size={14} /> : <Copy size={14} />}
+                    <span>{copiedAccount ? 'تم النسخ' : 'نسخ'}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className={styles.bankRow}>
+                <span className={styles.bankLabel}>اسم الحساب:</span>
+                <span className={styles.bankVal}>{bankDetails.account_name}</span>
+              </div>
+
+              <div className={styles.bankRow}>
+                <span className={styles.bankLabel}>ملاحظة التحويل:</span>
+                <span className={styles.orderRefHint}>اكتب رقم الطلب #{order.order_number}</span>
               </div>
             </div>
-          </>
-        )}
+          )}
 
-        {/* 12-Particle Ribbon Confetti Burst on Confirmed / Completed Orders */}
-        {(order.status === 'confirmed' || order.status === 'completed') && (
-          <div className={styles.confettiContainer} aria-hidden="true">
-            {Array.from({ length: 12 }).map((_, i) => (
-              <span key={i} className={styles.particle} style={{ '--p': i }} />
-            ))}
-          </div>
-        )}
+          {/* 4. Receipt Upload Dropzone (with Drag/Drop & Ctrl+V Paste) */}
+          {!isExpired && isPending && (
+            <div className={styles.receiptCard}>
+              <h4 className={styles.receiptTitle}>رفع إشعار التحويل</h4>
+              <p className={styles.receiptDesc}>
+                بعد ما تحوّل عبر تطبيق بنكك، ارفع صورة الإشعار هنا أو اسحبها أو الصقها مباشرة (Ctrl+V).
+              </p>
 
-        {/* Locked Price Summary Row */}
-        <div className={styles.bannerSummaryRow}>
-          <div>
-            <div className={styles.bannerSummaryLabel}>السعر مثبت:</div>
-            <div className={styles.bannerAmount}>
-              {formatSdg(order.total_sdg || order.total_amount_sdg)}
-            </div>
-          </div>
-          {order.lock_expires_at && (
-            <div className={styles.bannerExpiryCol}>
-              <div className={styles.bannerSummaryLabel}>ينتهي التثبيت:</div>
-              <div className={styles.bannerExpiryVal}>
-                الساعة {formatExpiryTime(order.lock_expires_at)}
-              </div>
+              {hasProof ? (
+                <div className={styles.proofSuccessBox}>
+                  <CheckCircle2 size={24} className={styles.successIcon} />
+                  <div>
+                    <div className={styles.proofSuccessTitle}>تم استلام إشعار التحويل</div>
+                    <div className={styles.proofSuccessSub}>الطلب قيد المراجعة حالياً ومطابقة العملية.</div>
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={handleUploadSubmit} className={styles.uploadForm}>
+                  <div
+                    className={`${styles.dropzone} ${isDragging ? styles.dropzoneDragging : ''}`}
+                    onClick={() => document.getElementById('receiptFileInput').click()}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') document.getElementById('receiptFileInput').click();
+                    }}
+                  >
+                    <input
+                      type="file"
+                      id="receiptFileInput"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className={styles.hiddenFile}
+                    />
+                    <Upload size={26} className={styles.uploadIcon} />
+                    <div className={styles.dropzoneTitle}>
+                      {proofFile ? proofFile.name : 'اضغط لاختيار صورة الإشعار أو اسحبها هنا'}
+                    </div>
+                    <div className={styles.dropzoneSub}>
+                      يمكنك أيضاً الضغط على Ctrl+V للصق لقطة الشاشة مباشرة
+                    </div>
+                  </div>
+
+                  {proofPreview && (
+                    <div className={styles.previewBox}>
+                      <img src={proofPreview} alt="معاينة الإشعار" className={styles.previewImg} />
+                    </div>
+                  )}
+
+                  <div className={styles.formRow}>
+                    <input
+                      type="text"
+                      placeholder="اسم المحول في بنكك (اختياري)"
+                      value={senderName}
+                      onChange={(e) => setSenderName(e.target.value)}
+                      className={styles.smallInput}
+                    />
+                    <input
+                      type="text"
+                      placeholder="الرقم المرجعي للإشعار (اختياري)"
+                      value={referenceNumber}
+                      onChange={(e) => setReferenceNumber(e.target.value)}
+                      className={styles.smallInput}
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={uploading || !proofFile}
+                    className={`${styles.uploadBtn} btn-vivid`}
+                  >
+                    <Check size={16} />
+                    <span>{uploading ? 'جاري رفع الإشعار...' : 'تأكيد ورفع الإشعار'}</span>
+                  </button>
+                </form>
+              )}
             </div>
           )}
         </div>
 
-        {/* Short price notice on lock card */}
-        <div className={styles.bannerNoticeWrapper}>
-          <PriceNotice variant="short" />
-        </div>
-      </div>
+        {/* End Column: Timeline + Order Items + Support Block */}
+        <div className={styles.endColumn}>
+          {/* 5. 5-Step Order Tracking Timeline */}
+          <div className={styles.timelineCard}>
+            <h4 className={styles.timelineHeading}>مراحل تنفيذ الطلب</h4>
 
-      {/* 2. Expired State Action Box */}
-      {isExpired && (
-        <div className={styles.expiredBox}>
-          <h3 className={styles.expiredTitle}>انتهت مهلة تثبيت السعر</h3>
-          <p className={styles.expiredDesc}>
-            انتهت مهلة تثبيت السعر لهذا الطلب وتم إلغاء الحجز. يمكنك بسهولة إعادة الطلب بالأسعار المحدثة حالياً.
-          </p>
-          <button
-            type="button"
-            disabled={reordering}
-            onClick={handleReorder}
-            className={styles.reorderBtn}
-          >
-            <RefreshCw size={16} />
-            <span>{reordering ? 'جاري إعادة الحجز...' : 'إعادة الطلب بالسعر الحالي'}</span>
-          </button>
-        </div>
-      )}
+            <div className={styles.trackingTimeline}>
+              {trackingSteps.map((step, idx) => {
+                const isCompleted = idx < currentStepIdx;
+                const isCurrent = idx === currentStepIdx;
 
-      {/* 3. Bankak Payment Details Card (Mockup Parity) */}
-      {!isExpired && isPending && (
-        <div className={styles.bankCard}>
-          <div className={styles.bankHeader}>
-            <div>
-              <h4 className={styles.bankName}>{bankDetails.bank_name}</h4>
-              <div className={styles.bankBranch}>{bankDetails.branch_name}</div>
-            </div>
-            <span className={styles.bankTag}>تحويل بنكك</span>
-          </div>
+                return (
+                  <div
+                    key={idx}
+                    className={`${styles.timelineStep} ${
+                      isCompleted ? styles.stepCompleted : isCurrent ? styles.stepCurrent : ''
+                    }`}
+                  >
+                    <div className={styles.timelineMarker}>
+                      <div className={styles.markerDot}>
+                        {isCompleted ? <Check size={12} /> : idx + 1}
+                      </div>
+                      {idx < trackingSteps.length - 1 && <div className={styles.markerLine} />}
+                    </div>
 
-          <div className={styles.bankRow}>
-            <span className={styles.bankLabel}>رقم الحساب:</span>
-            <div className={styles.accountBox}>
-              <span className={styles.accountNumber}>{bankDetails.account_number}</span>
-              <button
-                type="button"
-                onClick={() => handleCopyAccount(bankDetails.account_number)}
-                className={styles.copyBtn}
-                title="نسخ رقم الحساب"
-              >
-                {copiedAccount ? <Check size={14} /> : <Copy size={14} />}
-                <span>{copiedAccount ? 'تم النسخ' : 'نسخ'}</span>
-              </button>
+                    <div className={styles.timelineContent}>
+                      <div className={styles.stepTitleRow}>
+                        <h5 className={styles.stepTitle}>{step.title}</h5>
+                        <span className={styles.stepTime}>{step.time}</span>
+                      </div>
+                      <p className={styles.stepDesc}>{step.desc}</p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
-          <div className={styles.bankRow}>
-            <span className={styles.bankLabel}>اسم الحساب:</span>
-            <span className={styles.bankVal}>{bankDetails.account_name}</span>
-          </div>
-
-          <div className={styles.bankRow}>
-            <span className={styles.bankLabel}>ملاحظة التحويل:</span>
-            <span className={styles.orderRefHint}>اكتب رقم الطلب #{order.order_number}</span>
-          </div>
-        </div>
-      )}
-
-      {/* 4. Receipt Upload Dropzone */}
-      {!isExpired && isPending && (
-        <div className={styles.receiptCard}>
-          <h4 className={styles.receiptTitle}>رفع إشعار التحويل:</h4>
-          <p className={styles.receiptDesc}>
-            بعد ما تحول في بنكك، ارفع صورة الإشعار هنا عشان نراجعها ونجهز جهازك.
-          </p>
-
-          {hasProof ? (
-            <div className={styles.proofSuccessBox}>
-              <CheckCircle2 size={24} className={styles.successIcon} />
-              <div>
-                <div className={styles.proofSuccessTitle}>تم استلام إشعار التحويل</div>
-                <div className={styles.proofSuccessSub}>الطلب قيد المراجعة حالياً ومطابقة العملية.</div>
-              </div>
-            </div>
-          ) : (
-            <form onSubmit={handleUploadSubmit} className={styles.uploadForm}>
-              <div
-                className={styles.dropzone}
-                onClick={() => document.getElementById('receiptFileInput').click()}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => { if (e.key === 'Enter') document.getElementById('receiptFileInput').click(); }}
-              >
-                <input
-                  type="file"
-                  id="receiptFileInput"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className={styles.hiddenFile}
-                />
-                <Upload size={24} className={styles.uploadIcon} />
-                <div className={styles.dropzoneTitle}>
-                  {proofFile ? proofFile.name : 'اضغط هنا لاختيار صورة إشعار بنكك'}
+          {/* 6. Order Items & Delivery Summary */}
+          <div className={styles.detailsCard}>
+            <h4 className={styles.detailsTitle}>عناصر وتفاصيل الطلب</h4>
+            <div className={styles.itemsTable}>
+              {order.items?.map((item, idx) => (
+                <div key={idx} className={styles.itemRow}>
+                  <div>
+                    <span className={styles.itemName}>{item.product_name || item.name}</span>
+                    <span className={styles.itemQty}> × {item.quantity}</span>
+                  </div>
+                  <span className={styles.itemTotal}>
+                    {formatSdg((item.price_sdg || item.unit_price_sdg) * item.quantity)}
+                  </span>
                 </div>
-                <div className={styles.dropzoneSub}>صورة عادية أو لقطة شاشة من الهاتف</div>
-              </div>
+              ))}
 
-              {proofPreview && (
-                <div className={styles.previewBox}>
-                  <img src={proofPreview} alt="معاينة الإشعار" className={styles.previewImg} />
+              {order.discount_sdg > 0 && (
+                <div className={styles.discountRow}>
+                  <span>خصم الطلب بالتطبيق (3%):</span>
+                  <span>- {formatSdg(order.discount_sdg)}</span>
                 </div>
               )}
 
-              <div className={styles.formRow}>
-                <input
-                  type="text"
-                  placeholder="اسم المحول في بنكك (اختياري)"
-                  value={senderName}
-                  onChange={(e) => setSenderName(e.target.value)}
-                  className={styles.smallInput}
-                />
-                <input
-                  type="text"
-                  placeholder="الرقم المرجعي للإشعار (اختياري)"
-                  value={referenceNumber}
-                  onChange={(e) => setReferenceNumber(e.target.value)}
-                  className={styles.smallInput}
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={uploading || !proofFile}
-                className={`${styles.uploadBtn} btn-vivid`}
-              >
-                <Check size={16} />
-                <span>{uploading ? 'جاري رفع الإشعار...' : 'تأكيد ورفع الإشعار'}</span>
-              </button>
-            </form>
-          )}
-        </div>
-      )}
-
-      {/* 5. 5-Step Order Tracking Timeline (Mockup Screen 8 Parity) */}
-      <div className={styles.timelineCard}>
-        <h4 className={styles.timelineHeading}>مراحل الطلب</h4>
-
-        <div className={styles.trackingTimeline}>
-          {trackingSteps.map((step, idx) => {
-            const isCompleted = idx < currentStepIdx;
-            const isCurrent = idx === currentStepIdx;
-
-            return (
-              <div
-                key={idx}
-                className={`${styles.timelineStep} ${
-                  isCompleted ? styles.stepCompleted : isCurrent ? styles.stepCurrent : ''
-                }`}
-              >
-                <div className={styles.timelineMarker}>
-                  <div className={styles.markerDot}>
-                    {isCompleted ? <Check size={12} /> : idx + 1}
-                  </div>
-                  {idx < trackingSteps.length - 1 && <div className={styles.markerLine} />}
+              {order.shipping_fee_sdg > 0 && (
+                <div className={styles.itemRow}>
+                  <span>رسوم التوصيل:</span>
+                  <span>{formatSdg(order.shipping_fee_sdg)}</span>
                 </div>
+              )}
 
-                <div className={styles.timelineContent}>
-                  <div className={styles.stepTitleRow}>
-                    <h5 className={styles.stepTitle}>{step.title}</h5>
-                    <span className={styles.stepTime}>{step.time}</span>
-                  </div>
-                  <p className={styles.stepDesc}>{step.desc}</p>
-                </div>
+              <div className={styles.grandTotalRow}>
+                <span>الإجمالي:</span>
+                <span className={styles.grandTotalVal}>{formatSdg(order.total_amount_sdg)}</span>
               </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* 6. Order Items & Delivery Summary */}
-      <div className={styles.detailsCard}>
-        <h4 className={styles.detailsTitle}>عناصر الطلب</h4>
-        <div className={styles.itemsTable}>
-          {order.items?.map((item, idx) => (
-            <div key={idx} className={styles.itemRow}>
-              <div>
-                <span className={styles.itemName}>{item.product_name || item.name}</span>
-                <span className={styles.itemQty}> × {item.quantity}</span>
-              </div>
-              <span className={styles.itemTotal}>
-                {formatSdg((item.price_sdg || item.unit_price_sdg) * item.quantity)}
-              </span>
             </div>
-          ))}
 
-          {order.discount_sdg > 0 && (
-            <div className={styles.discountRow}>
-              <span>خصم الطلب بالتطبيق (3%):</span>
-              <span>- {formatSdg(order.discount_sdg)}</span>
+            <div className={styles.guaranteeBox}>
+              <ShieldCheck size={16} className={styles.guaranteeIcon} />
+              <span>يشمل الضمان المعتمد 7 أيام فحص واستبدال كامل.</span>
             </div>
-          )}
+          </div>
 
-          {order.shipping_fee_sdg > 0 && (
-            <div className={styles.itemRow}>
-              <span>رسوم التوصيل:</span>
-              <span>{formatSdg(order.shipping_fee_sdg)}</span>
-            </div>
-          )}
-
-          <div className={styles.grandTotalRow}>
-            <span>الإجمالي:</span>
-            <span className={styles.grandTotalVal}>{formatSdg(order.total_amount_sdg)}</span>
+          {/* 7. WhatsApp Direct Assistance CTA */}
+          <div className={styles.whatsappCard}>
+            <a
+              href={`https://wa.me/249912345678?text=${encodeURIComponent(
+                `مرحباً، لدي استفسار عن طلبي رقم #${order.order_number}`
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.whatsappActionBtn}
+            >
+              <MessageCircle size={18} />
+              <span>تواصل مع الدعم عبر واتساب لمتابعة هذا الطلب</span>
+            </a>
           </div>
         </div>
-      </div>
-
-      {/* 7. WhatsApp Direct Assistance CTA */}
-      <div className={styles.whatsappCard}>
-        <a
-          href={`https://wa.me/249912345678?text=${encodeURIComponent(
-            `مرحباً، لدي استفسار عن طلبي رقم #${order.order_number}`
-          )}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.whatsappActionBtn}
-        >
-          <MessageCircle size={18} />
-          <span>تواصل عبر واتساب لمتابعة الطلب</span>
-        </a>
       </div>
     </div>
   );

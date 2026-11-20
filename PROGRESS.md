@@ -489,7 +489,20 @@ Calm, trustworthy, production-ready UI/UX tailored for Sudanese customers and el
     - Integrated into `StoreLayout.jsx`.
   - Created `src/__tests__/cart-checkout.test.jsx`: 5 unit tests covering cart, checkout, and pending order banner.
   - Verification: 0 lint errors, 15 test files and 74 tests passing (100%), production build 127.73 kB gzip initial JS, 12.33 kB gzip global CSS.
-- [ ] **Phase 6: Order Detail & Orders Desktop Layouts, Receipt Drag/Paste, Account/Notifications, FAQ Page**
+- [x] **Phase 6: Order Detail & Orders Desktop Layouts, Receipt Drag/Paste, Account/Notifications, FAQ Page**
+  - Upgraded `OrderDetailPage.jsx` & `OrderDetailPage.module.css`:
+    - 2-column desktop layout: (Start Column) sticky countdown ring + price lock banner + Bankak card + receipt upload dropzone; (End Column) 5-step tracking timeline + order items & delivery breakdown + WhatsApp assistance card.
+    - Receipt Dropzone: drag-and-drop file upload with visual dragging feedback (`isDragging`), plus clipboard paste (Ctrl+V) listener to paste screenshot directly from clipboard.
+    - Breadcrumb navigation to return to orders list.
+  - Upgraded `OrdersPage.module.css`: desktop horizontal tabular row layout with order number, date, item summary, status badge, price in SDG, and quick action buttons.
+  - Upgraded `AccountPage.module.css` and `NotificationsPage.module.css` for desktop max-width and typography.
+  - Created `FaqPage.jsx` & `FaqPage.module.css` (`/faq`):
+    - Fusha copy covering: price lock mechanism (4 hours), Bankak payment & receipt upload, 7-day testing warranty, store address in Al-Waha mall and opening hours (9:00 AM - 9:00 PM), and delivery options.
+    - Live search query filter and accordion expand/collapse.
+    - Registered `/faq` in `src/app/router.jsx`.
+  - Created `src/__tests__/order-detail-faq.test.jsx`: unit tests covering FAQ page, search, and propositions.
+  - Verification: 0 lint errors, 16 test files and 76 tests passing (100%), production build clean (127.82 kB gzip initial JS, 12.33 kB gzip global CSS).
+- [ ] **Phase 7: General UX Pass: Forms, Undo, Error Recovery, Prefetch, Blur-up & A11y**
 - [x] **Phase 5: Cart Page, Checkout Two-Column Layout, Guest Flow & Pending Order Banner**
   - Enhanced `Toast.jsx`, `Toast.module.css`, and `ToastContext.jsx`: added action button support (`actionToast`), refined action styling, and set desktop positioning to bottom-start (`inset-inline-start: 32px`).
   - Enhanced `CartContext.jsx`: added `restoreItem` to support 5-second undo restoration.
@@ -512,8 +525,34 @@ Calm, trustworthy, production-ready UI/UX tailored for Sudanese customers and el
     - Integrated into `StoreLayout.jsx`.
   - Created `src/__tests__/cart-checkout.test.jsx`: 5 unit tests covering cart, checkout, and pending order banner.
   - Verification: 0 lint errors, 15 test files and 74 tests passing (100%), production build 127.73 kB gzip initial JS, 12.33 kB gzip global CSS.
-- [ ] **Phase 6: Order Detail & Orders Desktop Layouts, Receipt Drag/Paste, Account/Notifications, FAQ Page**
-- [ ] **Phase 6: Order Detail & Orders Desktop Layouts, Receipt Drag/Paste, Account/Notifications, FAQ Page**
+- [x] **Phase 6: Order Detail & Orders Desktop Layouts, Receipt Drag/Paste, Account/Notifications, FAQ Page**
+  - Upgraded `OrderDetailPage.jsx` & `OrderDetailPage.module.css`:
+    - 2-column desktop layout: (Start Column) sticky countdown ring + price lock banner + Bankak card + receipt upload dropzone; (End Column) 5-step tracking timeline + order items & delivery breakdown + WhatsApp assistance card.
+    - Receipt Dropzone: drag-and-drop file upload with visual dragging feedback (`isDragging`), plus clipboard paste (Ctrl+V) listener to paste screenshot directly from clipboard.
+    - Breadcrumb navigation to return to orders list.
+  - Upgraded `OrdersPage.module.css`: desktop horizontal tabular row layout with order number, date, item summary, status badge, price in SDG, and quick action buttons.
+  - Upgraded `AccountPage.module.css` and `NotificationsPage.module.css` for desktop max-width and typography.
+  - Created `FaqPage.jsx` & `FaqPage.module.css` (`/faq`):
+    - Fusha copy covering: price lock mechanism (4 hours), Bankak payment & receipt upload, 7-day testing warranty, store address in Al-Waha mall and opening hours (9:00 AM - 9:00 PM), and delivery options.
+    - Live search query filter and accordion expand/collapse.
+    - Registered `/faq` in `src/app/router.jsx`.
+  - Created `src/__tests__/order-detail-faq.test.jsx`: unit tests covering FAQ page, search, and propositions.
+  - Verification: 0 lint errors, 16 test files and 76 tests passing (100%), production build clean (127.82 kB gzip initial JS, 12.33 kB gzip global CSS).
+- [ ] **Phase 7: General UX Pass: Forms, Undo, Error Recovery, Prefetch, Blur-up & A11y**
+- [x] **Phase 6: Order Detail & Orders Desktop Layouts, Receipt Drag/Paste, Account/Notifications, FAQ Page**
+  - Upgraded `OrderDetailPage.jsx` & `OrderDetailPage.module.css`:
+    - 2-column desktop layout: (Start Column) sticky countdown ring + price lock banner + Bankak card + receipt upload dropzone; (End Column) 5-step tracking timeline + order items & delivery breakdown + WhatsApp assistance card.
+    - Receipt Dropzone: drag-and-drop file upload with visual dragging feedback (`isDragging`), plus clipboard paste (Ctrl+V) listener to paste screenshot directly from clipboard.
+    - Breadcrumb navigation to return to orders list.
+  - Upgraded `OrdersPage.module.css`: desktop horizontal tabular row layout with order number, date, item summary, status badge, price in SDG, and quick action buttons.
+  - Upgraded `AccountPage.module.css` and `NotificationsPage.module.css` for desktop max-width and typography.
+  - Created `FaqPage.jsx` & `FaqPage.module.css` (`/faq`):
+    - Fusha copy covering: price lock mechanism (4 hours), Bankak payment & receipt upload, 7-day testing warranty, store address in Al-Waha mall and opening hours (9:00 AM - 9:00 PM), and delivery options.
+    - Live search query filter and accordion expand/collapse.
+    - Registered `/faq` in `src/app/router.jsx`.
+  - Created `src/__tests__/order-detail-faq.test.jsx`: unit tests covering FAQ page, search, and propositions.
+  - Verification: 0 lint errors, 16 test files and 76 tests passing (100%), production build clean (127.82 kB gzip initial JS, 12.33 kB gzip global CSS).
+- [ ] **Phase 7: General UX Pass: Forms, Undo, Error Recovery, Prefetch, Blur-up & A11y**
 - [ ] **Phase 7: General UX Pass: Forms, Undo, Error Recovery, Prefetch, Blur-up & A11y**
 - [ ] **Phase 8: Performance, Tests, Documentation Updates & Double Check Verification**
 

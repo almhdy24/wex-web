@@ -259,3 +259,26 @@
   font-weight: 700;
   cursor: pointer;
 }
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 800px;
+    margin-inline: auto;
+    padding: 32px 0;
+    gap: 20px;
+  }
+
+  .profileCard {
+    padding: 24px;
+  }
+
+  .avatarBubble {
+    width: 64px;
+    height: 64px;
+    font-size: 20px;
+  }
+
+  .userName {
+    font-size: 18px;
+  }
+}

@@ -6,6 +6,61 @@
   gap: 16px;
 }
 
+.breadcrumbBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 4px;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--wex-royal, #0B3FBF);
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm, 8px);
+  transition: background-color var(--motion-fast, 150ms) var(--ease-standard);
+}
+
+.backLink:hover {
+  background: var(--wex-ice, #EAF3FF);
+}
+
+.orderBadge {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--wex-navy, #061A55);
+  background: var(--wex-ice, #EAF3FF);
+  padding: 4px 12px;
+  border-radius: var(--radius-sm, 8px);
+}
+
+.orderDetailLayout {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.startColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.endColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
 /* 1. Hero Countdown & Price Lock Banner */
 .priceLockBanner {
   background: var(--wex-grad-brand, linear-gradient(135deg, #061A55 0%, #0B3FBF 60%, #1E6BFF 100%));
@@ -359,6 +414,12 @@
 .dropzone:hover {
   border-color: var(--wex-royal, #0B3FBF);
   background: #EFF6FF;
+}
+
+.dropzoneDragging {
+  border-color: var(--wex-vivid, #1E6BFF) !important;
+  background: #EBF3FF !important;
+  box-shadow: 0 0 0 4px rgba(30, 107, 255, 0.15);
 }
 
 .hiddenFile {
@@ -757,4 +818,41 @@
 :global(html[data-motion="lite"]) .particle {
   animation: none !important;
   display: none !important;
+}
+
+.guaranteeBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--wex-royal, #0B3FBF);
+  background: var(--wex-ice-light, #F4F8FD);
+  border-radius: var(--radius-sm, 8px);
+  padding: 10px 12px;
+  margin-top: 14px;
+}
+
+.guaranteeIcon {
+  color: var(--wex-vivid, #1E6BFF);
+  flex-shrink: 0;
+}
+
+/* Desktop 2-Column Web Layout */
+@media (min-width: 1024px) {
+  .container {
+    padding: 32px 0;
+  }
+
+  .orderDetailLayout {
+    display: grid;
+    grid-template-columns: 440px 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  .startColumn {
+    position: sticky;
+    top: calc(var(--desktop-header-height, 72px) + 24px);
+  }
 }
