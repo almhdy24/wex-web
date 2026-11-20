@@ -1,252 +1,145 @@
-import React, { useState, useEffect } from 'react';
-import { Outlet, Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Bell, ShoppingBag, Home, LayoutGrid, Package, User, MapPin, Clock, Phone, MessageSquare } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { useCart } from '../context/CartContext';
-import { notificationsApi } from '../api/notifications';
-import { productsApi } from '../api/products';
+import React, { useState, useEffect, useRef } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
+import AppBar from '../components/common/AppBar';
+import BottomTabBar from '../components/common/BottomTabBar';
+import SplashScreen from '../components/common/SplashScreen';
 import PwaPrompt from '../components/common/PwaPrompt';
+import { ordersApi } from '../api/orders';
+import { notificationsApi } from '../api/notifications';
+import { useAuth } from '../context/AuthContext';
 import styles from './StoreLayout.module.css';
 
 export default function StoreLayout() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [shopRate, setShopRate] = useState(650);
-
-  const { isAuthenticated } = useAuth();
-  const { totalItems } = useCart();
-  const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
+  const [showSplash, setShowSplash] = useState(() => {
+    try {
+      return !sessionStorage.getItem('wex_splash_shown');
+    } catch {
+      return false;
+    }
+  });
 
-  // Load shop exchange rate
-  useEffect(() => {
-    productsApi.getShopInfo()
-      .then((res) => {
-        if (res?.data?.rate_sdg) {
-          setShopRate(res.data.rate_sdg);
-        }
-      })
-      .catch(() => {});
-  }, []);
+  const [activeOrderCount, setActiveOrderCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const viewportRef = useRef(null);
+  const scrollPositions = useRef({});
 
-  // Load unread notifications count if user is authenticated
+  // Route title mapping for AppBar
+  const getRouteInfo = (pathname) => {
+    if (pathname === '/') return { isHome: true, title: 'ويكس تكنولوجي' };
+    if (pathname === '/products') return { title: 'الأجهزة المتوفرة', showBack: true, backTo: '/' };
+    if (pathname.startsWith('/products/')) return { title: 'تفاصيل الجهاز', showBack: true, backTo: '/products' };
+    if (pathname === '/cart') return { title: 'سلة الشراء', showBack: true, backTo: '/products' };
+    if (pathname === '/checkout') return { title: 'إتمام الطلب وتثبيت السعر', showBack: true, backTo: '/cart' };
+    if (pathname === '/orders') return { title: 'سجل الطلبات', showBack: false };
+    if (pathname.startsWith('/orders/')) return { title: 'تثبيت السعر ومتابعة الطلب', showBack: true, backTo: '/orders' };
+    if (pathname === '/notifications') return { title: 'الإشعارات والتنبيهات', showBack: true, backTo: '/' };
+    if (pathname === '/account') return { title: 'حسابي وإعدادات التطبيق', showBack: false };
+    if (pathname === '/login') return { title: 'تسجيل الدخول', showBack: true, backTo: '/' };
+    if (pathname === '/auth/verify') return { title: 'تأكيد الرمز', showBack: true, backTo: '/login' };
+    return { title: 'ويكس تكنولوجي', showBack: true, backTo: '/' };
+  };
+
+  const routeInfo = getRouteInfo(location.pathname);
+
+  // Hide bottom tab bar on Product Detail, Cart, Checkout, and Order Detail
+  // where a sticky bottom action bar takes its place
+  const hideBottomNav =
+    (location.pathname.startsWith('/products/') && location.pathname !== '/products') ||
+    location.pathname === '/cart' ||
+    location.pathname.startsWith('/checkout') ||
+    (location.pathname.startsWith('/orders/') && location.pathname !== '/orders');
+
+  // Load count of pending/active orders for bottom bar badge
   useEffect(() => {
     if (!isAuthenticated) {
+      setActiveOrderCount(0);
       setUnreadCount(0);
       return;
     }
     let isMounted = true;
-    notificationsApi.getUnreadCount()
+    ordersApi.getOrders({ status: 'pending_payment' })
       .then((res) => {
-        if (isMounted) setUnreadCount(res?.data?.unread_count || 0);
+        if (isMounted) {
+          const list = res?.data || [];
+          setActiveOrderCount(list.length);
+        }
       })
       .catch(() => {});
+
+    notificationsApi.getUnreadCount()
+      .then((res) => {
+        if (isMounted) {
+          setUnreadCount(res?.data?.unread_count || 0);
+        }
+      })
+      .catch(() => {});
+
     return () => { isMounted = false; };
-  }, [isAuthenticated]);
+  }, [isAuthenticated, location.pathname]);
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/products?q=${encodeURIComponent(searchQuery.trim())}`);
-      setMobileSearchOpen(false);
-    }
-  };
+  // Scroll Restoration / Keep-Alive Scroll Position
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
 
-  // Hide bottom navigation on checkout and product detail pages where sticky bars exist
-  const hideBottomNav = location.pathname.startsWith('/checkout') ||
-    (location.pathname.startsWith('/products/') && location.pathname !== '/products');
+    // Save previous scroll position
+    const prevPath = location.pathname;
+
+    const handleScroll = () => {
+      scrollPositions.current[prevPath] = viewport.scrollTop;
+    };
+
+    viewport.addEventListener('scroll', handleScroll, { passive: true });
+
+    // Restore scroll position for current route or scroll to top
+    const savedPos = scrollPositions.current[location.pathname] || 0;
+    viewport.scrollTop = savedPos;
+
+    return () => {
+      viewport.removeEventListener('scroll', handleScroll);
+    };
+  }, [location.pathname]);
 
   return (
-    <div className={styles.layout}>
-      {/* Header */}
-      <header className={styles.header}>
-        <div className={`container ${styles.headerInner}`}>
-          {/* Brand Logo */}
-          <Link to="/" className={styles.logoLink} aria-label="الرئيسية - ويكس تكنولوجي">
-            <img
-              src="/assets/logo.png"
-              alt="Wex Technology"
-              className={styles.logo}
-              width="130"
-              height="38"
-            />
-          </Link>
-
-          {/* Desktop Search */}
-          <div className={styles.searchDesktop}>
-            <form onSubmit={handleSearchSubmit} className={styles.searchForm} role="search">
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="ابحث عن لابتوب أو ملحق..."
-                className={styles.searchInput}
-                aria-label="البحث عن المنتجات"
-              />
-              <button type="submit" className={styles.searchBtn} aria-label="بحث">
-                <Search size={18} strokeWidth={1.75} />
-              </button>
-            </form>
-          </div>
-
-          {/* Actions: Search Toggle (Mobile), Notifications, Cart */}
-          <div className={styles.actions}>
-            <button
-              type="button"
-              className={styles.mobileSearchBtn}
-              onClick={() => setMobileSearchOpen((prev) => !prev)}
-              aria-label="فتح شريط البحث"
-              aria-expanded={mobileSearchOpen}
-            >
-              <Search size={20} strokeWidth={1.75} />
-            </button>
-
-            {isAuthenticated && (
-              <Link to="/notifications" className={styles.iconBtn} aria-label="الإشعارات">
-                <Bell size={20} strokeWidth={1.75} />
-                {unreadCount > 0 && <span className={styles.unreadDot} aria-hidden="true" />}
-              </Link>
-            )}
-
-            <Link to="/cart" className={styles.iconBtn} aria-label={`سلة المشتريات (${totalItems} عنصر)`}>
-              <ShoppingBag size={20} strokeWidth={1.75} />
-              {totalItems > 0 && (
-                <span className={styles.cartBadge}>{totalItems > 99 ? '99+' : totalItems}</span>
-              )}
-            </Link>
-          </div>
-        </div>
-
-        {/* Mobile Search Expandable Drawer */}
-        {mobileSearchOpen && (
-          <div className={styles.mobileSearchDrawer}>
-            <form onSubmit={handleSearchSubmit} className={styles.searchForm} role="search">
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="ابحث عن لابتوب أو ملحق..."
-                className={styles.searchInput}
-                autoFocus
-              />
-              <button type="submit" className={styles.searchBtn} aria-label="بحث">
-                <Search size={18} strokeWidth={1.75} />
-              </button>
-            </form>
-          </div>
-        )}
-
-        {/* Thin Exchange Rate Strip */}
-        <div className={styles.rateStrip}>
-          <div className={`container ${styles.rateStripInner}`}>
-            <div className={styles.rateValue}>
-              <span className={styles.rateDot} aria-hidden="true" />
-              <span>الدرهم اليوم {shopRate} جنيه</span>
-            </div>
-            <div className={styles.rateTimestamp}>
-              تحديث: اليوم 9:00
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content Area */}
-      <main id="main-content" className={`${styles.main} ${hideBottomNav ? styles.noBottomNav : ''}`}>
-        <Outlet />
-      </main>
-
-      {/* Plain, Honest Footer */}
-      <footer className={styles.footer}>
-        <div className="container">
-          <div className={styles.footerGrid}>
-            <div className={styles.footerCol}>
-              <div className={styles.footerHeading}>ويكس تكنولوجي (Wex Technology)</div>
-              <p>متجر أجهزة لابتوب وموبايلات وملحقات في أم درمان. بنوفر أسعار واضحة ومثبتة بعد الطلب.</p>
-              <div className={styles.footerItem}>
-                <MapPin size={16} strokeWidth={1.75} />
-                <span>مول الواحة - الشهداء - أم درمان</span>
-              </div>
-              <div className={styles.footerItem}>
-                <Clock size={16} strokeWidth={1.75} />
-                <span>السبت إلى الخميس: 9:00 صباحاً - 9:00 مساءً</span>
-              </div>
-            </div>
-
-            <div className={styles.footerCol}>
-              <div className={styles.footerHeading}>تواصل معنا</div>
-              <a href="tel:0912345678" className={styles.footerItem}>
-                <Phone size={16} strokeWidth={1.75} />
-                <span dir="ltr">0912345678</span>
-              </a>
-              <a
-                href="https://wa.me/249912345678"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.footerItem}
-              >
-                <MessageSquare size={16} strokeWidth={1.75} />
-                <span>واتساب المتجر</span>
-              </a>
-            </div>
-
-            <div className={styles.footerCol}>
-              <div className={styles.footerHeading}>روابط سريعة</div>
-              <div className={styles.footerLinks}>
-                <Link to="/products">كتالوج الأجهزة</Link>
-                <Link to="/orders">متابعة طلب</Link>
-                <Link to="/account">حسابي</Link>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.footerBottom}>
-            <div>جميع الحقوق محفوظة © {new Date().getFullYear()} ويكس تكنولوجي</div>
-            <div>أم درمان - السودان</div>
-          </div>
-        </div>
-      </footer>
-
-      {/* Mobile Bottom Navigation (4 tabs) */}
-      {!hideBottomNav && (
-        <nav className={styles.bottomNav} aria-label="التنقل الأساسي">
-          <NavLink
-            to="/"
-            end
-            className={({ isActive }) => `${styles.navItem} ${isActive ? styles.activeNavItem : ''}`}
-          >
-            <Home size={20} strokeWidth={1.75} />
-            <span>الرئيسية</span>
-          </NavLink>
-
-          <NavLink
-            to="/products"
-            className={({ isActive }) => `${styles.navItem} ${isActive ? styles.activeNavItem : ''}`}
-          >
-            <LayoutGrid size={20} strokeWidth={1.75} />
-            <span>المتجر</span>
-          </NavLink>
-
-          <NavLink
-            to="/orders"
-            className={({ isActive }) => `${styles.navItem} ${isActive ? styles.activeNavItem : ''}`}
-          >
-            <Package size={20} strokeWidth={1.75} />
-            <span>طلباتي</span>
-          </NavLink>
-
-          <NavLink
-            to={isAuthenticated ? '/account' : '/login'}
-            className={({ isActive }) => `${styles.navItem} ${isActive ? styles.activeNavItem : ''}`}
-          >
-            <User size={20} strokeWidth={1.75} />
-            <span>حسابي</span>
-          </NavLink>
-        </nav>
+    <div className={styles.desktopViewport}>
+      {/* Session Splash Screen Overlay */}
+      {showSplash && (
+        <SplashScreen onFinish={() => setShowSplash(false)} />
       )}
 
-      {/* PWA Prompt */}
-      <PwaPrompt />
+      {/* Main App Shell Frame (Max 480px) */}
+      <div className={styles.appShell}>
+        {/* Fixed App Bar */}
+        <AppBar
+          title={routeInfo.title}
+          showLogo={routeInfo.isHome}
+          showBack={routeInfo.showBack}
+          backTo={routeInfo.backTo}
+          unreadCount={unreadCount}
+        />
+
+        {/* Scrollable Content Viewport */}
+        <main
+          id="main-content"
+          ref={viewportRef}
+          className={styles.screensViewport}
+          tabIndex={-1}
+        >
+          <div className={styles.screenContent} key={location.pathname}>
+            <Outlet />
+          </div>
+        </main>
+
+        {/* Fixed Bottom Tab Bar (4 Tabs) */}
+        {!hideBottomNav && (
+          <BottomTabBar activeOrderCount={activeOrderCount} />
+        )}
+
+        {/* PWA Install & Offline Detection Prompt */}
+        <PwaPrompt />
+      </div>
     </div>
   );
 }

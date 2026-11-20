@@ -59,6 +59,17 @@
   color: var(--color-white);
 }
 
+.vivid {
+  background: var(--wex-grad-brand);
+  color: var(--wex-white);
+  border-color: transparent;
+  box-shadow: 0 6px 18px rgba(30, 107, 255, 0.3);
+}
+
+.vivid:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
 .secondary {
   background-color: var(--color-slate-100);
   color: var(--color-navy);

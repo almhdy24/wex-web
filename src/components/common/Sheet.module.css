@@ -21,12 +21,13 @@
 .sheet {
   background-color: var(--color-white);
   width: 100%;
-  max-width: 540px;
+  max-width: var(--app-shell-max-width, 480px);
   max-height: 85vh;
+  max-height: 85dvh;
   display: flex;
   flex-direction: column;
-  border-top-left-radius: var(--radius-lg);
-  border-top-right-radius: var(--radius-lg);
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
   box-shadow: var(--shadow-sheet);
   overflow: hidden;
   animation: slideUp 200ms ease;
@@ -35,9 +36,8 @@
 
 @media (min-width: 768px) {
   .sheet {
-    border-radius: var(--radius-card);
-    max-height: 90vh;
-    animation: scaleIn 150ms ease;
+    border-radius: var(--radius-xl);
+    max-height: 85dvh;
   }
 }
 

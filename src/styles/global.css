@@ -12,6 +12,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html {
@@ -19,24 +20,27 @@ html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
   font-variant-numeric: tabular-nums;
+  height: 100%;
 }
 
 body {
-  font-family: var(--font-family);
-  font-size: var(--text-body);
-  line-height: var(--leading-relaxed);
-  color: var(--color-navy);
-  background-color: var(--color-slate-50);
+  font-family: var(--font-arabic);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--wex-navy);
+  background-color: #D9E6F6;
   min-height: 100vh;
+  min-height: 100dvh;
   direction: rtl;
-  text-align: start;
+  text-align: right;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 /* Headings */
 h1, h2, h3, h4, h5, h6 {
-  color: var(--color-navy);
+  color: var(--wex-navy);
   font-weight: 700;
   line-height: var(--leading-tight);
 }
@@ -55,23 +59,23 @@ h3 {
 }
 
 p {
-  color: var(--color-slate-700);
+  color: var(--wex-gray-600);
   line-height: var(--leading-relaxed);
 }
 
 a {
-  color: var(--color-royal);
+  color: var(--wex-royal);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
 
 a:hover {
-  color: var(--color-vivid);
+  color: var(--wex-vivid);
 }
 
 button, input, select, textarea {
   font-family: inherit;
-  font-size: inherit;
+  font-size: 16px; /* Avoid iOS auto-zoom */
   color: inherit;
   font-variant-numeric: tabular-nums;
 }
@@ -80,6 +84,15 @@ button {
   cursor: pointer;
   background: none;
   border: none;
+  user-select: none;
+}
+
+/* Native-like active press feedback */
+button:active,
+.btn:active,
+.chip:active,
+.nav-item:active {
+  transform: scale(0.98);
 }
 
 img, svg {
@@ -91,23 +104,9 @@ ul, ol {
   list-style: none;
 }
 
-/* Container */
-.container {
-  width: 100%;
-  max-width: var(--container-max);
-  margin-inline: auto;
-  padding-inline: var(--space-4);
-}
-
-@media (min-width: 768px) {
-  .container {
-    padding-inline: var(--space-6);
-  }
-}
-
 /* Focus Visible: 2px cyan outline with 2px offset */
 :focus-visible {
-  outline: 2px solid var(--color-cyan);
+  outline: 2px solid var(--wex-cyan);
   outline-offset: 2px;
 }
 
@@ -116,8 +115,8 @@ ul, ol {
   position: absolute;
   top: -100px;
   inset-inline-start: var(--space-4);
-  background: var(--color-navy);
-  color: var(--color-white);
+  background: var(--wex-navy);
+  color: var(--wex-white);
   padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-sm);
   z-index: 10000;
@@ -142,35 +141,73 @@ ul, ol {
   border: 0;
 }
 
-/* Brand Graphic: Slanted Ribbon in ONLY TWO places:
-   1. Splash/Sign-in header
-   2. Thin divider under page title in admin
-*/
-.brand-ribbon-splash {
-  background: linear-gradient(135deg, var(--color-royal) 0%, var(--color-vivid) 60%, var(--color-cyan) 100%);
+/* Slanted Gradient Ribbons from Mockup */
+.wex-ribbon {
+  background: var(--wex-grad-brand);
   position: relative;
   overflow: hidden;
 }
 
-.brand-ribbon-splash::before {
+.wex-ribbon::before {
   content: "";
   position: absolute;
   top: -40%;
-  inset-inline-start: -20%;
+  left: -20%;
   width: 140%;
   height: 180%;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 50%, rgba(0, 183, 255, 0.2) 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0) 50%, rgba(0, 183, 255, 0.22) 100%);
   transform: rotate(-12deg);
   pointer-events: none;
 }
 
+.wex-ribbon-subtle {
+  background: linear-gradient(135deg, #FFFFFF 0%, #EAF3FF 100%);
+  border: 1px solid #D6E8FF;
+  position: relative;
+  overflow: hidden;
+}
+
+.wex-ribbon-subtle::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 6px;
+  height: 100%;
+  background: var(--wex-grad-brand);
+}
+
+/* Admin Brand Graphic Divider */
 .brand-divider-admin {
-  height: 3px;
+  height: 2px;
   width: 100%;
   max-width: 140px;
-  background: linear-gradient(90deg, var(--color-royal) 0%, var(--color-cyan) 100%);
+  background: linear-gradient(90deg, var(--wex-royal) 0%, var(--wex-cyan) 100%);
   border-radius: var(--radius-full);
   margin-block-start: var(--space-2);
+}
+
+/* Slide Transition Animations for App Screens */
+@keyframes screenSlideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes screenFadeIn {
+  from {
+    opacity: 0.5;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Respect Prefers Reduced Motion */

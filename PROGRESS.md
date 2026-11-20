@@ -8,13 +8,15 @@ Rebuilding storefront UI as ONE mobile-app-style experience identical on phone a
   - Read `~/projects/wex-mockup/index.html`, `css/style.css`, `js/app.js`, `js/data.js` completely.
   - Created `docs/MOCKUP-MAP.md` mapping every mockup screen (splash, home, catalog, product details, checkout, price-lock/payment, orders, tracking, notifications, account, sign-in) with elements in order, spacing, sizes, colors, gradients, ribbons, icons, and React routes.
   - Merged mockup CSS variables into `src/styles/tokens.css` (mockup values prioritized for radii, shadows, brand gradients, and palette).
-- [ ] **Phase 1: App Shell Architecture & Foundation**
+- [x] **Phase 1: App Shell Architecture & Foundation**
   - Root layout: single 480px max-width column, centered on ice background `#D9E6F6` / `#EAF3FF` on wide viewports, 100dvh height, only middle content scrolls.
   - Safe area padding `env(safe-area-inset-top/bottom)`, `viewport-fit=cover`, theme-color `#061A55`, manifest `standalone` portrait.
-  - Fixed 56px App Bar (title or logo, RTL back button, action icons).
-  - Fixed 56px Bottom Tab Bar (4 tabs with exact mockup inline SVGs: الرئيسية، المتجر، طلباتي، حسابي), active tab in vivid blue `#1E6BFF`, unread badge, hidden on Product/Checkout with sticky action bar.
-  - Splash screen overlay with slanted brand ribbons (~1.2s on first session visit).
-  - Native feel: `overscroll-behavior: contain`, `-webkit-tap-highlight-color: transparent`, `:active` press feedback, toasts, sheets, pull-to-refresh skeleton.
+  - Fixed 56px App Bar (`AppBar.jsx` + `AppBar.module.css`): brand title or logo on home, RTL back button on inner pages, notifications bell with unread dot, cart button with item count.
+  - Fixed 56px Bottom Tab Bar (`BottomTabBar.jsx` + `BottomTabBar.module.css`): 4 tabs with exact mockup inline SVGs (الرئيسية، المتجر، طلباتي، حسابي), active tab in vivid blue `#1E6BFF`, unread badge, automatically hidden on product details, cart, checkout, and order detail screens where sticky bottom action bar takes over.
+  - Splash screen overlay (`SplashScreen.jsx` + `SplashScreen.module.css`): slanted brand ribbons, logo card, cyan spinner, skip button, 1.2s timeout with session storage tracking.
+  - Laptop illustration fallback component (`LaptopSvg.jsx`): exact SVG vector illustration matching mockup silhouettes and accent color.
+  - Native feel: `overscroll-behavior: contain`, `-webkit-tap-highlight-color: transparent`, `:active` press feedback (`scale(0.98)`), 16px inputs to prevent iOS zoom, toasts floating above bottom tab bar, bottom sheets within 480px frame.
+  - Verification: 0 lint errors, 39/39 tests passing, production build 110.16 kB gzip.
 - [ ] **Phase 2: Home, Catalog & Product Detail Screens**
   - Home: greeting, search, rate chip, app-discount banner, category icon bubbles, 2-column featured grid, store notice.
   - Catalog: search, filter chips scroll (category, brand, sort), 2-column live grid, empty state.
