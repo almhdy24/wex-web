@@ -1,0 +1,35 @@
+.rippleContainer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.rippleCircle {
+  position: absolute;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.25;
+  transform: translate(-50%, -50%) scale(0);
+  animation-name: rippleScale;
+  animation-duration: var(--motion-slow, 450ms);
+  animation-timing-function: var(--ease-standard, cubic-bezier(0.2, 0.8, 0.2, 1));
+  animation-fill-mode: forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes rippleScale {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.28;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.8);
+    opacity: 0;
+  }
+}
+
+:global(html[data-motion="reduced"]) .rippleCircle {
+  display: none !important;
+}

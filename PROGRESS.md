@@ -309,7 +309,12 @@ Calm, trustworthy, production-ready UI/UX tailored for Sudanese customers and el
   - Audited existing UI and designed screen-by-screen modernization in `docs/POLISH-PLAN.md`.
   - Built centralized Modern Standard Arabic (Fusha) dictionary in `src/content/ar.js` with `t(key, vars)` and `mapApiMessage(msg)`.
   - Audited backend colloquial messages and documented recommendations in `docs/COPY-TODO-API.md`.
-- [ ] **Phase 1: Motion System Foundation & Tokens**
+- [x] **Phase 1: Motion System Foundation & Tokens**
+  - Integrated motion tokens in `tokens.css` (durations: 150ms/250ms/450ms/800ms/600ms, easings: standard/emphasized/exit).
+  - Created `src/motion/`: `motionTokens.js`, `useMotionMode.js` (detects hardware capability, prefers-reduced-motion, and local storage override), `Reveal.jsx`, `Stagger.jsx`, `useCountUp.js`, `Ripple.jsx`, and `useParallax.js`.
+  - Added user motion mode toggle in `AccountPage.jsx` ("الحركة: كاملة / مخففة / موقوفة").
+  - Authored comprehensive motion specification and animation directory in `docs/MOTION.md`.
+  - Created test suite `src/__tests__/motion.test.js`.
 - [ ] **Phase 2: App Shell & Global Component Polish**
 - [ ] **Phase 3: New Home Screen & Product Card**
 - [ ] **Phase 4: Catalog, Product Page, Search & Cart Flight Animation**

@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { LogOut, Package, Bell, Shield, MessageCircle, ChevronLeft, Store } from 'lucide-react';
+import { LogOut, Package, Bell, Shield, MessageCircle, ChevronLeft, Store, Sparkles } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { useMotionMode } from '../../motion';
 import { authApi } from '../../api/auth';
 import styles from './AccountPage.module.css';
 
 export default function AccountPage() {
   const { user, updateUserProfile, logout } = useAuth();
-  const { success } = useToast();
+  const { success, info } = useToast();
+  const { motionMode, setMotionMode } = useMotionMode();
   const navigate = useNavigate();
 
   const [priceLockModalOpen, setPriceLockModalOpen] = useState(false);
@@ -33,6 +35,13 @@ export default function AccountPage() {
     await logout();
     success('تم تسجيل الخروج بنجاح');
     navigate('/');
+  };
+
+  const handleToggleMotion = () => {
+    const nextMode = motionMode === 'full' ? 'lite' : motionMode === 'lite' ? 'reduced' : 'full';
+    setMotionMode(nextMode);
+    const label = nextMode === 'full' ? 'كاملة' : nextMode === 'lite' ? 'مخففة' : 'موقوفة';
+    info(`تم تغيير وضع الحركة إلى: ${label}`);
   };
 
   // Generate initials from name or fallback
@@ -103,6 +112,25 @@ export default function AccountPage() {
           </div>
           <div className={styles.menuItemRight}>
             <span className={styles.menuCyanText}>تفاصيل</span>
+            <ChevronLeft size={16} />
+          </div>
+        </div>
+
+        <div
+          className={styles.menuItem}
+          onClick={handleToggleMotion}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === 'Enter') handleToggleMotion(); }}
+        >
+          <div className={styles.menuItemLeft}>
+            <Sparkles size={18} className={styles.menuIcon} />
+            <span className={styles.menuItemTitle}>وضع وتأثيرات الحركة</span>
+          </div>
+          <div className={styles.menuItemRight}>
+            <span className={styles.menuCyanText}>
+              {motionMode === 'full' ? 'كاملة' : motionMode === 'lite' ? 'مخففة' : 'موقوفة'}
+            </span>
             <ChevronLeft size={16} />
           </div>
         </div>
