@@ -53,7 +53,7 @@ export async function compressProofImage(file, maxDimension = 1600, quality = 0.
               resolve(file);
               return;
             }
-            const cleanName = file.name ? file.name.replace(/\.[^.]+$/, '.jpg') : 'receipt.jpg';
+            const cleanName = file.name ? file.name.replace(/\.[^.]+$/, '.jpg') : 'image.jpg';
             const compressedFile = new File([blob], cleanName, {
               type: 'image/jpeg',
               lastModified: Date.now(),
@@ -69,3 +69,6 @@ export async function compressProofImage(file, maxDimension = 1600, quality = 0.
     reader.readAsDataURL(file);
   });
 }
+
+export const compressImage = compressProofImage;
+

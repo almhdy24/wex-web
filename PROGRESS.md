@@ -577,7 +577,26 @@ Ground-up redesign of the administration panel tailored for store operators and 
     - Secondary actions: extend price lock (hours), cancel order (requires reason), copy summary, and printable invoice slip with `@media print` stylesheet.
   - Added unit test suite `src/__tests__/admin-phase3.test.jsx` (2 unit tests).
   - Verification: 0 lint errors, 19 test files and 89 tests passing (100%), production build clean (137.54 kB gzip initial JS, 13.78 kB gzip global CSS).
-- [ ] **Phase 4: Products List & Multi-Section Product Form**
+- [x] **Phase 4: Products List & Multi-Section Product Form**
+  - Upgraded `AdminProductsPage.jsx` & `AdminProductsPage.module.css`:
+    - Responsive `<DataList>` implementation switching between touch cards (< 768px) and accessible data table with sortable columns (>= 768px).
+    - Inline numeric `<Stepper>` for quick stock adjustments directly in the table/cards without opening the full edit form.
+    - 1-tap active/inactive visibility toggle with instant optimistic update.
+    - Stock badges highlighting low-stock (<= 2) and out-of-stock items.
+    - "تكرار المنتج" action: clones product with `(نسخة)` appended to title, `is_active: 0`, and redirects to the edit form.
+    - Bulk selection toolbar (select all / individual items, bulk activate, bulk deactivate, bulk delete with plain-words `ConfirmDialog`).
+    - Comprehensive `<FilterBar>` with search (q), category, brand, condition, stock status, and active status filters with URL synchronization.
+  - Upgraded `AdminProductFormPage.jsx` & `AdminProductFormPage.module.css`:
+    - Single scrolling form with floating section sidebar on desktop (>= 1024px) and sticky horizontal pills on mobile (< 1024px) for quick jump navigation:
+      - 1. البيانات الأساسية
+      - 2. السعر والمخزون (AED input labeled "للإدارة فقط" + live calculated SDG price preview from current exchange rate)
+      - 3. صور الجهاز (auto-compressed on client before upload to max 1600px/80% JPEG via `compressImage`, reorder controls, set primary image, and delete with undo toast)
+      - 4. المواصفات الفنية (preset templates for laptops, phones, accessories + dynamic custom key-value spec rows)
+      - 5. الملحقات المقترحة (link/unlink accessories)
+    - Unsaved changes guard via `beforeunload` listener and dirty state tracking.
+    - Sticky bottom save bar with "حفظ التعديلات" (primary) and "معاينة في المتجر" (`target="_blank"` to customer product page).
+  - Added unit test suite `src/__tests__/admin-phase4.test.jsx` (2 unit tests).
+  - Verification: 0 lint errors, 0 warnings, 20 test files and 91 tests passing (100%), production build clean (137.90 kB gzip initial JS <= 170 kB budget, 13.78 kB gzip global CSS <= 45 kB budget).
 - [ ] **Phase 5: Exchange Rate, Settings & Shipping Zones**
 - [ ] **Phase 6: Users, Audit Log, Role-Based Navigation & Login Redirect**
 - [ ] **Phase 7: Polish (A11y, Idle Timer, Admin PWA Manifest, Error Recovery)**
