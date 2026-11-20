@@ -744,4 +744,14 @@ Hotfix of critical storefront issues identified during phone testing:
   - Automated check added to `scripts/audit.sh` (Check 5) to block any future reintroduction of invented warranty or trial period claims.
   - Verification: 0 lint errors, 0 lint warnings, 165/165 unit tests green, production build 151.56 kB gzip.
 
+- [x] **Phase 7: Shopping Journey & Purchase Continuity Optimization**
+  - Root Cause Fixed (Redirect to Home after login): In `RouteGuard.jsx`, `GuestRoute` evaluated `location.state?.from?.pathname` which failed on string state (e.g. `{ state: { from: '/checkout' } }`) and ignored `returnTo` search parameters. Fixed to parse string state, object pathname, and `?returnTo=`, ensuring customers return directly to `/checkout` instead of being dumped on `/`.
+  - Root Cause Fixed (Auth Navigation Continuity): In `LoginPage.jsx` and `VerifyOtpPage.jsx`, email OTP verification and Google sign-in both propagate `returnTo` as query parameter and state, guaranteeing that switching to email apps or tab restarts on mobile browsers preserves the return destination.
+  - Draft State Persistence: Moved `wex_checkout_draft` to `localStorage` (with dual-sync to `sessionStorage`), ensuring order type, delivery zone, delivery address, contact phone, and notes are 100% preserved across authentication interruptions and tab reloads.
+  - Checkout Guest Transparency: Added clean guest shopping notice banner on `CheckoutPage` informing customers that they can fill delivery details and seamlessly register or login during price lock submission, with an option to sign in upfront.
+  - Mobile AppBar Decluttering: Removed distracting notifications bell from mobile storefront headers (`/cart`, `/checkout`, `/orders/*`, etc.) to prevent accidental taps that redirected users to notifications instead of completing purchases. Moved unread notifications indicator to the Account tab in `BottomTabBar`.
+  - Contact Auto-Population: Automatically populates user phone into contact phone field once authenticated if left blank.
+  - Verification: 31 test files, 181/181 unit tests green (including new continuity and navigation tests in `cart-checkout.test.jsx`), 0 ESLint warnings, check-i18n pass, and clean production build.
+
+
 
