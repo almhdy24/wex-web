@@ -1,45 +1,47 @@
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-1);
-  padding-block: var(--space-1);
-  padding-inline: var(--space-3);
+  gap: var(--space-2, 8px);
+  padding-block: 6px;
+  padding-inline: var(--space-4, 16px);
   min-height: 36px;
-  font-size: var(--text-sm);
-  font-weight: 500;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--color-slate-200);
-  background-color: var(--color-white);
-  color: var(--color-navy);
+  font-size: var(--text-small, 14px);
+  font-weight: 400;
+  border-radius: var(--radius-chip, 999px);
+  border: 1px solid var(--wex-border);
+  background-color: var(--wex-white);
+  color: var(--wex-navy);
   cursor: pointer;
   white-space: nowrap;
   user-select: none;
-  transition: transform var(--motion-fast) var(--ease-standard), background-color var(--motion-fast), border-color var(--motion-fast), color var(--motion-fast);
+  transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease;
 }
 
 .chip:active {
-  transform: scale(0.96);
-}
-
-:global(html[data-motion="reduced"]) .chip:active {
-  transform: none !important;
+  opacity: 0.85;
 }
 
 .chip:hover {
-  border-color: var(--color-slate-300);
-  background-color: var(--color-slate-50);
+  border-color: var(--wex-royal);
 }
 
+.icon {
+  flex-shrink: 0;
+}
+
+/* Selected: solid royal + white text */
+.selected,
 .active {
-  background-color: var(--color-royal);
-  color: var(--color-white);
-  border-color: var(--color-royal);
+  background-color: var(--wex-royal);
+  color: var(--wex-white);
+  border-color: var(--wex-royal);
   font-weight: 700;
 }
 
+.selected:hover,
 .active:hover {
-  background-color: var(--color-vivid);
-  border-color: var(--color-vivid);
+  background-color: var(--wex-royal);
+  border-color: var(--wex-royal);
 }
 
 .removeBtn {

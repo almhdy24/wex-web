@@ -2,163 +2,136 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
+  gap: var(--space-2, 8px);
   font-family: inherit;
   font-weight: 700;
-  border-radius: var(--radius-btn);
+  border-radius: var(--radius-control, 12px);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: transform var(--motion-fast) var(--ease-standard), background-color var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard);
   text-decoration: none;
   white-space: nowrap;
   user-select: none;
-  min-height: var(--touch-target);
-  padding-inline: var(--space-4);
-  font-size: var(--text-base);
+  height: 48px;
+  min-height: 48px;
+  padding-inline: var(--space-4, 16px);
+  font-size: var(--text-body, 16px);
   position: relative;
-  overflow: hidden;
+  transition: opacity 200ms ease, background-color 200ms ease, border-color 200ms ease, color 200ms ease;
 }
 
 .button:active:not(:disabled) {
-  transform: scale(0.97);
+  opacity: 0.85;
 }
 
 .button:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
+  pointer-events: none;
+}
+
+.icon {
+  flex-shrink: 0;
 }
 
 /* Sizes */
 .sm {
+  height: 36px;
   min-height: 36px;
-  padding-inline: var(--space-3);
-  font-size: var(--text-sm);
-  border-radius: var(--radius-sm);
+  padding-inline: var(--space-3, 12px);
+  font-size: var(--text-small, 14px);
+  border-radius: var(--radius-control, 12px);
 }
 
 .md {
-  min-height: var(--touch-target);
-  padding-inline: var(--space-4);
-  font-size: var(--text-base);
+  height: 48px;
+  min-height: 48px;
+  padding-inline: var(--space-4, 16px);
+  font-size: var(--text-body, 16px);
 }
 
 .lg {
+  height: 48px;
   min-height: 48px;
-  padding-inline: var(--space-6);
-  font-size: var(--text-lg);
+  padding-inline: var(--space-5, 24px);
+  font-size: var(--text-body, 16px);
 }
 
 .fullWidth {
   width: 100%;
 }
 
-/* Variants */
+/* Primary Button: Solid royal, white text, 48px high, radius 12 */
 .primary {
-  background-color: var(--color-royal);
-  color: var(--color-white);
-  border-color: var(--color-royal);
+  background-color: var(--wex-royal);
+  color: var(--wex-white);
+  border-color: var(--wex-royal);
 }
 
 .primary:hover:not(:disabled) {
-  background-color: var(--color-vivid);
-  border-color: var(--color-vivid);
+  background-color: var(--wex-royal);
+  border-color: var(--wex-royal);
 }
 
+/* Vivid (legacy alias maps to primary) */
 .vivid {
-  background: var(--wex-grad-brand);
+  background-color: var(--wex-royal);
   color: var(--wex-white);
-  border-color: transparent;
-  box-shadow: 0 6px 18px rgba(30, 107, 255, 0.28);
+  border-color: var(--wex-royal);
 }
 
-.vivid:hover:not(:disabled) {
-  background: linear-gradient(135deg, #1E6BFF 0%, #00B7FF 100%);
-}
-
+/* Secondary Button: White, 1px royal border, royal text */
 .secondary {
-  background-color: var(--color-slate-100);
-  color: var(--color-navy);
-  border-color: var(--color-slate-200);
+  background-color: var(--wex-white);
+  color: var(--wex-royal);
+  border-color: var(--wex-royal);
 }
 
 .secondary:hover:not(:disabled) {
-  background-color: var(--color-slate-200);
+  background-color: var(--wex-ice);
 }
 
+/* Outline (maps to secondary) */
 .outline {
-  background-color: transparent;
-  color: var(--color-navy);
-  border-color: var(--color-slate-300);
+  background-color: var(--wex-white);
+  color: var(--wex-royal);
+  border-color: var(--wex-royal);
 }
 
 .outline:hover:not(:disabled) {
-  background-color: var(--color-ice);
-  border-color: var(--color-royal);
-  color: var(--color-royal);
+  background-color: var(--wex-ice);
 }
 
+/* Tertiary Button: Text link */
+.tertiary,
+.ghost {
+  background-color: transparent;
+  color: var(--wex-royal);
+  border-color: transparent;
+  height: auto;
+  min-height: auto;
+  padding: 0;
+}
+
+.tertiary:hover:not(:disabled),
+.ghost:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+/* Danger variant */
 .danger {
-  background-color: var(--color-danger);
-  color: var(--color-white);
-  border-color: var(--color-danger);
+  background-color: var(--wex-white);
+  color: var(--wex-danger);
+  border-color: var(--wex-danger);
 }
 
 .danger:hover:not(:disabled) {
-  background-color: #B91C1C;
-  border-color: #B91C1C;
-}
-
-.ghost {
-  background-color: transparent;
-  color: var(--color-navy);
-}
-
-.ghost:hover:not(:disabled) {
-  background-color: var(--color-slate-100);
-}
-
-/* Primary CTA Idle Sheen Sweep */
-.sheen {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.24) 50%,
-    transparent 100%
-  );
-  transform: translate3d(-150%, 0, 0) skewX(-25deg);
-  pointer-events: none;
-  animation: sheenSweep 6s infinite var(--ease-standard);
-  will-change: transform, opacity;
-}
-
-@keyframes sheenSweep {
-  0%, 80% {
-    transform: translate3d(-150%, 0, 0) skewX(-25deg);
-    opacity: 0;
-  }
-  85% {
-    opacity: 1;
-  }
-  92% {
-    transform: translate3d(350%, 0, 0) skewX(-25deg);
-    opacity: 0;
-  }
-  100% {
-    transform: translate3d(350%, 0, 0) skewX(-25deg);
-    opacity: 0;
-  }
+  background-color: var(--wex-danger-bg);
 }
 
 /* Spinner */
 .spinner {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border: 2px solid currentColor;
   border-inline-end-color: transparent;
   border-radius: 50%;
@@ -169,13 +142,4 @@
   to {
     transform: rotate(360deg);
   }
-}
-
-:global(html[data-motion="reduced"]) .button:active:not(:disabled) {
-  transform: none !important;
-}
-
-:global(html[data-motion="lite"]) .sheen,
-:global(html[data-motion="reduced"]) .sheen {
-  display: none !important;
 }

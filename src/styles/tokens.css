@@ -1,171 +1,186 @@
 :root {
   /* =========================================================================
-     Brand Palette (Wex Technology Brand Guide & Approved Mockup)
+     Wex Technology Brand Palette & Approved Design System
      ========================================================================= */
-  --wex-navy: #061A55;
-  --wex-royal: #0B3FBF;
-  --wex-vivid: #1E6BFF;
-  --wex-cyan: #00B7FF;
-  --wex-ice: #EAF3FF;
-  --wex-ice-light: #F4F8FE;
-  --wex-backdrop: #D9E6F6;
-  --wex-white: #FFFFFF;
+  --wex-navy: #061A55;             /* text, dark surface */
+  --wex-royal: #0B3FBF;            /* primary buttons, links, active */
+  --wex-vivid: #1E6BFF;            /* focus ring and small active details only */
+  --wex-cyan: #00B7FF;             /* 2px accents only, e.g. countdown ring end, never text or backgrounds */
+  --wex-ice: #EAF3FF;              /* page background */
+  --wex-white: #FFFFFF;            /* cards */
 
-  /* Aliases for backwards compatibility */
-  --color-navy: var(--wex-navy);
-  --color-royal: var(--wex-royal);
-  --color-royal-blue: var(--wex-royal);
-  --color-royal-blue-hover: var(--wex-vivid);
-  --color-vivid: var(--wex-vivid);
-  --color-cyan: var(--wex-cyan);
-  --color-ice: var(--wex-ice);
-  --color-ice-blue: var(--wex-ice);
-  --color-backdrop: var(--wex-backdrop);
-  --color-white: var(--wex-white);
+  /* Neutrals derived from navy */
+  --wex-text-secondary: #4B5B85;   /* secondary text */
+  --wex-border: #D5E2F7;           /* border */
+  --wex-disabled: #9AA8C7;         /* disabled */
 
-  /* Neutral & Functional Colors */
-  --wex-gray-100: #F1F5F9;
-  --wex-gray-200: #E2E8F0;
-  --wex-gray-300: #CBD5E1;
-  --wex-gray-400: #94A3B8;
-  --wex-gray-600: #475569;
-  --wex-gray-800: #1E293B;
+  /* Dark Card Tokens (Max ONE dark card per screen; only these tokens for text) */
+  --on-dark: #FFFFFF;
+  --on-dark-muted: #C9D6F5;
 
-  /* Slate Scale Aliases */
-  --color-slate-50: var(--wex-ice-light);
-  --color-slate-100: var(--wex-gray-100);
-  --color-slate-200: var(--wex-gray-200);
-  --color-slate-300: var(--wex-gray-300);
-  --color-slate-400: var(--wex-gray-400);
-  --color-slate-500: #64748B;
-  --color-slate-600: var(--wex-gray-600);
-  --color-slate-700: #334155;
-  --color-slate-800: var(--wex-gray-800);
-  --color-slate-900: #0F172A;
-  --color-border: var(--wex-gray-200);
-  --color-border-subtle: var(--wex-ice);
-  --wex-border-focus-ice: #D6E8FF;
+  /* Status Colors (ONLY inside status chips and validation text) */
+  --wex-success: #12805C;
+  --wex-warning: #B45309;
+  --wex-danger: #B42318;
+  --wex-success-bg: #E8F5EE;
+  --wex-warning-bg: #FEF3E2;
+  --wex-danger-bg: #FEE8E7;
 
-  /* Status Colors */
-  --wex-success: #10B981;
-  --wex-success-bg: #ECFDF5;
-  --wex-warning: #F59E0B;
-  --wex-warning-bg: #FFFBEB;
-  --wex-danger: #EF4444;
-  --wex-danger-bg: #FEF2F2;
-  --wex-info: #0284C7;
-  --wex-info-bg: #F0F9FF;
+  /* Gradients: only hero and payment amount card (royal to navy). Never on buttons, tags, or cards */
+  --wex-grad-royal-navy: linear-gradient(135deg, #0B3FBF 0%, #061A55 100%);
+  --wex-grad-brand: var(--wex-grad-royal-navy);
+  --wex-grad-ribbon: var(--wex-grad-royal-navy);
+  --wex-grad-navy: var(--wex-grad-royal-navy);
+  --wex-grad-surface: linear-gradient(180deg, #FFFFFF 0%, #EAF3FF 100%);
 
-  /* Aliases for existing status styles */
-  --color-success: var(--wex-success);
-  --color-success-bg: var(--wex-success-bg);
-  --color-success-border: #A7F3D0;
-  --color-warning: var(--wex-warning);
-  --color-warning-bg: var(--wex-warning-bg);
-  --color-warning-border: #FDE68A;
-  --color-danger: var(--wex-danger);
-  --color-danger-bg: var(--wex-danger-bg);
-  --color-danger-border: #FECACA;
-  --color-info: var(--wex-info);
-  --color-info-bg: var(--wex-info-bg);
-  --color-info-border: #BAE6FD;
+  /* Spacing Scale: 4/8/12/16/24/32 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --page-padding: 16px;
+  --section-gap: 24px;
+
+  /* Border Radii: 12 (controls), 16 (cards), 999 (chips) */
+  --radius-control: 12px;
+  --radius-card: 16px;
+  --radius-chip: 999px;
+
+  /* Radius Aliases */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 16px;
+  --radius-full: 999px;
+  --radius-btn: 12px;
+  --radius-input: 12px;
 
   /* Typography: Self-hosted Tajawal */
   --font-arabic: 'Tajawal', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-family: var(--font-arabic);
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Gradients (Mockup brand gradients) */
-  --wex-grad-brand: linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 50%, #00B7FF 100%);
-  --wex-grad-ribbon: linear-gradient(115deg, rgba(11, 63, 191, 0.95) 0%, rgba(30, 107, 255, 0.9) 60%, rgba(0, 183, 255, 0.85) 100%);
-  --wex-grad-surface: linear-gradient(180deg, #FFFFFF 0%, #EAF3FF 100%);
-  --wex-grad-navy: linear-gradient(135deg, #061A55 0%, #0B3FBF 100%);
-  --wex-grad-urgent: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+  /* Type Scale: caption 12, small 14, body 16, title 18, heading 22 */
+  --text-caption: 12px;
+  --text-small: 14px;
+  --text-body: 16px;
+  --text-title: 18px;
+  --text-heading: 22px;
 
-  /* Border Radii (Mockup values win when they conflict) */
-  --radius-xs: 4px;
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
-  --radius-full: 9999px;
+  /* Type Scale Aliases */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --text-xl: 18px;
+  --text-price: 18px;
+  --text-2xl: 22px;
+  --text-3xl: 22px;
 
-  --radius-input: var(--radius-md);
-  --radius-btn: var(--radius-md);
-  --radius-card: var(--radius-lg);
+  /* Weights: 400 and 700 only (800 only hero title) */
+  --weight-regular: 400;
+  --weight-bold: 700;
+  --weight-hero: 800;
 
-  /* Shadows (Cards and floating elements) */
-  --shadow-sm: 0 2px 6px rgba(6, 26, 85, 0.04);
-  --shadow-md: 0 8px 20px rgba(6, 26, 85, 0.08);
-  --shadow-lg: 0 16px 32px rgba(6, 26, 85, 0.12);
-  --shadow-floating: 0 12px 30px rgba(30, 107, 255, 0.25);
-  --shadow-float: var(--shadow-floating);
-  --shadow-toast: var(--shadow-lg);
-  --shadow-sheet: 0 -8px 28px -4px rgba(6, 26, 85, 0.14);
-  --shadow-xs: var(--shadow-sm);
-
-  /* Type Scale */
-  --text-xs: 0.75rem;       /* 12px */
-  --text-sm: 0.875rem;      /* 14px */
-  --text-base: 1rem;         /* 16px */
-  --text-body: 1rem;         /* 16px */
-  --text-lg: 1.125rem;      /* 18px */
-  --text-xl: 1.25rem;       /* 20px */
-  --text-price: 1.375rem;   /* 22px bold */
-  --text-title: 1.375rem;   /* 22px extra-bold */
-  --text-2xl: 1.5rem;       /* 24px */
-  --text-3xl: 1.875rem;     /* 30px */
-
-  /* Line Heights */
-  --leading-tight: 1.3;
+  /* Line Heights: 1.7 body, 1.35 headings. No letter-spacing on Arabic */
+  --leading-body: 1.7;
+  --leading-heading: 1.35;
+  --leading-tight: 1.35;
   --leading-normal: 1.5;
   --leading-relaxed: 1.7;
 
-  /* Spacing Scale */
-  --space-1: 0.25rem;       /* 4px */
-  --space-2: 0.5rem;        /* 8px */
-  --space-3: 0.75rem;       /* 12px */
-  --space-4: 1rem;          /* 16px */
-  --space-5: 1.25rem;       /* 20px */
-  --space-6: 1.5rem;        /* 24px */
-  --space-8: 2rem;          /* 32px */
-  --space-10: 2.5rem;       /* 40px */
-  --space-12: 3rem;         /* 48px */
-  --space-16: 4rem;         /* 64px */
+  /* Icon sizes: 20 (24 for tab bar), stroke 1.75 */
+  --icon-size: 20px;
+  --icon-tab-size: 24px;
+  --icon-stroke: 1.75;
 
-  /* App Shell Dimensions & Responsive Tiers */
+  /* Surfaces: Card = white, 1px border, radius 16, no shadow. Sticky bars may have soft top shadow */
+  --shadow-none: none;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: 0 4px 16px rgba(6, 26, 85, 0.08);
+  --shadow-floating: 0 8px 24px rgba(6, 26, 85, 0.12);
+  --shadow-float: var(--shadow-floating);
+  --shadow-toast: 0 8px 24px rgba(6, 26, 85, 0.12);
+  --shadow-sheet: 0 -4px 20px rgba(6, 26, 85, 0.1);
+  --shadow-sticky: 0 -4px 12px rgba(6, 26, 85, 0.06);
+
+  /* App Shell Dimensions */
   --app-shell-max-width: 480px;
   --tablet-max-width: 768px;
   --desktop-max-width: 1240px;
   --desktop-header-height: 72px;
   --desktop-top-bar-height: 36px;
-  --desktop-side-padding: clamp(24px, 4vw, 48px);
+  --desktop-side-padding: 16px;
   --app-bar-height: 56px;
   --bottom-tab-height: 56px;
   --bottom-offset: 68px;
-  --touch-target: 44px;
+  --touch-target: 48px;
 
-  /* Motion Tokens */
-  --motion-fast: 150ms;
-  --motion-base: 250ms;
-  --motion-slow: 450ms;
-  --motion-hero: 800ms;
-  --motion-stagger: 60ms;
+  /* Motion: fade/slide 200ms */
+  --motion-fast: 200ms;
+  --motion-base: 200ms;
+  --motion-slow: 200ms;
+  --motion-hero: 200ms;
+  --motion-stagger: 0ms;
+  --ease-standard: ease;
+  --transition-fast: 200ms ease;
+  --transition-normal: 200ms ease;
+  --transition-slow: 200ms ease;
 
-  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --ease-emphasized: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
-
-  /* Composite transitions */
-  --transition-fast: var(--motion-fast) var(--ease-standard);
-  --transition-normal: var(--motion-base) var(--ease-standard);
-  --transition-slow: var(--motion-slow) var(--ease-standard);
-  --transition-bounce: var(--motion-base) var(--ease-emphasized);
+  /* Compatibility Aliases for admin and other modules */
+  --color-navy: var(--wex-navy);
+  --color-royal: var(--wex-royal);
+  --color-royal-blue: var(--wex-royal);
+  --color-royal-blue-hover: var(--wex-royal);
+  --color-vivid: var(--wex-vivid);
+  --color-cyan: var(--wex-cyan);
+  --color-ice: var(--wex-ice);
+  --color-ice-blue: var(--wex-ice);
+  --color-backdrop: var(--wex-ice);
+  --color-white: var(--wex-white);
+  --wex-ice-light: #F4F8FE;
+  --wex-gray-100: #F4F8FE;
+  --wex-gray-200: var(--wex-border);
+  --wex-gray-300: var(--wex-border);
+  --wex-gray-400: var(--wex-disabled);
+  --wex-gray-600: var(--wex-text-secondary);
+  --wex-gray-800: var(--wex-navy);
+  --color-slate-50: #F4F8FE;
+  --color-slate-100: #F4F8FE;
+  --color-slate-200: var(--wex-border);
+  --color-slate-300: var(--wex-border);
+  --color-slate-400: var(--wex-disabled);
+  --color-slate-500: var(--wex-text-secondary);
+  --color-slate-600: var(--wex-text-secondary);
+  --color-slate-700: var(--wex-navy);
+  --color-slate-800: var(--wex-navy);
+  --color-slate-900: var(--wex-navy);
+  --color-border: var(--wex-border);
+  --color-border-subtle: var(--wex-border);
+  --wex-border-focus-ice: var(--wex-border);
+  --color-success: var(--wex-success);
+  --color-success-bg: var(--wex-success-bg);
+  --color-success-border: var(--wex-border);
+  --color-warning: var(--wex-warning);
+  --color-warning-bg: var(--wex-warning-bg);
+  --color-warning-border: var(--wex-border);
+  --color-danger: var(--wex-danger);
+  --color-danger-bg: var(--wex-danger-bg);
+  --color-danger-border: var(--wex-border);
+  --color-info: var(--wex-royal);
+  --color-info-bg: var(--wex-ice);
+  --color-info-border: var(--wex-border);
+  --wex-info: var(--wex-royal);
+  --wex-info-bg: var(--wex-ice);
 }
-
-/* =========================================================================
-   Motion Mode Overrides: Lite & Reduced
-   ========================================================================= */
 
 @media (prefers-reduced-motion: reduce) {
   :root {
@@ -173,7 +188,6 @@
     --motion-base: 0ms;
     --motion-slow: 0ms;
     --motion-hero: 0ms;
-    --motion-stagger: 0ms;
   }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -188,7 +202,6 @@ html[data-motion="reduced"] {
   --motion-base: 0ms;
   --motion-slow: 0ms;
   --motion-hero: 0ms;
-  --motion-stagger: 0ms;
 }
 
 html[data-motion="reduced"] *,
@@ -201,7 +214,7 @@ html[data-motion="reduced"] *::after {
 }
 
 html[data-motion="lite"] {
-  --motion-hero: 250ms;
+  --motion-hero: 200ms;
 }
 
 html[data-motion="lite"] .hero-ribbon-loop,

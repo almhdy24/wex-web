@@ -2,6 +2,12 @@ import React from 'react';
 import { X } from 'lucide-react';
 import styles from './Chip.module.css';
 
+/**
+ * Design System Chip
+ * - Outline neutral: border #D5E2F7, white bg, navy text
+ * - Selected: solid royal (#0B3FBF) + white text (#FFFFFF)
+ * - Radius 999px
+ */
 export default function Chip({
   children,
   active = false,
@@ -14,11 +20,11 @@ export default function Chip({
   return (
     <button
       type="button"
-      className={`${styles.chip} ${active ? styles.active : ''} ${className}`}
+      className={`${styles.chip} ${active ? styles.selected : ''} ${className}`}
       onClick={onClick}
       {...rest}
     >
-      {Icon && <Icon size={16} strokeWidth={1.75} aria-hidden="true" />}
+      {Icon && <Icon size={16} strokeWidth={1.75} className={styles.icon} aria-hidden="true" />}
       <span>{children}</span>
       {onRemove && (
         <span
@@ -37,7 +43,7 @@ export default function Chip({
           }}
           aria-label="إزالة"
         >
-          <X size={14} strokeWidth={2} />
+          <X size={14} strokeWidth={1.75} />
         </span>
       )}
     </button>

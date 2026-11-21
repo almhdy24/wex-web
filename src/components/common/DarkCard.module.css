@@ -1,0 +1,37 @@
+.darkCard {
+  border-radius: var(--radius-card, 16px);
+  border: 1px solid var(--wex-navy);
+  box-shadow: none;
+  overflow: hidden;
+  color: var(--on-dark, #FFFFFF);
+}
+
+.navy {
+  background-color: var(--wex-navy, #061A55);
+}
+
+.gradient {
+  background: var(--wex-grad-royal-navy, linear-gradient(135deg, #0B3FBF 0%, #061A55 100%));
+}
+
+.darkCard p,
+.darkCard span,
+.darkCard div {
+  color: inherit;
+}
+
+.paddingNone {
+  padding: 0;
+}
+
+.paddingSm {
+  padding: var(--space-3, 12px);
+}
+
+.paddingMd {
+  padding: var(--space-4, 16px);
+}
+
+.paddingLg {
+  padding: var(--space-5, 24px);
+}

@@ -15,7 +15,30 @@ Simplifying and unifying the storefront (customer-side only) following Traversy-
     - `scripts/check-i18n.mjs`: 100% dictionary key coverage validator.
   - Verified `scripts/check-i18n.mjs` PASS on 131 files and 456 keys.
 
-- [ ] **Phase 1: Design System Tokens & Base Primitives**
+- [x] **Phase 1: Design System Tokens & Base Primitives**
+  - Replaced tokens in `src/styles/tokens.css` with the strict Design System:
+    - Colors: Navy `#061A55`, Royal `#0B3FBF`, Vivid `#1E6BFF`, Cyan `#00B7FF` (2px accents only), Ice `#EAF3FF`, White `#FFFFFF`.
+    - Neutrals: Secondary text `#4B5B85`, Border `#D5E2F7`, Disabled `#9AA8C7`.
+    - Status colors: Success `#12805C`, Warning `#B45309`, Danger `#B42318`.
+    - Dark Card: Max one per screen, Navy background with `--on-dark` (`#FFFFFF`) and `--on-dark-muted` (`#C9D6F5`).
+    - Gradients: Strictly Royal to Navy only (Hero and Payment Amount card only; zero gradients on buttons/tags/cards).
+    - Spacing scale: 4/8/12/16/24/32; Page padding 16; Section gap 24.
+    - Radius: 12 (controls), 16 (cards), 999 (chips).
+    - Type scale: Caption 12, Small 14, Body 16, Title 18, Heading 22. Weights: 400 and 700 only (800 hero title only). Line-height 1.7 body, 1.35 headings.
+    - Motion: 200ms fade/slide, zero looping animations except hero ribbons in full mode.
+  - Rebuilt unified base primitives:
+    - `Button.jsx` / `Button.module.css`: Solid royal primary (48px, radius 12), white secondary with 1px royal border, tertiary text link. Removed sheen sweep animation.
+    - `Chip.jsx` / `Chip.module.css`: Outline neutral, selected = solid royal + white text, radius 999, zero colored dots.
+    - `Card.jsx` / `Card.module.css`: White surface, 1px border `#D5E2F7`, radius 16, zero shadow.
+    - `DarkCard.jsx` / `DarkCard.module.css`: Navy surface with `--on-dark` and `--on-dark-muted` text, optional royal-to-navy gradient for payment amount card.
+    - `NoticeLine.jsx` / `NoticeLine.module.css`: Plain text line with small 16px Lucide icon, no box.
+    - `Sheet.jsx` / `Sheet.module.css`: Bottom sheet with radius 16 top corners, white card surface, handle, close button.
+    - `Toast.jsx` / `Toast.module.css`: Tokens-based floating toast with 16px radius, no box shadow, 1px border.
+    - `PageHeader.jsx` / `PageHeader.module.css`: Heading title, back button with stroke 1.75, optional trailing action.
+    - `StickyBar.jsx` / `StickyBar.module.css`: Fixed bottom bar, soft top shadow, padding 16, dynamically sets `--sticky-bar-height`.
+  - Added test suite `src/__tests__/design-system.test.jsx`: 8/8 tests passing.
+  - Automated WCAG contrast check `scripts/check-contrast.mjs`: All 11 token pairs pass WCAG AA (>= 4.5:1).
+
 - [ ] **Phase 2: Home Screen Simplification**
 - [ ] **Phase 3: Catalog, Filter Sheet, Product Card & Product Page**
 - [ ] **Phase 4: Cart, Checkout & Inline Sign-in Sheet**

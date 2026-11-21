@@ -1,0 +1,22 @@
+.stickyBar {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: var(--app-shell-max-width, 480px);
+  background-color: var(--wex-white);
+  border-top: 1px solid var(--wex-border);
+  box-shadow: var(--shadow-sticky, 0 -4px 12px rgba(6, 26, 85, 0.06));
+  z-index: 100;
+  padding: var(--space-4, 16px);
+  padding-bottom: calc(var(--space-4, 16px) + env(safe-area-inset-bottom, 0px));
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3, 12px);
+  width: 100%;
+}

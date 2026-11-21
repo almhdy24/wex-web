@@ -1,7 +1,12 @@
 import React from 'react';
 import styles from './Button.module.css';
 
-// Reusable Button atom with CSS Modules and 44px min touch target
+/**
+ * Design System Button
+ * - Primary: solid royal (#0B3FBF), white text, 48px high, radius 12
+ * - Secondary: white, 1px royal border, royal text, 48px high, radius 12
+ * - Tertiary: text link (color royal, no border, transparent)
+ */
 export default function Button({
   children,
   variant = 'primary',
@@ -15,8 +20,6 @@ export default function Button({
   onClick,
   ...rest
 }) {
-  const isCta = variant === 'primary' || variant === 'vivid';
-
   const classNames = [
     styles.button,
     styles[variant] || styles.primary,
@@ -35,13 +38,10 @@ export default function Button({
       onClick={onClick}
       {...rest}
     >
-      {isCta && !disabled && !loading && (
-        <span className={styles.sheen} aria-hidden="true" />
-      )}
       {loading ? (
         <span className={styles.spinner} aria-hidden="true" />
       ) : Icon ? (
-        <Icon size={18} strokeWidth={1.75} aria-hidden="true" />
+        <Icon size={20} strokeWidth={1.75} className={styles.icon} aria-hidden="true" />
       ) : null}
       <span>{children}</span>
     </button>

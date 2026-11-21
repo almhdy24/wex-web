@@ -1,6 +1,10 @@
 import React from 'react';
 import styles from './Card.module.css';
 
+/**
+ * Design System Card
+ * - White surface, 1px border (#D5E2F7), radius 16, no shadow
+ */
 export default function Card({
   children,
   padding = 'md',

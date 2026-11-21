@@ -1,10 +1,10 @@
 .card {
-  background-color: var(--color-white);
-  border: 1px solid rgba(11, 63, 191, 0.08);
-  border-radius: var(--radius-card, 20px);
-  box-shadow: 0 8px 24px rgba(6, 26, 85, 0.05);
+  background-color: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--radius-card, 16px);
+  box-shadow: none;
   overflow: hidden;
-  transition: transform var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard);
+  transition: border-color 200ms ease;
 }
 
 .interactive {
@@ -12,11 +12,11 @@
 }
 
 .interactive:active {
-  transform: scale(0.98);
+  opacity: 0.9;
 }
 
 .interactive:hover {
-  border-color: rgba(11, 63, 191, 0.2);
+  border-color: var(--wex-royal);
 }
 
 /* Padding variants */
@@ -25,33 +25,33 @@
 }
 
 .paddingSm {
-  padding: var(--space-3);
+  padding: var(--space-3, 12px);
 }
 
 .paddingMd {
-  padding: var(--space-4);
+  padding: var(--space-4, 16px);
 }
 
 .paddingLg {
-  padding: var(--space-6);
+  padding: var(--space-5, 24px);
 }
 
 .header {
-  padding-block: var(--space-3);
-  padding-inline: var(--space-4);
-  border-bottom: 1px solid var(--color-slate-200);
+  padding-block: var(--space-3, 12px);
+  padding-inline: var(--space-4, 16px);
+  border-bottom: 1px solid var(--wex-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
 .body {
-  padding: var(--space-4);
+  padding: var(--space-4, 16px);
 }
 
 .footer {
-  padding-block: var(--space-3);
-  padding-inline: var(--space-4);
-  border-top: 1px solid var(--color-slate-200);
-  background-color: var(--color-slate-50);
+  padding-block: var(--space-3, 12px);
+  padding-inline: var(--space-4, 16px);
+  border-top: 1px solid var(--wex-border);
+  background-color: var(--wex-ice);
 }
