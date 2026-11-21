@@ -1,59 +1,38 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import {
-  Store,
-  Truck,
-  Lock,
-  ArrowLeft,
-  AlertCircle,
-  CheckCircle2,
-  Phone,
-  ShieldAlert,
-} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Store, Truck, Info, Loader2 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { productsApi } from '../../api/products';
 import { api } from '../../api/client';
-import { formatSdg, getProductImageUrl, normalizeSudanPhone, isValidSudanPhone } from '../../utils/formatters';
-import LaptopSvg from '../../components/common/LaptopSvg';
-import PriceNotice from '../../components/common/PriceNotice';
-import OrdersDisabledBanner from '../../components/store/OrdersDisabledBanner';
+import { formatSdg, isValidSudanPhone } from '../../utils/formatters';
+import Button from '../../components/common/Button';
+import AuthSheet from '../../components/auth/AuthSheet';
 import styles from './CheckoutPage.module.css';
 
-const DRAFT_STORAGE_KEY = 'wex_checkout_draft';
 const SAVED_PHONE_KEY = 'wex_saved_contact_phone';
 
-export default function CheckoutPage() {
+export default function CheckoutPage({
+  initialShippingZones = null,
+  initialShopInfo = null,
+} = {}) {
   const {
     items,
     clearCart,
     estimatedSubtotalSdg,
     refreshCartPrices,
-    confirmAllPriceChanges,
-    hasUnconfirmedPriceChanges,
   } = useCart();
   const { user, isAuthenticated } = useAuth();
-  const { success, error: toastError, info: toastInfo } = useToast();
+  const { success, error: toastError } = useToast();
   const navigate = useNavigate();
 
-  // Load draft values if present (check localStorage first, then sessionStorage)
-  const [draft] = useState(() => {
-    try {
-      const saved = localStorage.getItem(DRAFT_STORAGE_KEY) || sessionStorage.getItem(DRAFT_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : {};
-    } catch {
-      return {};
-    }
-  });
-
-  const [orderType, setOrderType] = useState(draft.orderType || 'pickup');
-  const [shippingZones, setShippingZones] = useState([]);
-  const [selectedZoneId, setSelectedZoneId] = useState(draft.selectedZoneId || '');
-  const [deliveryAddress, setDeliveryAddress] = useState(draft.deliveryAddress || '');
+  const [orderType, setOrderType] = useState('pickup'); // 'pickup' | 'delivery'
+  const [shippingZones, setShippingZones] = useState(initialShippingZones || []);
+  const [selectedZoneId, setSelectedZoneId] = useState('');
+  const [deliveryAddress, setDeliveryAddress] = useState('');
   const [contactPhone, setContactPhone] = useState(() => {
-    if (draft.contactPhone) return draft.contactPhone;
-    if (typeof window !== 'undefined') {
+    if (typeof localStorage !== 'undefined') {
       try {
         const saved = localStorage.getItem(SAVED_PHONE_KEY);
         if (saved) return saved;
@@ -63,50 +42,28 @@ export default function CheckoutPage() {
     }
     return user?.phone || '';
   });
-  const [customerNotes, setCustomerNotes] = useState(draft.customerNotes || '');
-  const [shopInfo, setShopInfo] = useState(null);
+  const [customerNotes, setCustomerNotes] = useState('');
+  const [shopInfo, setShopInfo] = useState(initialShopInfo);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+  const [isAuthSheetOpen, setIsAuthSheetOpen] = useState(false);
 
-  const isOrdersDisabled = shopInfo?.orders_enabled === false;
-
-  // Autofill contact phone if empty when user authenticates
+  // Autofill phone from user when authenticated
   useEffect(() => {
     if (user?.phone && !contactPhone) {
       setContactPhone(user.phone);
     }
   }, [user?.phone, contactPhone]);
 
-  // Sync draft to both localStorage and sessionStorage
+  // Load zones & shop settings
   useEffect(() => {
-    try {
-      const draftData = JSON.stringify({
-        orderType,
-        selectedZoneId,
-        deliveryAddress,
-        contactPhone,
-        customerNotes,
-      });
-      localStorage.setItem(DRAFT_STORAGE_KEY, draftData);
-      sessionStorage.setItem(DRAFT_STORAGE_KEY, draftData);
-    } catch {
-      // ignore storage errors
-    }
-  }, [orderType, selectedZoneId, deliveryAddress, contactPhone, customerNotes]);
-
-  useEffect(() => {
-    if (items.length === 0 && !submitting) {
-      navigate('/cart', { replace: true });
-    }
-  }, [items, navigate, submitting]);
-
-  useEffect(() => {
+    if (initialShippingZones !== null && initialShopInfo !== null) return;
     let isMounted = true;
     refreshCartPrices();
 
     Promise.all([
       productsApi.getShippingZones().catch(() => ({ data: [] })),
-      productsApi.getShopInfo().catch(() => ({ data: null })),
+      productsApi.getShopSettings().catch(() => ({ data: null })),
     ]).then(([zonesRes, shopRes]) => {
       if (!isMounted) return;
       const zList = zonesRes?.data || [];
@@ -120,70 +77,68 @@ export default function CheckoutPage() {
     return () => {
       isMounted = false;
     };
-  }, [refreshCartPrices, selectedZoneId]);
+  }, [refreshCartPrices, initialShippingZones, initialShopInfo, selectedZoneId]);
 
+  // Redirect if cart is empty
+  useEffect(() => {
+    if (items.length === 0 && !submitting) {
+      navigate('/cart', { replace: true });
+    }
+  }, [items, navigate, submitting]);
+
+  // Financial calculations
+  const subtotal = estimatedSubtotalSdg;
+  const discount = Math.round(subtotal * 0.03);
   const selectedZone = shippingZones.find((z) => String(z.id) === String(selectedZoneId));
-  const deliveryFee = orderType === 'delivery' && selectedZone ? selectedZone.fee_sdg : 0;
-  const appDiscount = Math.round(estimatedSubtotalSdg * 0.03);
-  const finalTotal = Math.max(0, estimatedSubtotalSdg - appDiscount + deliveryFee);
-  const priceLockHours = shopInfo?.lock_hours || shopInfo?.price_lock_hours || 4;
+  const shippingFee = orderType === 'delivery' ? Number(selectedZone?.delivery_fee_sdg || selectedZone?.fee_sdg || 0) : 0;
+  const total = Math.max(0, subtotal - discount + shippingFee);
+  const lockHours = shopInfo?.lock_hours || shopInfo?.price_lock_hours || 4;
 
-  const handleSubmitOrder = async (e) => {
-    if (e) e.preventDefault();
-    if (submitting) return;
+  // Validate fields
+  const validateForm = () => {
+    const errs = {};
+    const cleanPhone = contactPhone.trim().replace(/[\s-]/g, '');
 
-    if (hasUnconfirmedPriceChanges) {
-      toastError('تغير سعر بعض الأجهزة في السلة. يرجى تأكيد الأسعار الجديدة قبل المتابعة.');
-      return;
-    }
-
-    setErrors({});
-
-    // Validate phone
-    const cleanPhone = normalizeSudanPhone(contactPhone.trim());
     if (!cleanPhone) {
-      setErrors({ contact_phone: 'رقم الهاتف للتواصل مطلوب' });
-      return;
-    }
-    if (!isValidSudanPhone(cleanPhone)) {
-      setErrors({ contact_phone: 'يرجى إدخال رقم سوداني صحيح (يبدأ بـ 09 أو 01 ويتكون من 10 أرقام)' });
-      return;
-    }
-
-    try {
-      localStorage.setItem(SAVED_PHONE_KEY, cleanPhone);
-    } catch {
-      // storage unavailable
+      errs.contactPhone = 'يرجى إدخال رقم الهاتف';
+    } else if (!isValidSudanPhone(cleanPhone)) {
+      errs.contactPhone = 'يرجى إدخال رقم هاتف سوداني صحيح يبدأ بـ 09 أو 01 أو 012';
     }
 
     if (orderType === 'delivery') {
       if (!selectedZoneId) {
-        setErrors({ shipping_zone_id: 'يرجى اختيار منطقة التوصيل' });
-        return;
+        errs.selectedZoneId = 'يرجى اختيار المنطقة';
       }
-      if (!deliveryAddress.trim() || deliveryAddress.trim().length < 5) {
-        setErrors({ delivery_address: 'يرجى كتابة عنوان التوصيل بالتفصيل (5 أحرف على الأقل)' });
-        return;
+      if (!deliveryAddress.trim()) {
+        errs.deliveryAddress = 'يرجى كتابة العنوان بالتفصيل';
       }
     }
 
-    // Guest Flow: If customer is not authenticated, save draft and redirect to login
-    if (!isAuthenticated) {
-      toastInfo('يرجى تسجيل الدخول أو إدخال بريدك لإتمام تثبيت السعر والطلب');
-      navigate('/login?returnTo=/checkout', { state: { from: '/checkout' } });
-      return;
-    }
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
 
+  // Execute order submission
+  const executeOrderCreation = async () => {
     setSubmitting(true);
+    const cleanPhone = contactPhone.trim().replace(/[\s-]/g, '');
+
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(SAVED_PHONE_KEY, cleanPhone);
+      }
+    } catch {
+      // storage unavailable
+    }
 
     const payload = {
       order_type: orderType,
       contact_phone: cleanPhone,
+      notes: customerNotes.trim() || undefined,
       items: items.map((item) => ({
         product_id: item.id,
         quantity: item.quantity,
       })),
-      customer_notes: customerNotes.trim() || undefined,
     };
 
     if (orderType === 'delivery') {
@@ -193,413 +148,232 @@ export default function CheckoutPage() {
 
     try {
       const res = await api.post('/orders', payload);
-      const createdOrder = res.data;
+      const createdOrder = res?.data;
+      const orderNumber = createdOrder?.order_number || createdOrder?.id;
+
+      // Clear cart ONLY on success
       clearCart();
-      try {
-        localStorage.removeItem(DRAFT_STORAGE_KEY);
-        sessionStorage.removeItem(DRAFT_STORAGE_KEY);
-      } catch {
-        // storage cleanup
-      }
-      success(`تم تثبيت السعر وإنشاء الطلب بنجاح رقم #${createdOrder.order_number}`);
-      navigate(`/orders/${createdOrder.order_number}`, {
-        state: { orderCreated: true, order: createdOrder },
+      success('تم تأكيد الطلب بنجاح');
+
+      navigate(`/orders/${orderNumber}`, {
         replace: true,
+        state: { justCreated: true },
       });
     } catch (err) {
-      if (err.errors) {
-        setErrors(err.errors);
-      }
-      toastError(err.message || 'تعذر إتمام الطلب، حاول مرة أخرى');
-    } finally {
+      toastError(err.message || 'تعذر تأكيد الطلب، يرجى المحاولة مرة أخرى');
       setSubmitting(false);
     }
   };
 
+  // Submit button handler
+  const handleConfirmOrder = () => {
+    if (!validateForm()) return;
+
+    if (!isAuthenticated) {
+      setIsAuthSheetOpen(true);
+      return;
+    }
+
+    executeOrderCreation();
+  };
+
+  // Callback when AuthSheet signs in successfully
+  const handleAuthSuccess = () => {
+    executeOrderCreation();
+  };
+
   return (
     <div className={styles.container}>
-      {/* 3-Step Checkout Progress Header */}
-      <div className={styles.progressContainer}>
-        <div className={styles.progressTrack}>
-          {/* Step 1: Cart */}
-          <Link to="/cart" className={`${styles.progressStep} ${styles.stepCompleted}`}>
-            <span className={styles.stepCircle}>
-              <CheckCircle2 size={16} />
-            </span>
-            <span className={styles.stepText}>السلة</span>
-          </Link>
+      <header className={styles.header}>
+        <h1 className={styles.title}>تأكيد الطلب</h1>
+      </header>
 
-          <div className={`${styles.stepConnector} ${styles.connectorActive}`} />
+      {/* Section 1: طريقة الاستلام */}
+      <section className={styles.sectionCard} aria-labelledby="delivery-type-heading">
+        <h2 id="delivery-type-heading" className={styles.sectionHeading}>
+          طريقة الاستلام
+        </h2>
 
-          {/* Step 2: Order Info (Active) */}
-          <div className={`${styles.progressStep} ${styles.stepActive}`}>
-            <span className={styles.stepCircle}>2</span>
-            <span className={styles.stepText}>بيانات الطلب</span>
-          </div>
-
-          <div className={styles.stepConnector} />
-
-          {/* Step 3: Payment */}
-          <div className={`${styles.progressStep} ${styles.stepUpcoming}`}>
-            <span className={styles.stepCircle}>3</span>
-            <span className={styles.stepText}>تثبيت السعر والدفع</span>
-          </div>
-        </div>
-      </div>
-
-      <form onSubmit={handleSubmitOrder} className={styles.checkoutForm}>
-        <div className={styles.checkoutLayout}>
-          {/* Left/Start Form Column */}
-          <div className={styles.formColumn}>
-            {isOrdersDisabled && (
-              <div style={{ marginBottom: 'var(--space-4)' }}>
-                <OrdersDisabledBanner message={shopInfo?.orders_disabled_message} />
-              </div>
-            )}
-
-            {!isAuthenticated && (
-              <div className={styles.guestNoticeCard}>
-                <div className={styles.guestNoticeContent}>
-                  <span className={styles.guestNoticeTitle}>تسوق سريع ومريح</span>
-                  <p className={styles.guestNoticeText}>
-                    أدخل بيانات الاستلام والتواصل، وعند الضغط على زر التثبيت ستسجل بريدك بخطوة واحدة لحفظ طلبك وتثبيت السعر.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  className={styles.guestLoginBtn}
-                  onClick={() => {
-                    navigate('/login?returnTo=/checkout', { state: { from: '/checkout' } });
-                  }}
-                >
-                  تسجيل الدخول مسبقاً
-                </button>
-              </div>
-            )}
-
-            {/* Delivery Method Selector */}
-            <div className={styles.card}>
-              <h2 className={styles.cardHeading}>طريقة الاستلام</h2>
-
-              <div className={styles.deliveryGrid}>
-                <div
-                  className={`${styles.deliveryBox} ${orderType === 'pickup' ? styles.deliveryBoxSelected : ''}`}
-                  onClick={() => setOrderType('pickup')}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') setOrderType('pickup');
-                  }}
-                >
-                  <div className={styles.boxTitle}>
-                    <Store size={18} />
-                    <span>استلام من المحل (مجاني)</span>
-                  </div>
-                  <div className={styles.boxDesc}>مول الواحة، الشهداء، أم درمان</div>
-                  <div className={styles.boxBadge}>جاهز فور تأكيد الإشعار</div>
-                </div>
-
-                <div
-                  className={`${styles.deliveryBox} ${orderType === 'delivery' ? styles.deliveryBoxSelected : ''}`}
-                  onClick={() => setOrderType('delivery')}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') setOrderType('delivery');
-                  }}
-                >
-                  <div className={styles.boxTitle}>
-                    <Truck size={18} />
-                    <span>توصيل للعنوان</span>
-                  </div>
-                  <div className={styles.boxDesc}>أم درمان والخرطوم والولايات</div>
-                  <div className={styles.boxBadge}>خلال 24 إلى 48 ساعة</div>
-                </div>
-              </div>
-
-              {/* Delivery Zone & Address Fields */}
-              {orderType === 'delivery' && (
-                <div className={styles.deliveryDetails}>
-                  <div className={styles.inputGroup}>
-                    <label className={styles.inputLabel} htmlFor="zoneSelect">
-                      المدينة / منطقة التوصيل:
-                    </label>
-                    <select
-                      id="zoneSelect"
-                      value={selectedZoneId}
-                      onChange={(e) => setSelectedZoneId(e.target.value)}
-                      className={styles.select}
-                    >
-                      {shippingZones.map((z) => (
-                        <option key={z.id} value={String(z.id)}>
-                          {z.state_name_ar} (رسوم التوصيل: {formatSdg(z.fee_sdg)})
-                        </option>
-                      ))}
-                    </select>
-                    {errors.shipping_zone_id && (
-                      <span className={styles.fieldError}>{errors.shipping_zone_id}</span>
-                    )}
-                  </div>
-
-                  <div className={styles.inputGroup}>
-                    <label className={styles.inputLabel} htmlFor="deliveryAddress">
-                      العنوان بالتفصيل:
-                    </label>
-                    <input
-                      id="deliveryAddress"
-                      type="text"
-                      value={deliveryAddress}
-                      onChange={(e) => setDeliveryAddress(e.target.value)}
-                      placeholder="الحي، الشارع، أو المعلم القريب..."
-                      className={styles.input}
-                      required
-                    />
-                    {errors.delivery_address && (
-                      <span className={styles.fieldError}>{errors.delivery_address}</span>
-                    )}
-                  </div>
-                </div>
-              )}
+        <div className={styles.optionsRow} role="radiogroup" aria-label="طريقة الاستلام">
+          <button
+            type="button"
+            role="radio"
+            aria-checked={orderType === 'pickup'}
+            className={`${styles.optionBtn} ${orderType === 'pickup' ? styles.optionBtnActive : ''}`}
+            onClick={() => setOrderType('pickup')}
+          >
+            <div className={styles.optionHeader}>
+              <Store size={20} strokeWidth={1.75} aria-hidden="true" />
+              <span className={styles.optionTitle}>الاستلام من المحل</span>
             </div>
-
-            {/* Customer Contact & Notes */}
-            <div className={styles.card}>
-              <h2 className={styles.cardHeading}>بيانات الاتصال والمطابقة</h2>
-
-              <div className={styles.inputGroup}>
-                <label className={styles.inputLabel} htmlFor="contactPhone">
-                  رقم هاتف التواصل والواتساب:
-                </label>
-                <div className={styles.inputWithIcon}>
-                  <Phone size={16} className={styles.inputIcon} />
-                  <input
-                    id="contactPhone"
-                    type="tel"
-                    inputMode="tel"
-                    dir="ltr"
-                    value={contactPhone}
-                    onChange={(e) => setContactPhone(e.target.value)}
-                    placeholder="0912345678"
-                    className={`${styles.input} ${styles.inputPadded}`}
-                    required
-                  />
-                </div>
-                {errors.contact_phone && (
-                  <span className={styles.fieldError}>{errors.contact_phone}</span>
-                )}
-                <span className={styles.fieldHint}>
-                  رقم سوداني فعال لمطابقة إشعار تحويل بنكك وتأكيد الاستلام.
-                </span>
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label className={styles.inputLabel} htmlFor="customerNotes">
-                  ملاحظات إضافية (اختياري):
-                </label>
-                <textarea
-                  id="customerNotes"
-                  value={customerNotes}
-                  onChange={(e) => setCustomerNotes(e.target.value)}
-                  placeholder="أي تفاصيل خاصة بتسليم الجهاز أو توقيت التواجد..."
-                  rows={2}
-                  className={styles.textarea}
-                />
-              </div>
-            </div>
-
-            {/* "What's Next" Explainer Card */}
-            <div className={styles.whatsNextCard}>
-              <h3 className={styles.whatsNextTitle}>ماذا بعد تثبيت السعر؟</h3>
-              <div className={styles.stepsList}>
-                <div className={styles.stepItem}>
-                  <div className={styles.stepNumberBadge}>1</div>
-                  <div className={styles.stepInfo}>
-                    <span className={styles.stepItemTitle}>حجز الجهاز وتثبيت السعر</span>
-                    <span className={styles.stepItemDesc}>
-                      يتم تجميد السعر بالجنيه لمدة {priceLockHours} ساعات فور الضغط على زر التثبيت.
-                    </span>
-                  </div>
-                </div>
-
-                <div className={styles.stepItem}>
-                  <div className={styles.stepNumberBadge}>2</div>
-                  <div className={styles.stepInfo}>
-                    <span className={styles.stepItemTitle}>التحويل عبر تطبيق بنكك</span>
-                    <span className={styles.stepItemDesc}>
-                      تحوّل المبلغ إلى حساب المتجر المعروض وترفع صورة إشعار التحويل من نفس الصفحة.
-                    </span>
-                  </div>
-                </div>
-
-                <div className={styles.stepItem}>
-                  <div className={styles.stepNumberBadge}>3</div>
-                  <div className={styles.stepInfo}>
-                    <span className={styles.stepItemTitle}>الاستلام أو التوصيل السريع</span>
-                    <span className={styles.stepItemDesc}>
-                      فور مراجعة الإشعار يُجهّز جهازك فورًا للمعاينة والاستلام مع فاتورة الشراء.
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right/End Sticky Summary Column */}
-          <div className={styles.summaryColumn}>
-            <div className={styles.stickySummaryCard}>
-              <h2 className={styles.summaryHeading}>مراجعة الطلب</h2>
-
-              {/* Items List Mini */}
-              <div className={styles.itemsPreviewList}>
-                {items.map((item) => {
-                  const imgUrl = getProductImageUrl(item.image?.thumb_path || item.image?.path);
-                  return (
-                    <div key={item.id} className={styles.summaryItemRow}>
-                      <div className={styles.itemThumb}>
-                        {imgUrl ? (
-                          <img
-                            src={imgUrl}
-                            alt={item.name}
-                            className={styles.thumbImg}
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = '/favicon.svg';
-                            }}
-                          />
-                        ) : (
-                          <LaptopSvg
-                            silhouette={item.silhouette || 'modern'}
-                            accentColor={item.accent_color || '#1E6BFF'}
-                          />
-                        )}
-                      </div>
-
-                      <div className={styles.itemInfo}>
-                        <h4 className={styles.itemName}>{item.name}</h4>
-                        <div className={styles.itemMeta}>
-                          <span>الكمية: {item.quantity}</span>
-                          {item.specs && Array.isArray(item.specs) && item.specs[0] && (
-                            <span> · {item.specs[0].spec_value || item.specs[0].value}</span>
-                          )}
-                        </div>
-                        <div className={styles.itemPrice}>
-                          {formatSdg((item.price_sdg || 0) * item.quantity)}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Price Breakdown */}
-              <div className={styles.breakdownCard}>
-                <div className={styles.calcRow}>
-                  <span className={styles.calcLabel}>سعر الأجهزة:</span>
-                  <span className={styles.calcVal}>{formatSdg(estimatedSubtotalSdg)}</span>
-                </div>
-
-                <div className={styles.calcDiscountRow}>
-                  <span>خصم الطلب بالتطبيق (3%):</span>
-                  <span className={styles.discountNum}>- {formatSdg(appDiscount)}</span>
-                </div>
-
-                <div className={styles.calcRow}>
-                  <span className={styles.calcLabel}>رسوم التوصيل:</span>
-                  <span className={styles.calcVal}>
-                    {deliveryFee === 0 ? 'مجاني (0 جنيه)' : formatSdg(deliveryFee)}
-                  </span>
-                </div>
-
-                <div className={styles.calcDivider} />
-
-                <div className={styles.calcTotalRow}>
-                  <div>
-                    <span className={styles.totalLabel}>الإجمالي المطلوب تحويله:</span>
-                    <span className={styles.totalSub}>شامل الخصم ورسوم التوصيل</span>
-                  </div>
-                  <div className={styles.totalAmount}>{formatSdg(finalTotal)}</div>
-                </div>
-              </div>
-
-              {/* Price Notice Card */}
-              <div className={styles.noticeWrapper}>
-                <PriceNotice variant="full" lockHours={priceLockHours} />
-              </div>
-
-              {/* Price Change Warning if applicable */}
-              {hasUnconfirmedPriceChanges && (
-                <div className={styles.priceChangeWarning} role="alert">
-                  <AlertCircle size={16} />
-                  <span>تغير سعر بعض الأجهزة في السلة. يرجى تأكيد الأسعار الجديدة قبل تثبيت الطلب.</span>
-                  <button
-                    type="button"
-                    className={styles.confirmChangesBtn}
-                    onClick={confirmAllPriceChanges}
-                  >
-                    تأكيد الأسعار الجديدة
-                  </button>
-                </div>
-              )}
-
-              {/* Desktop Submit Button (Inside Sticky Summary) */}
-              <div className={styles.desktopSubmitWrap}>
-                <button
-                  type="submit"
-                  disabled={submitting || hasUnconfirmedPriceChanges || isOrdersDisabled}
-                  className={`${styles.desktopSubmitBtn} btn-vivid`}
-                >
-                  <Lock size={18} />
-                  <span>
-                    {isOrdersDisabled
-                      ? 'استقبال الطلبات متوقف مؤقتاً'
-                      : submitting
-                      ? 'جاري تثبيت السعر...'
-                      : !isAuthenticated
-                      ? 'تسجيل الدخول لتثبيت السعر'
-                      : 'تثبيت السعر وإتمام الطلب'}
-                  </span>
-                  <ArrowLeft size={16} />
-                </button>
-              </div>
-
-              <div className={styles.guaranteeNote}>
-                <ShieldAlert size={14} className={styles.guaranteeIcon} />
-                <span>
-                  السعر ثابت بالجنيه لمدة {priceLockHours} ساعات حتى مع تقلبات أسعار الصرف.
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.bottomSpacer} />
-
-        {/* Mobile/Tablet Sticky Submit Bar */}
-        <div className={styles.stickySubmitBar}>
-          <div className={styles.mobileTotalInfo}>
-            <span className={styles.mobileTotalLabel}>المطلوب تحويله:</span>
-            <span className={styles.mobileTotalAmount}>{formatSdg(finalTotal)}</span>
-          </div>
+            <span className={styles.optionSub}>مجانًا</span>
+          </button>
 
           <button
-            type="submit"
-            disabled={submitting || hasUnconfirmedPriceChanges || isOrdersDisabled}
-            className={`${styles.submitBtn} btn-vivid`}
+            type="button"
+            role="radio"
+            aria-checked={orderType === 'delivery'}
+            className={`${styles.optionBtn} ${orderType === 'delivery' ? styles.optionBtnActive : ''}`}
+            onClick={() => setOrderType('delivery')}
           >
-            <Lock size={16} />
-            <span>
-              {isOrdersDisabled
-                ? 'الطلبات متوقفة مؤقتاً'
-                : submitting
-                ? 'جاري التثبيت...'
-                : !isAuthenticated
-                ? 'الدخول والتثبيت'
-                : 'تثبيت السعر والطلب'}
-            </span>
-            <ArrowLeft size={16} />
+            <div className={styles.optionHeader}>
+              <Truck size={20} strokeWidth={1.75} aria-hidden="true" />
+              <span className={styles.optionTitle}>التوصيل</span>
+            </div>
+            <span className={styles.optionSub}>حسب المنطقة</span>
           </button>
         </div>
-      </form>
+
+        {/* Delivery Fields */}
+        {orderType === 'delivery' && (
+          <div className={styles.deliveryFields}>
+            <div className={styles.fieldGroup}>
+              <label htmlFor="checkout-zone-select" className={styles.fieldLabel}>
+                المنطقة
+              </label>
+              <select
+                id="checkout-zone-select"
+                value={selectedZoneId}
+                onChange={(e) => setSelectedZoneId(e.target.value)}
+                className={styles.select}
+              >
+                {shippingZones.map((z) => {
+                  const fee = Number(z.delivery_fee_sdg || z.fee_sdg || 0);
+                  const feeText = fee === 0 ? 'مجانًا' : formatSdg(fee);
+                  return (
+                    <option key={z.id} value={z.id}>
+                      {z.zone_name || z.name} - {feeText}
+                    </option>
+                  );
+                })}
+              </select>
+              {errors.selectedZoneId && (
+                <span className={styles.fieldError}>{errors.selectedZoneId}</span>
+              )}
+            </div>
+
+            <div className={styles.fieldGroup}>
+              <label htmlFor="checkout-address-input" className={styles.fieldLabel}>
+                العنوان بالتفصيل
+              </label>
+              <textarea
+                id="checkout-address-input"
+                rows={2}
+                value={deliveryAddress}
+                onChange={(e) => setDeliveryAddress(e.target.value)}
+                placeholder="اسم الشارع، رقم المنزل، أو أقرب معلم بارز"
+                className={styles.textarea}
+              />
+              {errors.deliveryAddress && (
+                <span className={styles.fieldError}>{errors.deliveryAddress}</span>
+              )}
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* Section 2: التواصل */}
+      <section className={styles.sectionCard} aria-labelledby="contact-heading">
+        <h2 id="contact-heading" className={styles.sectionHeading}>
+          التواصل
+        </h2>
+
+        <div className={styles.fieldGroup}>
+          <label htmlFor="checkout-phone-input" className={styles.fieldLabel}>
+            رقم الهاتف
+          </label>
+          <input
+            id="checkout-phone-input"
+            type="tel"
+            inputMode="tel"
+            value={contactPhone}
+            onChange={(e) => setContactPhone(e.target.value)}
+            placeholder="09XXXXXXXX"
+            className={styles.input}
+            dir="ltr"
+          />
+          <span className={styles.fieldHelper}>
+            نتواصل معك على هذا الرقم بشأن طلبك.
+          </span>
+          {errors.contactPhone && (
+            <span className={styles.fieldError}>{errors.contactPhone}</span>
+          )}
+        </div>
+
+        <div className={styles.fieldGroup}>
+          <label htmlFor="checkout-notes-input" className={styles.fieldLabel}>
+            ملاحظات (اختياري)
+          </label>
+          <input
+            id="checkout-notes-input"
+            type="text"
+            value={customerNotes}
+            onChange={(e) => setCustomerNotes(e.target.value)}
+            placeholder="أي تعليمات إضافية بخصوص الطلب"
+            className={styles.input}
+          />
+        </div>
+      </section>
+
+      {/* Section 3: Summary Card */}
+      <section className={styles.summaryCard} aria-labelledby="order-summary-heading">
+        <h2 id="order-summary-heading" className={styles.sectionHeading}>
+          ملخص الطلب
+        </h2>
+
+        <div className={styles.summaryRow}>
+          <span className={styles.summaryLabel}>المجموع</span>
+          <span className={styles.summaryValue}>{formatSdg(subtotal)}</span>
+        </div>
+
+        <div className={styles.summaryRow}>
+          <span className={styles.summaryLabel}>خصم التطبيق (3%)</span>
+          <span className={styles.discountValue}>- {formatSdg(discount)}</span>
+        </div>
+
+        <div className={styles.summaryRow}>
+          <span className={styles.summaryLabel}>رسوم التوصيل</span>
+          <span className={styles.summaryValue}>
+            {orderType === 'pickup' || shippingFee === 0 ? 'مجانًا' : formatSdg(shippingFee)}
+          </span>
+        </div>
+
+        <div className={styles.totalRow}>
+          <span className={styles.totalLabel}>الإجمالي</span>
+          <span className={styles.totalValue}>{formatSdg(total)}</span>
+        </div>
+      </section>
+
+      {/* Sticky Bottom Bar */}
+      <div className={styles.stickyBar}>
+        {/* ONE line above the button */}
+        <p className={styles.lockNoticeLine}>
+          <Info size={16} strokeWidth={1.75} className={styles.infoIcon} aria-hidden="true" />
+          <span>
+            بعد التأكيد يُثبَّت السعر لمدة {lockHours} ساعات لتحوّل المبلغ وترفع إشعار التحويل.
+          </span>
+        </p>
+
+        <Button
+          variant="primary"
+          onClick={handleConfirmOrder}
+          disabled={submitting || items.length === 0}
+          className={styles.confirmBtn}
+        >
+          {submitting ? (
+            <Loader2 size={18} className={styles.spinner} />
+          ) : (
+            'تأكيد الطلب'
+          )}
+        </Button>
+      </div>
+
+      {/* Auth Bottom Sheet (for signed-out users) */}
+      <AuthSheet
+        isOpen={isAuthSheetOpen}
+        onClose={() => setIsAuthSheetOpen(false)}
+        onSuccess={handleAuthSuccess}
+      />
     </div>
   );
 }

@@ -1,0 +1,190 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wex-space-16);
+  padding: var(--wex-space-8) 0 var(--wex-space-16);
+}
+
+.subtitle {
+  font-size: var(--wex-fs-small);
+  color: var(--wex-text-secondary);
+  margin: 0;
+  line-height: var(--wex-lh-body);
+}
+
+.errorAlert {
+  padding: var(--wex-space-12);
+  background-color: var(--wex-ice);
+  border: 1px solid var(--wex-danger);
+  border-radius: var(--wex-radius-12);
+  color: var(--wex-danger);
+  font-size: var(--wex-fs-small);
+}
+
+/* Menu Buttons */
+.menuButtons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wex-space-12);
+  margin-top: var(--wex-space-8);
+}
+
+.googleBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--wex-space-12);
+  height: 48px;
+  background-color: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--wex-radius-12);
+  color: var(--wex-navy);
+  font-family: inherit;
+  font-size: var(--wex-fs-body);
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color var(--wex-motion-duration) var(--wex-motion-easing);
+}
+
+.googleBtn:hover {
+  border-color: var(--wex-royal);
+}
+
+.emailMenuBtn {
+  width: 100%;
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wex-space-16);
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wex-space-4);
+}
+
+.label {
+  font-size: var(--wex-fs-small);
+  font-weight: 700;
+  color: var(--wex-navy);
+}
+
+.input {
+  height: 48px;
+  padding: 0 var(--wex-space-16);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--wex-radius-12);
+  background-color: var(--wex-white);
+  color: var(--wex-navy);
+  font-family: inherit;
+  font-size: var(--wex-fs-body);
+  transition: border-color var(--wex-motion-duration) var(--wex-motion-easing);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--wex-vivid);
+  box-shadow: 0 0 0 2px rgba(30, 107, 255, 0.2);
+}
+
+.formActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wex-space-12);
+}
+
+.submitBtn {
+  width: 100%;
+}
+
+.backLink {
+  background: none;
+  border: none;
+  color: var(--wex-royal);
+  font-family: inherit;
+  font-size: var(--wex-fs-small);
+  font-weight: 700;
+  cursor: pointer;
+  align-self: center;
+}
+
+/* OTP Mode */
+.otpContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wex-space-16);
+}
+
+.otpSentText {
+  font-size: var(--wex-fs-small);
+  color: var(--wex-text-secondary);
+  margin: 0;
+}
+
+.digitRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--wex-space-8);
+}
+
+.digitBox {
+  width: 44px;
+  height: 52px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--wex-navy);
+  background-color: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--wex-radius-12);
+  transition: border-color var(--wex-motion-duration) var(--wex-motion-easing);
+}
+
+.digitBox:focus {
+  outline: none;
+  border-color: var(--wex-vivid);
+  box-shadow: 0 0 0 2px rgba(30, 107, 255, 0.2);
+}
+
+.otpActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wex-space-12);
+}
+
+.resendRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--wex-fs-small);
+}
+
+.countdownText {
+  color: var(--wex-text-secondary);
+}
+
+.resendBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wex-space-4);
+  background: none;
+  border: none;
+  color: var(--wex-royal);
+  font-family: inherit;
+  font-size: var(--wex-fs-small);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

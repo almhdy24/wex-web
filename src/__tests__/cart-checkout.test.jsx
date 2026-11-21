@@ -80,50 +80,53 @@ describe('Cart & Checkout System Unit Tests', () => {
     it('renders cart items and pricing breakdown correctly', () => {
       const html = renderHtml(<CartPage />);
 
-      expect(html).toContain('سلة المشتريات');
+      expect(html).toContain('السلة');
       expect(html).toContain('Dell Latitude 7420');
       expect(html).toContain('850,000 ج.س');
-      expect(html).toContain('خصم الطلب بالتطبيق (3%)');
-      expect(html).toContain('ملخص السلة');
+      expect(html).toContain('خصم التطبيق (3%)');
+      expect(html).toContain('المجموع (جهاز واحد)');
+      expect(html).toContain('الإجمالي');
     });
 
     it('renders desktop checkout button and continue shopping link', () => {
       const html = renderHtml(<CartPage />);
 
-      expect(html).toContain('متابعة تثبيت السعر والطلب');
-      expect(html).toContain('إضافة أجهزة أو ملحقات أخرى إلى السلة');
+      expect(html).toContain('متابعة');
+      expect(html).toContain('إضافة منتجات أخرى');
     });
   });
 
   describe('CheckoutPage component', () => {
-    it('renders 3-step progress bar and delivery options', () => {
+    it('renders delivery options and clean summary card', () => {
       const html = renderHtml(<CheckoutPage />);
 
-      expect(html).toContain('السلة');
-      expect(html).toContain('بيانات الطلب');
-      expect(html).toContain('تثبيت السعر والدفع');
-      expect(html).toContain('استلام من المحل (مجاني)');
-      expect(html).toContain('توصيل للعنوان');
-      expect(html).toContain('ماذا بعد تثبيت السعر؟');
+      expect(html).toContain('تأكيد الطلب');
+      expect(html).toContain('طريقة الاستلام');
+      expect(html).toContain('الاستلام من المحل');
+      expect(html).toContain('مجانًا');
+      expect(html).toContain('التوصيل');
+      expect(html).toContain('حسب المنطقة');
+      expect(html).not.toContain('ماذا بعد تثبيت السعر؟');
     });
 
     it('renders contact phone input and order review summary', () => {
       const html = renderHtml(<CheckoutPage />);
 
-      expect(html).toContain('رقم هاتف التواصل والواتساب:');
-      expect(html).toContain('مراجعة الطلب');
-      expect(html).toContain('الإجمالي المطلوب تحويله:');
+      expect(html).toContain('رقم الهاتف');
+      expect(html).toContain('نتواصل معك على هذا الرقم بشأن طلبك.');
+      expect(html).toContain('ملخص الطلب');
+      expect(html).toContain('الإجمالي');
+      expect(html).toContain('بعد التأكيد يُثبَّت السعر لمدة 4 ساعات لتحوّل المبلغ وترفع إشعار التحويل.');
     });
 
-    it('renders guest shopping notice banner when unauthenticated', () => {
+    it('keeps clean one-page layout and does not render clutter banners', () => {
       const html = renderHtml(<CheckoutPage />, {
         isAuthenticated: false,
         user: null,
       });
 
-      expect(html).toContain('تسوق سريع ومريح');
-      expect(html).toContain('تسجيل الدخول مسبقاً');
-      expect(html).toContain('الدخول والتثبيت');
+      expect(html).not.toContain('تسوق سريع ومريح');
+      expect(html).toContain('تأكيد الطلب');
     });
   });
 

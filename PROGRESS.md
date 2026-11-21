@@ -71,7 +71,28 @@ Simplifying and unifying the storefront (customer-side only) following Traversy-
     - Actions: compare toggle button "مقارنة", favorite heart, share button, quantity stepper, "أضف إلى السلة", and "اطلب الآن".
   - Cleaned stray forbidden words in `ComparePage.jsx`.
   - Added test suite `src/__tests__/catalog-rescue.test.jsx` (6/6 tests passing).
-- [ ] **Phase 4: Cart, Checkout & Inline Sign-in Sheet**
+- [x] **Phase 4: Cart, Checkout & Inline Sign-in Sheet**
+  - Rebuilt `CartPage.jsx` and `CartPage.module.css`:
+    - Title: "السلة".
+    - Summary rows: "المجموع ({count})" with `pluralAr` (جهاز واحد / جهازان / 3 أجهزة / 14 جهازًا), "خصم التطبيق (3%)", "الإجمالي" (one line, nowrap).
+    - Link "إضافة منتجات أخرى".
+    - Button "متابعة" with total amount in sticky bar.
+    - Zero price-lock notices or repeated totals in cart.
+  - Rebuilt `CheckoutPage.jsx` and `CheckoutPage.module.css`:
+    - ONE clean page, title "تأكيد الطلب". Removed 3-step stepper, removed "تسوق سريع ومريح" banner, removed "ماذا بعد تثبيت السعر؟" box.
+    - Section "طريقة الاستلام": option "الاستلام من المحل" with line "مجانًا", option "التوصيل" with line "حسب المنطقة".
+    - Delivery fields: "المنطقة" (select showing name and fee e.g. "أم درمان - 5,000 ج.س"), "العنوان بالتفصيل".
+    - Section "التواصل": "رقم الهاتف" (placeholder "09XXXXXXXX", helper "نتواصل معك على هذا الرقم بشأن طلبك."), "ملاحظات (اختياري)".
+    - Summary card: المجموع، الخصم، رسوم التوصيل ("مجانًا" or fee), الإجمالي.
+    - ONE line above the button: "بعد التأكيد يُثبَّت السعر لمدة {N} ساعات لتحوّل المبلغ وترفع إشعار التحويل."
+    - Sticky button "تأكيد الطلب".
+  - Created `AuthSheet.jsx` and `AuthSheet.module.css`:
+    - Bottom sheet trigger on confirmation when user is signed out.
+    - Title: "سجّل الدخول لإتمام الطلب", text: "لنربط الطلب بحسابك ونرسل لك التحديثات.".
+    - Buttons: "المتابعة باستخدام Google" and "المتابعة بالبريد الإلكتروني" (6-box OTP code).
+    - Auto-creates order with entered form data upon authentication success (no re-entry).
+    - Clears cart ONLY on order creation success.
+  - Added test suite `src/__tests__/cart-checkout-rescue.test.jsx` (5/5 tests passing) and updated `src/__tests__/cart-checkout.test.jsx` (12/12 tests passing).
 - [ ] **Phase 5: Payment Screen, Orders List & Flow Verification**
 - [ ] **Phase 6: Cleanup, Documentation & Final Verification**
 
