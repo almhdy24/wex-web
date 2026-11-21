@@ -117,7 +117,7 @@ export default function AdminOrdersPage() {
       label: adminAr.orders.customer,
       render: (row) => (
         <div className={styles.customerCol}>
-          <span className={styles.customerName}>{row.customer_name || 'عميل'}</span>
+          <span className={styles.customerName}>{row.customer_name || row.customer_phone || row.delivery_phone || row.order_number}</span>
           <span className={styles.customerPhone}>{row.customer_phone}</span>
         </div>
       ),

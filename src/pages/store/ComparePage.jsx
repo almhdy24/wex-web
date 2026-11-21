@@ -5,7 +5,7 @@ import { useCompare } from '../../context/CompareContext';
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
 import { formatSdg, getProductImageUrl, getConditionLabel } from '../../utils/formatters';
-import LaptopSvg from '../../components/common/LaptopSvg';
+import { ProductImage } from '../../components/common';
 import LatinText from '../../components/common/LatinText';
 import Page from '../../components/common/Page';
 import { t } from '../../content/ar';
@@ -196,15 +196,12 @@ export default function ComparePage() {
                       </button>
 
                       <div className={styles.thumbBox}>
-                        {imgUrl ? (
-                          <img
-                            src={imgUrl}
-                            alt={item.name}
-                            className={styles.thumbImg}
-                          />
-                        ) : (
-                          <LaptopSvg width={64} height={44} />
-                        )}
+                        <ProductImage
+                          src={imgUrl}
+                          alt={item.name}
+                          type={item.type || 'laptop'}
+                          className={styles.thumbImg}
+                        />
                       </div>
 
                       <span className={styles.conditionBadge}>

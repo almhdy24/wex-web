@@ -24,6 +24,7 @@ import FilterBar from '../../components/admin/FilterBar';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import Stepper from '../../components/admin/Stepper';
 import Page from '../../components/common/Page';
+import ProductImage from '../../components/common/ProductImage';
 import styles from './AdminProductsPage.module.css';
 
 export default function AdminProductsPage() {
@@ -343,13 +344,11 @@ export default function AdminProductsPage() {
         );
         return (
           <div className={styles.productPrimary}>
-            <img
+            <ProductImage
               src={thumb}
               alt={p.name}
+              type={p.type || 'laptop'}
               className={styles.productThumb}
-              onError={(e) => {
-                e.target.src = '/favicon.svg';
-              }}
             />
             <div className={styles.productInfo}>
               <Link to={`/admin/products/${p.id}/edit`} className={styles.productTitle}>

@@ -69,7 +69,6 @@ export default function AdminProductFormPage() {
     { key: 'كرت الشاشة', value: '' },
     { key: 'الشاشة', value: '' },
     { key: 'البطارية', value: '' },
-    { key: 'المعاينة', value: 'فحص ومعاينة عند الاستلام' },
   ]);
 
   // Images for Edit Mode
@@ -249,7 +248,6 @@ export default function AdminProductFormPage() {
         { key: 'كرت الشاشة', value: '' },
         { key: 'الشاشة', value: '' },
         { key: 'البطارية', value: '' },
-        { key: 'المعاينة', value: 'فحص ومعاينة عند الاستلام' },
       ]);
     } else if (presetType === 'phone') {
       setSpecsList([
@@ -258,13 +256,11 @@ export default function AdminProductFormPage() {
         { key: 'البطارية', value: '' },
         { key: 'الكاميرا', value: '' },
         { key: 'اللون', value: '' },
-        { key: 'المعاينة', value: 'فحص ومعاينة عند الاستلام' },
       ]);
     } else if (presetType === 'accessory') {
       setSpecsList([
         { key: 'النوع', value: '' },
         { key: 'التوافق', value: '' },
-        { key: 'المعاينة', value: 'فحص ومعاينة عند الاستلام' },
       ]);
     }
   };
@@ -601,7 +597,7 @@ export default function AdminProductFormPage() {
                   name="short_description"
                   value={formData.short_description}
                   onChange={handleInputChange}
-                  placeholder="وصف سريع يبرز أهم ميزة..."
+                  placeholder="وصف موجز يبرز أهم ميزة..."
                 />
               </div>
 
@@ -668,7 +664,7 @@ export default function AdminProductFormPage() {
                   helperText={
                     liveSdgPrice
                       ? `= ${formatSdg(liveSdgPrice)} بسعر صرف اليوم (${currentRate} ج.س)`
-                      : 'يتم احتساب السعر بالجنيه تلقائياً بناءً على سعر الصرف'
+                      : 'يتم احتساب السعر بـ ج.س تلقائياً بناءً على سعر الصرف'
                   }
                 />
 
@@ -683,11 +679,11 @@ export default function AdminProductFormPage() {
                 </div>
 
                 <Input
-                  label="ملاحظة الضمان (اختياري)"
+                  label="ملاحظات إضافية على حالة الجهاز (اختياري)"
                   name="warranty_text"
                   value={formData.warranty_text}
                   onChange={handleInputChange}
-                  placeholder="اتركه فارغًا إن لم يكن هناك ضمان"
+                  placeholder="أي تفاصيل أو ملاحظات خاصة بحالة الجهاز"
                 />
               </div>
             </div>

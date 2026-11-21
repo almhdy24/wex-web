@@ -459,3 +459,90 @@ $ node node_modules/vitest/vitest.mjs run src/__tests__/admin-primitives.test.js
       Tests  9 passed (9)
 ```
 Status: **GREEN (Passed)**
+
+---
+
+## PHASE 3: DATA AND CONTENT CLEANUP
+
+### 1. Customer Names in Admin Lists
+**Issue**: Admin orders and payments lists fell back to the hard-coded placeholder `'عميل'` instead of displaying the actual customer contact details.
+**Fix**:
+- Updated `AdminOrdersPage.jsx` and `AdminPaymentsPage.jsx` to display `row.customer_name || row.customer_phone || row.delivery_phone || row.order_number`.
+- Joined users in `OrderService::listAdminOrders` and updated `AdminOrderPresenter::presentListItem` to include customer contact data.
+
+### 2. Dev & Debug Data Cleanup Script (`scripts/cleanup-dev-data.sh`)
+**Script**: Created `wex-api/scripts/cleanup-dev-data.sh` with executable permissions.
+- Aborts immediately if `CI_ENVIRONMENT=production` or `ENVIRONMENT=production`.
+- Removes physical proof image files associated with `WEX-DBG-%` orders and test users.
+- Purges records from `order_items`, `order_events`, `payment_proofs`, `notifications`, `orders`, `otp_codes`, `refresh_tokens`, and test users.
+- Sanitizes content in SQLite database (`hero_slides`, `pages`, `settings`, `payment_accounts`).
+**Execution Output**:
+```
+$ /data/data/com.termux/files/home/projects/wex-api/scripts/cleanup-dev-data.sh
+=== Cleaning Up Dev and Debug Test Data ===
+Target DB: /data/data/com.termux/files/home/projects/wex-api/writable/database/wex.sqlite
+Deleting physical proof files for WEX-DBG-% orders...
+  Removed: /data/data/com.termux/files/home/projects/wex-api/writable/uploads/proofs/37fe27300386fd06c82cf51c6e8f9e87c63cf279.jpg
+  ...
+Deleting WEX-DBG-% order records...
+Cleaning test users created by automated test agents...
+Sanitizing content tables (hero_slides, pages, settings, payment_accounts)...
+✅ Dev data cleanup completed successfully.
+```
+Status: **GREEN (Passed)**
+
+### 3. Placeholder Bank Data & Claims Removal
+**Fix**:
+- Purged placeholder bank account `2849102` from `SettingsSeeder.php`, `OrderService.php`, `2026-11-20-000002_CreatePaymentAccountsAnnouncementsAndContentTables.php`, and email templates (`lock_warning.php`, `order_created.php`).
+- Created `app/Database/Seeds/DevSeeder.php` which throws `RuntimeException` if executed in `production`.
+- Sanitized `hero_slides`, `pages`, and `faq_items` default seeds/migrations, replacing non-factual claims ("مختارة بعناية", "نضمن", "المعاينة", "بالجنيه السوداني") with factual text and "بـ ج.س".
+- Replaced preset row "المعاينة" and cleaned product description seeds in `ProductsSeeder.php`.
+- Sanitized `admin.ar.js` preview keys and labels.
+
+### 4. Database Content Audit (`scripts/audit-db.sh`)
+**Passing Command & Raw Output**:
+```
+$ cd /data/data/com.termux/files/home/projects/wex-api && bash scripts/audit-db.sh
+=== Database Content Audit for Forbidden Claims & Sample Data ===
+Database: /data/data/com.termux/files/home/projects/wex-api/writable/database/wex.sqlite
+
+✅ PASS: Zero forbidden claims or placeholder values found in database.
+```
+Status: **GREEN (Passed)**
+
+### 5. Extended Claims Scanner (`scripts/check-claims.mjs`)
+**Passing Command & Raw Output**:
+```
+$ cd /data/data/com.termux/files/home/projects/wex-web && node scripts/check-claims.mjs
+=== Checking Forbidden Marketing Claims & Placeholder Data ===
+Scanning:
+  - 115 Storefront source files
+  - 2 Admin preset files
+  - 45 API seeders, migrations, language, and email files
+✅ PASS: Zero forbidden claims or placeholders found across all scanned files.
+```
+Status: **GREEN (Passed)**
+
+### 6. Claims PHPUnit Test (`tests/unit/ClaimsScanTest.php`)
+**Passing Command & Raw Output**:
+```
+$ cd /data/data/com.termux/files/home/projects/wex-api && php vendor/bin/phpunit tests/unit/ClaimsScanTest.php
+PHPUnit 10.5.67 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.5.12
+Configuration: /data/data/com.termux/files/home/projects/wex-api/phpunit.dist.xml
+
+.                                                                   1 / 1 (100%)
+
+Time: 00:00.078, Memory: 6.00 MB
+
+OK (1 test, 1 assertion)
+```
+Status: **GREEN (Passed)**
+
+### 7. Product Images Neutral Line-Art SVG Fallback
+**Fix**:
+- Created `ProductTypeSvg.jsx` providing clean line-art SVG illustrations for `laptop`, `phone`, and `accessory` types (zero brand icons/logos).
+- Created `ProductImage.jsx` wrapper with error boundary and fallback support.
+- Updated `ProductCard.jsx`, `CartPage.jsx`, `ComparePage.jsx`, `FavoritesPage.jsx`, `ProductDetailPage.jsx`, `AdminProductsPage.jsx`, and `AdminOrderDetailPage.jsx`.
+

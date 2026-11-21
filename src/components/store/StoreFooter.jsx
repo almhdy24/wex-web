@@ -117,7 +117,7 @@ export default function StoreFooter({ shopInfo = null }) {
             </div>
             <div className={styles.trustBadge}>
               <ShieldCheck size={18} className={styles.trustIcon} />
-              <span>استلام ومعاينة للجهاز بمقرنا في أم درمان</span>
+              <span>استلام مباشر للجهاز بمقرنا في أم درمان</span>
             </div>
           </div>
         </div>

@@ -351,7 +351,7 @@ export default function OrderDetailPage({
                 <div className={styles.proofThumbnailBox}>
                   <img
                     src={uploadedProofThumbnail || uiState.latestProof.image_url}
-                    alt="معاينة إشعار التحويل"
+                    alt="صورة إشعار التحويل"
                     className={styles.proofThumbImg}
                   />
                 </div>
@@ -433,7 +433,7 @@ export default function OrderDetailPage({
             {/* Preview & Submit */}
             {proofPreview && (
               <div className={styles.previewContainer}>
-                <img src={proofPreview} alt="معاينة إشعار التحويل" className={styles.previewImg} />
+                <img src={proofPreview} alt="صورة إشعار التحويل" className={styles.previewImg} />
                 <div className={styles.previewActions}>
                   <Button
                     variant="primary"

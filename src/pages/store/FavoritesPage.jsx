@@ -12,7 +12,7 @@ import { useFavorites } from '../../context/FavoritesContext';
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
 import { formatSdg, getProductImageUrl, getConditionLabel } from '../../utils/formatters';
-import LaptopSvg from '../../components/common/LaptopSvg';
+import { ProductImage } from '../../components/common';
 import LatinText from '../../components/common/LatinText';
 import SpecValue from '../../utils/formatSpecValue';
 import Page from '../../components/common/Page';
@@ -121,7 +121,7 @@ export default function FavoritesPage() {
           <p className={styles.emptyDesc}>{ar.wishlist.emptySubtitle}</p>
 
           <div className={styles.quickChipsWrapper}>
-            <span className={styles.chipsLabel}>أقسام شائعة للمعاينة:</span>
+            <span className={styles.chipsLabel}>أقسام شائعة للتصفح:</span>
             <div className={styles.quickChips}>
               <Link to="/products?category=laptops" className={styles.chip}>
                 {ar.wishlist.categoryLaptops}
@@ -177,28 +177,13 @@ export default function FavoritesPage() {
                   className={styles.imageLink}
                   aria-label={product.name}
                 >
-                  {imageUrl ? (
-                    <img
-                      src={imageUrl}
-                      alt={product.name}
-                      className={styles.productImg}
-                      loading="lazy"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        const parent = e.currentTarget.parentElement;
-                        if (parent) {
-                          const fallback = parent.querySelector(`.${styles.fallbackWrapper}`);
-                          if (fallback) fallback.style.display = 'flex';
-                        }
-                      }}
-                    />
-                  ) : null}
-                  <div
-                    className={styles.fallbackWrapper}
-                    style={{ display: imageUrl ? 'none' : 'flex' }}
-                  >
-                    <LaptopSvg className={styles.fallbackSvg} />
-                  </div>
+                  <ProductImage
+                    src={imageUrl}
+                    alt={product.name}
+                    type={product.type || 'laptop'}
+                    className={styles.productImg}
+                    fallbackClassName={styles.fallbackSvg}
+                  />
                 </Link>
 
                 {/* Card Content */}

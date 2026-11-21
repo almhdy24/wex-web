@@ -107,8 +107,8 @@ export default function AdminRecentPurchasesPage() {
       </section>
 
       {/* Preview Section */}
-      <section className={styles.previewSection} aria-label="معاينة الإشعار">
-        <h3 className={styles.sectionHeading}>معاينة شكل الإشعار كما يظهر للمشتري</h3>
+      <section className={styles.previewSection} aria-label="شكل العرض للإشعار">
+        <h3 className={styles.sectionHeading}>شكل الإشعار كما يظهر للمشتري</h3>
         <div className={styles.previewBox}>
           <div className={styles.toastMock}>
             <div className={styles.toastIconBox}>

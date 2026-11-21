@@ -42,14 +42,14 @@ export default function PaymentAccountsDisplay({
   const accountsToRender =
     Array.isArray(effectiveAccounts) && effectiveAccounts.length > 0
       ? effectiveAccounts
-      : bankDetails
+      : (bankDetails && bankDetails.account_number)
       ? [
           {
             id: 'legacy-bank',
-            bank_name: bankDetails.bank_name || 'بنك الخرطوم (بنكك)',
+            bank_name: bankDetails.bank_name || 'حساب التحويل البنكي',
             account_name: bankDetails.account_name || 'متجر ويكس تكنولوجي',
-            account_number: bankDetails.account_number || '2849102',
-            branch: bankDetails.branch_name || 'فرع أم درمان - الشهداء',
+            account_number: bankDetails.account_number,
+            branch: bankDetails.branch_name || 'الفرع الرئيسي',
             notes: bankDetails.notes || '',
           },
         ]

@@ -6,7 +6,7 @@ import { useCart } from '../../context/CartContext';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useToast } from '../../context/ToastContext';
 import { t } from '../../content/ar';
-import LaptopSvg from '../common/LaptopSvg';
+import { ProductImage } from '../common';
 import LatinText from '../common/LatinText';
 import SpecValue from '../../utils/formatSpecValue';
 import styles from './ProductCard.module.css';
@@ -40,7 +40,6 @@ export default function ProductCard({ product }) {
   const { addItem } = useCart();
   const { toggleFavorite, isFavorite } = useFavorites();
   const { success } = useToast();
-  const [imageError, setImageError] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
 
   if (!product) return null;
@@ -108,22 +107,13 @@ export default function ProductCard({ product }) {
 
         {/* Image Area */}
         <div className={styles.imageContainer}>
-          {imageUrl && !imageError ? (
-            <img
-              src={imageUrl}
-              alt={product.name}
-              className={styles.image}
-              loading="lazy"
-              onError={() => setImageError(true)}
-            />
-          ) : (
-            <div className={styles.svgWrapper}>
-              <LaptopSvg
-                silhouette={product.silhouette || 'modern'}
-                accentColor="var(--wex-royal)"
-              />
-            </div>
-          )}
+          <ProductImage
+            src={imageUrl}
+            alt={product.name}
+            type={product.type || 'laptop'}
+            className={styles.image}
+            fallbackClassName={styles.svgWrapper}
+          />
         </div>
 
         {/* Product Info */}

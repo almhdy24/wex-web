@@ -35,15 +35,15 @@ const FAQ_DATA = [
     ],
   },
   {
-    category: 'الاستلام والمعاينة',
+    category: 'الاستلام والتوصيل',
     items: [
       {
         q: 'هل تتوفر أجهزة جديدة أم مستعملة؟',
         a: 'نوفر أجهزة جديدة ومستعملة استيراد بحسب المواصفات الموضحة في صفحة كل جهاز.',
       },
       {
-        q: 'هل يمكنني معاينة الجهاز وتشغيله عند الاستلام؟',
-        a: 'نعم، يمكنك معاينة الجهاز وتشغيله بمقرنا في مول الواحة بأم درمان عند الاستلام.',
+        q: 'كيف يتم استلام الجهاز؟',
+        a: 'يمكنك استلام الجهاز مباشرة بمقرنا في مول الواحة بأم درمان أو اختيار التوصيل عبر المندوب.',
       },
     ],
   },
@@ -98,7 +98,7 @@ export default function FaqPage() {
         </div>
         <h1 className={styles.title}>الأسئلة الشائعة</h1>
         <p className={styles.subtitle}>
-          كل ما تحتاج معرفته عن آلية تثبيت الأسعار، السداد ببنكك، المعاينة، والاستلام والتوصيل.
+          كل ما تحتاج معرفته عن آلية تثبيت الأسعار، السداد ببنكك، والاستلام والتوصيل.
         </p>
 
         {/* Search Input */}
@@ -128,8 +128,8 @@ export default function FaqPage() {
         <div className={styles.highlightCard}>
           <ShieldCheck size={20} className={styles.highlightIcon} />
           <div>
-            <h3 className={styles.highlightTitle}>معاينة مباشرة</h3>
-            <p className={styles.highlightDesc}>معاينة الجهاز بنفسك عند الاستلام.</p>
+            <h3 className={styles.highlightTitle}>استلام مباشر</h3>
+            <p className={styles.highlightDesc}>استلام الجهاز من المحل مباشرة.</p>
           </div>
         </div>
 

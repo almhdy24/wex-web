@@ -27,6 +27,7 @@ import { Skeleton } from '../../components/common/Skeleton';
 import StatusChip from '../../components/admin/StatusChip';
 import ImageViewer from '../../components/admin/ImageViewer';
 import Page from '../../components/common/Page';
+import ProductImage from '../../components/common/ProductImage';
 import styles from './AdminOrderDetailPage.module.css';
 
 export default function AdminOrderDetailPage() {
@@ -501,11 +502,11 @@ export default function AdminOrderDetailPage() {
                   {(order.items || []).map((it) => (
                     <div key={it.id || it.product_id} className={styles.itemRow}>
                       <div className={styles.itemThumb}>
-                        {it.product_image ? (
-                          <img src={resolveImageUrl(it.product_image)} alt={it.product_name} />
-                        ) : (
-                          <Package size={20} className={styles.itemPlaceholderIcon} />
-                        )}
+                        <ProductImage
+                          src={resolveImageUrl(it.product_image)}
+                          alt={it.product_name}
+                          type={it.product_type || it.type || 'laptop'}
+                        />
                       </div>
                       <div className={styles.itemInfo}>
                         <span className={styles.itemName}>{it.product_name}</span>

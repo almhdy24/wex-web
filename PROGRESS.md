@@ -26,6 +26,17 @@ System stabilization, defect fixes, behavioral tests, and raw evidence log (`doc
   - Admin sticky form action bar: updated `--admin-tab-bar-height: 56px` and `z-index: 110` above admin tab bar on all admin form pages (`src/__tests__/admin-primitives.test.jsx` 9/9 PASS).
   - Full raw verification logs appended to `docs/STABILIZE-LOG.md`.
 
+- [x] **Phase 3: Data and Content Cleanup (All GREEN)**
+  - Customer names: Admin orders and payments lists show real customer name and phone (or order number), eliminating the hard-coded placeholder `'عميل'`.
+  - Dev & debug test data purge: Created `wex-api/scripts/cleanup-dev-data.sh` with production safety check (refuses when `CI_ENVIRONMENT=production`), purging `WEX-DBG-%` orders, proofs, test files, and agent-created test users.
+  - Placeholder bank data & claims elimination: Purged placeholder account `2849102` from seeders, migrations, email templates, and order service. Moved development payment account creation to `app/Database/Seeds/DevSeeder.php` (refuses in production).
+  - Content sanitization: Cleaned claims from hero slides, draft pages, FAQ items, product spec presets (removed preset row "المعاينة" and prefilled claims), and `ProductsSeeder.php` descriptions.
+  - Neutral line-art product image fallback: Implemented `ProductTypeSvg.jsx` and `ProductImage.jsx` for clean neutral SVG fallbacks by product type (`laptop`, `phone`, `accessory`), completely eliminating brand icons as image placeholders.
+  - DB content audit: `scripts/audit-db.sh` reports 0 violating rows (PASS).
+  - Claims scanner: `scripts/check-claims.mjs` reports 0 violations across 115 storefront files, 2 admin presets, and 45 API files (PASS).
+  - Claims PHPUnit test: `tests/unit/ClaimsScanTest.php` PASS.
+  - Raw verification logs appended to `docs/STABILIZE-LOG.md`.
+
 ## Storefront Rescue Track (Branch: storefront-rescue) — Complete
 
 Simplifying and unifying the storefront (customer-side only) following Traversy-style readable code, strict Design System tokens, single message living rule, zero dialect or puffery, and end-to-end purchase flow integrity.

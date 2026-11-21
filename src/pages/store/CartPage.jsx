@@ -5,7 +5,7 @@ import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
 import { formatSdg, getProductImageUrl } from '../../utils/formatters';
 import { pluralAr } from '../../utils/pluralAr';
-import LaptopSvg from '../../components/common/LaptopSvg';
+import { ProductImage } from '../../components/common';
 import Button from '../../components/common/Button';
 import Page from '../../components/common/Page';
 import styles from './CartPage.module.css';
@@ -73,13 +73,13 @@ export default function CartPage() {
           return (
             <div key={item.id} className={styles.itemCard}>
               <div className={styles.itemImageContainer}>
-                {imgUrl ? (
-                  <img src={imgUrl} alt={item.name} className={styles.itemImg} />
-                ) : (
-                  <div className={styles.itemPlaceholder}>
-                    <LaptopSvg />
-                  </div>
-                )}
+                <ProductImage
+                  src={imgUrl}
+                  alt={item.name}
+                  type={item.type || 'laptop'}
+                  className={styles.itemImg}
+                  fallbackClassName={styles.itemPlaceholder}
+                />
               </div>
 
               <div className={styles.itemInfo}>

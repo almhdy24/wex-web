@@ -19,7 +19,7 @@ import { useCart } from '../../context/CartContext';
 import { useCompare } from '../../context/CompareContext';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useToast } from '../../context/ToastContext';
-import LaptopSvg from '../../components/common/LaptopSvg';
+import { ProductTypeSvg } from '../../components/common';
 import Button from '../../components/common/Button';
 import Page from '../../components/common/Page';
 import styles from './ProductDetailPage.module.css';
@@ -156,7 +156,7 @@ export default function ProductDetailPage({
   // Warranty row: only if API provides text
   if (product.warranty_text && String(product.warranty_text).trim()) {
     specRows.push({
-      label: 'الاستلام والمعاينة',
+      label: 'الاستلام والتسليم',
       value: String(product.warranty_text).trim(),
     });
   }
@@ -225,7 +225,7 @@ export default function ProductDetailPage({
             />
           ) : (
             <div className={styles.placeholderBox}>
-              <LaptopSvg />
+              <ProductTypeSvg type={product.type || 'laptop'} />
             </div>
           )}
 

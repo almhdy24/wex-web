@@ -395,7 +395,7 @@ export default function AdminPaymentsPage() {
               <div className={styles.sectionBlock}>
                 <span className={styles.blockTitle}>{adminAr.payments.customerName}</span>
                 <div className={styles.customerRow}>
-                  <span className={styles.customerName}>{currentOrder.customer_name || 'عميل'}</span>
+                  <span className={styles.customerName}>{currentOrder.customer_name || currentOrder.customer_phone || currentOrder.delivery_phone || currentOrder.order_number}</span>
                   <div className={styles.contactButtons}>
                     {currentOrder.customer_phone && (
                       <>

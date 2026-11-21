@@ -9,3 +9,5 @@ export { default as Page } from './Page.jsx';
 export { default as Section } from './Section.jsx';
 export { default as PageHeader } from './PageHeader.jsx';
 export { default as StickyBar } from './StickyBar.jsx';
+export { default as ProductTypeSvg } from './ProductTypeSvg.jsx';
+export { default as ProductImage } from './ProductImage.jsx';
