@@ -162,7 +162,9 @@ export default function AdminPagesPage() {
                   <FileText size={20} className={styles.pageIcon} />
                   <div>
                     <h3 className={styles.pageTitle}>{p.title}</h3>
-                    <span className={styles.pageSlug}>/{p.slug}</span>
+                    <span className={styles.pageSlug} dir="ltr" style={{ textAlign: 'start' }}>
+                      <bdi>/{p.slug}</bdi>
+                    </span>
                   </div>
                 </div>
 
@@ -225,14 +227,16 @@ export default function AdminPagesPage() {
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>معرف الرابط (Slug) *</label>
+                  <label className={styles.formLabel}>معرف الرابط *</label>
                   <input
                     type="text"
                     required
+                    dir="ltr"
                     value={formData.slug}
                     onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                    placeholder="مثال: privacy-policy"
+                    placeholder="معرف بالإنجليزية للرابط"
                     className={styles.formInput}
+                    style={{ textAlign: 'start' }}
                   />
                 </div>
               </div>

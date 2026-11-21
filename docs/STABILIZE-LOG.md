@@ -548,6 +548,49 @@ Status: **GREEN (Passed)**
 
 ---
 
+## PHASE 4: P1 UI FIXES
+
+### 1. Admin Arabic Only (`scripts/check-admin-english.mjs`)
+**Fix**:
+- Renamed "شرائح الواجهة الرئيسية (Hero Slides)" to "شرائح الواجهة" and "نص زر التوجيه (CTA)" to "نص الزر".
+- Removed extraneous Latin terms and labels in Admin UI (`Audit Log`, `Slug`, `FAQ`, `Key`, `Admin`, `CTA`, `Newest`, `Category`, `Featured`).
+- Replaced Latin examples with clean Arabic descriptive placeholders.
+**Passing Command & Raw Output**:
+```
+$ cd /data/data/com.termux/files/home/projects/wex-web && node scripts/check-admin-english.mjs
+=== Checking Admin UI for Disallowed Latin Words ===
+Scanned 28 admin UI and content files.
+✅ PASS: Admin UI strings contain only Arabic and allowlisted technical/brand terms.
+```
+Status: **GREEN (Passed)**
+
+### 2. BiDi Integrity & Directional Formatting
+**Fix**:
+- Updated URL and slug input controls and table displays to use `dir="ltr"` with `text-align: start` and isolated with `<bdi>`.
+- Fixed page slug displays in `AdminPagesPage.jsx` (`<span className={styles.pageSlug} dir="ltr" style={{ textAlign: 'start' }}><bdi>/{p.slug}</bdi></span>`), guaranteeing leading slash `/{slug}` never flips to `{slug}/`.
+- Added BiDi isolation `<bdi dir="ltr">` for keys and values in `AdminHomeSectionsPage.jsx`, `AdminBrandsPage.jsx`, and `AdminCategoriesPage.jsx`.
+
+### 3. Hero Slides Admin List Stacked Cards
+**Fix**:
+- Completely rebuilt `AdminHeroSlidesPage.jsx` and `AdminHeroSlidesPage.module.css` into stacked cards layout.
+- Separate structured rows: `.slideHeaderRow` (visual thumbnail + title & status chip), `.slideMetaRow` (button label + URL), and `.slideActionRow` (reordering controls + edit/delete buttons in a dedicated bottom row).
+- Zero text and button overlapping at 360px viewport.
+- Added graceful image error fallback handler (`handleImgError`) showing neutral SVG icon when images fail to load or are missing.
+
+### 4. Product Card Description Line Clamp with RTL Integrity
+**Fix**:
+- Updated `.name` and `.description` in `ProductCard.module.css` with `direction: rtl`, `unicode-bidi: isolate`, `word-break: break-word`, and `overflow-wrap: break-word`.
+- Guarantees standard WebKit line-clamp never places leading ellipsis at the start of Arabic text.
+
+### 5. Admin Dashboard Sound Toggle, Digit Formatter & Active Order Filtering
+**Fix**:
+- Added sound mute toggle button in `AdminDashboardPage.jsx` header with Arabic labels (`الصوت: صامت` / `الصوت: مفعّل`), Lucide icons (`Volume2`, `VolumeX`), and `localStorage` persistence.
+- Unified count formatting with `formatCount()` using consistent Western digits (matching `formatSdg`), completely eliminating mixing of Arabic/Western numerals on the dashboard.
+- Updated `DashboardController.php` in `wex-api` to exclude `cancelled`, `expired`, and debug orders (`WEX-DBG-%`) from active today orders and status counts.
+
+
+---
+
 ## CONSISTENCY SPRINT: PHASE 1 DIAGNOSIS & REPRODUCTION (RED BASELINE)
 
 ### 1. Database & Filesystem State Verification

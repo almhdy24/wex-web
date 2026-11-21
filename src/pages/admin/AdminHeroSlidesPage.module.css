@@ -47,8 +47,9 @@
   border-radius: var(--radius-lg, 16px);
   padding: 16px;
   display: flex;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
   transition: background-color var(--motion-fast, 150ms), border-color var(--motion-fast, 150ms), opacity var(--motion-fast, 150ms);
 }
 
@@ -57,10 +58,16 @@
   background: #F9FAFB;
 }
 
+.slideHeaderRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
 .slideVisualCol {
-  width: 90px;
+  width: 80px;
   height: 60px;
-  border-radius: var(--radius-md, 14px);
+  border-radius: var(--radius-md, 12px);
   overflow: hidden;
   background: var(--wex-ice, #EAF3FF);
   flex-shrink: 0;
@@ -79,43 +86,46 @@
   color: var(--wex-text-muted, #5A6E85);
 }
 
-.slideContentCol {
+.slideMainInfo {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-width: 0;
 }
 
-.slideTitleRow {
+.slideTitleWrap {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .slideTitle {
   font-size: 0.9375rem;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--wex-navy, #061A55);
   margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: break-word;
 }
 
 .slideSub {
   font-size: 0.8125rem;
   color: var(--wex-text-muted, #5A6E85);
   margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: break-word;
 }
 
 .slideMetaRow {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-block: 6px;
+  border-top: 1px dashed var(--wex-border, #D5E2F2);
+  border-bottom: 1px dashed var(--wex-border, #D5E2F2);
   font-size: 0.75rem;
   color: var(--wex-text-muted, #5A6E85);
 }
@@ -144,11 +154,12 @@
   color: #6B7280;
 }
 
-.slideActionsCol {
+.slideActionRow {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
-  flex-shrink: 0;
+  padding-top: 4px;
 }
 
 .reorderBtns, .crudBtns {

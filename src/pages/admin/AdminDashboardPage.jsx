@@ -14,6 +14,8 @@ import {
   AlertTriangle,
   AlertOctagon,
   Landmark,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { api } from '../../api/client';
@@ -36,6 +38,30 @@ export default function AdminDashboardPage() {
   const [hasActiveAccounts, setHasActiveAccounts] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [soundMuted, setSoundMuted] = useState(() => {
+    try {
+      return localStorage.getItem('wex_admin_sound_muted') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleSound = () => {
+    setSoundMuted((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('wex_admin_sound_muted', String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
+
+  const formatCount = (val) => {
+    const n = Number(val) || 0;
+    return new Intl.NumberFormat('en-US').format(n);
+  };
 
   // Quick Rate Modal
   const [rateModalOpen, setRateModalOpen] = useState(false);
@@ -178,6 +204,17 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className={styles.headerActions}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleSound}
+            aria-label={soundMuted ? 'تفعيل صوت التنبيهات' : 'كتم صوت التنبيهات'}
+            title={soundMuted ? 'تفعيل صوت التنبيهات' : 'كتم صوت التنبيهات'}
+          >
+            {soundMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+            <span>{soundMuted ? 'الصوت: صامت' : 'الصوت: مفعّل'}</span>
+          </Button>
+
           <Button variant="outline" size="sm" onClick={() => loadDashboard()}>
             <RefreshCw size={14} />
             <span>{adminAr.common.refresh}</span>
@@ -237,7 +274,7 @@ export default function AdminDashboardPage() {
               </div>
               <div className={styles.urgentInfo}>
                 <h2 className={styles.urgentTitle}>
-                  {pending_reviews_count} {adminAr.dashboard.pendingReviewsAlert}
+                  {formatCount(pending_reviews_count)} {adminAr.dashboard.pendingReviewsAlert}
                 </h2>
                 <p className={styles.urgentSub}>
                   قم بمطابقة إشعار التحويل البنكي وتأكيد الطلب قبل انتهاء مهلة تثبيت السعر.
@@ -267,7 +304,7 @@ export default function AdminDashboardPage() {
             </div>
             <div className={styles.flowBadgeContent}>
               <span className={styles.flowBadgeLabel}>بانتظار التجهيز</span>
-              <span className={styles.flowBadgeValue}>{toPrepareCount}</span>
+              <span className={styles.flowBadgeValue}>{formatCount(toPrepareCount)}</span>
             </div>
             <ChevronLeft size={16} className={styles.flowBadgeArrow} />
           </Link>
@@ -278,7 +315,7 @@ export default function AdminDashboardPage() {
             </div>
             <div className={styles.flowBadgeContent}>
               <span className={styles.flowBadgeLabel}>جاهز للاستلام بالمحل</span>
-              <span className={styles.flowBadgeValue}>{readyPickupCount}</span>
+              <span className={styles.flowBadgeValue}>{formatCount(readyPickupCount)}</span>
             </div>
             <ChevronLeft size={16} className={styles.flowBadgeArrow} />
           </Link>
@@ -289,7 +326,7 @@ export default function AdminDashboardPage() {
             </div>
             <div className={styles.flowBadgeContent}>
               <span className={styles.flowBadgeLabel}>مع مندوب التوصيل</span>
-              <span className={styles.flowBadgeValue}>{outDeliveryCount}</span>
+              <span className={styles.flowBadgeValue}>{formatCount(outDeliveryCount)}</span>
             </div>
             <ChevronLeft size={16} className={styles.flowBadgeArrow} />
           </Link>
@@ -301,7 +338,7 @@ export default function AdminDashboardPage() {
         <aside className={styles.lowStockBanner} aria-label="تنبيه انخفاض المخزون">
           <AlertTriangle size={18} className={styles.lowStockBannerIcon} />
           <div className={styles.lowStockBannerContent}>
-            <strong>{low_stock_products.length} أجهزة قارب مخزونها على النفاد.</strong>
+            <strong>{formatCount(low_stock_products.length)} أجهزة قارب مخزونها على النفاد.</strong>
             <span> يرجى مراجعة المخزون وتحديث الكميات المتوفرة.</span>
           </div>
           <Link to="/admin/products" className={styles.lowStockBannerLink}>
@@ -318,7 +355,7 @@ export default function AdminDashboardPage() {
             <span className={styles.metricLabel}>{adminAr.dashboard.todayOrders}</span>
             <Package size={18} className={styles.metricIcon} />
           </div>
-          <div className={styles.metricValue}>{today_orders.count || 0}</div>
+          <div className={styles.metricValue}>{formatCount(today_orders.count || 0)}</div>
           <span className={styles.metricSub}>
             {formatSdg(today_orders.revenue_sdg || 0)}
           </span>
@@ -330,7 +367,7 @@ export default function AdminDashboardPage() {
             <span className={styles.metricLabel}>{adminAr.dashboard.pendingPaymentsCount}</span>
             <CreditCard size={18} className={styles.metricIcon} />
           </div>
-          <div className={styles.metricValue}>{pending_reviews_count}</div>
+          <div className={styles.metricValue}>{formatCount(pending_reviews_count)}</div>
           <span className={styles.metricSub}>
             {pending_reviews_count > 0 ? 'تتطلب قرار فوري' : 'تم التدقيق بالكامل'}
           </span>
@@ -343,7 +380,7 @@ export default function AdminDashboardPage() {
             <TrendingUp size={18} className={styles.metricIcon} />
           </div>
           <div className={styles.metricValue}>
-            {exchange_rate.rate_sdg || 650} ج.س
+            {formatCount(exchange_rate.rate_sdg || 650)} ج.س
           </div>
           <div className={styles.rateCardFooter}>
             <span className={styles.adminOnlyTag}>{adminAr.brand.forAdminOnly}</span>
@@ -376,7 +413,7 @@ export default function AdminDashboardPage() {
             <span className={styles.metricLabel}>{adminAr.dashboard.priceLockDuration}</span>
             <Clock size={18} className={styles.metricIcon} />
           </div>
-          <div className={styles.metricValue}>{price_lock_hours} ساعات</div>
+          <div className={styles.metricValue}>{formatCount(price_lock_hours)} ساعات</div>
           <span className={styles.metricSub}>مهلة التحويل المتاحة للعميل</span>
         </div>
       </section>
@@ -400,7 +437,7 @@ export default function AdminDashboardPage() {
                   className={styles.statusRow}
                 >
                   <StatusChip status={statusKey} />
-                  <span className={styles.statusCount}>{count}</span>
+                  <span className={styles.statusCount}>{formatCount(count)}</span>
                 </Link>
               ))}
             </div>
@@ -431,7 +468,7 @@ export default function AdminDashboardPage() {
                       <span className={styles.lowStockType}>{prod.type}</span>
                     </div>
                     <span className={styles.lowStockQtyBadge}>
-                      المتبقي: {prod.stock_quantity}
+                      المتبقي: {formatCount(prod.stock_quantity)}
                     </span>
                   </div>
                 ))}

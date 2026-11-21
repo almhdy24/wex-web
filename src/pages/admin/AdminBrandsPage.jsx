@@ -162,7 +162,7 @@ export default function AdminBrandsPage() {
                 <tr>
                   <th style={{ width: '80px' }}>المعرف</th>
                   <th>اسم الماركة</th>
-                  <th>الرابط المباشر (Slug)</th>
+                  <th>الرابط المباشر</th>
                   <th>الحالة</th>
                   <th style={{ width: '130px', textAlign: 'center' }}>الإجراءات</th>
                 </tr>
@@ -179,8 +179,8 @@ export default function AdminBrandsPage() {
                         <strong>{b.name}</strong>
                       </div>
                     </td>
-                    <td dir="ltr" style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)' }}>
-                      {b.slug}
+                    <td dir="ltr" style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)', textAlign: 'start' }}>
+                      <bdi>{b.slug}</bdi>
                     </td>
                     <td>
                       {b.is_active ? (
@@ -252,7 +252,7 @@ export default function AdminBrandsPage() {
           />
 
           <Input
-            label="الرابط الفريد (Slug) - اختياري"
+            label="الرابط الفريد - اختياري"
             placeholder="lenovo"
             value={editModal.formData.slug}
             onChange={(e) =>

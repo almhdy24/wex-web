@@ -109,9 +109,9 @@ export default function AdminProductsPage() {
       if (stockFilter === 'in_stock') {
         items = items.filter((p) => p.stock_quantity > 0);
       } else if (stockFilter === 'low_stock') {
-        items = items.filter((p) => p.stock_quantity > 0 && p.stock_quantity <= 2);
+        items = items.filter((p) => p.stock_quantity === 1 || p.stock_quantity === 2);
       } else if (stockFilter === 'out_of_stock') {
-        items = items.filter((p) => p.stock_quantity <= 0);
+        items = items.filter((p) => p.stock_quantity === 0);
       }
 
       setProducts(items);

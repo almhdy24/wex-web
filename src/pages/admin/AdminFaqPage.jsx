@@ -143,7 +143,7 @@ export default function AdminFaqPage() {
     <Page className={styles.container}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>الأسئلة الشائعة (FAQ)</h1>
+          <h1 className={styles.title}>الأسئلة الشائعة</h1>
           <p className={styles.subtitle}>إدارة الأسئلة المتكررة وإجاباتها التي تظهر للعملاء في صفحة المساعدة</p>
         </div>
         <Button variant="primary" onClick={handleAddNew}>

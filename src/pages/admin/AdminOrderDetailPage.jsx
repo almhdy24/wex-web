@@ -628,7 +628,7 @@ export default function AdminOrderDetailPage() {
           />
           <Input
             label={adminAr.orders.courierPhoneLabel}
-            placeholder="09XXXXXXXX"
+            placeholder="0912345678"
             type="tel"
             value={courierPhone}
             onChange={(e) => setCourierPhone(e.target.value)}

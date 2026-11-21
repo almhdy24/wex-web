@@ -206,7 +206,7 @@ export default function AdminShell({ children }) {
         {/* Brand Header */}
         <div className={styles.sidebarHeader}>
           <div className={styles.brandInfo}>
-            <span className={styles.brandTitle}>Wex <span className={styles.brandAccent}>Admin</span></span>
+            <span className={styles.brandTitle}>Wex <span className={styles.brandAccent}>لوحة الإدارة</span></span>
             <span className={styles.brandSubtitle}>لوحة العمليات</span>
           </div>
         </div>

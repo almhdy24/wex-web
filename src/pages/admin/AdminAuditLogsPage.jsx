@@ -207,7 +207,7 @@ export default function AdminAuditLogsPage() {
       {/* Header */}
       <header className={styles.header}>
         <div className={styles.titleInfo}>
-          <h1 className={styles.title}>سجل العمليات الإدارية (Audit Log)</h1>
+          <h1 className={styles.title}>سجل العمليات الإدارية</h1>
           <p className={styles.subtitle}>
             تتبع زمني لكافة القرارات وتعديلات الأسعار والطلبات التي تمت في لوحة التحكم
           </p>

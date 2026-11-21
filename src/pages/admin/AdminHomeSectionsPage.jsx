@@ -186,10 +186,10 @@ export default function AdminHomeSectionsPage() {
                 </div>
 
                 <div className={styles.secMeta}>
-                  <span className={styles.metaBadge}>الرمز: {sec.key}</span>
+                  <span className={styles.metaBadge}>الرمز: <bdi dir="ltr">{sec.key}</bdi></span>
                   <span className={styles.metaBadge}>
                     المصدر: {sec.source === 'type' ? 'نوع الأجهزة' : sec.source === 'category' ? 'فئة محددة' : sec.source}
-                    {sec.source_value ? ` (${sec.source_value})` : ''}
+                    {sec.source_value ? <> (<bdi dir="ltr">{sec.source_value}</bdi>)</> : ''}
                   </span>
                   <span className={styles.metaBadge}>الحد الأقصى: {sec.limit} أجهزة</span>
                 </div>
@@ -257,14 +257,16 @@ export default function AdminHomeSectionsPage() {
 
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>رمز القسم البرمجي (Key) *</label>
+                  <label className={styles.formLabel}>رمز القسم البرمجي *</label>
                   <input
                     type="text"
                     required
+                    dir="ltr"
                     value={formData.key}
                     onChange={(e) => setFormData({ ...formData, key: e.target.value })}
-                    placeholder="مثال: newest_laptops"
+                    placeholder="رمز فريد بدون مسافات"
                     className={styles.formInput}
+                    style={{ textAlign: 'start' }}
                   />
                 </div>
 
@@ -275,10 +277,10 @@ export default function AdminHomeSectionsPage() {
                     onChange={(e) => setFormData({ ...formData, source: e.target.value })}
                     className={styles.formSelect}
                   >
-                    <option value="newest">الأحدث وصولاً (Newest)</option>
-                    <option value="type">نوع الجهاز (Type: laptop / accessory)</option>
-                    <option value="category">فئة محددة (Category)</option>
-                    <option value="featured">الأجهزة المختارة (Featured)</option>
+                    <option value="newest">الأحدث وصولاً</option>
+                    <option value="type">حسب نوع الجهاز</option>
+                    <option value="category">فئة محددة</option>
+                    <option value="featured">الأجهزة المختارة</option>
                   </select>
                 </div>
               </div>
@@ -288,10 +290,12 @@ export default function AdminHomeSectionsPage() {
                   <label className={styles.formLabel}>قيمة المصدر (اختياري)</label>
                   <input
                     type="text"
+                    dir="ltr"
                     value={formData.source_value}
                     onChange={(e) => setFormData({ ...formData, source_value: e.target.value })}
-                    placeholder="مثال: laptop أو accessories"
+                    placeholder="نوع الجهاز أو معرف الفئة"
                     className={styles.formInput}
+                    style={{ textAlign: 'start' }}
                   />
                 </div>
 

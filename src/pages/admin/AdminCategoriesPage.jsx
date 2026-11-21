@@ -170,7 +170,7 @@ export default function AdminCategoriesPage() {
                 <tr>
                   <th>اسم الفئة (عربي)</th>
                   <th>الاسم بالإنجليزية</th>
-                  <th>المعرف (Slug)</th>
+                  <th>معرّف الرابط</th>
                   <th>ترتيب العرض</th>
                   <th>الحالة</th>
                   <th style={{ width: '130px', textAlign: 'center' }}>الإجراءات</th>
@@ -186,8 +186,8 @@ export default function AdminCategoriesPage() {
                       </div>
                     </td>
                     <td dir="ltr">{c.name_en || '—'}</td>
-                    <td dir="ltr" style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)' }}>
-                      {c.slug}
+                    <td dir="ltr" style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)', textAlign: 'start' }}>
+                      <bdi>{c.slug}</bdi>
                     </td>
                     <td>{c.sort_order}</td>
                     <td>
@@ -261,7 +261,7 @@ export default function AdminCategoriesPage() {
 
           <Input
             label="الاسم بالإنجليزية (اختياري)"
-            placeholder="مثال: Laptops, Smartphones..."
+            placeholder="الاسم الإنجليزي للفئة"
             value={editModal.formData.name_en}
             onChange={(e) =>
               setEditModal((prev) => ({
@@ -273,8 +273,8 @@ export default function AdminCategoriesPage() {
           />
 
           <Input
-            label="المعرف في الرابط (Slug) - اختياري"
-            placeholder="laptops"
+            label="المعرف في الرابط - اختياري"
+            placeholder="معرف بالإنجليزية للرابط"
             value={editModal.formData.slug}
             onChange={(e) =>
               setEditModal((prev) => ({

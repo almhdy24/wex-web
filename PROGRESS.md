@@ -37,6 +37,14 @@ System stabilization, defect fixes, behavioral tests, and raw evidence log (`doc
   - Claims PHPUnit test: `tests/unit/ClaimsScanTest.php` PASS.
   - Raw verification logs appended to `docs/STABILIZE-LOG.md`.
 
+- [x] **Phase 4: P1 UI Fixes (All GREEN)**
+  - Admin Arabic Only: Cleaned all Latin terms and labels in Admin UI, renaming "شرائح الواجهة الرئيسية (Hero Slides)" to "شرائح الواجهة" and "نص زر التوجيه (CTA)" to "نص الزر" (`check-admin-english.mjs` PASS).
+  - BiDi & Directional Integrity: Updated URL/path inputs and displays with `dir="ltr"` and `text-align: start`, isolated with `<bdi>` (preventing leading slashes like `/catalog` from flipping to `catalog/`).
+  - Hero Slides Stacked Cards: Rebuilt `AdminHeroSlidesPage` as responsive stacked cards with visual thumbnails, status pills, and dedicated bottom action rows (no overlapping at 360px viewport).
+  - RTL Line-Clamp Integrity: Styled line-clamp in `ProductCard.module.css` with `direction: rtl`, `unicode-bidi: isolate`, and `word-break: break-word` (preventing leading ellipsis on Arabic text).
+  - Admin Dashboard Polish: Added sound mute toggle button in header with Arabic label and `localStorage` persistence; unified count formatting with `formatCount()` using Western digits matching `formatSdg`; excluded cancelled, expired, and debug orders from active counts in `DashboardController.php`.
+  - Raw verification logs appended to `docs/STABILIZE-LOG.md`.
+
 ## Storefront Rescue Track (Branch: storefront-rescue) — Complete
 
 Simplifying and unifying the storefront (customer-side only) following Traversy-style readable code, strict Design System tokens, single message living rule, zero dialect or puffery, and end-to-end purchase flow integrity.

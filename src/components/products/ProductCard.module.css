@@ -116,10 +116,32 @@
   margin: 0 0 4px 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-align: start;
+  direction: rtl;
+  unicode-bidi: isolate;
+  word-break: break-word;
+  overflow-wrap: break-word;
   min-height: 2.7em;
+}
+
+.description {
+  font-size: var(--text-caption, 12px);
+  color: var(--wex-text-secondary);
+  line-height: 1.5;
+  margin: 0 0 6px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-align: start;
+  direction: rtl;
+  unicode-bidi: isolate;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Spec Line */

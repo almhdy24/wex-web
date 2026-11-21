@@ -329,9 +329,10 @@ export default function AdminAnnouncementsPage() {
                   <label className={styles.formLabel}>الرابط (اختياري)</label>
                   <input
                     type="text"
+                    dir="ltr"
                     value={formData.link_url}
                     onChange={(e) => setFormData({ ...formData, link_url: e.target.value })}
-                    placeholder="مثال: /products?type=laptop"
+                    placeholder="رابط الوجهة (اختياري)"
                     className={styles.formInput}
                   />
                 </div>

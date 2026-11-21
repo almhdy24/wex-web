@@ -21,6 +21,7 @@ export default function AdminHeroSlidesPage() {
   const [slides, setSlides] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [imgErrors, setImgErrors] = useState({});
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingSlide, setEditingSlide] = useState(null);
@@ -35,6 +36,10 @@ export default function AdminHeroSlidesPage() {
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [slideToDelete, setSlideToDelete] = useState(null);
+
+  const handleImgError = (id) => {
+    setImgErrors((prev) => ({ ...prev, [id]: true }));
+  };
 
   const fetchSlides = useCallback(async () => {
     setLoading(true);
@@ -152,7 +157,7 @@ export default function AdminHeroSlidesPage() {
     <Page className={styles.container}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>شرائح الواجهة الرئيسية (Hero Slides)</h1>
+          <h1 className={styles.title}>شرائح الواجهة</h1>
           <p className={styles.subtitle}>تعديل وترتيب الشرائح الترويجية التي تظهر في أعلى الصفحة الرئيسية</p>
         </div>
         <Button variant="primary" onClick={handleAddNew}>
@@ -174,41 +179,52 @@ export default function AdminHeroSlidesPage() {
         <div className={styles.slidesList}>
           {slides.map((slide, idx) => (
             <div key={slide.id} className={`${styles.slideCard} ${!slide.is_active ? styles.slideInactive : ''}`}>
-              <div className={styles.slideVisualCol}>
-                {slide.image ? (
-                  <img src={slide.image} alt={slide.title} className={styles.slideThumb} />
-                ) : (
-                  <div className={styles.slideNoImg}>
-                    <ImageIcon size={24} />
+              <div className={styles.slideHeaderRow}>
+                <div className={styles.slideVisualCol}>
+                  {slide.image && !imgErrors[slide.id] ? (
+                    <img
+                      src={slide.image}
+                      alt={slide.title}
+                      className={styles.slideThumb}
+                      onError={() => handleImgError(slide.id)}
+                    />
+                  ) : (
+                    <div className={styles.slideNoImg} aria-label="صورة الشريحة">
+                      <ImageIcon size={24} />
+                    </div>
+                  )}
+                </div>
+
+                <div className={styles.slideMainInfo}>
+                  <div className={styles.slideTitleWrap}>
+                    <h3 className={styles.slideTitle}>{slide.title}</h3>
+                    <button
+                      type="button"
+                      onClick={() => handleToggleActive(slide)}
+                      className={`${styles.togglePill} ${slide.is_active ? styles.toggleActive : styles.toggleInactive}`}
+                    >
+                      {slide.is_active ? 'معروضة' : 'مخفية'}
+                    </button>
                   </div>
-                )}
-              </div>
-
-              <div className={styles.slideContentCol}>
-                <div className={styles.slideTitleRow}>
-                  <h3 className={styles.slideTitle}>{slide.title}</h3>
-                  <button
-                    type="button"
-                    onClick={() => handleToggleActive(slide)}
-                    className={`${styles.togglePill} ${slide.is_active ? styles.toggleActive : styles.toggleInactive}`}
-                  >
-                    {slide.is_active ? 'نشطة' : 'معطلة'}
-                  </button>
-                </div>
-                {slide.subtitle && <p className={styles.slideSub}>{slide.subtitle}</p>}
-                <div className={styles.slideMetaRow}>
-                  <span className={styles.metaLabel}>الزر: {slide.button_label || 'افتراضي'}</span>
-                  <span className={styles.metaLabel}>الرابط: {slide.link || 'افتراضي'}</span>
+                  {slide.subtitle && <p className={styles.slideSub}>{slide.subtitle}</p>}
                 </div>
               </div>
 
-              <div className={styles.slideActionsCol}>
+              <div className={styles.slideMetaRow}>
+                <span className={styles.metaLabel}>نص الزر: {slide.button_label || '—'}</span>
+                <span className={styles.metaLabel} dir="ltr" style={{ textAlign: 'start' }}>
+                  الرابط: <bdi>{slide.link || '—'}</bdi>
+                </span>
+              </div>
+
+              <div className={styles.slideActionRow}>
                 <div className={styles.reorderBtns}>
                   <button
                     type="button"
                     disabled={idx === 0}
                     onClick={() => handleMove(idx, 'up')}
                     className={styles.iconBtn}
+                    aria-label="تحريك لأعلى"
                     title="تحريك لأعلى"
                   >
                     <ArrowUp size={16} />
@@ -218,6 +234,7 @@ export default function AdminHeroSlidesPage() {
                     disabled={idx === slides.length - 1}
                     onClick={() => handleMove(idx, 'down')}
                     className={styles.iconBtn}
+                    aria-label="تحريك لأسفل"
                     title="تحريك لأسفل"
                   >
                     <ArrowDown size={16} />
@@ -225,13 +242,20 @@ export default function AdminHeroSlidesPage() {
                 </div>
 
                 <div className={styles.crudBtns}>
-                  <button type="button" onClick={() => handleEdit(slide)} className={styles.iconBtn} title="تعديل">
+                  <button
+                    type="button"
+                    onClick={() => handleEdit(slide)}
+                    className={styles.iconBtn}
+                    aria-label="تعديل الشريحة"
+                    title="تعديل"
+                  >
                     <Edit2 size={16} />
                   </button>
                   <button
                     type="button"
                     onClick={() => handleDeleteRequest(slide)}
                     className={`${styles.iconBtn} ${styles.deleteBtn}`}
+                    aria-label="حذف الشريحة"
                     title="حذف"
                   >
                     <Trash2 size={16} />
@@ -257,7 +281,7 @@ export default function AdminHeroSlidesPage() {
                   required
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="مثال: أجهزة لابتوب مختارة لأعمالك ودراستك"
+                  placeholder="عنوان الشريحة المعروض"
                   className={styles.formInput}
                 />
               </div>
@@ -277,16 +301,18 @@ export default function AdminHeroSlidesPage() {
                 <label className={styles.formLabel}>رابط الصورة (اختياري)</label>
                 <input
                   type="text"
+                  dir="ltr"
                   value={formData.image}
                   onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  placeholder="مثال: /assets/hero/hero-1.webp أو رابط خارجي"
+                  placeholder="رابط الصورة أو مسار الملف"
                   className={styles.formInput}
+                  style={{ textAlign: 'start' }}
                 />
               </div>
 
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>نص زر التوجيه (CTA)</label>
+                  <label className={styles.formLabel}>نص الزر</label>
                   <input
                     type="text"
                     value={formData.button_label}
@@ -299,10 +325,12 @@ export default function AdminHeroSlidesPage() {
                   <label className={styles.formLabel}>رابط الزر</label>
                   <input
                     type="text"
+                    dir="ltr"
                     value={formData.link}
                     onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-                    placeholder="مثال: /products?sort=newest"
+                    placeholder="رابط الوجهة أو الصفحة"
                     className={styles.formInput}
+                    style={{ textAlign: 'start' }}
                   />
                 </div>
               </div>
