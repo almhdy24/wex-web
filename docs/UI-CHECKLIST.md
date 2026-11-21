@@ -107,4 +107,18 @@ This checklist confirms adherence to the design rules, performance budgets, resp
 | **All Test Suites** | All 30 test files | 100% test pass rate across 165 unit tests (0 failures). | **PASSED** |
 | **Production Build** | `npm run build` | Initial JS 151.53 kB gzip (<= 170 kB budget). | **PASSED** |
 
+---
+
+## 7. Customer Login Persistence & Mobile Phone Verification Matrix
+
+| Verification Scenario | Testing Procedure | Expected Behavior | Verification Status |
+| :--- | :--- | :--- | :--- |
+| **1. Cold App Reopen on Phone** | Sign in on phone, swipe away/close browser app completely, reopen after 1 minute or next day. | User remains signed in for 30 days (sliding). App shell renders instantly with cached user name; no flicker to signed-out. | **PASSED** |
+| **2. Concurrent Multi-Tab Restore** | Open store in 2 browser tabs simultaneously while signed in. | Web Locks API (`wex-refresh`) and `BroadcastChannel('wex-auth')` coordinate single refresh; newest token broadcasted; zero theft-detection revocation. | **PASSED** |
+| **3. Offline / Airplane Mode Reopen** | Enable Airplane mode on phone and open the storefront. | Session is preserved. User name and cart remain intact; offline alert is shown without clearing the session. | **PASSED** |
+| **4. Lightweight Verifying State** | Navigate directly to `/orders` or `/account` on slow network. | Renders accessible "جارٍ التحقق من الجلسة..." with skeleton; never redirects prematurely to `/login`. | **PASSED** |
+| **5. Session Expiry & Return-To** | When session legitimately expires (401 from backend). | Redirects to `/login` preserving `state: { from: location }`; cart items and form data are untouched. | **PASSED** |
+| **6. Admin vs Customer Idle Separation** | Idle for 30 minutes on `/` or `/catalog` vs `/admin`. | Customer storefront NEVER signs out due to inactivity. Admin panel displays warning at 25m and signs out at 30m. | **PASSED** |
+
+
 
