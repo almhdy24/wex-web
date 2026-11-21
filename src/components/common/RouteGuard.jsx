@@ -11,7 +11,8 @@ export function ProtectedRoute({ children }) {
 
   if (loading) {
     return (
-      <div className={styles.loadingContainer}>
+      <div className={styles.loadingContainer} aria-busy="true" aria-label="جارٍ التحقق من الجلسة">
+        <div className={styles.verifyingText}>جارٍ التحقق من الجلسة...</div>
         <Skeleton height="40px" width="200px" className={styles.topSkeleton} />
         <Skeleton height="150px" className={styles.mainSkeleton} />
       </div>
@@ -31,7 +32,8 @@ export function RoleGuard({ allowedRoles = ['admin'], children }) {
 
   if (loading) {
     return (
-      <div className={styles.loadingContainer}>
+      <div className={styles.loadingContainer} aria-busy="true" aria-label="جارٍ التحقق من الجلسة">
+        <div className={styles.verifyingText}>جارٍ التحقق من الجلسة...</div>
         <Skeleton height="40px" width="200px" className={styles.topSkeleton} />
         <Skeleton height="150px" className={styles.mainSkeleton} />
       </div>
@@ -75,7 +77,8 @@ export function GuestRoute({ children }) {
 
   if (loading) {
     return (
-      <div className={styles.loadingContainer}>
+      <div className={styles.loadingContainer} aria-busy="true" aria-label="جارٍ التحقق من الجلسة">
+        <div className={styles.verifyingText}>جارٍ التحقق من الجلسة...</div>
         <Skeleton height="40px" width="200px" className={styles.topSkeleton} />
         <Skeleton height="150px" className={styles.mainSkeleton} />
       </div>

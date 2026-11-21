@@ -526,6 +526,7 @@ export const ar = {
     googleSignIn: 'المتابعة باستخدام Google',
     invalidEmail: 'يرجى إدخال عنوان بريد إلكتروني صحيح.',
     invalidCode: 'رمز التحقق يجب أن يتكوّن من 6 أرقام.',
+    sessionVerifying: 'جارٍ التحقق من الجلسة',
   },
 
   motion: {

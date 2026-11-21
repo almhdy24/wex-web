@@ -5,6 +5,13 @@
   margin: 0 auto;
 }
 
+.verifyingText {
+  font-size: var(--text-sm);
+  color: var(--color-slate-500);
+  margin-bottom: var(--space-4);
+  font-weight: 500;
+}
+
 .topSkeleton {
   margin: 0 auto 16px auto;
 }

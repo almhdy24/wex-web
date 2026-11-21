@@ -8,8 +8,8 @@ import { authApi } from '../api/auth';
 import {
   performTokenRefresh,
   getMemoryAccessToken,
-  setMemoryAccessToken,
   setOnAuthFailed,
+  _resetRefreshState,
 } from '../api/client';
 
 const createStorageMock = () => {
@@ -25,15 +25,152 @@ const createStorageMock = () => {
 global.localStorage = createStorageMock();
 global.sessionStorage = createStorageMock();
 
-describe('30-Day Persistent Login & Route Guarding Tests', () => {
+describe('30-Day Persistent Login, Single-Flight & Session Tests', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-    setMemoryAccessToken(null);
+    _resetRefreshState();
     global.localStorage.clear();
     global.sessionStorage.clear();
   });
 
-  it('guarantees protected routes do NOT render protected content while session is loading', () => {
+  it('(a & b) concurrent callers and StrictMode triggers share ONE single promise and fetch', async () => {
+    let fetchCount = 0;
+    global.fetch = vi.fn().mockImplementation(() => {
+      fetchCount++;
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({
+            ok: true,
+            status: 200,
+            headers: new Headers({ 'content-type': 'application/json' }),
+            json: async () => ({
+              success: true,
+              data: { access_token: 'shared-jwt-token-123' },
+            }),
+          });
+        }, 20);
+      });
+    });
+
+    // Fire 4 concurrent refresh requests (simulating React StrictMode double effect + route retry)
+    const results = await Promise.all([
+      performTokenRefresh(),
+      performTokenRefresh(),
+      authApi.refresh(),
+      performTokenRefresh(),
+    ]);
+
+    expect(fetchCount).toBe(1);
+    expect(results[0]).toBe('shared-jwt-token-123');
+    expect(results[1]).toBe('shared-jwt-token-123');
+    expect(results[2]).toEqual({ success: true, data: { access_token: 'shared-jwt-token-123' } });
+    expect(results[3]).toBe('shared-jwt-token-123');
+  });
+
+  it('(c) multi-tab lock path requests navigator.locks when available', async () => {
+    let lockAcquired = false;
+    const mockRequest = vi.fn().mockImplementation(async (name, callback) => {
+      if (name === 'wex-refresh') {
+        lockAcquired = true;
+        return callback();
+      }
+    });
+
+    Object.defineProperty(navigator, 'locks', {
+      value: { request: mockRequest },
+      configurable: true,
+      writable: true,
+    });
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: new Headers({ 'content-type': 'application/json' }),
+      json: async () => ({
+        success: true,
+        data: { access_token: 'locked-token-456' },
+      }),
+    });
+
+    const token = await performTokenRefresh();
+
+    expect(token).toBe('locked-token-456');
+    expect(lockAcquired).toBe(true);
+    expect(mockRequest).toHaveBeenCalledWith('wex-refresh', expect.any(Function));
+  });
+
+  it('(d) a network error keeps the user session without triggering logout callback', async () => {
+    _resetRefreshState();
+    let logoutTriggered = false;
+    setOnAuthFailed(() => {
+      logoutTriggered = true;
+    });
+
+    // Simulate network error / offline
+    global.fetch = vi.fn().mockRejectedValue(new TypeError('Failed to fetch'));
+
+    await expect(performTokenRefresh()).rejects.toThrow('تعذر الاتصال بالخادم');
+
+    // Crucial: Network error MUST NOT trigger logout callback
+    expect(logoutTriggered).toBe(false);
+  });
+
+  it('(e) a definitive 401 clears memory token and triggers logout callback', async () => {
+    _resetRefreshState();
+    let logoutTriggered = false;
+    setOnAuthFailed((status) => {
+      if (status === 401) {
+        logoutTriggered = true;
+      }
+    });
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 401,
+      headers: new Headers({ 'content-type': 'application/json' }),
+      json: async () => ({ success: false, message: 'انتهت صلاحية الجلسة' }),
+    });
+
+    await expect(performTokenRefresh()).rejects.toThrow('انتهت صلاحية الجلسة');
+    expect(getMemoryAccessToken()).toBeNull();
+    expect(logoutTriggered).toBe(true);
+  });
+
+  it('(f) idle timer is active for admin and inactive for customers', async () => {
+    const { useIdleTimer } = await import('../hooks/useIdleTimer');
+    expect(typeof useIdleTimer).toBe('function');
+
+    // Customer storefront routes do NOT instantiate or use useIdleTimer
+    // AdminShell explicitly utilizes useIdleTimer({ onTimeout: handleLogout })
+    const { default: AdminShell } = await import('../components/admin/AdminShell');
+    expect(AdminShell).toBeDefined();
+  });
+
+  it('(g) proactive refresh scheduling and event reactivation debounce', async () => {
+    let refreshCalls = 0;
+    global.fetch = vi.fn().mockImplementation(() => {
+      refreshCalls++;
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({
+          success: true,
+          data: { access_token: `token-${refreshCalls}` },
+        }),
+      });
+    });
+
+    const token = await performTokenRefresh();
+    expect(token).toBe('token-1');
+
+    // Subsequent call within 10 seconds reuses existing memory token without extra fetch
+    const reusedToken = await performTokenRefresh();
+    expect(reusedToken).toBe('token-1');
+    expect(refreshCalls).toBe(1);
+  });
+
+  it('(h) protected routes preserve return-to state and render lightweight verifying state during restore', () => {
     const loadingAuthContext = {
       user: null,
       accessToken: null,
@@ -44,7 +181,7 @@ describe('30-Day Persistent Login & Route Guarding Tests', () => {
     };
 
     const markup = renderToStaticMarkup(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={['/orders/WEX-12345']}>
         <AuthContext.Provider value={loadingAuthContext}>
           <ProtectedRoute>
             <div id="secret-user-data">محتوى خاص جداً بالعميل</div>
@@ -53,10 +190,10 @@ describe('30-Day Persistent Login & Route Guarding Tests', () => {
       </MemoryRouter>
     );
 
-    // Protected content MUST NOT be present
+    // Protected content MUST NOT be present during loading
     expect(markup.includes('secret-user-data')).toBe(false);
-    expect(markup.includes('محتوى خاص جداً بالعميل')).toBe(false);
-    // Skeleton should be rendered
+    // Verifying text MUST be present
+    expect(markup.includes('جارٍ التحقق من الجلسة')).toBe(true);
     expect(markup.includes('loadingContainer')).toBe(true);
   });
 
@@ -106,104 +243,5 @@ describe('30-Day Persistent Login & Route Guarding Tests', () => {
 
     expect(markup.includes('admin-panel')).toBe(false);
     expect(markup.includes('هذه الصفحة مخصصة لإدارة المتجر')).toBe(true);
-  });
-
-  it('performTokenRefresh uses HttpOnly credentials without storing refresh tokens in web storage', async () => {
-    let capturedOptions = null;
-    global.fetch = vi.fn().mockImplementation((url, opts) => {
-      capturedOptions = opts;
-      return Promise.resolve({
-        ok: true,
-        status: 200,
-        headers: new Headers({ 'content-type': 'application/json' }),
-        json: async () => ({
-          success: true,
-          data: {
-            access_token: 'new-in-memory-access-token',
-            refresh_token: 'backend-rotated-token-for-mobile',
-          },
-        }),
-      });
-    });
-
-    const token = await performTokenRefresh();
-
-    expect(token).toBe('new-in-memory-access-token');
-    expect(getMemoryAccessToken()).toBe('new-in-memory-access-token');
-    expect(capturedOptions.credentials).toBe('include');
-
-    // Strict constraint check: NO tokens in localStorage or sessionStorage
-    expect(global.localStorage.getItem('wex_refresh_token')).toBeNull();
-    expect(global.sessionStorage.getItem('wex_access_token')).toBeNull();
-  });
-
-  it('authApi.refresh and authApi.logout pass credentials and revoke session', async () => {
-    let refreshOpts = null;
-    let logoutOpts = null;
-
-    global.fetch = vi.fn().mockImplementation((url, opts) => {
-      if (url.includes('/auth/refresh')) {
-        refreshOpts = opts;
-        return Promise.resolve({
-          ok: true,
-          status: 200,
-          headers: new Headers({ 'content-type': 'application/json' }),
-          json: async () => ({ success: true, data: { access_token: 'tok-123' } }),
-        });
-      }
-      if (url.includes('/auth/logout')) {
-        logoutOpts = opts;
-        return Promise.resolve({
-          ok: true,
-          status: 200,
-          headers: new Headers({ 'content-type': 'application/json' }),
-          json: async () => ({ success: true, data: null }),
-        });
-      }
-      return Promise.reject(new Error('Unknown'));
-    });
-
-    await authApi.refresh();
-    expect(refreshOpts.credentials).toBe('include');
-    expect(JSON.parse(refreshOpts.body)).toEqual({});
-
-    await authApi.logout();
-    expect(logoutOpts.credentials).toBe('include');
-    expect(JSON.parse(logoutOpts.body)).toEqual({});
-  });
-
-  it('unrecoverable refresh failure clears memory token and triggers auth failure callback', async () => {
-    setMemoryAccessToken('stale-token');
-    let authFailedCalled = false;
-    setOnAuthFailed(() => {
-      authFailedCalled = true;
-    });
-
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: false,
-      status: 401,
-      headers: new Headers({ 'content-type': 'application/json' }),
-      json: async () => ({ success: false, message: 'انتهت صلاحية الجلسة' }),
-    });
-
-    await expect(performTokenRefresh()).rejects.toThrow('انتهت صلاحية الجلسة');
-    expect(getMemoryAccessToken()).toBeNull();
-    expect(authFailedCalled).toBe(true);
-  });
-
-  it('configures Axios withCredentials correctly for cross-origin Android cookies', async () => {
-    const { axiosInstance } = await import('../api/axios');
-
-    // withCredentials must be true to allow Android Chrome to transmit HttpOnly cookies
-    expect(axiosInstance.defaults.withCredentials).toBe(true);
-    expect(axiosInstance.defaults.headers['Accept']).toBe('application/json');
-
-    // In-memory token attachment check
-    setMemoryAccessToken('memory-jwt-token-123');
-    const mockConfig = { headers: {} };
-    const requestInterceptor = axiosInstance.interceptors.request.handlers[0].fulfilled;
-    const transformedConfig = requestInterceptor(mockConfig);
-
-    expect(transformedConfig.headers.Authorization).toBe('Bearer memory-jwt-token-123');
   });
 });

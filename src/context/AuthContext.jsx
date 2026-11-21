@@ -1,14 +1,44 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { authApi } from '../api/auth';
-import { setMemoryAccessToken, setOnAuthFailed } from '../api/client';
+import {
+  setMemoryAccessToken,
+  setOnAuthFailed,
+  performTokenRefresh,
+  broadcastAuthEvent,
+  ApiError,
+} from '../api/client';
 
 export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  // Read non-sensitive cached user profile immediately to prevent UI flicker
+  const [user, setUser] = useState(() => {
+    if (typeof localStorage !== 'undefined') {
+      try {
+        const cached = localStorage.getItem('wex_user');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && typeof parsed === 'object' && parsed.id) {
+            return {
+              id: parsed.id,
+              name: parsed.name || '',
+              role: parsed.role || 'customer',
+              email: parsed.email || '',
+              phone: parsed.phone || '',
+            };
+          }
+        }
+      } catch {
+        // Storage unavailable or invalid JSON
+      }
+    }
+    return null;
+  });
+
   const [accessToken, setAccessTokenState] = useState(null);
   const [loading, setLoading] = useState(true);
   const refreshTimerRef = useRef(null);
+  const lastActiveRefreshRef = useRef(0);
 
   const clearRefreshTimer = useCallback(() => {
     if (refreshTimerRef.current) {
@@ -17,19 +47,24 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const clearSession = useCallback(() => {
+  const clearSession = useCallback((shouldBroadcast = true) => {
     clearRefreshTimer();
     setUser(null);
     setAccessTokenState(null);
     setMemoryAccessToken(null);
 
-    // Clean up any legacy or stored tokens
+    // Clean up stored session identifiers but NEVER wipe cart or form state!
     try {
       sessionStorage.removeItem('wex_access_token');
       localStorage.removeItem('wex_refresh_token');
+      localStorage.removeItem('wex_refresh_token_fallback');
       localStorage.removeItem('wex_user');
     } catch {
       // Storage unavailable
+    }
+
+    if (shouldBroadcast) {
+      broadcastAuthEvent({ type: 'LOGOUT' });
     }
 
     if (typeof window !== 'undefined' && 'caches' in window) {
@@ -45,27 +80,90 @@ export function AuthProvider({ children }) {
 
   const scheduleProactiveRefresh = useCallback(() => {
     clearRefreshTimer();
-    // Access token lifetime is 15 minutes. Proactively refresh at 14 minutes (840s).
+    // Access token lifetime is 15 minutes. Proactively refresh at ~80% (12 minutes / 720,000ms).
     refreshTimerRef.current = setTimeout(async () => {
       try {
-        const res = await authApi.refresh();
-        if (res?.data?.access_token) {
-          setAccessTokenState(res.data.access_token);
-          setMemoryAccessToken(res.data.access_token);
+        const token = await performTokenRefresh();
+        if (token) {
+          setAccessTokenState(token);
           scheduleProactiveRefresh();
         }
-      } catch {
-        // If proactive refresh fails, subsequent requests will trigger 401 retry or logout
+      } catch (err) {
+        // If proactive refresh fails due to network error, subsequent requests will retry; only 401 unauthenticates
+        if (err instanceof ApiError && err.status === 401) {
+          clearSession();
+        }
       }
-    }, 14 * 60 * 1000);
-  }, [clearRefreshTimer]);
+    }, 12 * 60 * 1000);
+  }, [clearRefreshTimer, clearSession]);
 
   // Hook global 401 unrecoverable failure
   useEffect(() => {
-    setOnAuthFailed(() => {
-      clearSession();
+    setOnAuthFailed((status) => {
+      if (status === 401) {
+        clearSession(false);
+      }
     });
   }, [clearSession]);
+
+  // Cross-tab synchronization via BroadcastChannel
+  useEffect(() => {
+    if (typeof window !== 'undefined' && typeof BroadcastChannel !== 'undefined') {
+      let ch;
+      try {
+        ch = new BroadcastChannel('wex-auth');
+        ch.onmessage = (event) => {
+          const msg = event?.data;
+          if (msg?.type === 'REFRESH_SUCCESS' && msg?.access_token) {
+            setAccessTokenState(msg.access_token);
+          } else if (msg?.type === 'LOGIN' && msg?.user) {
+            setUser(msg.user);
+          } else if (msg?.type === 'LOGOUT') {
+            clearSession(false);
+          }
+        };
+      } catch {
+        ch = null;
+      }
+      return () => {
+        ch?.close();
+      };
+    }
+  }, [clearSession]);
+
+  // Proactive refresh on window focus, visibilitychange, and online events (debounced 60s)
+  useEffect(() => {
+    const handleReactivation = async () => {
+      const now = Date.now();
+      if (now - lastActiveRefreshRef.current < 60000) return;
+      if (document.visibilityState === 'visible' || (typeof navigator !== 'undefined' && navigator.onLine)) {
+        lastActiveRefreshRef.current = now;
+        try {
+          const token = await performTokenRefresh();
+          if (token) {
+            setAccessTokenState(token);
+            scheduleProactiveRefresh();
+          }
+        } catch (err) {
+          if (err instanceof ApiError && err.status === 401) {
+            clearSession();
+          }
+        }
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('focus', handleReactivation);
+      window.addEventListener('online', handleReactivation);
+      document.addEventListener('visibilitychange', handleReactivation);
+
+      return () => {
+        window.removeEventListener('focus', handleReactivation);
+        window.removeEventListener('online', handleReactivation);
+        document.removeEventListener('visibilitychange', handleReactivation);
+      };
+    }
+  }, [scheduleProactiveRefresh, clearSession]);
 
   const loginWithSession = useCallback((userData, newAccessToken) => {
     setUser(userData);
@@ -74,38 +172,28 @@ export function AuthProvider({ children }) {
 
     try {
       localStorage.setItem('wex_user', JSON.stringify(userData));
-      // Remove any legacy tokens from web storage
       sessionStorage.removeItem('wex_access_token');
       localStorage.removeItem('wex_refresh_token');
     } catch {
       // Storage unavailable
     }
 
+    broadcastAuthEvent({ type: 'LOGIN', user: userData });
     scheduleProactiveRefresh();
   }, [scheduleProactiveRefresh]);
 
-  // Initialize session on mount using HttpOnly cookie
+  // Initialize session on mount using HttpOnly cookie via single-flight performTokenRefresh
   useEffect(() => {
     let isMounted = true;
 
     async function initSession() {
       try {
-        // Attempt silent refresh via HttpOnly wex_refresh_token cookie
-        const res = await authApi.refresh();
-        if (res?.data && isMounted) {
-          const { access_token, user: sessionUser } = res.data;
-          setAccessTokenState(access_token);
-          setMemoryAccessToken(access_token);
+        const token = await performTokenRefresh();
+        if (token && isMounted) {
+          setAccessTokenState(token);
 
-          if (sessionUser) {
-            setUser(sessionUser);
-            try {
-              localStorage.setItem('wex_user', JSON.stringify(sessionUser));
-            } catch {
-              // ignore storage errors
-            }
-          } else {
-            // Fetch fresh profile via /me
+          // Fetch fresh profile via /me
+          try {
             const meRes = await authApi.getMe();
             if (meRes?.data && isMounted) {
               setUser(meRes.data);
@@ -115,14 +203,21 @@ export function AuthProvider({ children }) {
                 // ignore storage errors
               }
             }
+          } catch {
+            // Profile fetch error: retain cached non-sensitive user profile
           }
 
           scheduleProactiveRefresh();
         }
-      } catch {
-        // Refresh token missing, expired, or invalid -> start unauthenticated
+      } catch (err) {
+        // Only definitive 401 clears session. Network errors or 5xx preserve cached session!
         if (isMounted) {
-          clearSession();
+          if (err instanceof ApiError && err.status === 401) {
+            clearSession(false);
+          } else if (err?.message?.includes('401') || err?.status === 401) {
+            clearSession(false);
+          }
+          // Otherwise (network offline / server error), keep cached profile
         }
       } finally {
         if (isMounted) {

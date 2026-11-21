@@ -1,4 +1,4 @@
-import { api } from './client';
+import { api, performTokenRefresh } from './client';
 
 export const authApi = {
   /**
@@ -27,11 +27,14 @@ export const authApi = {
   },
 
   /**
-   * Refresh access token using active refresh token (via HttpOnly cookie or optional explicit token)
+   * Refresh access token via shared single-flight refresh manager
    */
-  refresh(refreshToken = null) {
-    const payload = refreshToken ? { refresh_token: refreshToken } : {};
-    return api.post('/auth/refresh', payload);
+  async refresh(refreshToken = null) {
+    const accessToken = await performTokenRefresh(refreshToken);
+    return {
+      success: true,
+      data: { access_token: accessToken },
+    };
   },
 
   /**

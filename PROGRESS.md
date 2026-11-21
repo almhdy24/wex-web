@@ -760,15 +760,16 @@ Hotfix of critical storefront issues identified during phone testing:
   - Created unit tests in `src/__tests__/errorMapper.test.js` and expanded `src/__tests__/receipt-compression.test.js`.
   - Verification: 0 lint errors, 0 lint warnings, check-i18n pass, and production build succeeded.
 
-- [x] **Phase B: Complete Purge of Invented Claims & Truthful Messaging (Web)**
-  - Replaced all invented marketing claims ("ضمان معتمد", "فحص مخبري", "فترة تجربة", "المقر الرسمي", "تغطية شاملة لكل ولايات السودان", "موزع معتمد") with factual, truthful retail messaging across store pages, banners, comparison table, footers, checkout, and admin pages.
-  - Replaced English spec label "الذاكرة (RAM)" with Modern Standard Arabic "الذاكرة العشوائية" in `ProductDetailPage.jsx`, `ComparePage.jsx`, and `src/content/ar.js`.
-  - Conditioned `warranty_text` display: only rendered when present and non-empty. Product form in `AdminProductFormPage.jsx` sets `warranty_text` default to empty with optional placeholder and label.
-  - Tab 2 on `ProductDetailPage` restructured from "المعاينة والاستلام" to "الاستلام والتوصيل" (`activeTab === 'delivery'`), showing truthful pickup location (مول الواحة، أم درمان), factual "ماذا بعد الدفع؟" steps, and optional admin settings (`inspection_note`, `returns_note`, `extra_delivery_note`).
-  - Added "نصوص الاستلام والسياسات (ملاحظات اختيارية)" section to `AdminSettingsPage.jsx` for managing inspection, return, and delivery policies.
-  - Created automated claims scanner `scripts/check-claims.mjs` scanning all 216 `.js`, `.jsx`, `.mjs`, and `.css` files. Wired into `package.json` (`prebuild`, `lint`, and `test`).
-  - Updated legacy test assertions in `order-detail-faq.test.jsx`, `compare-favorites.test.jsx`, and `wishlist-account.test.jsx`.
-  - Verification: 0 lint errors, 209/209 unit tests passing (100%), 0 claims violations across 216 files, and production build succeeded.
+- [x] **Phase 3: Persistent Login, Single-Flight Refresh & Cross-Tab Hardening (Web)**
+  - Single-flight token refresh: unified all refresh triggers (`authApi.refresh`, axios 401 interceptor, `apiClient` 401 retry, and bootstrap `initSession`) through module-level promise `performTokenRefresh()`. Eliminated duplicate execution under React StrictMode double effect.
+  - Cross-tab coordination: wrapped refresh in `navigator.locks.request('wex-refresh')` with localStorage mutex fallback; debounces concurrent tabs (10s threshold) and broadcasts session events (`REFRESH_SUCCESS`, `LOGIN`, `LOGOUT`) via `BroadcastChannel('wex-auth')`.
+  - Non-sensitive profile caching: `AuthContext` initializes `user` state immediately from cached non-sensitive local storage (`name`, `role`), ensuring the app shell renders without signed-out flicker while background verification completes.
+  - Hardened error policy: only definitive HTTP 401 unauthenticates the customer. Network errors, timeouts, and 5xx server issues maintain the cached session. Never wipes cart or checkout state on session expiry; preserves `from` return-to routes.
+  - Proactive refresh scheduling: refreshed at ~80% of access token lifetime (12 minutes), and automatically re-checked on `visibilitychange`, `focus`, and `online` events (debounced 60s).
+  - Lightweight restore UI: `ProtectedRoute` renders accessible "جارٍ التحقق من الجلسة" indicator during initial verification without prematurely redirecting to `/login`.
+  - Storage fallback: added optional refresh token storage behind `VITE_AUTH_STORAGE_FALLBACK` for environments with cookie restrictions.
+  - Tests & Verification: 0 lint errors, 0 lint warnings, 211/211 Vitest tests passing (100%), and production build verified (140.79 kB gzip initial JS).
+
 
 
 
