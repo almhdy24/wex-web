@@ -1,321 +1,178 @@
-/* Wex Mockup Orders Screen (Screen 7 Parity) */
 .container {
-  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--wex-space-16);
+  padding: var(--wex-space-16);
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 640px;
+    padding: var(--wex-space-24);
+  }
 }
 
 .header {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .title {
-  font-size: 18px;
-  font-weight: 900;
-  color: var(--wex-navy, #061A55);
+  font-size: var(--wex-fs-heading);
+  font-weight: 700;
+  color: var(--wex-navy);
   margin: 0;
 }
 
-.subtitle {
-  font-size: 12px;
-  color: var(--wex-gray-600, #5A6B85);
-  margin: 2px 0 0 0;
-}
-
-/* Filter Tabs */
-.filterTabs {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding-bottom: 2px;
-}
-
-.filterTabs::-webkit-scrollbar {
-  display: none;
-}
-
-.filterTab {
-  background: var(--wex-white, #FFFFFF);
-  border: 1px solid var(--wex-gray-200, #E2E8F0);
-  border-radius: var(--radius-full, 9999px);
-  padding: 5px 12px;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--wex-navy, #061A55);
-  white-space: nowrap;
-  cursor: pointer;
-  transition: border-color var(--motion-fast, 150ms) var(--ease-standard),
-              background-color var(--motion-fast, 150ms) var(--ease-standard);
-}
-
-.filterTab:hover {
-  border-color: var(--wex-royal, #0B3FBF);
-}
-
-.filterTabActive {
-  background: var(--wex-navy, #061A55);
-  color: #FFFFFF;
-  border-color: var(--wex-navy, #061A55);
-}
-
-/* Orders List */
 .ordersList {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--wex-space-12);
 }
 
 .orderCard {
-  background: var(--wex-white, #FFFFFF);
-  border-radius: var(--radius-lg, 20px);
-  padding: 16px;
-  border: 1px solid var(--wex-ice, #EAF3FF);
-  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--wex-space-12);
+  padding: var(--wex-space-16);
+  background-color: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--wex-radius-16);
   cursor: pointer;
-  transition: transform var(--motion-fast, 150ms) var(--ease-standard),
-              border-color var(--motion-fast, 150ms) var(--ease-standard);
-  user-select: none;
+  transition: border-color var(--wex-motion-duration) var(--wex-motion-easing);
 }
 
 .orderCard:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  border-color: #CBE2FF;
+  border-color: var(--wex-royal);
 }
 
 .cardHeader {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: flex-start;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--wex-ice-light, #F4F8FD);
+}
+
+.orderMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--wex-space-12);
 }
 
 .orderNumber {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--wex-navy, #061A55);
-  letter-spacing: 0.5px;
+  font-size: var(--wex-fs-small);
+  font-weight: 700;
+  color: var(--wex-navy);
 }
 
 .orderDate {
-  font-size: 11px;
-  color: var(--wex-gray-400, #9AA8BC);
-  margin-top: 2px;
+  font-size: var(--wex-fs-caption);
+  color: var(--wex-text-secondary);
 }
 
 .statusChip {
+  font-size: var(--wex-fs-caption);
+  font-weight: 700;
   padding: 3px 10px;
-  font-size: 11px;
-  font-weight: 800;
-  border-radius: var(--radius-full, 9999px);
-  background: var(--wex-ice, #EAF3FF);
-  color: var(--wex-navy, #061A55);
+  border-radius: var(--wex-radius-full);
+  border: 1px solid var(--wex-border);
+  background-color: var(--wex-ice);
+  color: var(--wex-navy);
 }
 
 .pending_payment {
-  background: #FFFBEB;
-  color: #B45309;
-  border: 1px solid #FDE68A;
-}
-
-.payment_uploaded,
-.under_review {
-  background: #EFF6FF;
-  color: #1D4ED8;
-  border: 1px solid #BFDBFE;
+  background-color: rgba(180, 83, 9, 0.1);
+  border-color: var(--wex-warning);
+  color: var(--wex-warning);
 }
 
 .confirmed,
-.processing,
 .completed {
-  background: #ECFDF5;
-  color: #047857;
-  border: 1px solid #A7F3D0;
+  background-color: rgba(18, 128, 92, 0.1);
+  border-color: var(--wex-success);
+  color: var(--wex-success);
 }
 
-.expired,
-.cancelled {
-  background: #FEF2F2;
-  color: #B91C1C;
-  border: 1px solid #FECACA;
+.cancelled,
+.payment_rejected {
+  background-color: rgba(180, 35, 24, 0.1);
+  border-color: var(--wex-danger);
+  color: var(--wex-danger);
 }
 
-.cardBody {
+.cardFooter {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.productSummary {
-  font-size: 12px;
-  color: var(--wex-gray-600, #5A6B85);
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.priceRow {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-top: 4px;
+  justify-content: space-between;
+  padding-top: var(--wex-space-12);
+  border-top: 1px solid var(--wex-border);
 }
 
 .priceCol {
   display: flex;
   align-items: baseline;
-  gap: 4px;
+  gap: var(--wex-space-8);
 }
 
 .priceLabel {
-  font-size: 11px;
-  color: var(--wex-gray-600, #5A6B85);
+  font-size: var(--wex-fs-small);
+  color: var(--wex-text-secondary);
 }
 
 .priceVal {
-  font-size: 15px;
-  font-weight: 900;
-  color: var(--wex-royal, #0B3FBF);
-  font-variant-numeric: tabular-nums;
-}
-
-.countdownPill {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: #FFFBEB;
-  border: 1px solid #FCD34D;
-  border-radius: var(--radius-full, 9999px);
-  padding: 2px 8px;
-  font-size: 10px;
+  font-size: var(--wex-fs-body);
   font-weight: 700;
-  color: #92400E;
+  color: var(--wex-navy);
+  white-space: nowrap;
 }
 
-.detailsLink {
-  display: inline-flex;
+.payNowBtn {
+  flex-shrink: 0;
+}
+
+.viewLink {
+  display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 11px;
+  gap: var(--wex-space-4);
+  font-size: var(--wex-fs-small);
+  color: var(--wex-royal);
   font-weight: 700;
-  color: var(--wex-royal, #0B3FBF);
 }
 
-/* Skeleton Card */
-.skeletonCard {
-  background: var(--wex-white, #FFFFFF);
-  border-radius: var(--radius-lg, 20px);
-  padding: 16px;
-  border: 1px solid var(--wex-ice, #EAF3FF);
+.emptyCard {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-}
-
-/* Pagination */
-.pagination {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 12px 0;
+  justify-content: center;
+  gap: var(--wex-space-16);
+  padding: var(--wex-space-32) var(--wex-space-16);
+  background-color: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--wex-radius-16);
+  text-align: center;
 }
 
-.pageBtn {
-  background: var(--wex-white, #FFFFFF);
-  border: 1px solid var(--wex-ice, #EAF3FF);
-  border-radius: var(--radius-md, 14px);
-  padding: 6px 14px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--wex-navy, #061A55);
-  cursor: pointer;
+.emptyText {
+  color: var(--wex-text-secondary);
+  font-size: var(--wex-fs-body);
+  margin: 0;
 }
 
-.pageBtn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+.skeletonCard {
+  width: 100%;
+  height: 90px;
+  background-color: var(--wex-ice);
+  border-radius: var(--wex-radius-16);
 }
 
-.pageInfo {
-  font-size: 11px;
-  color: var(--wex-gray-600, #5A6B85);
-  font-weight: 700;
-}
-
-@media (min-width: 1024px) {
-  .container {
-    padding: 32px 0;
-  }
-
-  .title {
-    font-size: 24px;
-  }
-
-  .subtitle {
-    font-size: 14px;
-  }
-
-  .filterTab {
-    padding: 8px 18px;
-    font-size: 13px;
-  }
-
-  .orderCard {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 24px;
-    border-radius: var(--radius-lg, 18px);
-    gap: 20px;
-  }
-
-  .cardHeader {
-    border-bottom: none;
-    padding-bottom: 0;
-    gap: 16px;
-    min-width: 200px;
-  }
-
-  .cardBody {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex: 1;
-    gap: 24px;
-  }
-
-  .productSummary {
-    font-size: 14px;
-    max-width: 320px;
-  }
-
-  .priceRow {
-    gap: 24px;
-  }
-
-  .priceVal {
-    font-size: 18px;
-  }
-
-  .detailsLink {
-    font-size: 13px;
-    padding: 6px 12px;
-    background: var(--wex-ice, #EAF3FF);
-    border-radius: var(--radius-sm, 8px);
-    transition: background-color var(--motion-fast, 150ms) var(--ease-standard);
-  }
-
-  .detailsLink:hover {
-    background: #D9E8FF;
-  }
+.errorCard {
+  padding: var(--wex-space-24);
+  background-color: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--wex-radius-16);
+  text-align: center;
+  color: var(--wex-danger);
 }

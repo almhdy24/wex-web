@@ -93,7 +93,23 @@ Simplifying and unifying the storefront (customer-side only) following Traversy-
     - Auto-creates order with entered form data upon authentication success (no re-entry).
     - Clears cart ONLY on order creation success.
   - Added test suite `src/__tests__/cart-checkout-rescue.test.jsx` (5/5 tests passing) and updated `src/__tests__/cart-checkout.test.jsx` (12/12 tests passing).
-- [ ] **Phase 5: Payment Screen, Orders List & Flow Verification**
+- [x] **Phase 5: Payment Screen, Orders List & Flow Verification**
+  - Rebuilt `OrderDetailPage.jsx` and `OrderDetailPage.module.css`:
+    - Header: "الدفع - طلب {الرقم}" with back button going to `/orders`.
+    - Single gradient/dark card: royal-to-navy gradient, countdown timer "المتبقي لتثبيت السعر", and "المبلغ المطلوب" with copy button.
+    - Card "حساب التحويل" for active bank accounts with copy buttons ("نسخ").
+    - Card "ارفع إشعار التحويل": guidance "صورة واضحة تُظهر المبلغ ورقم العملية.", buttons "التقاط صورة" and "اختيار من المعرض", image preview, and button "إرسال الإشعار". Once sent, displays "أُرسل الإشعار. بانتظار مراجعة المحل.".
+    - Plain text notice line: "بعد المراجعة نُشعرك بتأكيد الدفع." with small Info icon.
+    - Timeline displaying order progress.
+    - Expired state: "انتهت مهلة تثبيت السعر." + button "أعد الطلب بالسعر الحالي".
+    - Rejected state: shop rejection reason + "ارفع إشعارًا جديدًا".
+    - Auto-scroll & focus to `#upload-proof-card` when navigated right after checkout creation.
+    - Sticky bottom button "ارفع إشعار التحويل" while pending_payment.
+  - Rebuilt `OrdersPage.jsx` and `OrdersPage.module.css`:
+    - Simple rows: رقم (#order_number), الحالة (status chip), الإجمالي, الوقت.
+    - For pending_payment orders: prominent "ادفع الآن" button navigating to the payment screen.
+  - Added automated rule check `scripts/check-duplicate-messages.mjs`: validates price-lock explanation lives strictly in (a) checkout confirm line and (b) payment screen.
+  - Added test suite `src/__tests__/storefront-flow.test.jsx` (8/8 tests passing).
 - [ ] **Phase 6: Cleanup, Documentation & Final Verification**
 
 ---

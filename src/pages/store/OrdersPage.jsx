@@ -1,20 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Clock, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { ordersApi } from '../../api/orders';
 import { formatSdg, formatDate, getOrderStatusInfo } from '../../utils/formatters';
-import EmptyState from '../../components/common/EmptyState';
-import ErrorState from '../../components/common/ErrorState';
-import { Skeleton } from '../../components/common/Skeleton';
-import { t } from '../../content/ar';
+import Button from '../../components/common/Button';
 import styles from './OrdersPage.module.css';
 
-export default function OrdersPage() {
-  const [orders, setOrders] = useState([]);
-  const [statusFilter, setStatusFilter] = useState('');
-  const [page, setPage] = useState(1);
-  const [meta, setMeta] = useState(null);
-  const [loading, setLoading] = useState(true);
+export default function OrdersPage({
+  initialOrders = null,
+  initialLoading = null,
+} = {}) {
+  const [orders, setOrders] = useState(initialOrders || []);
+  const [loading, setLoading] = useState(initialLoading ?? (initialOrders === null));
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
@@ -22,108 +19,74 @@ export default function OrdersPage() {
     setLoading(true);
     setError(null);
     try {
-      const params = { page, per_page: 10 };
-      if (statusFilter) params.status = statusFilter;
-      const res = await ordersApi.getOrders(params);
-      setOrders(res.data || []);
-      setMeta(res.meta || null);
+      const res = await ordersApi.getOrders({ per_page: 20 });
+      setOrders(res?.data || []);
     } catch (err) {
-      setError(err.message || 'تعذر تحميل سجل الطلبات');
+      setError(err.message || 'تعذر تحميل قائمة الطلبات');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchOrders();
-  }, [page, statusFilter]);
+    if (initialOrders === null) {
+      fetchOrders();
+    }
+  }, [initialOrders]);
 
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <div>
-          <h1 className={styles.title}>{t('ordersList.title')}</h1>
-          <p className={styles.subtitle}>
-            {t('ordersList.subtitle')}
-          </p>
-        </div>
-
-        {/* Status Filter Tabs */}
-        <div className={styles.filterTabs} role="tablist" aria-label="تصفية الطلبات">
-          {[
-            { key: '', label: t('ordersList.tabAll') },
-            { key: 'pending_payment', label: t('ordersList.tabPending') },
-            { key: 'confirmed', label: t('ordersList.tabConfirmed') },
-            { key: 'completed', label: t('ordersList.tabCompleted') },
-          ].map((tab) => (
-            <button
-              key={tab.key}
-              type="button"
-              className={`${styles.filterTab} ${
-                statusFilter === tab.key ? styles.filterTabActive : ''
-              }`}
-              onClick={() => {
-                setStatusFilter(tab.key);
-                setPage(1);
-              }}
-              role="tab"
-              aria-selected={statusFilter === tab.key}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <h1 className={styles.title}>طلباتي</h1>
       </header>
 
       {error ? (
-        <ErrorState message={error} onRetry={fetchOrders} />
+        <div className={styles.errorCard}>
+          <p>{error}</p>
+          <Button variant="secondary" onClick={fetchOrders}>
+            إعادة المحاولة
+          </Button>
+        </div>
       ) : loading ? (
         <div className={styles.ordersList}>
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className={styles.skeletonCard}>
-              <Skeleton width="40%" height="20px" />
-              <Skeleton width="70%" height="16px" />
-              <Skeleton width="30%" height="22px" />
-            </div>
+            <div key={i} className={styles.skeletonCard} />
           ))}
         </div>
       ) : orders.length === 0 ? (
-        <EmptyState
-          title={t('ordersList.noOrdersTitle')}
-          description={
-            statusFilter
-              ? 'لا توجد طلبات تطابق هذه الحالة المحددة.'
-              : t('ordersList.noOrdersDesc')
-          }
-          actionLabel={t('cart.startShopping')}
-          onAction={() => navigate('/products')}
-        />
+        <div className={styles.emptyCard}>
+          <p className={styles.emptyText}>لا توجد طلبات سابقة.</p>
+          <Button variant="primary" onClick={() => navigate('/products')}>
+            تصفّح الأجهزة
+          </Button>
+        </div>
       ) : (
         <div className={styles.ordersList}>
           {orders.map((order) => {
             const statusInfo = getOrderStatusInfo(order.status);
             const isPending = order.status === 'pending_payment';
+            const orderTotal = order.total_sdg ?? order.total_amount_sdg ?? 0;
 
             return (
               <article
                 key={order.id}
                 className={styles.orderCard}
-                onClick={() => navigate(`/orders/${order.order_number}`)}
+                onClick={() => navigate(`/orders/${order.order_number || order.id}`)}
                 role="button"
                 tabIndex={0}
-                aria-label={`عرض تفاصيل الطلب ${order.order_number}`}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') navigate(`/orders/${order.order_number}`);
+                  if (e.key === 'Enter') navigate(`/orders/${order.order_number || order.id}`);
                 }}
               >
+                {/* Header Row: رقم، الوقت، الحالة */}
                 <div className={styles.cardHeader}>
-                  <div>
+                  <div className={styles.orderMeta}>
                     <span className={styles.orderNumber}>
                       #{order.order_number}
                     </span>
-                    <div className={styles.orderDate}>
+                    <span className={styles.orderDate}>
                       {formatDate(order.created_at)}
-                    </div>
+                    </span>
                   </div>
 
                   <span className={`${styles.statusChip} ${styles[order.status] || ''}`}>
@@ -131,62 +94,35 @@ export default function OrdersPage() {
                   </span>
                 </div>
 
-                <div className={styles.cardBody}>
-                  <div className={styles.productSummary}>
-                    {order.items?.length > 0
-                      ? order.items.map((it) => it.product_name).join('، ')
-                      : 'أجهزة وإلكترونيات'}
+                {/* Footer Row: الإجمالي، و زر ادفع الآن إن كان بانتظار الدفع */}
+                <div className={styles.cardFooter}>
+                  <div className={styles.priceCol}>
+                    <span className={styles.priceLabel}>الإجمالي:</span>
+                    <span className={styles.priceVal}>{formatSdg(orderTotal)}</span>
                   </div>
 
-                  <div className={styles.priceRow}>
-                    <div className={styles.priceCol}>
-                      <span className={styles.priceLabel}>الإجمالي:</span>
-                      <span className={styles.priceVal}>
-                        {formatSdg(order.total_sdg ?? order.total_amount_sdg)}
-                      </span>
+                  {isPending ? (
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/orders/${order.order_number || order.id}`);
+                      }}
+                      className={styles.payNowBtn}
+                    >
+                      ادفع الآن
+                    </Button>
+                  ) : (
+                    <div className={styles.viewLink}>
+                      <span>تفاصيل</span>
+                      <ArrowLeft size={14} strokeWidth={1.75} aria-hidden="true" />
                     </div>
-
-                    {isPending && (
-                      <span className={styles.countdownPill}>
-                        <Clock size={12} />
-                        <span>السعر محجوز</span>
-                      </span>
-                    )}
-
-                    <span className={styles.detailsLink}>
-                      <span>تفاصيل الطلب</span>
-                      <ArrowLeft size={14} />
-                    </span>
-                  </div>
+                  )}
                 </div>
               </article>
             );
           })}
-        </div>
-      )}
-
-      {/* Pagination */}
-      {meta && meta.last_page > 1 && (
-        <div className={styles.pagination}>
-          <button
-            type="button"
-            disabled={page <= 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            className={styles.pageBtn}
-          >
-            السابق
-          </button>
-          <span className={styles.pageInfo}>
-            صفحة {page} من {meta.last_page}
-          </span>
-          <button
-            type="button"
-            disabled={page >= meta.last_page}
-            onClick={() => setPage((p) => Math.min(meta.last_page, p + 1))}
-            className={styles.pageBtn}
-          >
-            التالي
-          </button>
         </div>
       )}
     </div>
