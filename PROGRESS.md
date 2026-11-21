@@ -45,6 +45,11 @@ System stabilization, defect fixes, behavioral tests, and raw evidence log (`doc
   - Admin Dashboard Polish: Added sound mute toggle button in header with Arabic label and `localStorage` persistence; unified count formatting with `formatCount()` using Western digits matching `formatSdg`; excluded cancelled, expired, and debug orders from active counts in `DashboardController.php`.
   - Raw verification logs appended to `docs/STABILIZE-LOG.md`.
 
+- [x] **Phase 5: CI Workflow & Visual Evidence (All GREEN)**
+  - CI Workflow: Created `.github/workflows/ui-check.yml` orchestrating headless Playwright visual regression checks in GitHub Actions runner.
+  - Multi-Viewport Testing: Created `scripts/ci-ui-check.mjs` testing 30 routes across 4 viewports (360x800, 390x844, 768x1024, 1280x800) with assertions for 0 console errors and 0 horizontal overflow.
+  - Documentation: Created `docs/CI-SCREENSHOTS.md` detailing multi-viewport test matrix and artifact download steps.
+
 ## Storefront Rescue Track (Branch: storefront-rescue) — Complete
 
 Simplifying and unifying the storefront (customer-side only) following Traversy-style readable code, strict Design System tokens, single message living rule, zero dialect or puffery, and end-to-end purchase flow integrity.
