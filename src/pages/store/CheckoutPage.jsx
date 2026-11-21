@@ -190,6 +190,24 @@ export default function CheckoutPage({
         <h1 className={styles.title}>تأكيد الطلب</h1>
       </header>
 
+      {/* Stepper: الاستلام → التواصل → المراجعة */}
+      <div className={styles.stepperRow} aria-label="مراحل إتمام الطلب">
+        <div className={`${styles.stepIndicator} ${styles.stepDone}`}>
+          <span className={styles.stepNum}>1</span>
+          <span className={styles.stepText}>الاستلام</span>
+        </div>
+        <div className={styles.stepLine} />
+        <div className={`${styles.stepIndicator} ${styles.stepActive}`}>
+          <span className={styles.stepNum}>2</span>
+          <span className={styles.stepText}>التواصل</span>
+        </div>
+        <div className={styles.stepLine} />
+        <div className={styles.stepIndicator}>
+          <span className={styles.stepNum}>3</span>
+          <span className={styles.stepText}>المراجعة</span>
+        </div>
+      </div>
+
       {/* Section 1: طريقة الاستلام */}
       <section className={styles.sectionCard} aria-labelledby="delivery-type-heading">
         <h2 id="delivery-type-heading" className={styles.sectionHeading}>

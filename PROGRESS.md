@@ -1014,6 +1014,39 @@ Hotfix of critical storefront issues identified during phone testing:
     - Vitest: 42 test files, 295/295 tests PASS (100% green).
     - `npm run build`: built cleanly in 3.64s.
 
+- [x] **Full Redesign Phase 3: Cart, Checkout, Payment & Orders**
+  - **Cart Page (`src/pages/store/CartPage.jsx` & `CartPage.module.css`):**
+    - Item deletion with undo action toast via `useToast`: "تم حذف الجهاز من السلة" with "تراجع" button restoring item and quantity.
+    - Upgraded quantity steppers to 38px/40px touch targets with smooth hover and active feedback.
+    - Eliminated duplicate header on mobile screens (`<1024px`) while maintaining full accessibility and desktop layout.
+    - Re-styled sticky bottom checkout bar with 16px backdrop blur, rounded control buttons, and safe-area inset padding (`env(safe-area-inset-bottom, 0px)`).
+    - Applied tactile `--shadow-sm` and hover lift `--shadow-md` to item cards and summary cards.
+  - **Checkout Page (`src/pages/store/CheckoutPage.jsx` & `CheckoutPage.module.css`):**
+    - 3-step order indicator (`stepperRow`: الاستلام → التواصل → المراجعة) with active/completed indicators.
+    - Upgraded pickup & delivery option cards (`optionBtn`) with distinct active border, gradient tint, and tactile press scaling (`scale(0.97)`).
+    - Styled contact phone input with `dir="ltr"` and tabular-nums alignment.
+    - Eliminated duplicate mobile title on `<1024px`.
+    - Rebuilt sticky confirmation bar with 16px backdrop blur, safe-area padding, and single-source price lock notice.
+  - **Payment & Order Detail (`src/pages/store/OrderDetailPage.jsx` & `OrderDetailPage.module.css`):**
+    - Upgraded payment card to luxury dark gradient (`--wex-grad-royal-navy`), 28px border radius, and cyan pulsing clock icon.
+    - Formatted live countdown timer with 24px heavy tabular digits.
+    - Enhanced Bank of Khartoum (Bankak) account cards with 20px royal digits and tactile copy feedback buttons.
+    - Refined receipt upload dropzone (`uploadCard`) with 1.5px dashed border, 48px touch-target camera/gallery pick buttons, preview thumbnail, and compression feedback.
+    - Added pulsing glow to the active order timeline step (`.stepCompleted .stepDot`).
+    - Upgraded sticky action bar with 16px backdrop blur and safe-area insets.
+  - **Orders Page (`src/pages/store/OrdersPage.jsx` & `OrdersPage.module.css`):**
+    - Eliminated duplicate mobile title on `<1024px`.
+    - Added `--shadow-sm` and hover lift (`translateY(-2px)` with `--shadow-md`) to order history cards.
+    - Styled order total with heavy weight (800) and tabular numbers.
+  - **Verification:**
+    - WCAG AA contrast check: 11/11 token pairs PASS.
+    - `npm run check:all`: PASS (11 contrast pairs, claims, i18n, layout, duplicate messages).
+    - `bash scripts/audit.sh`: All 5 quality checks clean (0 puffery, 0 AED leaks, 0 transition:all, 0 emojis, 0 invented claims).
+    - `npm run lint`: 0 errors, 0 warnings.
+    - Vitest: 42 test files, 295/295 tests PASS (100% green).
+    - `npm run build`: built cleanly in 4.44s.
+
+
 
 
 

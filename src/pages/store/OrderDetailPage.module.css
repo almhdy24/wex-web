@@ -51,14 +51,21 @@
 
 /* 1. Dark Card with Gradient */
 .paymentCard {
-  border-radius: var(--wex-radius-16);
+  background: var(--wex-grad-royal-navy, linear-gradient(135deg, #061A55 0%, #0B3FBF 100%));
+  border-radius: var(--radius-xl, 28px);
   padding: var(--wex-space-24);
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  position: relative;
+  overflow: hidden;
 }
 
 .darkCardInner {
   display: flex;
   flex-direction: column;
   gap: var(--wex-space-16);
+  position: relative;
+  z-index: 2;
 }
 
 .countdownSection {
@@ -72,6 +79,7 @@
 .countdownLabel {
   font-size: var(--wex-fs-small);
   color: var(--on-dark-muted);
+  font-weight: 600;
 }
 
 .countdownClock {
@@ -83,13 +91,26 @@
 
 .clockIcon {
   color: var(--wex-cyan);
+  animation: pulseClock 2s infinite ease-in-out;
+}
+
+@keyframes pulseClock {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.85);
+    opacity: 0.6;
+  }
 }
 
 .countdownText {
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 1px;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 2px;
   color: var(--on-dark);
+  font-variant-numeric: tabular-nums;
 }
 
 .amountSection {
@@ -101,6 +122,7 @@
 .amountLabel {
   font-size: var(--wex-fs-small);
   color: var(--on-dark-muted);
+  font-weight: 600;
 }
 
 .amountValueRow {
@@ -111,31 +133,37 @@
 }
 
 .amountValue {
-  font-size: 26px;
-  font-weight: 700;
+  font-size: 28px;
+  font-weight: 900;
   color: var(--on-dark);
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .copyAmountBtn {
   display: inline-flex;
   align-items: center;
   gap: var(--wex-space-4);
-  height: 36px;
-  padding: 0 var(--wex-space-12);
-  background-color: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: var(--wex-radius-12);
+  height: 38px;
+  padding: 0 var(--wex-space-16);
+  background-color: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-control, 12px);
   color: var(--on-dark);
   font-family: inherit;
   font-size: var(--wex-fs-small);
   font-weight: 700;
   cursor: pointer;
-  transition: background-color var(--wex-motion-duration) var(--wex-motion-easing);
+  box-shadow: var(--shadow-sm);
+  transition: transform 120ms ease, background-color var(--wex-motion-duration) var(--wex-motion-easing);
 }
 
 .copyAmountBtn:hover {
-  background-color: rgba(255, 255, 255, 0.25);
+  background-color: rgba(255, 255, 255, 0.28);
+}
+
+.copyAmountBtn:active {
+  transform: scale(0.96);
 }
 
 /* Expired Card */
@@ -220,7 +248,8 @@
 .accountsSection {
   background-color: var(--wex-white);
   border: 1px solid var(--wex-border);
-  border-radius: var(--wex-radius-16);
+  border-radius: var(--radius-card, 16px);
+  box-shadow: var(--shadow-sm);
   padding: var(--wex-space-16);
   display: flex;
   flex-direction: column;
@@ -228,8 +257,8 @@
 }
 
 .sectionTitle {
-  font-size: var(--wex-fs-title);
-  font-weight: 700;
+  font-size: var(--text-title, 18px);
+  font-weight: 800;
   color: var(--wex-navy);
   margin: 0;
 }
@@ -244,10 +273,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--wex-space-8);
-  padding: var(--wex-space-12);
-  background-color: var(--wex-ice);
-  border: 1px solid var(--wex-border);
-  border-radius: var(--wex-radius-12);
+  padding: var(--wex-space-16);
+  background: linear-gradient(180deg, #FFFFFF 0%, var(--wex-ice) 100%);
+  border: 1.5px solid #D6E8FF;
+  border-radius: var(--radius-control, 12px);
+  box-shadow: var(--shadow-sm);
 }
 
 .accountHeader {
@@ -258,12 +288,14 @@
 
 .bankName {
   font-size: var(--wex-fs-small);
+  font-weight: 800;
   color: var(--wex-navy);
 }
 
 .accountHolder {
   font-size: var(--wex-fs-caption);
   color: var(--wex-text-secondary);
+  font-weight: 600;
 }
 
 .accountNotes {
@@ -277,40 +309,50 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--wex-space-8);
 }
 
 .accountNumber {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--wex-navy);
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--wex-royal);
+  letter-spacing: 0.5px;
+  font-variant-numeric: tabular-nums;
 }
 
 .copyBtn {
   display: inline-flex;
   align-items: center;
   gap: var(--wex-space-4);
-  height: 32px;
-  padding: 0 var(--wex-space-8);
+  height: 36px;
+  padding: 0 var(--wex-space-12);
   background-color: var(--wex-white);
   border: 1px solid var(--wex-border);
-  border-radius: var(--wex-radius-12);
+  border-radius: var(--radius-control, 12px);
   color: var(--wex-royal);
   font-family: inherit;
   font-size: var(--wex-fs-caption);
   font-weight: 700;
   cursor: pointer;
-  transition: border-color var(--wex-motion-duration) var(--wex-motion-easing);
+  box-shadow: var(--shadow-sm);
+  transition: transform 120ms ease, border-color var(--wex-motion-duration) var(--wex-motion-easing);
 }
 
 .copyBtn:hover {
   border-color: var(--wex-royal);
+  box-shadow: var(--shadow-md);
+}
+
+.copyBtn:active {
+  transform: scale(0.96);
 }
 
 /* Upload Card */
 .uploadCard {
   background-color: var(--wex-white);
-  border: 1px solid var(--wex-border);
-  border-radius: var(--wex-radius-16);
+  border: 1.5px dashed var(--wex-border);
+  border-radius: var(--radius-card, 16px);
+  box-shadow: var(--shadow-sm);
   padding: var(--wex-space-16);
   display: flex;
   flex-direction: column;
@@ -348,6 +390,10 @@
 
 .pickBtn {
   width: 100%;
+  height: 48px;
+  border-radius: var(--radius-control, 12px);
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
 }
 
 .previewContainer {
@@ -419,7 +465,8 @@
 .timelineCard {
   background-color: var(--wex-white);
   border: 1px solid var(--wex-border);
-  border-radius: var(--wex-radius-16);
+  border-radius: var(--radius-card, 16px);
+  box-shadow: var(--shadow-sm);
   padding: var(--wex-space-16);
   display: flex;
   flex-direction: column;
@@ -427,8 +474,8 @@
 }
 
 .timelineTitle {
-  font-size: var(--wex-fs-small);
-  font-weight: 700;
+  font-size: var(--text-title, 18px);
+  font-weight: 800;
   color: var(--wex-navy);
   margin: 0;
 }
@@ -474,6 +521,7 @@
 
 .stepCompleted .stepDot {
   background-color: var(--wex-royal);
+  box-shadow: 0 0 8px rgba(11, 63, 191, 0.4);
 }
 
 .stepPending .stepDot {
@@ -545,12 +593,16 @@
   left: 0;
   right: 0;
   padding: var(--wex-space-12) var(--wex-space-16);
-  background-color: var(--wex-white);
+  padding-bottom: calc(var(--wex-space-12) + env(safe-area-inset-bottom, 0px));
+  background-color: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-top: 1px solid var(--wex-border);
-  box-shadow: 0 -2px 10px rgba(6, 26, 85, 0.05);
+  box-shadow: 0 -4px 16px rgba(6, 26, 85, 0.08);
   z-index: 50;
   max-width: 480px;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 @media (min-width: 768px) {
@@ -561,6 +613,10 @@
 
 .stickyUploadBtn {
   width: 100%;
+  height: 48px;
+  border-radius: var(--radius-control, 12px);
+  font-weight: 800;
+  box-shadow: var(--shadow-sm);
 }
 
 .loadingSkeleton {

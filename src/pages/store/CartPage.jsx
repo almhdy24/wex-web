@@ -23,6 +23,7 @@ export function formatCartDevicesCount(count) {
 export default function CartPage() {
   const {
     items,
+    addItem,
     updateQuantity,
     removeItem,
     totalItems,
@@ -55,7 +56,13 @@ export default function CartPage() {
 
   const handleRemoveItem = (item) => {
     removeItem(item.id);
-    success('تم حذف الجهاز من السلة');
+    success({
+      title: 'تم حذف الجهاز من السلة',
+      action: {
+        label: 'تراجع',
+        onClick: () => addItem(item, item.quantity),
+      },
+    });
   };
 
   return (

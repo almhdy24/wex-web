@@ -16,14 +16,21 @@
 }
 
 .header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--wex-space-8);
+  }
 }
 
 .title {
   font-size: var(--wex-fs-heading);
-  font-weight: 700;
+  font-weight: 800;
   color: var(--wex-navy);
   margin: 0;
 }
@@ -41,12 +48,15 @@
   padding: var(--wex-space-16);
   background-color: var(--wex-white);
   border: 1px solid var(--wex-border);
-  border-radius: var(--wex-radius-16);
+  border-radius: var(--radius-card, 16px);
+  box-shadow: var(--shadow-sm);
   cursor: pointer;
-  transition: border-color var(--wex-motion-duration) var(--wex-motion-easing);
+  transition: transform 150ms ease, box-shadow 150ms ease, border-color var(--wex-motion-duration) var(--wex-motion-easing);
 }
 
 .orderCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
   border-color: var(--wex-royal);
 }
 
@@ -124,13 +134,15 @@
 
 .priceVal {
   font-size: var(--wex-fs-body);
-  font-weight: 700;
+  font-weight: 800;
   color: var(--wex-navy);
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .payNowBtn {
   flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
 }
 
 .viewLink {
@@ -151,7 +163,8 @@
   padding: var(--wex-space-32) var(--wex-space-16);
   background-color: var(--wex-white);
   border: 1px solid var(--wex-border);
-  border-radius: var(--wex-radius-16);
+  border-radius: var(--radius-card, 16px);
+  box-shadow: var(--shadow-sm);
   text-align: center;
 }
 
