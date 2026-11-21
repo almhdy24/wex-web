@@ -1,0 +1,103 @@
+{
+    "success": true,
+    "message": "مناطق التوصيل ورسوم الشحن",
+    "data": [
+        {
+            "id": 2,
+            "state_name_ar": "الخرطوم",
+            "fee_sdg": 6000
+        },
+        {
+            "id": 3,
+            "state_name_ar": "بحري",
+            "fee_sdg": 6000
+        },
+        {
+            "id": 4,
+            "state_name_ar": "الجزيرة",
+            "fee_sdg": 9000
+        },
+        {
+            "id": 9,
+            "state_name_ar": "النيل الأبيض",
+            "fee_sdg": 10000
+        },
+        {
+            "id": 11,
+            "state_name_ar": "نهر النيل",
+            "fee_sdg": 10000
+        },
+        {
+            "id": 8,
+            "state_name_ar": "سنار",
+            "fee_sdg": 11000
+        },
+        {
+            "id": 12,
+            "state_name_ar": "الشمالية",
+            "fee_sdg": 12000
+        },
+        {
+            "id": 7,
+            "state_name_ar": "القضارف",
+            "fee_sdg": 13000
+        },
+        {
+            "id": 10,
+            "state_name_ar": "النيل الأزرق",
+            "fee_sdg": 13000
+        },
+        {
+            "id": 6,
+            "state_name_ar": "كسلا",
+            "fee_sdg": 14000
+        },
+        {
+            "id": 13,
+            "state_name_ar": "شمال كردفان",
+            "fee_sdg": 14000
+        },
+        {
+            "id": 5,
+            "state_name_ar": "البحر الأحمر",
+            "fee_sdg": 15000
+        },
+        {
+            "id": 14,
+            "state_name_ar": "جنوب كردفان",
+            "fee_sdg": 18000
+        },
+        {
+            "id": 15,
+            "state_name_ar": "غرب كردفان",
+            "fee_sdg": 18000
+        },
+        {
+            "id": 16,
+            "state_name_ar": "شمال دارفور",
+            "fee_sdg": 20000
+        },
+        {
+            "id": 17,
+            "state_name_ar": "جنوب دارفور",
+            "fee_sdg": 22000
+        },
+        {
+            "id": 19,
+            "state_name_ar": "وسط دارفور",
+            "fee_sdg": 22000
+        },
+        {
+            "id": 20,
+            "state_name_ar": "شرق دارفور",
+            "fee_sdg": 22000
+        },
+        {
+            "id": 18,
+            "state_name_ar": "غرب دارفور",
+            "fee_sdg": 24000
+        }
+    ],
+    "errors": null,
+    "meta": null
+}

@@ -1,0 +1,29 @@
+{
+    "success": true,
+    "message": "فئات المنتجات",
+    "data": [
+        {
+            "id": 1,
+            "name_ar": "لابتوبات",
+            "name_en": "Laptops",
+            "slug": "laptops",
+            "sort_order": 1
+        },
+        {
+            "id": 2,
+            "name_ar": "تلفونات",
+            "name_en": "Phones",
+            "slug": "phones",
+            "sort_order": 2
+        },
+        {
+            "id": 3,
+            "name_ar": "إكسسوارات",
+            "name_en": "Accessories",
+            "slug": "accessories",
+            "sort_order": 3
+        }
+    ],
+    "errors": null,
+    "meta": null
+}

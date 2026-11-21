@@ -1,0 +1,157 @@
+{
+    "success": true,
+    "message": "قائمة الأجهزة والمنتجات",
+    "data": [
+        {
+            "id": 1,
+            "slug": "dell-latitude-7490",
+            "type": "laptop",
+            "name": "Dell Latitude 7490",
+            "short_description": "لابتوب مكتبي خفيف للأعمال اليومية",
+            "condition": "used_imported",
+            "price_sdg": 487500,
+            "stock_status": "out_of_stock",
+            "is_featured": true,
+            "image": null
+        },
+        {
+            "id": 2,
+            "slug": "lenovo-thinkpad-t480",
+            "type": "laptop",
+            "name": "Lenovo ThinkPad T480",
+            "short_description": "جهاز عملي ومناسب للمبرمجين والمحاسبين",
+            "condition": "used_imported",
+            "price_sdg": 585000,
+            "stock_status": "in_stock",
+            "is_featured": true,
+            "image": null
+        },
+        {
+            "id": 3,
+            "slug": "hp-elitebook-840-g5",
+            "type": "laptop",
+            "name": "HP EliteBook 840 G5",
+            "short_description": "هيكل ألمنيوم أنيق وخفيف للعمل والدراسة",
+            "condition": "used_imported",
+            "price_sdg": 520000,
+            "stock_status": "in_stock",
+            "is_featured": true,
+            "image": null
+        },
+        {
+            "id": 4,
+            "slug": "hp-probook-450-g6",
+            "type": "laptop",
+            "name": "HP ProBook 450 G6",
+            "short_description": "شاشة كبيرة مع لوحة أرقام جانبية",
+            "condition": "new",
+            "price_sdg": 877500,
+            "stock_status": "low_stock",
+            "is_featured": true,
+            "image": null
+        },
+        {
+            "id": 5,
+            "slug": "dell-inspiron-15-3580",
+            "type": "laptop",
+            "name": "Dell Inspiron 15 3580",
+            "short_description": "سعة تخزين كبيرة ومناسب للطلاب",
+            "condition": "new",
+            "price_sdg": 812500,
+            "stock_status": "in_stock",
+            "is_featured": false,
+            "image": null
+        },
+        {
+            "id": 6,
+            "slug": "acer-aspire-5",
+            "type": "laptop",
+            "name": "Acer Aspire 5",
+            "short_description": "معالج الجيل العاشر مع هارد سريع",
+            "condition": "new",
+            "price_sdg": 1072500,
+            "stock_status": "in_stock",
+            "is_featured": false,
+            "image": null
+        },
+        {
+            "id": 7,
+            "slug": "macbook-air-2019",
+            "type": "laptop",
+            "name": "MacBook Air 2019",
+            "short_description": "شاشة ريتنا عالية الدقة ووزن خفيف جداً",
+            "condition": "used_imported",
+            "price_sdg": 1495000,
+            "stock_status": "out_of_stock",
+            "is_featured": false,
+            "image": null
+        },
+        {
+            "id": 8,
+            "slug": "asus-tuf-fx505",
+            "type": "laptop",
+            "name": "Asus TUF FX505",
+            "short_description": "كرت شاشة منفصل للألعاب والتصميم",
+            "condition": "new",
+            "price_sdg": 1592500,
+            "stock_status": "low_stock",
+            "is_featured": false,
+            "image": null
+        },
+        {
+            "id": 9,
+            "slug": "logitech-wireless-mouse-b170",
+            "type": "accessory",
+            "name": "ماوس لاسلكي لوجيتك B170",
+            "short_description": "ماوس لاسلكي مريح وعملي",
+            "condition": "new",
+            "price_sdg": 22800,
+            "stock_status": "in_stock",
+            "is_featured": false,
+            "image": null
+        },
+        {
+            "id": 10,
+            "slug": "laptop-backpack-15-waterproof",
+            "type": "accessory",
+            "name": "شنطة ظهر لابتوب مقاومة للماء 15.6",
+            "short_description": "شنطة ظهر مبطنة لحماية الجهاز",
+            "condition": "new",
+            "price_sdg": 32500,
+            "stock_status": "in_stock",
+            "is_featured": false,
+            "image": null
+        },
+        {
+            "id": 11,
+            "slug": "original-laptop-charger-65w",
+            "type": "accessory",
+            "name": "شاحن لابتوب أصلي 65 واط",
+            "short_description": "شاحن بديل عالي الجودة مع كابل الكهرباء",
+            "condition": "new",
+            "price_sdg": 39000,
+            "stock_status": "in_stock",
+            "is_featured": false,
+            "image": null
+        },
+        {
+            "id": 12,
+            "slug": "kingston-ssd-256gb",
+            "type": "accessory",
+            "name": "هارد SSD كينغستون 256 جيجابايت",
+            "short_description": "ترقية سرعة الإقلاع والبرامج",
+            "condition": "new",
+            "price_sdg": 45500,
+            "stock_status": "in_stock",
+            "is_featured": false,
+            "image": null
+        }
+    ],
+    "errors": null,
+    "meta": {
+        "page": 1,
+        "per_page": 12,
+        "total": 14,
+        "total_pages": 2
+    }
+}

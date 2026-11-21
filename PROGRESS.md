@@ -1,6 +1,21 @@
 # Wex Technology Web - Project Progress Tracker
 
-## Storefront Rescue Track (Branch: storefront-rescue) — Active
+## Stabilization Sprint (Branch: stabilize) — Active
+
+System stabilization, defect fixes, behavioral tests, and raw evidence log (`docs/STABILIZE-LOG.md`).
+
+- [x] **Phase 1: Behavioral Checks (RED Baseline)**
+  - Built `scripts/check-api-surface.mjs` (statically verifies exported API methods, RED on `productsApi.getShopSettings`)
+  - Built `scripts/check-css-modules.mjs` (verifies CSS module classes vs usages, RED on 16 files)
+  - Built `tests/route-smoke.test.jsx` (MSW + jsdom route smoke tests with real API fixtures, RED on Home crash & missing `<Page>` wrapper)
+  - Built `tests/journeys.test.jsx` (purchase and payment proof journey tests, RED on review/expired/reject flows)
+  - Built `scripts/e2e.sh` (end-to-end curl API journey, RED on admin payments list payload)
+  - Built `scripts/audit-db.sh` (DB content audit for forbidden claims & sample data, RED on 15 rows)
+  - Extended `scripts/check-claims.mjs` & wrote `wex-api/tests/unit/ClaimsScanTest.php` (RED on 33 violations)
+  - Built `scripts/check-admin-english.mjs` (RED on "Hero Slides" and "CTA")
+  - All raw failure logs documented in `docs/STABILIZE-LOG.md`.
+
+## Storefront Rescue Track (Branch: storefront-rescue) — Complete
 
 Simplifying and unifying the storefront (customer-side only) following Traversy-style readable code, strict Design System tokens, single message living rule, zero dialect or puffery, and end-to-end purchase flow integrity.
 

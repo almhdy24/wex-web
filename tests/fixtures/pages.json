@@ -1,0 +1,48 @@
+{
+    "success": true,
+    "message": "",
+    "data": [
+        {
+            "id": 1,
+            "slug": "privacy-policy",
+            "title": "سياسة الخصوصية",
+            "updated_at": {
+                "date": "2026-11-20 23:37:01.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            }
+        },
+        {
+            "id": 2,
+            "slug": "terms",
+            "title": "شروط الاستخدام",
+            "updated_at": {
+                "date": "2026-11-20 23:37:01.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            }
+        },
+        {
+            "id": 3,
+            "slug": "returns",
+            "title": "سياسة المعاينة والاستلام",
+            "updated_at": {
+                "date": "2026-11-20 23:37:01.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            }
+        },
+        {
+            "id": 4,
+            "slug": "about",
+            "title": "عن ويكس تكنولوجي",
+            "updated_at": {
+                "date": "2026-11-20 23:37:01.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            }
+        }
+    ],
+    "errors": null,
+    "meta": null
+}

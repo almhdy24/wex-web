@@ -1,0 +1,53 @@
+{
+    "success": true,
+    "message": "الماركات المتوفرة",
+    "data": [
+        {
+            "id": 4,
+            "name": "Acer",
+            "slug": "acer"
+        },
+        {
+            "id": 6,
+            "name": "Apple",
+            "slug": "apple"
+        },
+        {
+            "id": 5,
+            "name": "Asus",
+            "slug": "asus"
+        },
+        {
+            "id": 1,
+            "name": "Dell",
+            "slug": "dell"
+        },
+        {
+            "id": 2,
+            "name": "HP",
+            "slug": "hp"
+        },
+        {
+            "id": 9,
+            "name": "Kingston",
+            "slug": "kingston"
+        },
+        {
+            "id": 3,
+            "name": "Lenovo",
+            "slug": "lenovo"
+        },
+        {
+            "id": 8,
+            "name": "Logitech",
+            "slug": "logitech"
+        },
+        {
+            "id": 7,
+            "name": "Samsung",
+            "slug": "samsung"
+        }
+    ],
+    "errors": null,
+    "meta": null
+}

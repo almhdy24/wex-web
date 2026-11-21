@@ -1,0 +1,24 @@
+{
+    "success": true,
+    "message": "معلومات المتجر",
+    "data": {
+        "name": "Wex Technology (ويكس تكنولوجي)",
+        "address": "مول الواحة، الشهداء، أم درمان",
+        "phone": "+249 9XX XXX XXX",
+        "whatsapp": "249912345678",
+        "working_hours": "من 10 صباحاً إلى 10 مساءً، عدا الجمعة",
+        "lock_hours": 4,
+        "app_discount_percent": 3,
+        "prices_updated_at": "2026-11-20T23:37:02Z",
+        "delivery_notes": "التوصيل متاح داخل ولاية الخرطوم والولايات المحددة عبر مناديب وشركات شحن.",
+        "extra_delivery_note": "التوصيل متاح داخل ولاية الخرطوم والولايات المحددة عبر مناديب وشركات شحن.",
+        "policy_inspection_title": "معاينة الأجهزة",
+        "policy_inspection": "أجهزة مستوردة؛ يعاين العميل الجهاز بنفسه عند الاستلام في المتجر.",
+        "inspection_note": null,
+        "policy_pickup": "يمكنك استلام الجهاز من مقرنا في مول الواحة، الشهداء، أم درمان.",
+        "policy_return": "نظراً لطبيعة الأجهزة المستوردة، يتم الاستلام بعد المعاينة المباشرة.",
+        "returns_note": null
+    },
+    "errors": null,
+    "meta": null
+}

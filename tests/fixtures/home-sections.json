@@ -1,0 +1,48 @@
+{
+    "success": true,
+    "message": "",
+    "data": [
+        {
+            "id": 1,
+            "key": "newest_laptops",
+            "title": "أحدث أجهزة اللابتوب",
+            "source": "type",
+            "source_value": "laptop",
+            "limit": 8,
+            "sort_order": 1,
+            "is_active": true,
+            "created_at": {
+                "date": "2026-11-20 23:37:01.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            },
+            "updated_at": {
+                "date": "2026-11-20 23:37:01.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            }
+        },
+        {
+            "id": 2,
+            "key": "essential_accessories",
+            "title": "ملحقات ومستلزمات تقنية",
+            "source": "type",
+            "source_value": "accessory",
+            "limit": 6,
+            "sort_order": 2,
+            "is_active": true,
+            "created_at": {
+                "date": "2026-11-20 23:37:01.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            },
+            "updated_at": {
+                "date": "2026-11-20 23:37:01.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            }
+        }
+    ],
+    "errors": null,
+    "meta": null
+}
