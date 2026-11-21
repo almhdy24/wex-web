@@ -11,3 +11,4 @@ export { default as PageHeader } from './PageHeader.jsx';
 export { default as StickyBar } from './StickyBar.jsx';
 export { default as ProductTypeSvg } from './ProductTypeSvg.jsx';
 export { default as ProductImage } from './ProductImage.jsx';
+export { default as Countdown } from './Countdown.jsx';

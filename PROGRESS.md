@@ -949,6 +949,40 @@ Hotfix of critical storefront issues identified during phone testing:
   - Storage fallback: added optional refresh token storage behind `VITE_AUTH_STORAGE_FALLBACK` for environments with cookie restrictions.
   - Tests & Verification: 0 lint errors, 0 lint warnings, 211/211 Vitest tests passing (100%), and production build verified (140.79 kB gzip initial JS).
 
+- [x] **Full Redesign Phase 1: Tokens, Global CSS, App Shell, Safe Area & Primitives**
+  - **Brand Tokens Restored (`tokens.css`):**
+    - Official brand gradient: `linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 52%, #00B7FF 100%)`.
+    - Slanted ribbon gradient: `linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 100%)`.
+    - Navy-Royal deep gradient: `linear-gradient(135deg, #061A55 0%, #0B3FBF 100%)`.
+    - Tactile blue-tinted shadows: `--shadow-sm (rgba(6,26,85,0.05))`, `--shadow-md (rgba(6,26,85,0.08))`, `--shadow-lg (rgba(6,26,85,0.12))`, `--shadow-sheet`.
+    - Full radius scale: 12px, 14px, 16px, 20px, 28px, 999px.
+    - Defined missing admin layout variables: `--sidebar-width: 260px; --header-height: 64px;`.
+    - Added backwards-compatibility aliases for legacy tokens (`--wex-space-*`, `--wex-radius-*`, `--wex-fs-*`, `--wex-lh-*`, `--wex-motion-*`), immediately fixing unstyled page issues across the app.
+  - **Typography & Global CSS (`global.css`):**
+    - Imported Tajawal 900 weight for punchy display headers.
+    - Added tactile press feedback: `transform: scale(0.97)` on `:active` with 120ms transitions.
+    - Vivid 2px focus ring (`box-shadow: 0 0 0 2px var(--wex-vivid)`).
+  - **Shell Height & Safe Area Fixes (`StoreLayout`):**
+    - Fixed mobile bottom white gap: set mobile `<520px` `.desktopViewport` to `justify-content: flex-start; height: 100dvh; min-height: 100dvh;`.
+    - Set `.appShell` to `height: 100dvh; max-height: 100dvh;` with `.screensViewport` at `flex: 1; min-height: 0;`.
+    - Streamlined `BottomTabBar`: removed hard-coded extra padding, now cleanly respects `env(safe-area-inset-bottom, 0px)`.
+    - Dynamic `--bottom-offset` handling keyboard visibility, sticky action bar, and safe-area insets.
+  - **Base Component Polish (`Button`, `Card`, `DarkCard`, `Input`, `Select`, `Sheet`, `StickyBar`, `EmptyState`, `Skeleton`):**
+    - Primary button has tactile blue-tinted shadow; vivid variant uses official brand gradient.
+    - Cards have subtle 1px border and hover lift.
+    - Inputs & Selects adhere to 48px touch targets, `--wex-navy` text, and vivid focus rings.
+    - Sheets upgraded to 28px top border radius with `--shadow-sheet`.
+    - StickyBar uses 16px backdrop blur, box-sizing, and safe-area padding.
+    - Exported `Countdown` in common components index.
+  - **Design System Test Suite (`src/__tests__/design-system.test.jsx`):**
+    - Added unit tests for `ProductImage` fallback, `ProductTypeSvg`, and `Countdown` (11/11 tests pass).
+  - **Verification:**
+    - WCAG AA contrast check: 11/11 token pairs PASS.
+    - `npm run check:all`: PASS (contrast, claims, i18n, layout, duplicate messages).
+    - `npm run lint`: 0 errors, 0 warnings.
+    - Vitest: 42 test files, 295/295 tests PASS (100% green).
+    - `npm run build`: built cleanly in 3.73s.
+
 
 
 

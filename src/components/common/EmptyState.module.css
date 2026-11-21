@@ -6,9 +6,10 @@
   text-align: center;
   padding-block: var(--space-10);
   padding-inline: var(--space-4);
-  background-color: var(--color-white);
-  border: 1px solid var(--color-slate-200);
+  background-color: var(--wex-white);
+  border: 1px solid var(--wex-border);
   border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
   width: 100%;
 }
 
@@ -16,12 +17,13 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background-color: var(--color-ice);
-  color: var(--color-royal);
+  background-color: var(--wex-ice);
+  color: var(--wex-royal);
   display: flex;
   align-items: center;
   justify-content: center;
   margin-block-end: var(--space-3);
+  box-shadow: 0 4px 12px rgba(11, 63, 191, 0.08);
 }
 
 .title {

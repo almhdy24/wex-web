@@ -11,6 +11,9 @@ import {
   Sheet,
   PageHeader,
   StickyBar,
+  ProductImage,
+  ProductTypeSvg,
+  Countdown,
 } from '../components/common';
 
 describe('Design System Primitives (Phase 1)', () => {
@@ -89,5 +92,28 @@ describe('Design System Primitives (Phase 1)', () => {
     );
     expect(html).toContain('stickyBar');
     expect(html).toContain('تأكيد الطلب');
+  });
+
+  it('ProductImage renders fallback SVG when image is missing', () => {
+    const html = renderToStaticMarkup(
+      <ProductImage src={null} alt="لابتوب تجريبي" type="laptop" />
+    );
+    expect(html).toContain('<svg');
+    expect(html).toContain('viewBox="0 0 200 130"');
+  });
+
+  it('ProductTypeSvg renders phone and accessory distinct SVGs', () => {
+    const phone = renderToStaticMarkup(<ProductTypeSvg type="phone" />);
+    expect(phone).toContain('viewBox="0 0 100 130"');
+
+    const accessory = renderToStaticMarkup(<ProductTypeSvg type="accessory" />);
+    expect(accessory).toContain('viewBox="0 0 120 120"');
+  });
+
+  it('Countdown renders active countdown clock', () => {
+    const futureDate = new Date(Date.now() + 3600000).toISOString();
+    const html = renderToStaticMarkup(<Countdown expiresAt={futureDate} />);
+    expect(html).toContain('banner');
+    expect(html).toContain('timer');
   });
 });

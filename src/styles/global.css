@@ -1,8 +1,9 @@
-/* Self-hosted Tajawal font weights (400, 500, 700, 800) */
+/* Self-hosted Tajawal font weights (400, 500, 700, 800, 900) */
 @import '@fontsource/tajawal/arabic-400.css';
 @import '@fontsource/tajawal/arabic-500.css';
 @import '@fontsource/tajawal/arabic-700.css';
 @import '@fontsource/tajawal/arabic-800.css';
+@import '@fontsource/tajawal/arabic-900.css';
 @import '@fontsource/tajawal/latin-400.css';
 @import '@fontsource/tajawal/latin-700.css';
 @import './tokens.css';

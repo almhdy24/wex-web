@@ -1,5 +1,5 @@
 .skeleton {
-  background-color: var(--color-slate-200);
+  background-color: var(--wex-ice);
   border-radius: var(--radius-sm);
   position: relative;
   overflow: hidden;

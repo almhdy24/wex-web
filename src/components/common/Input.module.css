@@ -30,17 +30,17 @@
   padding-inline: var(--space-3);
   font-family: inherit;
   font-size: var(--text-base);
-  color: var(--color-navy);
-  background-color: var(--color-white);
-  border: 1px solid var(--color-slate-200);
+  color: var(--wex-navy);
+  background-color: var(--wex-white);
+  border: 1px solid var(--wex-border);
   border-radius: var(--radius-input);
-  transition: border-color var(--motion-fast) var(--ease-standard);
+  transition: border-color var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard);
 }
 
 .input:focus {
   outline: none;
-  border-color: var(--color-royal);
-  box-shadow: 0 0 0 2px var(--color-cyan);
+  border-color: var(--wex-vivid);
+  box-shadow: 0 0 0 2px rgba(30, 107, 255, 0.22);
 }
 
 .input:disabled {

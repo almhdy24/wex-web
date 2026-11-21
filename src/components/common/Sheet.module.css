@@ -25,12 +25,12 @@
   max-height: 85dvh;
   display: flex;
   flex-direction: column;
-  border-top-left-radius: var(--radius-card, 16px);
-  border-top-right-radius: var(--radius-card, 16px);
+  border-top-left-radius: var(--radius-xl, 28px);
+  border-top-right-radius: var(--radius-xl, 28px);
   border: 1px solid var(--wex-border);
-  box-shadow: 0 -4px 20px rgba(6, 26, 85, 0.08);
+  box-shadow: var(--shadow-sheet);
   overflow: hidden;
-  animation: slideUp 200ms ease;
+  animation: slideUp var(--motion-base, 250ms) var(--ease-standard);
   z-index: 1001;
   touch-action: pan-y;
   will-change: transform;

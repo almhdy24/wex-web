@@ -65,18 +65,26 @@
   background-color: var(--wex-royal);
   color: var(--wex-white);
   border-color: var(--wex-royal);
+  box-shadow: 0 4px 14px rgba(11, 63, 191, 0.22);
 }
 
 .primary:hover:not(:disabled) {
-  background-color: var(--wex-royal);
-  border-color: var(--wex-royal);
+  background-color: #09349e;
+  border-color: #09349e;
+  box-shadow: 0 6px 18px rgba(11, 63, 191, 0.28);
 }
 
-/* Vivid (legacy alias maps to primary) */
+/* Vivid (brand gradient action) */
 .vivid {
-  background-color: var(--wex-royal);
+  background: var(--wex-grad-brand);
   color: var(--wex-white);
-  border-color: var(--wex-royal);
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgba(30, 107, 255, 0.25);
+}
+
+.vivid:hover:not(:disabled) {
+  opacity: 0.95;
+  box-shadow: 0 6px 18px rgba(30, 107, 255, 0.32);
 }
 
 /* Secondary Button: White, 1px royal border, royal text */

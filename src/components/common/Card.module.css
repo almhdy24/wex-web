@@ -2,9 +2,9 @@
   background-color: var(--wex-white);
   border: 1px solid var(--wex-border);
   border-radius: var(--radius-card, 16px);
-  box-shadow: none;
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
-  transition: border-color 200ms ease;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
 }
 
 .interactive {
@@ -12,11 +12,13 @@
 }
 
 .interactive:active {
-  opacity: 0.9;
+  transform: translateY(0);
 }
 
 .interactive:hover {
   border-color: var(--wex-royal);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 /* Padding variants */

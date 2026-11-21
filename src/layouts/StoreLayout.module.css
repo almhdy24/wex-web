@@ -40,12 +40,12 @@
 
 /* Mobile & Tablet Viewport Container: Centers the App Shell on wide screens */
 .desktopViewport {
-  min-height: 100vh;
   min-height: 100dvh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   background-color: #D9E6F6;
   background-image: radial-gradient(circle at 50% 20%, #EAF3FF 0%, #CFE2FD 50%, #B8D5FA 100%);
   position: relative;
@@ -55,6 +55,9 @@
 
 @media (min-width: 520px) {
   .desktopViewport {
+    min-height: 100vh;
+    min-height: 100dvh;
+    justify-content: center;
     padding: 20px 16px;
   }
 }
@@ -63,8 +66,8 @@
 .appShell {
   width: 100%;
   max-width: var(--app-shell-max-width, 480px);
-  height: 100vh;
   height: 100dvh;
+  max-height: 100dvh;
   background-color: var(--wex-ice-light);
   display: flex;
   flex-direction: column;
@@ -83,6 +86,7 @@
   .appShell {
     height: 94vh;
     height: 94dvh;
+    max-height: 94dvh;
     border-radius: var(--radius-xl);
     border: 1px solid rgba(6, 26, 85, 0.1);
     box-shadow: 0 25px 60px -15px rgba(6, 26, 85, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.4) inset;
@@ -92,6 +96,7 @@
 /* Middle Content Viewport: ONLY THIS AREA SCROLLS IN APP SHELL */
 .screensViewport {
   flex: 1;
+  min-height: 0;
   position: relative;
   overflow-y: auto;
   overflow-x: hidden;

@@ -273,7 +273,11 @@ export default function StoreLayout() {
   }
 
   // PHONE & TABLET APP SHELL (< 1024px)
-  const bottomOffset = isKeyboardOpen ? '16px' : (hideBottomNav ? '80px' : '68px');
+  const bottomOffset = isKeyboardOpen
+    ? '0px'
+    : (hideBottomNav
+      ? 'calc(76px + env(safe-area-inset-bottom, 0px))'
+      : 'calc(var(--bottom-tab-height, 56px) + 8px + env(safe-area-inset-bottom, 0px))');
 
   return (
     <div className={styles.desktopViewport}>

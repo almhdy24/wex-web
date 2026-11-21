@@ -1,24 +1,25 @@
 :root {
   /* =========================================================================
-     Wex Technology Brand Palette & Approved Design System
+     1. Wex Technology Brand Palette (Brand Identity v1.0 - 2026)
      ========================================================================= */
-  --wex-navy: #061A55;             /* text, dark surface */
-  --wex-royal: #0B3FBF;            /* primary buttons, links, active */
-  --wex-vivid: #1E6BFF;            /* focus ring and small active details only */
-  --wex-cyan: #00B7FF;             /* 2px accents only, e.g. countdown ring end, never text or backgrounds */
-  --wex-ice: #EAF3FF;              /* page background */
-  --wex-white: #FFFFFF;            /* cards */
+  --wex-navy: #061A55;             /* Dark navy: text, dark cards, footer */
+  --wex-royal: #0B3FBF;            /* Royal blue: primary buttons, links, active */
+  --wex-vivid: #1E6BFF;            /* Vivid blue: focus rings, interaction, middle gradient */
+  --wex-cyan: #00B7FF;             /* Cyan: accents, rate pulse, ring end, badge accent (never text on white) */
+  --wex-ice: #EAF3FF;              /* Ice blue: page background, subtle pills */
+  --wex-ice-light: #F4F8FE;        /* Ice light: secondary surfaces, inner card containers */
+  --wex-white: #FFFFFF;            /* Pure white: primary cards, sheets */
 
   /* Neutrals derived from navy */
-  --wex-text-secondary: #4B5B85;   /* secondary text */
-  --wex-border: #D5E2F7;           /* border */
-  --wex-disabled: #9AA8C7;         /* disabled */
+  --wex-text-secondary: #4B5B85;   /* Secondary text (Contrast >= 5.9:1 on ice, 6.7:1 on white) */
+  --wex-border: #D5E2F7;           /* Card & input borders */
+  --wex-disabled: #9AA8C7;         /* Disabled elements */
 
-  /* Dark Card Tokens (Max ONE dark card per screen; only these tokens for text) */
-  --on-dark: #FFFFFF;
-  --on-dark-muted: #C9D6F5;
+  /* Dark Card Tokens (For Price Lock Card & Dark Surfaces) */
+  --on-dark: #FFFFFF;              /* Pure white text on dark cards */
+  --on-dark-muted: #C9D6F5;        /* Soft ice text on dark cards (Contrast >= 11:1) */
 
-  /* Status Colors (ONLY inside status chips and validation text) */
+  /* Status Colors (WCAG AA Compliant on White Background) */
   --wex-success: #12805C;
   --wex-warning: #B45309;
   --wex-danger: #B42318;
@@ -26,14 +27,19 @@
   --wex-warning-bg: #FEF3E2;
   --wex-danger-bg: #FEE8E7;
 
-  /* Gradients: only hero and payment amount card (royal to navy). Never on buttons, tags, or cards */
+  /* =========================================================================
+     2. Official Brand Gradients (Official Brand Guidelines & Approved Mockup)
+     ========================================================================= */
+  --wex-grad-brand: linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 50%, #00B7FF 100%);
+  --wex-grad-ribbon: linear-gradient(115deg, rgba(11, 63, 191, 0.95) 0%, rgba(30, 107, 255, 0.90) 60%, rgba(0, 183, 255, 0.85) 100%);
+  --wex-grad-navy: linear-gradient(135deg, #061A55 0%, #0B3FBF 100%);
   --wex-grad-royal-navy: linear-gradient(135deg, #0B3FBF 0%, #061A55 100%);
-  --wex-grad-brand: var(--wex-grad-royal-navy);
-  --wex-grad-ribbon: var(--wex-grad-royal-navy);
-  --wex-grad-navy: var(--wex-grad-royal-navy);
   --wex-grad-surface: linear-gradient(180deg, #FFFFFF 0%, #EAF3FF 100%);
+  --wex-grad-urgent: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
 
-  /* Spacing Scale: 4/8/12/16/24/32 */
+  /* =========================================================================
+     3. Spacing Scale & Full Backward Compatibility Aliases
+     ========================================================================= */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -44,37 +50,65 @@
   --space-10: 40px;
   --space-12: 48px;
   --space-16: 64px;
+
+  /* Aliases for store modules using --wex-space-* */
+  --wex-space-4: 4px;
+  --wex-space-8: 8px;
+  --wex-space-12: 12px;
+  --wex-space-16: 16px;
+  --wex-space-24: 24px;
+  --wex-space-32: 32px;
+  --wex-space-48: 48px;
+
   --page-padding: 16px;
   --section-gap: 24px;
 
-  /* Border Radii: 12 (controls), 16 (cards), 999 (chips) */
-  --radius-control: 12px;
-  --radius-card: 16px;
-  --radius-chip: 999px;
-
-  /* Radius Aliases */
+  /* =========================================================================
+     4. Border Radii (12 Control, 14 MD, 16 Card, 20 LG, 28 XL, 999 Chip)
+     ========================================================================= */
   --radius-xs: 4px;
   --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 16px;
+  --radius-control: 12px;
+  --radius-md: 14px;
+  --radius-card: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-chip: 999px;
   --radius-full: 999px;
   --radius-btn: 12px;
   --radius-input: 12px;
 
-  /* Typography: Self-hosted Tajawal */
+  /* Aliases for store modules using --wex-radius-* */
+  --wex-radius-8: 8px;
+  --wex-radius-12: 12px;
+  --wex-radius-16: 16px;
+  --wex-radius-20: 20px;
+  --wex-radius-28: 28px;
+  --wex-radius-chip: 999px;
+  --wex-radius-full: 999px;
+
+  /* =========================================================================
+     5. Typography: Self-hosted Tajawal (400, 500, 700, 800, 900)
+     ========================================================================= */
   --font-arabic: 'Tajawal', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-family: var(--font-arabic);
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Type Scale: caption 12, small 14, body 16, title 18, heading 22 */
   --text-caption: 12px;
   --text-small: 14px;
   --text-body: 16px;
   --text-title: 18px;
   --text-heading: 22px;
+  --text-display: 28px;
 
-  /* Type Scale Aliases */
+  /* Aliases for store modules using --wex-fs-* */
+  --wex-fs-caption: 12px;
+  --wex-fs-small: 14px;
+  --wex-fs-body: 16px;
+  --wex-fs-title: 18px;
+  --wex-fs-heading: 22px;
+  --wex-fs-display: 28px;
+
   --text-xs: 12px;
   --text-sm: 14px;
   --text-base: 16px;
@@ -84,35 +118,47 @@
   --text-2xl: 22px;
   --text-3xl: 22px;
 
-  /* Weights: 400 and 700 only (800 only hero title) */
+  /* Weights: 400, 500, 700, 800, 900 */
   --weight-regular: 400;
+  --weight-medium: 500;
   --weight-bold: 700;
   --weight-hero: 800;
+  --weight-black: 900;
 
-  /* Line Heights: 1.7 body, 1.35 headings. No letter-spacing on Arabic */
+  /* Line Heights: 1.7 body, 1.35 headings */
   --leading-body: 1.7;
   --leading-heading: 1.35;
   --leading-tight: 1.35;
   --leading-normal: 1.5;
   --leading-relaxed: 1.7;
 
-  /* Icon sizes: 20 (24 for tab bar), stroke 1.75 */
+  --wex-lh-heading: 1.35;
+  --wex-lh-body: 1.7;
+  --wex-lh-normal: 1.5;
+
+  /* Icon sizes */
   --icon-size: 20px;
   --icon-tab-size: 24px;
   --icon-stroke: 1.75;
 
-  /* Surfaces: Card = white, 1px border, radius 16, no shadow. Sticky bars may have soft top shadow */
+  /* =========================================================================
+     6. Tactile Blue-Tinted Shadows (Restored Richness)
+     ========================================================================= */
   --shadow-none: none;
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: 0 4px 16px rgba(6, 26, 85, 0.08);
-  --shadow-floating: 0 8px 24px rgba(6, 26, 85, 0.12);
+  --shadow-sm: 0 2px 6px rgba(6, 26, 85, 0.05);
+  --shadow-md: 0 8px 20px rgba(6, 26, 85, 0.08);
+  --shadow-lg: 0 16px 32px rgba(6, 26, 85, 0.12);
+  --shadow-floating: 0 12px 30px rgba(30, 107, 255, 0.22);
   --shadow-float: var(--shadow-floating);
-  --shadow-toast: 0 8px 24px rgba(6, 26, 85, 0.12);
-  --shadow-sheet: 0 -4px 20px rgba(6, 26, 85, 0.1);
-  --shadow-sticky: 0 -4px 12px rgba(6, 26, 85, 0.06);
+  --shadow-toast: 0 8px 24px rgba(6, 26, 85, 0.14);
+  --shadow-sheet: 0 -8px 30px rgba(6, 26, 85, 0.12);
+  --shadow-sticky: 0 -4px 16px rgba(6, 26, 85, 0.06);
 
-  /* App Shell Dimensions */
+  /* =========================================================================
+     7. App Shell Dimensions & Admin Missing Variables (Fix 2.D)
+     ========================================================================= */
+  --sidebar-width: 260px;
+  --header-height: 64px;
   --app-shell-max-width: 480px;
   --tablet-max-width: 768px;
   --desktop-max-width: 1240px;
@@ -124,18 +170,25 @@
   --bottom-offset: 68px;
   --touch-target: 48px;
 
-  /* Motion: fade/slide 200ms */
-  --motion-fast: 200ms;
-  --motion-base: 200ms;
-  --motion-slow: 200ms;
-  --motion-hero: 200ms;
-  --motion-stagger: 0ms;
-  --ease-standard: ease;
-  --transition-fast: 200ms ease;
-  --transition-normal: 200ms ease;
-  --transition-slow: 200ms ease;
+  /* =========================================================================
+     8. Motion & Animations
+     ========================================================================= */
+  --motion-fast: 150ms;
+  --motion-base: 250ms;
+  --motion-slow: 400ms;
+  --motion-hero: 250ms;
+  --motion-stagger: 50ms;
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-emphasized: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-normal: 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  --wex-motion-duration: 250ms;
+  --wex-motion-easing: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* Compatibility Aliases for admin and other modules */
+  /* =========================================================================
+     9. Compatibility Aliases for admin and existing modules
+     ========================================================================= */
   --color-navy: var(--wex-navy);
   --color-royal: var(--wex-royal);
   --color-royal-blue: var(--wex-royal);
@@ -146,7 +199,6 @@
   --color-ice-blue: var(--wex-ice);
   --color-backdrop: var(--wex-ice);
   --color-white: var(--wex-white);
-  --wex-ice-light: #F4F8FE;
   --wex-gray-100: #F4F8FE;
   --wex-gray-200: var(--wex-border);
   --wex-gray-300: var(--wex-border);
@@ -188,6 +240,7 @@
     --motion-base: 0ms;
     --motion-slow: 0ms;
     --motion-hero: 0ms;
+    --wex-motion-duration: 0ms;
   }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -202,6 +255,7 @@ html[data-motion="reduced"] {
   --motion-base: 0ms;
   --motion-slow: 0ms;
   --motion-hero: 0ms;
+  --wex-motion-duration: 0ms;
 }
 
 html[data-motion="reduced"] *,
@@ -214,7 +268,8 @@ html[data-motion="reduced"] *::after {
 }
 
 html[data-motion="lite"] {
-  --motion-hero: 200ms;
+  --motion-hero: 150ms;
+  --motion-base: 150ms;
 }
 
 html[data-motion="lite"] .hero-ribbon-loop,
