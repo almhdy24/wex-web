@@ -660,4 +660,123 @@ The row exists in `payment_proofs` with `order_id = 25` and status `pending`. Th
 - Failed: `Customer order detail must contain payment block` (array missing key 'payment').
 Status: **RED (Failing as expected)**
 
+---
+
+## CONSISTENCY SPRINT: PHASE 2 ROOT CAUSE FIXES (GREEN PROOFS)
+
+### 1. Atomic Proof Upload & Rollback Verification
+- Created migration `2026-11-21-000002_AddEventTypeAndMetaToOrderEvents` adding `event_type` and `meta` columns, and cleaned legacy UTC strings from `order_events`.
+- Updated `PaymentProofService::uploadProof` to execute within an atomic transaction. If file save succeeds but DB insertion or subsequent logic throws an exception, the database transaction is rolled back AND the physical file is unlinked immediately (`@unlink($fullPath)`).
+- `PaymentProofService::uploadProof` now returns the complete created `proof` entity along with `payment` block.
+- Tested via `PaymentProofServiceTest::testAtomicUploadRollbackDeletesStoredFileAndRevertsDb`.
+**Raw Test Output**:
+```
+$ php vendor/bin/phpunit tests/unit/PaymentProofServiceTest.php
+PHPUnit 10.5.67 by Sebastian Bergmann and contributors.
+Runtime:       PHP 8.5.12
+Configuration: /data/data/com.termux/files/home/projects/wex-api/phpunit.dist.xml
+
+.....                                                               5 / 5 (100%)
+
+Time: 00:00.291, Memory: 13.00 MB
+OK (5 tests, 10 assertions)
+```
+
+### 2. Single Server-Side Source of Truth (`payment` Block)
+- Created `App\Services\PaymentStateService::computePaymentBlock(Order $order, array $proofs)` computing:
+  `{ state: awaiting_proof | under_review | rejected | approved | expired | not_required, can_upload: bool, can_review: bool, latest_proof: { id, status, uploaded_at, review_note, image_url } | null, proofs_count: int }`.
+- Integrated across:
+  - `CustomerOrderPresenter::present` & `presentListItem`
+  - `AdminOrderPresenter::present` & `presentListItem`
+  - `OrderService::getOrder`, `listOrders`, `listAdminOrders`, `resetOrphanOrder`
+  - `PaymentProofController::upload` and `PaymentAdminController::review`
+
+### 3. Customer Data & Proofs Formatting
+- Updated `OrderService::getOrder` and `listAdminOrders` to resolve `customer` block (`name`, `phone`, `email`), ensuring fallback from user name -> delivery name -> user phone -> email local part, never the literal placeholder `"عميل"`.
+- Guaranteed both `proofs` and `payment_proofs` aliases in admin and customer payloads with `image_url`, `status`, `sender_name`, `reference_number`, and timestamps.
+
+### 4. Deadlock Prevention & Orphan Order Reset
+- Added `OrderService::resetOrphanOrder` and endpoint `POST /api/v1/admin/orders/{order_number}/reset-orphan`. If an order is stuck in `payment_review` with 0 proofs, admin can safely reset it to `pending_payment` if the lock is still valid, or mark it `expired` and restore stock if the lock has lapsed.
+- Audited with structured event `orphan_order_reset` or `orphan_order_expired`.
+
+### 5. Structured Timeline Events (No Raw UTC)
+- Removed raw `"UTC"` generation from `OrderService::createOrder`, `refreshExpiry`, and `extendPriceLock`.
+- Replaced pre-formatted string timestamps with structured `event_type` and JSON `meta` containing ISO UTC timestamps (`lock_expires_at`).
+- All existing rows sanitized in SQLite.
+
+### 6. Verification of Order WEX-261121-C1A96 After Fix
+**Raw Output from `curl`**:
+```json
+$ curl -s "http://127.0.0.1:8080/api/v1/admin/orders/WEX-261121-C1A96" -H "Authorization: Bearer $ADMIN_TOKEN" | jq '{order_number: .data.order_number, status: .data.status, customer: .data.customer, customer_name: .data.customer_name, customer_phone: .data.customer_phone, proofs: .data.proofs, payment: .data.payment, timeline: .data.timeline}'
+{
+  "order_number": "WEX-261121-C1A96",
+  "status": "payment_review",
+  "customer": {
+    "name": "مدير النظام",
+    "phone": "+249912345678",
+    "email": "admin@wextechnology.com"
+  },
+  "customer_name": "مدير النظام",
+  "customer_phone": "+249912345678",
+  "proofs": [
+    {
+      "id": 24,
+      "status": "pending",
+      "sender_name": null,
+      "reference_number": null,
+      "review_note": null,
+      "image_url": "/api/v1/orders/WEX-261121-C1A96/payment-proof/24/image",
+      "created_at": "2026-11-21T07:20:57Z",
+      "uploaded_at": "2026-11-21T07:20:57Z",
+      "reviewed_at": null
+    }
+  ],
+  "payment": {
+    "state": "under_review",
+    "can_upload": false,
+    "can_review": true,
+    "latest_proof": {
+      "id": 24,
+      "status": "pending",
+      "sender_name": null,
+      "reference_number": null,
+      "review_note": null,
+      "image_url": "/api/v1/orders/WEX-261121-C1A96/payment-proof/24/image",
+      "uploaded_at": "2026-11-21T07:20:57Z",
+      "created_at": "2026-11-21T07:20:57Z",
+      "reviewed_at": null
+    },
+    "proofs_count": 1
+  },
+  "timeline": [
+    {
+      "id": 46,
+      "from_status": null,
+      "to_status": "pending_payment",
+      "status_text": "في انتظار التحويل البنكي",
+      "type": "order_created",
+      "event_type": "order_created",
+      "meta": null,
+      "note": "تم إنشاء الطلب وتثبيت السعر لمدة 4 ساعات حتى 11:20",
+      "created_at": "2026-11-21T07:20:42Z"
+    },
+    {
+      "id": 47,
+      "from_status": "pending_payment",
+      "to_status": "payment_review",
+      "status_text": "مراجعة التحويل",
+      "type": "payment_proof_uploaded",
+      "event_type": "payment_proof_uploaded",
+      "meta": null,
+      "note": "قام العميل برفع إشعار التحويل البنكي للمراجعة",
+      "created_at": "2026-11-21T07:20:57Z"
+    }
+  ]
+}
+```
+**PHPUnit Full Suite**:
+`OK (107 tests, 5203 assertions)`
+Status: **GREEN (Passed)**
+
+
 
