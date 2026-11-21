@@ -41,63 +41,161 @@
   background-color: var(--wex-white, #FFFFFF);
   border: 1px solid var(--wex-ice, #EAF3FF);
   border-radius: var(--radius-xl, 28px);
-  padding: 28px 20px;
+  padding: 24px 20px 28px 20px;
   box-shadow: var(--shadow-floating, 0 16px 40px rgba(6, 26, 85, 0.12));
   position: relative;
   z-index: 10;
   overflow: hidden;
 }
 
+/* Top Back Navigation */
+.backRow {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 8px;
+}
+
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: var(--wex-gray-600, #5A6B85);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm, 8px);
+  transition: color var(--motion-fast, 150ms) ease, background-color var(--motion-fast, 150ms) ease;
+}
+
+.backBtn:hover {
+  color: var(--wex-royal, #0B3FBF);
+  background-color: var(--wex-ice-light, #F4F8FE);
+}
+
 .cardHeader {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .logoBox {
   display: inline-block;
   background: #FFFFFF;
   border-radius: var(--radius-lg, 20px);
-  padding: 12px 20px;
+  padding: 10px 18px;
   box-shadow: var(--shadow-sm);
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   border: 1px solid var(--wex-ice, #EAF3FF);
 }
 
 .brandLogo {
-  width: 110px;
+  width: 100px;
   height: auto;
   display: block;
   margin: 0 auto;
 }
 
 .cardTitle {
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 900;
   color: var(--wex-navy, #061A55);
-  margin: 0 0 4px 0;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.2px;
 }
 
 .cardSubtitle {
   font-size: 12px;
   color: var(--wex-gray-600, #5A6B85);
-  margin: 0;
+  margin: 0 0 12px 0;
   line-height: 1.5;
 }
 
+/* Value proposition chips */
+.perksRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.perkChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--wex-ice-light, #F4F8FE);
+  border: 1px solid var(--wex-ice, #EAF3FF);
+  color: var(--wex-royal, #0B3FBF);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-full, 9999px);
+}
+
+.perkIcon {
+  color: var(--wex-vivid, #1E6BFF);
+}
+
+/* Error Alert */
 .errorAlert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   background-color: #FEF2F2;
   color: var(--color-error, #D32F2F);
   border: 1px solid #FECACA;
-  padding: 10px 14px;
+  padding: 10px 12px;
   border-radius: var(--radius-md, 14px);
   font-size: 12px;
   font-weight: 600;
   margin-bottom: 16px;
-  text-align: center;
+  animation: fadeIn 200ms ease;
 }
 
+.errorAlertInner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: right;
+  line-height: 1.4;
+}
+
+.errorIcon {
+  flex-shrink: 0;
+  color: #DC2626;
+}
+
+.errorCloseBtn {
+  background: none;
+  border: none;
+  color: #DC2626;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.errorCloseBtn:hover {
+  background: rgba(220, 38, 38, 0.1);
+}
+
+/* Google Sign-In Enhancements */
 .googleWrapper {
   margin-bottom: 16px;
+}
+
+.googleContainerInner {
+  min-height: 44px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .googleBtnContainer {
@@ -107,17 +205,73 @@
   justify-content: center;
 }
 
-.googleStatus {
-  text-align: center;
-  margin-top: 8px;
-  font-size: 11px;
-  color: var(--wex-gray-600, #5A6B85);
+.googlePlaceholderBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 360px;
+  height: 44px;
+  border: 1px solid var(--wex-gray-300, #CBD5E1);
+  border-radius: var(--radius-sm, 8px);
+  background: #FFFFFF;
+  color: var(--wex-gray-800, #1E293B);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  user-select: none;
+}
+
+.googleIcon {
+  flex-shrink: 0;
+}
+
+.googleActiveLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm, 8px);
+  background-color: var(--wex-ice-light, #F4F8FE);
+  border: 1px solid var(--wex-ice, #EAF3FF);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--wex-royal, #0B3FBF);
+  animation: fadeIn 200ms ease;
+}
+
+.spinIcon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .divider {
   display: flex;
   align-items: center;
-  margin: 16px 0;
+  margin: 18px 0 14px 0;
   color: var(--wex-gray-400, #9AA8BC);
   font-size: 11px;
 }
@@ -130,8 +284,10 @@
 
 .dividerText {
   padding: 0 10px;
+  font-weight: 600;
 }
 
+/* Email Form */
 .form {
   display: flex;
   flex-direction: column;
@@ -141,38 +297,91 @@
 .inputGroup {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
 .inputLabel {
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 800;
   color: var(--wex-navy, #061A55);
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
 }
 
 .input {
   width: 100%;
-  height: 44px;
-  padding: 0 14px;
-  font-size: 13px;
+  height: 46px;
+  padding: 0 40px 0 14px;
+  font-size: 14px;
   font-family: inherit;
   color: var(--wex-navy, #061A55);
   background: var(--wex-white, #FFFFFF);
-  border: 1px solid var(--wex-gray-200, #E2E8F0);
+  border: 1.5px solid var(--wex-gray-200, #E2E8F0);
   border-radius: var(--radius-md, 14px);
   outline: none;
   box-sizing: border-box;
-  transition: border-color var(--motion-fast, 150ms) var(--ease-standard);
+  transition: border-color var(--motion-fast, 150ms) ease, box-shadow var(--motion-fast, 150ms) ease;
 }
 
 .input:focus {
   border-color: var(--wex-vivid, #1E6BFF);
-  box-shadow: 0 0 0 3px rgba(30, 107, 255, 0.15);
+  box-shadow: 0 0 0 3px rgba(30, 107, 255, 0.16);
+}
+
+.inputValid {
+  border-color: #10B981;
+}
+
+.clearBtn {
+  position: absolute;
+  left: 36px;
+  background: var(--wex-gray-100, #F1F5F9);
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--wex-gray-400, #94A3B8);
+  cursor: pointer;
+  transition: color var(--motion-fast, 150ms) ease, background-color var(--motion-fast, 150ms) ease;
+}
+
+.clearBtn:hover {
+  color: var(--wex-navy, #061A55);
+  background: var(--wex-gray-200, #E2E8F0);
+}
+
+.validBadge {
+  position: absolute;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #10B981;
+  pointer-events: none;
+}
+
+.validIcon {
+  color: #10B981;
+}
+
+.inputHelper {
+  font-size: 11px;
+  color: var(--wex-gray-600, #5A6B85);
+  margin: 3px 0 0 0;
+  line-height: 1.4;
 }
 
 .submitBtn {
   width: 100%;
-  height: 44px;
+  height: 46px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -181,14 +390,18 @@
   color: #FFFFFF;
   border: none;
   border-radius: var(--radius-md, 14px);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 800;
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(30, 107, 255, 0.35);
-  transition: transform var(--motion-fast, 150ms) var(--ease-standard);
+  transition: transform var(--motion-fast, 150ms) ease, box-shadow var(--motion-fast, 150ms) ease;
 }
 
-.submitBtn:active {
+.submitBtn:hover:not(:disabled) {
+  box-shadow: 0 6px 18px rgba(30, 107, 255, 0.45);
+}
+
+.submitBtn:active:not(:disabled) {
   transform: scale(0.98);
 }
 
@@ -198,14 +411,33 @@
   box-shadow: none;
 }
 
+/* Security Trust Footer */
 .footerNote {
-  margin-top: 18px;
-  padding-top: 12px;
+  margin-top: 20px;
+  padding-top: 14px;
   border-top: 1px solid var(--wex-ice, #EAF3FF);
   text-align: center;
+}
+
+.trustBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--wex-royal, #0B3FBF);
+  margin-bottom: 6px;
+}
+
+.trustIcon {
+  color: var(--wex-vivid, #1E6BFF);
+}
+
+.termsText {
   font-size: 11px;
   color: var(--wex-gray-600, #5A6B85);
   line-height: 1.5;
+  margin: 0;
 }
 
 /* 6-box OTP Input Styles */

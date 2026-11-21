@@ -1,6 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Mail, ArrowLeft } from 'lucide-react';
+import {
+  Mail,
+  ArrowLeft,
+  ArrowRight,
+  ShieldCheck,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  Sparkles,
+  X,
+} from 'lucide-react';
 import { authApi } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -10,6 +20,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleScriptReady, setGoogleScriptReady] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
   const { loginWithSession } = useAuth();
@@ -20,36 +31,72 @@ export default function LoginPage() {
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   const searchReturnTo = new URLSearchParams(location.search).get('returnTo');
   const from = location.state?.from?.pathname || location.state?.from || searchReturnTo || '/';
+  const isBackToCheckout = typeof from === 'string' && from.startsWith('/checkout');
 
-  // Initialize Google Sign-in if configured
+  const isValidEmail = email.trim().length > 4 && email.includes('@') && email.includes('.');
+
+  // Initialize Google Sign-in & One-Tap
   useEffect(() => {
     if (!googleClientId) return;
+
+    let isMounted = true;
+
+    const setupGoogle = () => {
+      if (!window.google?.accounts?.id) return false;
+      try {
+        window.google.accounts.id.initialize({
+          client_id: googleClientId,
+          callback: handleGoogleResponse,
+          auto_select: false,
+          cancel_on_tap_outside: true,
+        });
+
+        const container = document.getElementById('google-btn-container');
+        if (container) {
+          container.innerHTML = '';
+          const containerWidth = container.offsetWidth || 340;
+          window.google.accounts.id.renderButton(container, {
+            theme: 'outline',
+            size: 'large',
+            type: 'standard',
+            shape: 'rectangular',
+            text: 'signin_with',
+            logo_alignment: 'left',
+            width: Math.min(Math.max(containerWidth, 280), 380),
+            locale: 'ar',
+          });
+        }
+
+        if (isMounted) setGoogleScriptReady(true);
+
+        // One-Tap prompt for seamless single-tap authentication
+        window.google.accounts.id.prompt(() => {});
+        return true;
+      } catch (err) {
+        console.warn('Google Sign-In initialization error:', err);
+        return false;
+      }
+    };
+
+    if (window.google?.accounts?.id) {
+      setupGoogle();
+      return;
+    }
 
     const script = document.createElement('script');
     script.src = 'https://accounts.google.com/gsi/client';
     script.async = true;
     script.defer = true;
     script.onload = () => {
-      if (window.google?.accounts?.id) {
-        window.google.accounts.id.initialize({
-          client_id: googleClientId,
-          callback: handleGoogleResponse,
-        });
-        const container = document.getElementById('google-btn-container');
-        if (container) {
-          window.google.accounts.id.renderButton(container, {
-            theme: 'outline',
-            size: 'large',
-            width: '100%',
-            text: 'signin_with',
-            locale: 'ar',
-          });
-        }
-      }
+      if (isMounted) setupGoogle();
+    };
+    script.onerror = () => {
+      if (isMounted) setGoogleScriptReady(false);
     };
     document.body.appendChild(script);
 
     return () => {
+      isMounted = false;
       if (document.body.contains(script)) {
         document.body.removeChild(script);
       }
@@ -72,8 +119,9 @@ export default function LoginPage() {
         : customerTarget;
       navigate(target, { replace: true });
     } catch (err) {
-      setErrorMsg(err.message || 'فشل تسجيل الدخول عبر حساب جوجل');
-      toastError(err.message);
+      const message = err.message || 'فشل تسجيل الدخول عبر حساب جوجل';
+      setErrorMsg(message);
+      toastError(message);
     } finally {
       setGoogleLoading(false);
     }
@@ -110,6 +158,19 @@ export default function LoginPage() {
       <div className={styles.bgRibbon2} />
 
       <div className={styles.authCard}>
+        {/* Top return navigation link */}
+        <div className={styles.backRow}>
+          <button
+            type="button"
+            onClick={() => navigate(from && !from.startsWith('/login') && !from.startsWith('/auth') ? from : '/')}
+            className={styles.backBtn}
+            aria-label="الرجوع"
+          >
+            <ArrowRight size={15} />
+            <span>{isBackToCheckout ? 'العودة لإتمام الطلب' : 'العودة للمتجر'}</span>
+          </button>
+        </div>
+
         <div className={styles.cardHeader}>
           <div className={styles.logoBox}>
             <img
@@ -122,57 +183,152 @@ export default function LoginPage() {
               }}
             />
           </div>
-          <h1 className={styles.cardTitle}>تسجيل الدخول</h1>
+          <h1 className={styles.cardTitle}>تسجيل الدخول إلى ويكس</h1>
           <p className={styles.cardSubtitle}>
-            سجل دخولك لمتابعة طلباتك، تثبيت الأسعار، والحصول على خصم التطبيق
+            سجل دخولك بدون كلمة مرور للوصول السريع لطلباتك والتمتع بمزايا التطبيق
           </p>
+
+          {/* Value proposition badges */}
+          <div className={styles.perksRow}>
+            <div className={styles.perkChip}>
+              <Sparkles size={13} className={styles.perkIcon} />
+              <span>خصم التطبيق المباشر</span>
+            </div>
+            <div className={styles.perkChip}>
+              <ShieldCheck size={13} className={styles.perkIcon} />
+              <span>تثبيت السعر 4 ساعات</span>
+            </div>
+          </div>
         </div>
 
-        {errorMsg && <div className={styles.errorAlert}>{errorMsg}</div>}
+        {/* Friendly Error Alert */}
+        {errorMsg && (
+          <div className={styles.errorAlert} role="alert">
+            <div className={styles.errorAlertInner}>
+              <AlertCircle size={16} className={styles.errorIcon} />
+              <span>{errorMsg}</span>
+            </div>
+            <button
+              type="button"
+              className={styles.errorCloseBtn}
+              onClick={() => setErrorMsg('')}
+              aria-label="إغلاق التنبيه"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        )}
 
+        {/* Google Authentication Section */}
         {googleClientId && (
           <div className={styles.googleWrapper}>
-            <div id="google-btn-container" className={styles.googleBtnContainer} />
+            <div className={styles.googleContainerInner}>
+              <div
+                id="google-btn-container"
+                className={styles.googleBtnContainer}
+                style={{ display: googleScriptReady ? 'flex' : 'none' }}
+              />
+
+              {!googleScriptReady && (
+                <div className={styles.googlePlaceholderBtn}>
+                  <svg className={styles.googleIcon} viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                  </svg>
+                  <span>المتابعة باستخدام Google</span>
+                </div>
+              )}
+            </div>
+
             {googleLoading && (
-              <div className={styles.googleStatus}>جاري التحقق من حساب جوجل...</div>
+              <div className={styles.googleActiveLoading}>
+                <Loader2 size={16} className={styles.spinIcon} />
+                <span>جاري التحقق من حساب جوجل وتسجيل الدخول...</span>
+              </div>
             )}
+
             <div className={styles.divider}>
               <span className={styles.dividerLine} />
-              <span className={styles.dividerText}>أو عبر البريد الإلكتروني</span>
+              <span className={styles.dividerText}>أو عبر رمز البريد (OTP)</span>
               <span className={styles.dividerLine} />
             </div>
           </div>
         )}
 
-        <form onSubmit={handleEmailSubmit} className={styles.form}>
+        {/* Email OTP Form */}
+        <form onSubmit={handleEmailSubmit} className={styles.form} noValidate>
           <div className={styles.inputGroup}>
-            <label className={styles.inputLabel} htmlFor="authEmail">البريد الإلكتروني:</label>
-            <input
-              id="authEmail"
-              type="email"
-              dir="ltr"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@example.com"
-              required
-              autoFocus
-              className={styles.input}
-            />
+            <label className={styles.inputLabel} htmlFor="authEmail">
+              البريد الإلكتروني
+            </label>
+            <div className={styles.inputWrapper}>
+              <input
+                id="authEmail"
+                type="email"
+                dir="ltr"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@example.com"
+                required
+                autoFocus
+                autoComplete="email"
+                inputMode="email"
+                spellCheck={false}
+                disabled={loading || googleLoading}
+                className={`${styles.input} ${isValidEmail ? styles.inputValid : ''}`}
+              />
+              {email.length > 0 && !loading && !googleLoading && (
+                <button
+                  type="button"
+                  className={styles.clearBtn}
+                  onClick={() => setEmail('')}
+                  aria-label="مسح البريد"
+                >
+                  <X size={14} />
+                </button>
+              )}
+              {isValidEmail && !loading && !googleLoading && (
+                <span className={styles.validBadge} title="بريد إلكتروني صالح">
+                  <CheckCircle2 size={16} className={styles.validIcon} />
+                </span>
+              )}
+            </div>
+            <p className={styles.inputHelper}>
+              سنرسل رمز تحقق مكون من 6 أرقام (بدون كلمة مرور)
+            </p>
           </div>
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || googleLoading || !email.trim()}
             className={styles.submitBtn}
           >
-            <Mail size={16} />
-            <span>{loading ? 'جاري الإرسال...' : 'إرسال رمز التحقق'}</span>
-            <ArrowLeft size={16} />
+            {loading ? (
+              <>
+                <Loader2 size={16} className={styles.spinIcon} />
+                <span>جاري إرسال رمز التحقق...</span>
+              </>
+            ) : (
+              <>
+                <Mail size={16} />
+                <span>إرسال رمز التحقق</span>
+                <ArrowLeft size={16} />
+              </>
+            )}
           </button>
         </form>
 
+        {/* Security Trust Note */}
         <div className={styles.footerNote}>
-          بالتسجيل، أنت توافق على شروط متجر ويكس تكنولوجي وسياسة الخصوصية.
+          <div className={styles.trustBadge}>
+            <ShieldCheck size={14} className={styles.trustIcon} />
+            <span>تسجيل آمن وسريع بدون كلمة مرور معقدة</span>
+          </div>
+          <p className={styles.termsText}>
+            بالتسجيل، أنت توافق على شروط متجر ويكس تكنولوجي وسياسة الخصوصية.
+          </p>
         </div>
       </div>
     </div>
