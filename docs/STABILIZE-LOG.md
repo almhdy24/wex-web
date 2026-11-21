@@ -546,3 +546,75 @@ Status: **GREEN (Passed)**
 - Created `ProductImage.jsx` wrapper with error boundary and fallback support.
 - Updated `ProductCard.jsx`, `CartPage.jsx`, `ComparePage.jsx`, `FavoritesPage.jsx`, `ProductDetailPage.jsx`, `AdminProductsPage.jsx`, and `AdminOrderDetailPage.jsx`.
 
+---
+
+## CONSISTENCY SPRINT: PHASE 1 DIAGNOSIS & REPRODUCTION (RED BASELINE)
+
+### 1. Database & Filesystem State Verification
+**Investigated Order**: `WEX-261121-C1A96` (order id: 25)
+**Raw Output**:
+```sql
+sqlite3 writable/database/wex.sqlite "select o.id,o.order_number,o.status,(select count(*) from payment_proofs p where p.order_id=o.id) as proofs from orders o order by o.id desc limit 5;"
+╭────┬──────────────────┬────────────────┬────────╮
+│ id │   order_number   │     status     │ proofs │
+╞════╪══════════════════╪════════════════╪════════╡
+│ 27 │ WEX-261121-3957C │ confirmed      │      1 │
+│ 25 │ WEX-261121-C1A96 │ payment_review │      1 │
+│ 16 │ WEX-261121-90A69 │ payment_review │      1 │
+│ 15 │ WEX-261121-D8526 │ payment_review │      1 │
+│ 12 │ WEX-261121-6A7A8 │ payment_review │      1 │
+╰────┴──────────────────┴────────────────┴────────╯
+
+sqlite3 writable/database/wex.sqlite "select id,order_id,file_path,status,created_at from payment_proofs where order_id = 25;"
+╭──┬────────┬───────────────────────────────────────────┬────────┬───────────────────╮
+│id│order_id│                 file_path                 │ status │    created_at     │
+╞══╪════════╪═══════════════════════════════════════════╪════════╪═══════════════════╡
+│24│      25│uploads/proofs/2dd2337c23d4348ee4a329adaa4│pending │2026-11-21 07:20:57│
+│  │        │ff8f8ea6ef5bc.png                          │        │                   │
+╰──┴────────┴───────────────────────────────────────────┴────────┴───────────────────╯
+
+ls -la writable/uploads/proofs/2dd2337c23d4348ee4a329adaa4ff8f8ea6ef5bc.png
+-rw-------. 1 u0_a324 u0_a324 253590 Nov 21 09:20 writable/uploads/proofs/2dd2337c23d4348ee4a329adaa4ff8f8ea6ef5bc.png
+```
+**Diagnostic Conclusion**: Case (b) holds: **proof rows exist but the admin API omits them**.
+The row exists in `payment_proofs` with `order_id = 25` and status `pending`. The image file exists on disk (253,590 bytes). The order status is `payment_review`.
+
+### 2. Code Review & Transaction Audit
+- **Status & Proof Writing**: In `PaymentProofService::uploadProof`, image storage (`$this->imageService->savePaymentProof($uploadedFile)`) is executed *before* `transBegin()`. If DB insertion fails, an orphan file remains on disk. Notification dispatch is called outside the transaction.
+- **Admin Query Discrepancy**:
+  - `OrderService::listAdminOrders` (used by payments queue) queries `orders`, joins `users`, loads `payment_proofs`, and provides both `payment_proofs` and `proofs` aliases along with `customer_name` and `customer_phone`.
+  - `OrderService::getOrder` (used by admin order detail) loads `payment_proofs` but does not join `users` or populate `customer_name`, `customer_phone`, or `customer` block.
+  - `AdminOrderPresenter::present` mapped `payment_proofs` but omitted `proofs`, and `user`/`customer_name` remained null.
+- **UI Breakdown**:
+  - `AdminOrderDetailPage.jsx` checks `order.proofs || []`. Because `order.proofs` was undefined, `(order.proofs || []).length === 0` rendered "لا توجد إشعارات دفع مرفوعة حتى الآن" and clicking next step toasted "لم يرفع العميل إشعار دفع بعد".
+  - `AdminPaymentsPage.jsx` fetches `getOrderDetail` and checked `orderData?.proofs`. Because it was undefined, `currentProof` was null, showing "لم يتم العثور على صورة إشعار مرفوعة" and disabling Approve/Reject.
+  - `order.customer_name` was null, causing fallback to placeholder `'عميل'`.
+  - Timeline events stored pre-formatted English/UTC text `تم إنشاء الطلب وتثبيت السعر لمدة 4 ساعات حتى 11:20 UTC`.
+
+### 3. Curl Discrepancy Reproduction & Red Test
+**Admin Payments Queue vs Admin Order Detail Output**:
+```json
+--- 1. Admin Payments Queue (list query) for WEX-261121-C1A96 ---
+{
+  "customer_name": "مدير النظام",
+  "customer_phone": "+249912345678",
+  "proofs_count": 1,
+  "has_proofs_key": true,
+  "has_payment_block": false
+}
+--- 2. Admin Order Detail for WEX-261121-C1A96 ---
+{
+  "customer_name": null,
+  "customer_phone": null,
+  "proofs_count": 0,
+  "has_proofs_key": false,
+  "has_payment_block": false
+}
+```
+**Failing PHPUnit Test**:
+`php vendor/bin/phpunit tests/feature/DataConsistencyFlowTest.php`
+- Failed: `Admin order detail must contain customer block` (array missing key 'customer').
+- Failed: `Customer order detail must contain payment block` (array missing key 'payment').
+Status: **RED (Failing as expected)**
+
+
