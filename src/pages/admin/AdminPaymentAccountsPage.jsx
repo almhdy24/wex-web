@@ -20,6 +20,7 @@ import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import PaymentAccountsDisplay from '../../components/store/PaymentAccountsDisplay';
 import Skeleton from '../../components/common/Skeleton';
 import ErrorState from '../../components/common/ErrorState';
+import Page from '../../components/common/Page';
 import styles from './AdminPaymentAccountsPage.module.css';
 
 export default function AdminPaymentAccountsPage() {
@@ -216,18 +217,18 @@ export default function AdminPaymentAccountsPage() {
 
   if (!isAdmin) {
     return (
-      <div className={styles.container}>
+      <Page className={styles.container}>
         <div className={styles.forbiddenCard}>
           <ShieldAlert size={48} className={styles.forbiddenIcon} />
           <h2 className={styles.forbiddenTitle}>{adminAr.paymentAccounts.forbiddenTitle}</h2>
           <p className={styles.forbiddenDesc}>{adminAr.paymentAccounts.forbiddenDesc}</p>
         </div>
-      </div>
+      </Page>
     );
   }
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       {/* Header */}
       <div className={styles.header}>
         <div>
@@ -538,6 +539,6 @@ export default function AdminPaymentAccountsPage() {
           setAccountToDelete(null);
         }}
       />
-    </div>
+    </Page>
   );
 }

@@ -122,6 +122,10 @@
   margin-bottom: 20px;
 }
 
+.emptyIcon {
+  color: var(--wex-royal, #0B3FBF);
+}
+
 .emptyTitle {
   margin: 0 0 10px;
   font-size: var(--text-xl, 1.25rem);

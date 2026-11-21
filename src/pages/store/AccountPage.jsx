@@ -28,6 +28,7 @@ import { useToast } from '../../context/ToastContext';
 import { useMotionMode } from '../../motion';
 import { authApi } from '../../api/auth';
 import { ordersApi } from '../../api/orders';
+import Page from '../../components/common/Page';
 import { notificationsApi } from '../../api/notifications';
 import { productsApi } from '../../api/products';
 import { normalizeSudanPhone, isValidSudanPhone } from '../../utils/formatters';
@@ -303,7 +304,7 @@ export default function AccountPage() {
   const isAdmin = user?.role === 'admin' || user?.role === 'super_admin';
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       {/* 1. Account Hero Card */}
       <div className={styles.heroCard}>
         <div className={styles.heroProfile}>
@@ -973,6 +974,6 @@ export default function AccountPage() {
           </div>
         </div>
       )}
-    </div>
+    </Page>
   );
 }

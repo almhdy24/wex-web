@@ -12,6 +12,7 @@ import Button from '../../components/common/Button';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import Skeleton from '../../components/common/Skeleton';
 import ErrorState from '../../components/common/ErrorState';
+import Page from '../../components/common/Page';
 import styles from './AdminPagesPage.module.css';
 
 export default function AdminPagesPage() {
@@ -121,7 +122,7 @@ export default function AdminPagesPage() {
   };
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>إدارة الصفحات التعريفية والسياسات</h1>
@@ -285,6 +286,6 @@ export default function AdminPagesPage() {
           setPageToDelete(null);
         }}
       />
-    </div>
+    </Page>
   );
 }

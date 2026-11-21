@@ -3,7 +3,7 @@
  */
 import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
 import React from 'react';
-import { render, waitFor, screen } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
@@ -104,6 +104,7 @@ const server = setupServer(
   http.get('*/api/v1/orders/:orderNumber', () => HttpResponse.json({ success: true, data: { order_number: 'WEX-1001', status: 'pending_payment', total_sdg: 100000, items: [] } })),
   http.get('*/api/v1/notifications', () => HttpResponse.json({ success: true, data: [] })),
   http.get('*/api/v1/notifications/unread-count', () => HttpResponse.json({ success: true, data: { unread_count: 0 } })),
+  http.get('*/api/v1/me', () => HttpResponse.json({ success: true, data: { id: 1, name: 'مدير النظام', role: 'admin', email: 'admin@wextechnology.com', phone: '0912345678' } })),
   http.get('*/api/v1/admin/dashboard', () => HttpResponse.json(adminDashboardFixture)),
   http.get('*/api/v1/admin/orders', () => HttpResponse.json(adminOrdersFixture)),
   http.get('*/api/v1/admin/orders/:orderNumber', () => HttpResponse.json({ success: true, data: { order_number: 'WEX-1001', status: 'pending_payment', total_sdg: 100000, items: [] } })),

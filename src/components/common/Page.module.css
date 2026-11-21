@@ -1,0 +1,18 @@
+.page {
+  width: 100%;
+  min-height: 100vh;
+  padding-top: var(--space-4, 16px);
+  padding-bottom: calc(var(--tab-bar-height, 64px) + 24px + env(safe-area-inset-bottom, 0px));
+  box-sizing: border-box;
+}
+
+.padded {
+  padding-left: var(--space-4, 16px);
+  padding-right: var(--space-4, 16px);
+}
+
+@media (min-width: 1024px) {
+  .page {
+    padding-bottom: var(--space-8, 32px);
+  }
+}

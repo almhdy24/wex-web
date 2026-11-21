@@ -3,7 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { Clock, ArrowLeft, X, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ordersApi } from '../../api/orders';
-import { calculateTimeLeft, formatCountdown } from '../../utils/formatters';
+import { deriveOrderUiState, formatCountdownTime } from '../../utils/orderState';
+import { getServerTimeOffset } from '../../api/client';
 import styles from './PendingOrderBanner.module.css';
 
 export default function PendingOrderBanner() {
@@ -11,9 +12,18 @@ export default function PendingOrderBanner() {
   const location = useLocation();
   const [activeOrder, setActiveOrder] = useState(null);
   const [dismissed, setDismissed] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(null);
+  const [now, setNow] = useState(Date.now());
 
-  // Fetch active pending order
+  // Allowed routes: ONLY Home, Catalog, Cart, Product, Orders
+  const pathname = location.pathname;
+  const isAllowedRoute =
+    pathname === '/' ||
+    pathname === '/catalog' ||
+    pathname === '/products' ||
+    pathname === '/cart' ||
+    pathname === '/orders' ||
+    (pathname.startsWith('/products/') && pathname !== '/products');
+
   useEffect(() => {
     if (!isAuthenticated) {
       setActiveOrder(null);
@@ -21,22 +31,27 @@ export default function PendingOrderBanner() {
     }
 
     let isMounted = true;
-
     const fetchPending = async () => {
       try {
-        const res = await ordersApi.getOrders({ status: 'pending_payment', per_page: 1 });
+        const res = await ordersApi.getOrders({ per_page: 5 });
         const orders = res?.data || [];
-        if (isMounted && orders.length > 0) {
-          const order = orders[0];
-          // Check if session dismissed
-          const isDismissed = sessionStorage.getItem(`wex_pending_dismiss_${order.order_number}`);
+        if (!isMounted) return;
+
+        // Find the most recent order that needs payment upload
+        const found = orders.find((o) => {
+          const state = deriveOrderUiState(o, Date.now(), getServerTimeOffset());
+          return state.showBanner;
+        });
+
+        if (found) {
+          const isDismissed = sessionStorage.getItem(`wex_pending_dismiss_${found.order_number}`);
           if (isDismissed) {
             setDismissed(true);
           } else {
-            setActiveOrder(order);
-            setTimeLeft(calculateTimeLeft(order.expires_at || order.lock_expires_at));
+            setActiveOrder(found);
+            setDismissed(false);
           }
-        } else if (isMounted) {
+        } else {
           setActiveOrder(null);
         }
       } catch {
@@ -45,39 +60,30 @@ export default function PendingOrderBanner() {
     };
 
     fetchPending();
-
-    // Check periodically every 60 seconds
-    const pollInterval = setInterval(fetchPending, 60000);
+    const interval = setInterval(fetchPending, 30000);
     return () => {
       isMounted = false;
-      clearInterval(pollInterval);
+      clearInterval(interval);
     };
-  }, [isAuthenticated]);
+  }, [isAuthenticated, pathname]);
 
-  // Live 1-second countdown
+  // 1-second live tick
   useEffect(() => {
-    const expiry = activeOrder?.expires_at || activeOrder?.lock_expires_at;
-    if (!expiry) return;
-
+    if (!activeOrder?.lock_expires_at) return;
     const timer = setInterval(() => {
-      const remaining = calculateTimeLeft(expiry);
-      setTimeLeft(remaining);
-      if (remaining.expired) {
-        clearInterval(timer);
-      }
+      setNow(Date.now());
     }, 1000);
-
     return () => clearInterval(timer);
-  }, [activeOrder]);
+  }, [activeOrder?.lock_expires_at]);
 
-  // Don't render banner if already on this order's page
-  if (
-    !activeOrder ||
-    dismissed ||
-    !timeLeft ||
-    timeLeft.expired ||
-    location.pathname === `/orders/${activeOrder.order_number}`
-  ) {
+  if (!isAllowedRoute || !activeOrder || dismissed) {
+    return null;
+  }
+
+  const offset = getServerTimeOffset();
+  const uiState = deriveOrderUiState(activeOrder, now, offset);
+
+  if (!uiState.showBanner || uiState.countdown <= 0) {
     return null;
   }
 
@@ -90,8 +96,8 @@ export default function PendingOrderBanner() {
     }
   };
 
-  const formattedTimer = formatCountdown(timeLeft.hours, timeLeft.minutes, timeLeft.seconds);
-  const isUrgent = timeLeft.totalMs < 45 * 60 * 1000; // < 45 mins
+  const formattedTimer = formatCountdownTime(uiState.countdown);
+  const isUrgent = uiState.countdown < 45 * 60;
 
   return (
     <div
@@ -103,36 +109,30 @@ export default function PendingOrderBanner() {
         <div className={styles.contentWrap}>
           <div className={styles.iconBox}>
             {isUrgent ? (
-              <ShieldAlert size={18} className={styles.urgentIcon} />
+              <ShieldAlert size={16} className={styles.urgentIcon} />
             ) : (
-              <Clock size={18} className={styles.clockIcon} />
+              <Clock size={16} className={styles.clockIcon} />
             )}
           </div>
-
           <div className={styles.textWrap}>
             <span className={styles.title}>
-              لديك طلب محجوز بانتظار سداد بنكك (طلب #{activeOrder.order_number})
-            </span>
-            <span className={styles.subtitle}>
-              السعر مثبت ومحجوز. متبقي:{' '}
-              <strong className={styles.timerDisplay}>{formattedTimer}</strong>
+              طلب #{activeOrder.order_number} ({formattedTimer})
             </span>
           </div>
         </div>
 
         <div className={styles.actionsWrap}>
           <Link to={`/orders/${activeOrder.order_number}`} className={styles.actionBtn}>
-            <span>إتمام السداد ورفع الإشعار</span>
-            <ArrowLeft size={15} />
+            <span>{uiState.primaryAction || 'ادفع الآن'}</span>
+            <ArrowLeft size={14} />
           </Link>
-
           <button
             type="button"
             onClick={handleDismiss}
             className={styles.dismissBtn}
             aria-label="إخفاء التنبيه مؤقتًا"
           >
-            <X size={16} />
+            <X size={15} />
           </button>
         </div>
       </div>

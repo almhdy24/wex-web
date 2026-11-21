@@ -21,6 +21,7 @@ import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import { Skeleton } from '../../components/common/Skeleton';
 import ImageViewer from '../../components/admin/ImageViewer';
+import Page from '../../components/common/Page';
 import styles from './AdminPaymentsPage.module.css';
 
 export default function AdminPaymentsPage() {
@@ -248,21 +249,25 @@ export default function AdminPaymentsPage() {
 
   if (loadingQueue) {
     return (
-      <div className={styles.container}>
+      <Page className={styles.container}>
         <Skeleton height="36px" width="300px" />
         <div style={{ height: 16 }} />
         <Skeleton height="480px" borderRadius="var(--radius-lg)" />
-      </div>
+      </Page>
     );
   }
 
   if (error) {
-    return <ErrorState message={error} onRetry={fetchQueue} />;
+    return (
+      <Page className={styles.container}>
+        <ErrorState message={error} onRetry={fetchQueue} />
+      </Page>
+    );
   }
 
   if (queue.length === 0) {
     return (
-      <div className={styles.container}>
+      <Page className={styles.container}>
         <header className={styles.header}>
           <div className={styles.titleInfo}>
             <h1 className={styles.title}>{adminAr.payments.title}</h1>
@@ -288,7 +293,7 @@ export default function AdminPaymentsPage() {
             }
           />
         </div>
-      </div>
+      </Page>
     );
   }
 
@@ -296,7 +301,7 @@ export default function AdminPaymentsPage() {
   const lockExpiresAt = currentOrder?.price_locked_until;
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       {/* Top Header & Queue Navigation */}
       <header className={styles.header}>
         <div className={styles.titleInfo}>
@@ -588,6 +593,6 @@ export default function AdminPaymentsPage() {
           </div>
         </form>
       </Modal>
-    </div>
+    </Page>
   );
 }

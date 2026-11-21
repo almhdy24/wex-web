@@ -9,6 +9,7 @@ import Input from '../../components/common/Input';
 import { TableSkeleton } from '../../components/common/Skeleton';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
+import Page from '../../components/common/Page';
 import styles from './AdminCommon.module.css';
 
 export default function AdminCategoriesPage() {
@@ -133,7 +134,7 @@ export default function AdminCategoriesPage() {
   };
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       <header className={styles.header}>
         <div className={styles.titleInfo}>
           <h1 className={styles.title}>إدارة فئات وتصنيفات المتجر</h1>
@@ -344,6 +345,6 @@ export default function AdminCategoriesPage() {
           <strong>{deleteModal.category?.name_ar}</strong>؟
         </p>
       </Modal>
-    </div>
+    </Page>
   );
 }

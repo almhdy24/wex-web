@@ -470,9 +470,9 @@ export default function AdminShell({ children }) {
         </header>
 
         {/* Page Main Content */}
-        <main className={styles.pageContent} id="admin-main-content">
+        <div className={styles.pageContent} id="admin-main-content">
           {children}
-        </main>
+        </div>
       </div>
 
       {/* ====================================================================

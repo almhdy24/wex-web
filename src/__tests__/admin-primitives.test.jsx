@@ -89,4 +89,36 @@ describe('Admin Primitives Unit Tests', () => {
     const emojiRegex = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u;
     expect(emojiRegex.test(raw)).toBe(false);
   });
+
+  it('verifies sticky action bar sits above admin tab bar using offset variable and z-index > 100 on every admin form', async () => {
+    const { readFileSync } = await import('node:fs');
+    const { resolve } = await import('node:path');
+
+    const formStylesheets = [
+      'src/pages/admin/AdminProductFormPage.module.css',
+      'src/pages/admin/AdminHeroSlidesPage.module.css',
+      'src/pages/admin/AdminSettingsPage.module.css',
+      'src/pages/admin/AdminRatesPage.module.css',
+    ];
+
+    for (const cssPath of formStylesheets) {
+      const fullPath = resolve(process.cwd(), cssPath);
+      const css = readFileSync(fullPath, 'utf8');
+
+      // 1. Must define .stickyBottomBar
+      expect(css).toContain('.stickyBottomBar');
+
+      // 2. Must apply --admin-tab-bar-height offset
+      expect(css).toMatch(/bottom:\s*calc\(var\(--admin-tab-bar-height/);
+
+      // 3. Must have z-index > 100 to stay above admin tab bar (which has z-index 100)
+      const zIndexMatch = css.match(/\.stickyBottomBar[\s\S]*?z-index:\s*([0-9]+)/);
+      expect(Boolean(zIndexMatch)).toBe(true);
+      const zIndex = parseInt(zIndexMatch[1], 10);
+      expect(zIndex).toBeGreaterThan(100);
+    }
+
+    const adminShellCss = readFileSync(resolve(process.cwd(), 'src/components/admin/AdminShell.module.css'), 'utf8');
+    expect(adminShellCss).toContain('var(--admin-tab-bar-height');
+  });
 });

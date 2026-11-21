@@ -7,6 +7,7 @@ import { useToast } from '../../context/ToastContext';
 import { formatSdg, getProductImageUrl, getConditionLabel } from '../../utils/formatters';
 import LaptopSvg from '../../components/common/LaptopSvg';
 import LatinText from '../../components/common/LatinText';
+import Page from '../../components/common/Page';
 import { t } from '../../content/ar';
 import styles from './ComparePage.module.css';
 
@@ -18,7 +19,7 @@ export default function ComparePage() {
 
   if (compareItems.length === 0) {
     return (
-      <div className={styles.container}>
+      <Page className={styles.container}>
         <div className={styles.emptyBox}>
           <div className={styles.emptyIconCircle}>
             <GitCompare size={44} className={styles.emptyIcon} />
@@ -32,7 +33,7 @@ export default function ComparePage() {
             <ArrowLeft size={16} />
           </Link>
         </div>
-      </div>
+      </Page>
     );
   }
 
@@ -125,7 +126,7 @@ export default function ComparePage() {
   };
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       {/* Header */}
       <header className={styles.pageHeader}>
         <div>
@@ -288,6 +289,6 @@ export default function ComparePage() {
           </tbody>
         </table>
       </div>
-    </div>
+    </Page>
   );
 }

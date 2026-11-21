@@ -408,7 +408,7 @@
 /* Sticky Bottom Action Bar */
 .stickyBottomBar {
   position: fixed;
-  bottom: 0;
+  bottom: calc(var(--admin-tab-bar-height, 56px) + env(safe-area-inset-bottom, 0px));
   inset-inline-start: 0;
   inset-inline-end: 0;
   background: var(--color-white);
@@ -418,11 +418,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  z-index: 40;
+  z-index: 110;
+}
+
+@media (min-width: 768px) {
+  .stickyBottomBar {
+    bottom: 0;
+  }
 }
 
 @media (min-width: 1024px) {
   .stickyBottomBar {
+    bottom: 0;
     inset-inline-start: 240px; /* sidebar width */
     padding-inline-start: var(--space-6);
     padding-inline-end: var(--space-6);

@@ -7,6 +7,7 @@ import { formatSdg, getProductImageUrl } from '../../utils/formatters';
 import { pluralAr } from '../../utils/pluralAr';
 import LaptopSvg from '../../components/common/LaptopSvg';
 import Button from '../../components/common/Button';
+import Page from '../../components/common/Page';
 import styles from './CartPage.module.css';
 
 export function formatCartDevicesCount(count) {
@@ -37,7 +38,7 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className={styles.container}>
+      <Page className={styles.container}>
         <div className={styles.emptyCard}>
           <h1 className={styles.title}>السلة</h1>
           <p className={styles.emptyText}>السلة فارغة حاليًا.</p>
@@ -45,7 +46,7 @@ export default function CartPage() {
             تصفّح الأجهزة
           </Button>
         </div>
-      </div>
+      </Page>
     );
   }
 
@@ -58,7 +59,7 @@ export default function CartPage() {
   };
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       <header className={styles.header}>
         <h1 className={styles.title}>السلة</h1>
       </header>
@@ -169,6 +170,6 @@ export default function CartPage() {
           <span className={styles.stickyTotal}>({formatSdg(total)})</span>
         </Button>
       </div>
-    </div>
+    </Page>
   );
 }

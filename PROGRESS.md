@@ -15,6 +15,17 @@ System stabilization, defect fixes, behavioral tests, and raw evidence log (`doc
   - Built `scripts/check-admin-english.mjs` (RED on "Hero Slides" and "CTA")
   - All raw failure logs documented in `docs/STABILIZE-LOG.md`.
 
+- [x] **Phase 2: P0 Fixes (All GREEN)**
+  - Home crash resolved: unified `shopApi.getShop()` (`GET /shop`) in `src/api/shop.js`. Global error mappers sanitized to generic Arabic message without exposing raw JS errors (`check-api-surface.mjs` PASS).
+  - CSS modules integrity: resolved all missing CSS classes across 16 components and `OrderDetailPage.module.css` (`check-css-modules.mjs` PASS).
+  - Shared primitives & Route smoke tests: introduced `<Page>`, `<PageHeader>`, `<Section>`, `<Card>` in `src/components/common`. Wrapped all 12 storefront pages, 19 admin pages, and auth pages in `<Page className={styles.container}>` with `<main role="main">` and `data-page-container="true"` (`tests/route-smoke.test.jsx` 31/31 PASS).
+  - Order state & countdown consistency: unified `deriveOrderUiState` in `src/utils/orderState.js` and `useServerCountdown` hook with HTTP Date header server offset.
+  - Pending-order banner: compact (<= 48px), route-restricted, dismissible, disappears immediately after upload.
+  - Proof upload UX: immediate transition to `payment_review` on upload with proof thumbnail. All 4 journey tests PASS (`tests/journeys.test.jsx` 4/4 PASS).
+  - API payload & image streaming: updated `AdminOrderPresenter` and `OrderService` to include `customer_name`, `customer_phone`, `amount`, `expected_amount`, `payment_proofs`, and `proofs`. All 8 steps PASS (`scripts/e2e.sh` 8/8 PASS).
+  - Admin sticky form action bar: updated `--admin-tab-bar-height: 56px` and `z-index: 110` above admin tab bar on all admin form pages (`src/__tests__/admin-primitives.test.jsx` 9/9 PASS).
+  - Full raw verification logs appended to `docs/STABILIZE-LOG.md`.
+
 ## Storefront Rescue Track (Branch: storefront-rescue) — Complete
 
 Simplifying and unifying the storefront (customer-side only) following Traversy-style readable code, strict Design System tokens, single message living rule, zero dialect or puffery, and end-to-end purchase flow integrity.

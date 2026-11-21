@@ -18,6 +18,9 @@ import { formatSdg, formatDate } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
 import DarkCard from '../../components/common/DarkCard';
+import Page from '../../components/common/Page';
+import { deriveOrderUiState, formatCountdownTime } from '../../utils/orderState';
+import { getServerTimeOffset } from '../../api/client';
 import styles from './OrderDetailPage.module.css';
 
 export default function OrderDetailPage({
@@ -32,15 +35,15 @@ export default function OrderDetailPage({
   const [order, setOrder] = useState(initialOrder);
   const [loading, setLoading] = useState(initialLoading ?? (initialOrder === null));
   const [error, setError] = useState(null);
-  const [secondsRemaining, setSecondsRemaining] = useState(initialOrder?.seconds_remaining || 0);
   const [proofFile, setProofFile] = useState(null);
   const [proofPreview, setProofPreview] = useState(null);
+  const [uploadedProofThumbnail, setUploadedProofThumbnail] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
   const [copiedKey, setCopiedKey] = useState(null);
   const [reordering, setReordering] = useState(false);
+  const [now, setNow] = useState(Date.now());
 
-  const timerRef = useRef(null);
   const cameraInputRef = useRef(null);
   const galleryInputRef = useRef(null);
   const uploadCardRef = useRef(null);
@@ -53,7 +56,6 @@ export default function OrderDetailPage({
       const res = await ordersApi.getOrderDetail(orderNumber);
       const data = res.data;
       setOrder(data);
-      setSecondsRemaining(data.seconds_remaining || 0);
     } catch (err) {
       setError(err.message || 'تعذر تحميل بيانات الطلب');
     } finally {
@@ -67,25 +69,13 @@ export default function OrderDetailPage({
     }
   }, [orderNumber, initialOrder]);
 
-  // Live countdown timer
+  // Live countdown timer ticking every 1 second
   useEffect(() => {
-    if (secondsRemaining <= 0) return;
-
-    timerRef.current = setInterval(() => {
-      setSecondsRemaining((prev) => {
-        if (prev <= 1) {
-          clearInterval(timerRef.current);
-          loadOrder(false);
-          return 0;
-        }
-        return prev - 1;
-      });
+    const timer = setInterval(() => {
+      setNow(Date.now());
     }, 1000);
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [secondsRemaining]);
+    return () => clearInterval(timer);
+  }, []);
 
   // Auto-scroll to upload card if navigated right after creation
   useEffect(() => {
@@ -145,8 +135,23 @@ export default function OrderDetailPage({
     try {
       await ordersApi.uploadPaymentProof(orderNumber, formData);
       success('أُرسل الإشعار. بانتظار مراجعة المحل.');
+      setUploadedProofThumbnail(proofPreview);
       setProofFile(null);
       setProofPreview(null);
+      // Immediately reflect review state in UI
+      setOrder((prev) =>
+        prev
+          ? {
+              ...prev,
+              status: 'payment_review',
+              status_label: 'قيد المراجعة',
+              payment_proofs: [
+                ...(prev.payment_proofs || []),
+                { id: Date.now(), status: 'pending', created_at: new Date().toISOString() },
+              ],
+            }
+          : prev
+      );
       loadOrder(false);
     } catch (err) {
       const msg = err.message || 'تعذر رفع الإشعار، يرجى المحاولة مرة أخرى';
@@ -174,44 +179,41 @@ export default function OrderDetailPage({
 
   if (loading) {
     return (
-      <div className={styles.container}>
+      <Page className={styles.container}>
         <div className={styles.loadingSkeleton} />
-      </div>
+      </Page>
     );
   }
 
   if (error || !order) {
     return (
-      <div className={styles.container}>
+      <Page className={styles.container}>
         <div className={styles.errorCard}>
           <p>{error || 'الطلب غير موجود'}</p>
           <Button variant="secondary" onClick={() => navigate('/orders')}>
             العودة للطلبات
           </Button>
         </div>
-      </div>
+      </Page>
     );
   }
 
-  const isPending = order.status === 'pending_payment';
-  const isReview = order.status === 'payment_review' || order.status === 'payment_uploaded' || order.status === 'under_review';
-  const isConfirmed = order.status === 'confirmed';
-  const isCompleted = order.status === 'completed';
-  const isCancelled = order.status === 'cancelled';
-  const isExpired = isCancelled || (isPending && secondsRemaining <= 0);
-  const isRejected = order.status === 'payment_rejected';
+  const offset = getServerTimeOffset();
+  const uiState = deriveOrderUiState(order, now, offset);
 
-  // Format countdown
-  const hours = Math.floor(secondsRemaining / 3600);
-  const minutes = Math.floor((secondsRemaining % 3600) / 60);
-  const seconds = secondsRemaining % 60;
-  const countdownFormatted = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  const isPending = uiState.stage === 'pending_payment';
+  const isReview = uiState.stage === 'payment_review';
+  const isRejected = uiState.stage === 'rejected';
+  const isExpired = uiState.stage === 'expired';
+  const isConfirmed = uiState.stage === 'confirmed';
+  const isCompleted = uiState.stage === 'completed';
 
+  const countdownFormatted = formatCountdownTime(uiState.countdown);
   const totalAmount = order.total_sdg ?? order.total_amount_sdg ?? 0;
   const paymentAccounts = order.payment_accounts || [];
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       {/* Header with back to orders */}
       <header className={styles.header}>
         <button
@@ -222,7 +224,10 @@ export default function OrderDetailPage({
         >
           <ArrowLeft size={20} strokeWidth={1.75} aria-hidden="true" />
         </button>
-        <h1 className={styles.title}>الدفع - طلب {order.order_number}</h1>
+        <div className={styles.headerTitleWrap}>
+          <h1 className={styles.title}>طلب #{order.order_number}</h1>
+          <span className={styles.statusBadge}>{uiState.label}</span>
+        </div>
       </header>
 
       {/* 1. Single Gradient / Dark Card */}
@@ -262,6 +267,7 @@ export default function OrderDetailPage({
           <AlertCircle size={20} className={styles.warningIcon} aria-hidden="true" />
           <div className={styles.expiredInfo}>
             <p className={styles.expiredTitle}>انتهت مهلة تثبيت السعر.</p>
+            <p className={styles.expiredSubtitle}>انقضت فترة حجز هذا الطلب وتغيرت أسعار الأجهزة.</p>
             <Button
               variant="secondary"
               onClick={handleReorder}
@@ -280,10 +286,8 @@ export default function OrderDetailPage({
           <AlertCircle size={20} className={styles.dangerIcon} aria-hidden="true" />
           <div className={styles.rejectedInfo}>
             <p className={styles.rejectedTitle}>تم رفض الإشعار السابق</p>
-            {order.rejection_reason && (
-              <p className={styles.rejectedReason}>{order.rejection_reason}</p>
-            )}
-            <p className={styles.rejectedActionText}>ارفع إشعارًا جديدًا</p>
+            <p className={styles.rejectedReason}>{uiState.message}</p>
+            <p className={styles.rejectedActionText}>يرجى إرفاق إشعار بديل أدناه لمراجعة الطلب.</p>
           </div>
         </div>
       )}
@@ -298,7 +302,7 @@ export default function OrderDetailPage({
                 <div className={styles.accountHeader}>
                   <strong className={styles.bankName}>{acc.bank_name}</strong>
                   {acc.account_name && (
-                    <span className={styles.accountName}>{acc.account_name}</span>
+                    <span className={styles.accountHolder}>{acc.account_name}</span>
                   )}
                 </div>
 
@@ -308,61 +312,74 @@ export default function OrderDetailPage({
                   </span>
                   <button
                     type="button"
-                    onClick={() => handleCopy(acc.account_number, `acc-${idx}`, 'تم نسخ رقم الحساب')}
+                    onClick={() => handleCopy(acc.account_number, `acc-${acc.id || idx}`, 'تم نسخ رقم الحساب')}
                     className={styles.copyBtn}
+                    title="نسخ رقم الحساب"
                   >
-                    {copiedKey === `acc-${idx}` ? <Check size={14} /> : <Copy size={14} />}
+                    {copiedKey === `acc-${acc.id || idx}` ? <Check size={16} /> : <Copy size={16} />}
                     <span>نسخ</span>
                   </button>
                 </div>
+
+                {acc.notes && <p className={styles.accountNotes}>{acc.notes}</p>}
               </div>
             ))
           ) : (
             <div className={styles.accountCard}>
               <div className={styles.accountHeader}>
                 <strong className={styles.bankName}>بنك الخرطوم (بنكك)</strong>
-                <span className={styles.accountName}>متجر ويكس تكنولوجي</span>
               </div>
-              <div className={styles.accountNumberRow}>
-                <span className={styles.accountNumber} dir="ltr">2849102</span>
-                <button
-                  type="button"
-                  onClick={() => handleCopy('2849102', 'default-acc', 'تم نسخ رقم الحساب')}
-                  className={styles.copyBtn}
-                >
-                  {copiedKey === 'default-acc' ? <Check size={14} /> : <Copy size={14} />}
-                  <span>نسخ</span>
-                </button>
-              </div>
+              <p className={styles.accountNotes}>
+                يرجى التواصل مع خدمة العملاء للحصول على حساب التحويل المباشر.
+              </p>
             </div>
           )}
         </div>
       </section>
 
-      {/* 3. Card "ارفع إشعار التحويل" */}
-      <section
-        id="upload-proof-card"
-        ref={uploadCardRef}
-        className={styles.uploadCard}
-        aria-label="ارفع إشعار التحويل"
-      >
-        <h2 className={styles.sectionTitle}>ارفع إشعار التحويل</h2>
-
-        {isReview ? (
+      {/* 3. Card Payment Review vs Upload Proof */}
+      {isReview ? (
+        <section className={styles.uploadCard} aria-label="حالة إشعار الدفع">
+          <h2 className={styles.sectionTitle}>إشعار التحويل</h2>
           <div className={styles.proofUploadedStatus}>
             <CheckCircle2 size={24} className={styles.successIcon} aria-hidden="true" />
-            <p className={styles.proofSuccessText}>
-              أُرسل الإشعار. بانتظار مراجعة المحل.
-            </p>
+            <div>
+              <p className={styles.proofSuccessText}>
+                تم استلام الإشعار. بانتظار مراجعة المحل.
+              </p>
+              {(uploadedProofThumbnail || uiState.latestProof?.image_url) && (
+                <div className={styles.proofThumbnailBox}>
+                  <img
+                    src={uploadedProofThumbnail || uiState.latestProof.image_url}
+                    alt="معاينة إشعار التحويل"
+                    className={styles.proofThumbImg}
+                  />
+                </div>
+              )}
+            </div>
           </div>
-        ) : isConfirmed || isCompleted ? (
+        </section>
+      ) : isConfirmed || isCompleted ? (
+        <section className={styles.uploadCard} aria-label="حالة إشعار الدفع">
+          <h2 className={styles.sectionTitle}>حالة الدفع</h2>
           <div className={styles.proofUploadedStatus}>
             <CheckCircle2 size={24} className={styles.successIcon} aria-hidden="true" />
             <p className={styles.proofSuccessText}>
               تم تأكيد الدفع بنجاح.
             </p>
           </div>
-        ) : (
+        </section>
+      ) : isPending || isRejected ? (
+        <section
+          id="upload-proof-card"
+          ref={uploadCardRef}
+          className={styles.uploadCard}
+          aria-label={isRejected ? 'إشعار التحويل البديل' : 'إشعار التحويل'}
+        >
+          <h2 className={styles.sectionTitle}>
+            {isRejected ? 'إشعار التحويل البديل' : 'إشعار التحويل'}
+          </h2>
+
           <div className={styles.uploadBody}>
             <p className={styles.uploadNotice}>
               صورة واضحة تُظهر المبلغ ورقم العملية.
@@ -441,10 +458,10 @@ export default function OrderDetailPage({
               </div>
             )}
           </div>
-        )}
-      </section>
+        </section>
+      ) : null}
 
-      {/* 4. Line: بعد المراجعة نُشعرك بتأكيد الدفع */}
+      {/* 4. Notice line */}
       <div className={styles.noticeLine}>
         <Info size={16} strokeWidth={1.75} className={styles.noticeIcon} aria-hidden="true" />
         <span>بعد المراجعة نُشعرك بتأكيد الدفع.</span>
@@ -457,7 +474,7 @@ export default function OrderDetailPage({
           <div className={`${styles.timelineStep} ${styles.stepCompleted}`}>
             <span className={styles.stepDot} />
             <div className={styles.stepInfo}>
-              <span className={styles.stepName}>تم تأكيد الطلب</span>
+              <span className={styles.stepName}>إنشاء الطلب</span>
               <span className={styles.stepDate}>{formatDate(order.created_at)}</span>
             </div>
           </div>
@@ -494,8 +511,8 @@ export default function OrderDetailPage({
         </div>
       </section>
 
-      {/* Sticky Bottom Button (while pending payment) */}
-      {isPending && !isReview && !isExpired && (
+      {/* Sticky Bottom Button (only while order needs upload) */}
+      {(isPending || isRejected) && !isExpired && (
         <div className={styles.stickyBar}>
           <Button
             variant="primary"
@@ -505,10 +522,10 @@ export default function OrderDetailPage({
             className={styles.stickyUploadBtn}
           >
             <Upload size={18} strokeWidth={1.75} aria-hidden="true" />
-            <span>ارفع إشعار التحويل</span>
+            <span>{isRejected ? 'ارفع إشعارًا جديدًا' : 'ارفع إشعار التحويل'}</span>
           </Button>
         </div>
       )}
-    </div>
+    </Page>
   );
 }

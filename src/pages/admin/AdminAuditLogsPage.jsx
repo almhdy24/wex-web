@@ -10,6 +10,7 @@ import Select from '../../components/common/Select';
 import DataList from '../../components/admin/DataList';
 import FilterBar from '../../components/admin/FilterBar';
 import ErrorState from '../../components/common/ErrorState';
+import Page from '../../components/common/Page';
 import styles from './AdminAuditLogsPage.module.css';
 
 /**
@@ -202,7 +203,7 @@ export default function AdminAuditLogsPage() {
   ];
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       {/* Header */}
       <header className={styles.header}>
         <div className={styles.titleInfo}>
@@ -326,6 +327,6 @@ export default function AdminAuditLogsPage() {
           </div>
         )}
       </Modal>
-    </div>
+    </Page>
   );
 }

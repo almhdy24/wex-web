@@ -14,6 +14,13 @@
   gap: var(--space-3);
 }
 
+.skeletonHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
 .titleInfo {
   display: flex;
   flex-direction: column;
@@ -188,6 +195,10 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+.urgentIcon {
+  color: inherit;
 }
 
 .urgentInfo {

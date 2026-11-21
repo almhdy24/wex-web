@@ -27,6 +27,7 @@ import Select from '../../components/common/Select';
 import Tag from '../../components/common/Tag';
 import Stepper from '../../components/admin/Stepper';
 import { Skeleton } from '../../components/common/Skeleton';
+import Page from '../../components/common/Page';
 import styles from './AdminProductFormPage.module.css';
 
 export default function AdminProductFormPage() {
@@ -456,11 +457,11 @@ export default function AdminProductFormPage() {
 
   if (loading) {
     return (
-      <div className={styles.container}>
+      <Page className={styles.container}>
         <Skeleton height="36px" width="300px" />
         <div style={{ height: 16 }} />
         <Skeleton height="400px" borderRadius="var(--radius-lg)" />
-      </div>
+      </Page>
     );
   }
 
@@ -470,7 +471,7 @@ export default function AdminProductFormPage() {
       : null;
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       {/* Header */}
       <header className={styles.header}>
         <Link to="/admin/products" className={styles.backLink}>
@@ -988,6 +989,6 @@ export default function AdminProductFormPage() {
           </div>
         </form>
       </div>
-    </div>
+    </Page>
   );
 }

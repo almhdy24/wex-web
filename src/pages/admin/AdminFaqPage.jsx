@@ -13,6 +13,7 @@ import Button from '../../components/common/Button';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import Skeleton from '../../components/common/Skeleton';
 import ErrorState from '../../components/common/ErrorState';
+import Page from '../../components/common/Page';
 import styles from './AdminFaqPage.module.css';
 
 export default function AdminFaqPage() {
@@ -139,7 +140,7 @@ export default function AdminFaqPage() {
   };
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>الأسئلة الشائعة (FAQ)</h1>
@@ -289,6 +290,6 @@ export default function AdminFaqPage() {
           setFaqToDelete(null);
         }}
       />
-    </div>
+    </Page>
   );
 }

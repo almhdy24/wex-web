@@ -10,6 +10,7 @@ import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import { TableSkeleton } from '../../components/common/Skeleton';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
+import Page from '../../components/common/Page';
 import styles from './AdminRatesPage.module.css';
 
 export default function AdminRatesPage() {
@@ -130,7 +131,7 @@ export default function AdminRatesPage() {
   }, [rates]);
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       {/* Header */}
       <header className={styles.header}>
         <div className={styles.titleInfo}>
@@ -352,6 +353,6 @@ export default function AdminRatesPage() {
         variant="primary"
         loading={submitting}
       />
-    </div>
+    </Page>
   );
 }

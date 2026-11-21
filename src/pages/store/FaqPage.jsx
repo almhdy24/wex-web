@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { ChevronDown, Search, HelpCircle, MessageCircle, Phone, MapPin, ShieldCheck, Clock } from 'lucide-react';
+import Page from '../../components/common/Page';
 import styles from './FaqPage.module.css';
 
 const FAQ_DATA = [
@@ -89,7 +90,7 @@ export default function FaqPage() {
   }, [searchQuery]);
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       {/* Hero Header */}
       <header className={styles.heroHeader}>
         <div className={styles.iconCircle}>
@@ -218,6 +219,6 @@ export default function FaqPage() {
           </a>
         </div>
       </div>
-    </div>
+    </Page>
   );
 }

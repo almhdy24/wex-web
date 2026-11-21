@@ -45,7 +45,7 @@ PRODUCTS_RES=$(curl -s "${BASE_URL}/products?per_page=20")
 PRODUCT_ID=$(node -e "
 try {
   const items = JSON.parse(process.argv[1]).data || [];
-  const p = items.find(x => (x.stock_quantity || x.stock || 0) > 0);
+  const p = items.find(x => x.stock_status === 'in_stock' || (x.stock_quantity || 0) > 0);
   console.log(p ? p.id : '2');
 } catch { console.log('2'); }
 " "$PRODUCTS_RES")
@@ -204,7 +204,7 @@ REVIEW_RES=$(curl -s -X POST "${BASE_URL}/admin/orders/${ORDER_NUMBER}/proofs/${
   -d '{"action":"approve","note":"تم التأكد من استلام الحوالة"}')
 
 echo "Review Response: $(echo "$REVIEW_RES" | cut -c1-150)..."
-if ! echo "$REVIEW_RES" | grep -q '"success":true'; then
+if ! echo "$REVIEW_RES" | grep -q -E '"success"[[:space:]]*:[[:space:]]*true'; then
   echo "FAIL: Admin approve proof failed"
   rm -f "$TMP_BLOB" "$IMG_HEADER_FILE" "$IMG_BODY_FILE"
   exit 1
@@ -217,7 +217,7 @@ echo "--- Step 8: Customer Observes Status Change ---"
 CUST_ORDER_RES=$(curl -s "${BASE_URL}/orders/${ORDER_NUMBER}" \
   -H "Authorization: Bearer ${CUST_TOKEN}")
 
-CUST_STATUS=$(echo "$CUST_ORDER_RES" | grep -o '"status":"[^"]*' | head -1 | cut -d'"' -f4)
+CUST_STATUS=$(node -e "try{console.log(JSON.parse(process.argv[1]).data.status||'')}catch(e){}" "$CUST_ORDER_RES")
 echo "Customer order status is now: ${CUST_STATUS}"
 
 if [ "$CUST_STATUS" != "confirmed" ]; then

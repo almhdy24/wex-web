@@ -9,13 +9,37 @@ export function mapApiError(error, defaultMessage = 'تعذر إتمام الع�
     return defaultMessage;
   }
 
+  // Non-ApiError (native TypeError, ReferenceError, etc.)
+  const isApiError = Boolean(
+    error.name === 'ApiError' ||
+    error.isApiError === true ||
+    typeof error.status === 'number' ||
+    typeof error.statusCode === 'number' ||
+    typeof error.response?.status === 'number'
+  );
+
+  if (error instanceof Error && !isApiError) {
+    if (typeof console !== 'undefined' && console.error) {
+      console.error('[mapApiError] Non-ApiError caught:', error);
+    }
+    return 'حدث خطأ غير متوقع، يرجى المحاولة لاحقاً';
+  }
+
   // If already string
   if (typeof error === 'string') {
+    if (/is not a function|undefined|null|NaN|\[object|Failed to fetch|Network Error/i.test(error)) {
+      return defaultMessage;
+    }
     return error;
   }
 
   const status = error.status ?? error.response?.status;
   const serverMsg = error.response?.data?.message || error.message;
+
+  // Filter raw JS text
+  if (serverMsg && /is not a function|undefined|null|NaN|\[object|Failed to fetch|Network Error/i.test(serverMsg)) {
+    return defaultMessage;
+  }
 
   // If server returned an Arabic message, prioritize it
   if (serverMsg && /[\u0600-\u06FF]/.test(serverMsg)) {

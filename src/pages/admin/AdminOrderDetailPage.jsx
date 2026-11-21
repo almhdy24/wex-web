@@ -26,6 +26,7 @@ import ErrorState from '../../components/common/ErrorState';
 import { Skeleton } from '../../components/common/Skeleton';
 import StatusChip from '../../components/admin/StatusChip';
 import ImageViewer from '../../components/admin/ImageViewer';
+import Page from '../../components/common/Page';
 import styles from './AdminOrderDetailPage.module.css';
 
 export default function AdminOrderDetailPage() {
@@ -260,18 +261,22 @@ export default function AdminOrderDetailPage() {
 
   if (loading) {
     return (
-      <div className={styles.container}>
+      <Page className={styles.container}>
         <Skeleton height="36px" width="280px" />
         <div style={{ height: 16 }} />
         <Skeleton height="180px" borderRadius="var(--radius-lg)" />
         <div style={{ height: 16 }} />
         <Skeleton height="320px" borderRadius="var(--radius-lg)" />
-      </div>
+      </Page>
     );
   }
 
   if (error || !order) {
-    return <ErrorState message={error || 'تعذر تحميل بيانات الطلب'} onRetry={() => loadOrder(true)} />;
+    return (
+      <Page className={styles.container}>
+        <ErrorState message={error || 'تعذر تحميل بيانات الطلب'} onRetry={() => loadOrder(true)} />
+      </Page>
+    );
   }
 
   const isDelivery = order.delivery_type === 'delivery';
@@ -299,7 +304,7 @@ export default function AdminOrderDetailPage() {
   }
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       {/* Printable Invoice Slip (Visible only during window.print) */}
       <div className={styles.printOnlySlip} aria-hidden="true">
         <div className={styles.printHeader}>
@@ -762,6 +767,6 @@ export default function AdminOrderDetailPage() {
           </div>
         </div>
       </Modal>
-    </div>
+    </Page>
   );
 }

@@ -276,6 +276,10 @@
   gap: 6px;
 }
 
+.notesText {
+  color: var(--wex-navy, #061A55);
+}
+
 .cardActionsRow {
   display: flex;
   align-items: center;
@@ -489,4 +493,11 @@
   justify-content: flex-end;
   gap: 10px;
   margin-top: 10px;
+}
+
+.loadingGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 0;
 }

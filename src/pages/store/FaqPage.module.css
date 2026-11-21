@@ -260,6 +260,11 @@
   text-align: center;
 }
 
+.supportInfo {
+  display: flex;
+  flex-direction: column;
+}
+
 .supportTitle {
   font-size: 15px;
   font-weight: 900;

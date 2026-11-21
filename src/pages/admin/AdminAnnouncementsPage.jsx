@@ -12,6 +12,7 @@ import Button from '../../components/common/Button';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import Skeleton from '../../components/common/Skeleton';
 import ErrorState from '../../components/common/ErrorState';
+import Page from '../../components/common/Page';
 import styles from './AdminAnnouncementsPage.module.css';
 
 export default function AdminAnnouncementsPage() {
@@ -144,7 +145,7 @@ export default function AdminAnnouncementsPage() {
   };
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>إدارة الإعلانات والتنبيهات</h1>
@@ -382,6 +383,6 @@ export default function AdminAnnouncementsPage() {
           setItemToDelete(null);
         }}
       />
-    </div>
+    </Page>
   );
 }

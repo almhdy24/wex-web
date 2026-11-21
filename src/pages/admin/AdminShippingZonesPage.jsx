@@ -10,6 +10,7 @@ import Input from '../../components/common/Input';
 import DataList from '../../components/admin/DataList';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import ErrorState from '../../components/common/ErrorState';
+import Page from '../../components/common/Page';
 import styles from './AdminShippingZonesPage.module.css';
 
 export default function AdminShippingZonesPage() {
@@ -199,7 +200,7 @@ export default function AdminShippingZonesPage() {
   ];
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       {/* Header */}
       <header className={styles.header}>
         <div className={styles.titleInfo}>
@@ -312,6 +313,6 @@ export default function AdminShippingZonesPage() {
         variant="danger"
         loading={deleteDialog.loading}
       />
-    </div>
+    </Page>
   );
 }

@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { ordersApi } from '../../api/orders';
 import { formatSdg, formatDate, getOrderStatusInfo } from '../../utils/formatters';
 import Button from '../../components/common/Button';
+import Page from '../../components/common/Page';
 import styles from './OrdersPage.module.css';
 
 export default function OrdersPage({
@@ -35,7 +36,7 @@ export default function OrdersPage({
   }, [initialOrders]);
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       <header className={styles.header}>
         <h1 className={styles.title}>طلباتي</h1>
       </header>
@@ -125,6 +126,6 @@ export default function OrdersPage({
           })}
         </div>
       )}
-    </div>
+    </Page>
   );
 }

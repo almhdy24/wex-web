@@ -14,6 +14,7 @@ import {
 import { authApi } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import Page from '../../components/common/Page';
 import styles from './Auth.module.css';
 
 export default function LoginPage() {
@@ -153,7 +154,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       <div className={styles.bgRibbon1} />
       <div className={styles.bgRibbon2} />
 
@@ -331,6 +332,6 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
-    </div>
+    </Page>
   );
 }

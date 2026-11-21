@@ -255,6 +255,10 @@
   }
 }
 
+.recentBox {
+  padding: 8px 12px;
+}
+
 .dropdownHeading {
   font-size: var(--text-xs, 0.75rem);
   font-weight: 700;
@@ -523,6 +527,15 @@
 .notifDate {
   font-size: 10px;
   color: var(--wex-gray-400, #94A3B8);
+}
+
+.popoverLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 10px;
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--wex-gray-600, #475569);
 }
 
 .popoverEmpty {

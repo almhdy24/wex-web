@@ -7,6 +7,7 @@ import { ProductCardSkeleton } from '../../components/common/Skeleton';
 import Sheet from '../../components/common/Sheet';
 import Button from '../../components/common/Button';
 import Chip from '../../components/common/Chip';
+import Page from '../../components/common/Page';
 import { pluralAr } from '../../utils/pluralAr';
 import styles from './CatalogPage.module.css';
 
@@ -223,7 +224,7 @@ export default function CatalogPage({
   const totalResults = meta?.total !== undefined ? meta.total : products.length;
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       {/* Title */}
       <header className={styles.header}>
         <h1 className={styles.title}>الأجهزة</h1>
@@ -451,6 +452,6 @@ export default function CatalogPage({
           </div>
         </div>
       </Sheet>
-    </div>
+    </Page>
   );
 }

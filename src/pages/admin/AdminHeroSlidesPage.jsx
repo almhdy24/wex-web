@@ -13,6 +13,7 @@ import Button from '../../components/common/Button';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import Skeleton from '../../components/common/Skeleton';
 import ErrorState from '../../components/common/ErrorState';
+import Page from '../../components/common/Page';
 import styles from './AdminHeroSlidesPage.module.css';
 
 export default function AdminHeroSlidesPage() {
@@ -148,7 +149,7 @@ export default function AdminHeroSlidesPage() {
   };
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>شرائح الواجهة الرئيسية (Hero Slides)</h1>
@@ -343,6 +344,6 @@ export default function AdminHeroSlidesPage() {
           setSlideToDelete(null);
         }}
       />
-    </div>
+    </Page>
   );
 }

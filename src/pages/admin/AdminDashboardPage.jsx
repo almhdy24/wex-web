@@ -23,6 +23,7 @@ import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
 import Input from '../../components/common/Input';
+import Page from '../../components/common/Page';
 import ErrorState from '../../components/common/ErrorState';
 import { Skeleton } from '../../components/common/Skeleton';
 import StatusChip from '../../components/admin/StatusChip';
@@ -122,7 +123,7 @@ export default function AdminDashboardPage() {
 
   if (loading) {
     return (
-      <div className={styles.container}>
+      <Page className={styles.container}>
         <div className={styles.skeletonHeader}>
           <Skeleton height="32px" width="240px" />
           <Skeleton height="16px" width="360px" />
@@ -135,12 +136,16 @@ export default function AdminDashboardPage() {
             <Skeleton key={i} height="100px" borderRadius="var(--radius-lg)" />
           ))}
         </div>
-      </div>
+      </Page>
     );
   }
 
   if (error || !data) {
-    return <ErrorState message={error || adminAr.common.errorTitle} onRetry={() => loadDashboard()} />;
+    return (
+      <Page className={styles.container}>
+        <ErrorState message={error || adminAr.common.errorTitle} onRetry={() => loadDashboard()} />
+      </Page>
+    );
   }
 
   const {
@@ -164,7 +169,7 @@ export default function AdminDashboardPage() {
     data?.orders_enabled === false;
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       {/* Title & Header */}
       <header className={styles.header}>
         <div className={styles.titleInfo}>
@@ -472,6 +477,6 @@ export default function AdminDashboardPage() {
           </div>
         </form>
       </Modal>
-    </div>
+    </Page>
   );
 }

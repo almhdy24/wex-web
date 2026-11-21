@@ -527,7 +527,7 @@
   bottom: 0;
   inset-inline-start: 0;
   inset-inline-end: 0;
-  height: 56px;
+  height: var(--admin-tab-bar-height, 56px);
   background-color: var(--color-white);
   border-top: 1px solid var(--color-border);
   z-index: 100;

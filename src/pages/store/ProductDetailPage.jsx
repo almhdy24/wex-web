@@ -13,6 +13,7 @@ import {
   Truck,
 } from 'lucide-react';
 import { productsApi } from '../../api/products';
+import { shopApi } from '../../api/shop';
 import { formatSdg, getProductImageUrl, getConditionLabel } from '../../utils/formatters';
 import { useCart } from '../../context/CartContext';
 import { useCompare } from '../../context/CompareContext';
@@ -20,6 +21,7 @@ import { useFavorites } from '../../context/FavoritesContext';
 import { useToast } from '../../context/ToastContext';
 import LaptopSvg from '../../components/common/LaptopSvg';
 import Button from '../../components/common/Button';
+import Page from '../../components/common/Page';
 import styles from './ProductDetailPage.module.css';
 
 export default function ProductDetailPage({
@@ -55,7 +57,7 @@ export default function ProductDetailPage({
 
     Promise.all([
       productsApi.getProductDetail(slug),
-      productsApi.getShopSettings().catch(() => ({ data: null })),
+      shopApi.getShop().catch(() => ({ data: null })),
       productsApi.getShippingZones().catch(() => ({ data: [] })),
     ])
       .then(([prodRes, shopRes, zonesRes]) => {
@@ -79,22 +81,22 @@ export default function ProductDetailPage({
 
   if (loading) {
     return (
-      <div className={styles.loadingContainer}>
+      <Page className={styles.loadingContainer}>
         <div className={styles.imageSkeleton} />
         <div className={styles.lineSkeleton} />
         <div className={styles.lineSkeleton} />
-      </div>
+      </Page>
     );
   }
 
   if (error || !product) {
     return (
-      <div className={styles.errorContainer}>
+      <Page className={styles.errorContainer}>
         <p className={styles.errorText}>{error || 'الجهاز غير موجود'}</p>
         <Button variant="secondary" onClick={() => navigate('/products')}>
           تصفّح الأجهزة
         </Button>
-      </div>
+      </Page>
     );
   }
 
@@ -210,7 +212,7 @@ export default function ProductDetailPage({
   };
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       {/* Product Image Card */}
       <div className={styles.imageCard}>
         <div className={styles.imageBox}>
@@ -451,6 +453,6 @@ export default function ProductDetailPage({
           />
         </div>
       )}
-    </div>
+    </Page>
   );
 }

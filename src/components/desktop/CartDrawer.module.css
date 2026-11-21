@@ -26,6 +26,10 @@
   margin-bottom: 20px;
 }
 
+.emptyIcon {
+  color: var(--wex-royal, #0B3FBF);
+}
+
 .emptyTitle {
   margin: 0 0 8px;
   font-size: var(--text-lg, 1.125rem);
@@ -210,6 +214,11 @@
   color: var(--wex-gray-600, #475569);
 }
 
+.summaryLabel {
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--wex-gray-600, #475569);
+}
+
 .summaryValue {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -230,6 +239,12 @@
   margin-top: 10px;
   padding-top: 10px;
   border-top: 1px dashed var(--wex-gray-200, #E2E8F0);
+  font-size: var(--text-base, 1rem);
+  font-weight: 800;
+  color: var(--wex-navy, #061A55);
+}
+
+.totalLabel {
   font-size: var(--text-base, 1rem);
   font-weight: 800;
   color: var(--wex-navy, #061A55);

@@ -5,5 +5,7 @@ export { default as DarkCard } from './DarkCard.jsx';
 export { default as NoticeLine } from './NoticeLine.jsx';
 export { default as Sheet } from './Sheet.jsx';
 export { default as Toast } from './Toast.jsx';
+export { default as Page } from './Page.jsx';
+export { default as Section } from './Section.jsx';
 export { default as PageHeader } from './PageHeader.jsx';
 export { default as StickyBar } from './StickyBar.jsx';

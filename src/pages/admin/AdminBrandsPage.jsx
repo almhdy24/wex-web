@@ -9,6 +9,7 @@ import Input from '../../components/common/Input';
 import { TableSkeleton } from '../../components/common/Skeleton';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
+import Page from '../../components/common/Page';
 import styles from './AdminCommon.module.css';
 
 export default function AdminBrandsPage() {
@@ -125,7 +126,7 @@ export default function AdminBrandsPage() {
   };
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       <header className={styles.header}>
         <div className={styles.titleInfo}>
           <h1 className={styles.title}>إدارة الماركات والشركات المصنعة</h1>
@@ -310,6 +311,6 @@ export default function AdminBrandsPage() {
           <strong>{deleteModal.brand?.name}</strong>؟
         </p>
       </Modal>
-    </div>
+    </Page>
   );
 }

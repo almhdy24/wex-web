@@ -143,13 +143,46 @@ function extractStatusCode(input) {
  * @returns {{ status: number, code: string, title: string, message: string, retryable: boolean, retryHint: string, toString: () => string }}
  */
 export function errorMapper(error) {
+  // Check if non-ApiError (native JS TypeError, ReferenceError, etc.)
+  const isApiError = Boolean(
+    error && (
+      error.name === 'ApiError' ||
+      error.isApiError === true ||
+      typeof error.status === 'number' ||
+      typeof error.statusCode === 'number' ||
+      typeof error.response?.status === 'number'
+    )
+  );
+
+  if (error instanceof Error && !isApiError) {
+    if (typeof console !== 'undefined' && console.error) {
+      console.error('[ErrorMapper] Non-ApiError caught:', error);
+    }
+    return {
+      status: 500,
+      code: 'UNEXPECTED_ERROR',
+      title: 'حصل خطأ غير متوقع',
+      message: 'حدث خطأ غير متوقع، يرجى المحاولة لاحقاً',
+      retryable: true,
+      retryHint: 'أعد المحاولة لاحقاً أو أعد تحميل الصفحة',
+      toString() {
+        return this.message;
+      },
+    };
+  }
+
   const status = extractStatusCode(error);
   const matched = status !== null && ERROR_DEFINITIONS[status] ? ERROR_DEFINITIONS[status] : null;
 
   // Custom message override if provided by backend or ApiError
-  const customMessage = error && typeof error === 'object' && typeof error.message === 'string' && error.message.trim() && !error.message.startsWith('HTTP ') && !error.message.includes('fetch')
+  let customMessage = error && typeof error === 'object' && typeof error.message === 'string' && error.message.trim() && !error.message.startsWith('HTTP ') && !error.message.includes('fetch')
     ? error.message
     : null;
+
+  // Filter out any raw JS error messages that may have slipped into an ApiError
+  if (customMessage && /is not a function|undefined|null|NaN|\[object|Failed to fetch|Network Error/i.test(customMessage)) {
+    customMessage = DEFAULT_ERROR.message;
+  }
 
   const result = {
     status: status !== null ? status : (error && typeof error === 'object' && error.status) || 500,

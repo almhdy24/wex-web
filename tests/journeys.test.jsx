@@ -3,10 +3,9 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import OrderDetailPage from '../src/pages/store/OrderDetailPage';
-import OrdersPage from '../src/pages/store/OrdersPage';
 import PendingOrderBanner from '../src/components/common/PendingOrderBanner';
 import { AuthContext } from '../src/context/AuthContext';
 import { ordersApi } from '../src/api/orders';

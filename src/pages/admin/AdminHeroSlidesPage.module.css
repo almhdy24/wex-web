@@ -120,6 +120,11 @@
   color: var(--wex-text-muted, #5A6E85);
 }
 
+.metaLabel {
+  font-size: 0.75rem;
+  color: var(--wex-text-muted, #5A6E85);
+}
+
 .togglePill {
   font-size: 0.6875rem;
   font-weight: 700;
@@ -271,4 +276,41 @@
   justify-content: flex-end;
   gap: 10px;
   margin-top: 10px;
+}
+
+.loadingGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 0;
+}
+
+.stickyBottomBar {
+  position: fixed;
+  bottom: calc(var(--admin-tab-bar-height, 56px) + env(safe-area-inset-bottom, 0px));
+  inset-inline-start: 0;
+  inset-inline-end: 0;
+  background: var(--color-white, #FFFFFF);
+  border-top: 1px solid var(--color-slate-200, #E2E8F0);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.06);
+  padding: var(--space-3, 12px) var(--space-4, 16px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 110;
+}
+
+@media (min-width: 768px) {
+  .stickyBottomBar {
+    bottom: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .stickyBottomBar {
+    bottom: 0;
+    inset-inline-start: 240px;
+    padding-inline-start: var(--space-6, 24px);
+    padding-inline-end: var(--space-6, 24px);
+  }
 }

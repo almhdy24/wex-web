@@ -7,6 +7,7 @@ import { useToast } from '../../context/ToastContext';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import { Skeleton } from '../../components/common/Skeleton';
+import Page from '../../components/common/Page';
 import { t } from '../../content/ar';
 import styles from './NotificationsPage.module.css';
 
@@ -70,7 +71,7 @@ export default function NotificationsPage() {
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       <header className={styles.header}>
         <div>
           <h1 className={styles.title}>{t('notifications.title')}</h1>
@@ -154,6 +155,6 @@ export default function NotificationsPage() {
           })}
         </div>
       )}
-    </div>
+    </Page>
   );
 }

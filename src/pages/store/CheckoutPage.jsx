@@ -5,9 +5,11 @@ import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { productsApi } from '../../api/products';
+import { shopApi } from '../../api/shop';
 import { api } from '../../api/client';
 import { formatSdg, isValidSudanPhone } from '../../utils/formatters';
 import Button from '../../components/common/Button';
+import Page from '../../components/common/Page';
 import AuthSheet from '../../components/auth/AuthSheet';
 import styles from './CheckoutPage.module.css';
 
@@ -63,7 +65,7 @@ export default function CheckoutPage({
 
     Promise.all([
       productsApi.getShippingZones().catch(() => ({ data: [] })),
-      productsApi.getShopSettings().catch(() => ({ data: null })),
+      shopApi.getShop().catch(() => ({ data: null })),
     ]).then(([zonesRes, shopRes]) => {
       if (!isMounted) return;
       const zList = zonesRes?.data || [];
@@ -183,7 +185,7 @@ export default function CheckoutPage({
   };
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       <header className={styles.header}>
         <h1 className={styles.title}>تأكيد الطلب</h1>
       </header>
@@ -374,6 +376,6 @@ export default function CheckoutPage({
         onClose={() => setIsAuthSheetOpen(false)}
         onSuccess={handleAuthSuccess}
       />
-    </div>
+    </Page>
   );
 }

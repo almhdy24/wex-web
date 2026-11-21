@@ -13,6 +13,11 @@ let refreshPromise = null;
 let onAuthFailedCallback = null;
 let lastRefreshTime = 0;
 let authChannel = null;
+let serverTimeOffset = 0;
+
+export function getServerTimeOffset() {
+  return serverTimeOffset;
+}
 
 function getAuthChannel() {
   if (typeof window !== 'undefined' && typeof BroadcastChannel !== 'undefined') {
@@ -245,6 +250,19 @@ export async function apiClient(endpoint, options = {}, retryOn401 = true) {
       credentials: credentialsMode,
       headers,
     });
+
+    // Record server-clock offset if Date header is present
+    try {
+      const serverDate = response.headers.get('date');
+      if (serverDate) {
+        const serverMs = new Date(serverDate).getTime();
+        if (!Number.isNaN(serverMs)) {
+          serverTimeOffset = serverMs - Date.now();
+        }
+      }
+    } catch {
+      // Ignore header parsing errors
+    }
 
     // Handle 401 Unauthorized for authenticated endpoints
     if (response.status === 401 && retryOn401 && !url.includes('/auth/refresh') && !url.includes('/auth/email/verify')) {

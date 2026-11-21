@@ -15,6 +15,7 @@ import { formatSdg, getProductImageUrl, getConditionLabel } from '../../utils/fo
 import LaptopSvg from '../../components/common/LaptopSvg';
 import LatinText from '../../components/common/LatinText';
 import SpecValue from '../../utils/formatSpecValue';
+import Page from '../../components/common/Page';
 import { ar } from '../../content/ar';
 import styles from './FavoritesPage.module.css';
 
@@ -60,7 +61,7 @@ export default function FavoritesPage() {
   };
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       {/* Page Header */}
       <div className={styles.header}>
         <div className={styles.headerInfo}>
@@ -355,6 +356,6 @@ export default function FavoritesPage() {
           </div>
         </div>
       )}
-    </div>
+    </Page>
   );
 }

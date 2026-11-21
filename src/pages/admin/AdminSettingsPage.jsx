@@ -9,6 +9,7 @@ import Input from '../../components/common/Input';
 import Stepper from '../../components/admin/Stepper';
 import { Skeleton } from '../../components/common/Skeleton';
 import ErrorState from '../../components/common/ErrorState';
+import Page from '../../components/common/Page';
 import styles from './AdminSettingsPage.module.css';
 
 export default function AdminSettingsPage() {
@@ -219,24 +220,24 @@ export default function AdminSettingsPage() {
 
   if (loading) {
     return (
-      <div className={styles.container}>
+      <Page className={styles.container}>
         <Skeleton height="36px" width="300px" />
         <div style={{ height: 16 }} />
         <Skeleton height="350px" borderRadius="var(--radius-lg)" />
-      </div>
+      </Page>
     );
   }
 
   if (error) {
     return (
-      <div className={styles.container}>
+      <Page className={styles.container}>
         <ErrorState message={error} onRetry={fetchSettings} />
-      </div>
+      </Page>
     );
   }
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       {/* Header */}
       <header className={styles.header}>
         <h1 className={styles.title}>{adminAr.settings.title}</h1>
@@ -694,6 +695,6 @@ export default function AdminSettingsPage() {
           </div>
         </form>
       </div>
-    </div>
+    </Page>
   );
 }

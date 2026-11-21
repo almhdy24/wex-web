@@ -292,3 +292,170 @@ Scanned 28 admin UI and content files.
   src/content/admin.ar.js:391 -> "Hero Slides" in: title: 'الشرائح الرئيسية (Hero Slides)',
 ```
 Status: **RED (Failing as expected)**
+
+
+---
+
+## PHASE 2: P0 FIXES (Verification & Green Proofs)
+
+### 1. Check API Surface (`scripts/check-api-surface.mjs`)
+**Fix**: Created unified `shopApi.getShop()` (`GET /shop`) in `src/api/shop.js`. Updated all callers in `HomePage.jsx`, `ProductDetailPage.jsx`, `CheckoutPage.jsx`. Sanitized error mappers in `src/utils/errorMapper.js` and `src/api/errorMapper.js`.
+**Passing Command & Raw Output**:
+```
+$ node scripts/check-api-surface.mjs
+=== Checking API Surface Integrity ===
+Discovered API modules and methods:
+  - api (4 methods)
+  - adminApi (41 methods)
+  - authApi (12 methods)
+  - notificationsApi (4 methods)
+  - ordersApi (7 methods)
+  - productsApi (13 methods)
+  - shopApi (1 methods)
+Scanned 133 source files, checked 153 API calls.
+✅ PASS: All API method calls match exported API surfaces.
+```
+Status: **GREEN (Passed)**
+
+---
+
+### 2. Check CSS Modules (`scripts/check-css-modules.mjs`)
+**Fix**: Added all missing CSS classes across 16 files (`Toast.module.css`, `CartDrawer.module.css`, `DesktopHeader.module.css`, `PaymentAccountsDisplay.module.css`, all admin page CSS modules, `OrderDetailPage.module.css`).
+**Passing Command & Raw Output**:
+```
+$ node scripts/check-css-modules.mjs
+=== Checking CSS Modules Class Integrity ===
+Checked 91 CSS module imports across 142 files.
+✅ PASS: All referenced CSS module classes exist.
+```
+Status: **GREEN (Passed)**
+
+---
+
+### 3. Route Smoke Tests with Real Fixtures (`tests/route-smoke.test.jsx`)
+**Fix**: Introduced `<Page>` primitive with `data-page-container="true"` and `<main role="main">` landmark. Wrapped all 12 storefront pages, 19 admin pages, and auth pages cleanly inside `<Page>`.
+**Passing Command & Raw Output**:
+```
+$ node node_modules/vitest/vitest.mjs run tests/route-smoke.test.jsx
+ ✓ tests/route-smoke.test.jsx (31 tests) 2640ms
+   ✓ Route Smoke Tests with Real API Fixtures (31)
+     ✓ renders route HomePage (/) cleanly inside <Page> with main landmark
+     ✓ renders route CatalogPage (/catalog) cleanly inside <Page> with main landmark
+     ✓ renders route ProductDetailPage (/products/thinkpad-t480) cleanly inside <Page> with main landmark
+     ✓ renders route CartPage (/cart) cleanly inside <Page> with main landmark
+     ✓ renders route CheckoutPage (/checkout) cleanly inside <Page> with main landmark
+     ✓ renders route OrdersPage (/orders) cleanly inside <Page> with main landmark
+     ✓ renders route OrderDetailPage (/orders/WEX-1001) cleanly inside <Page> with main landmark
+     ✓ renders route AccountPage (/account) cleanly inside <Page> with main landmark
+     ✓ renders route NotificationsPage (/notifications) cleanly inside <Page> with main landmark
+     ✓ renders route ComparePage (/compare) cleanly inside <Page> with main landmark
+     ✓ renders route FavoritesPage (/favorites) cleanly inside <Page> with main landmark
+     ✓ renders route FaqPage (/faq) cleanly inside <Page> with main landmark
+     ✓ renders route AdminDashboardPage (/admin) cleanly inside <Page> with main landmark
+     ✓ renders route AdminOrdersPage (/admin/orders) cleanly inside <Page> with main landmark
+     ✓ renders route AdminOrderDetailPage (/admin/orders/WEX-1001) cleanly inside <Page> with main landmark
+     ✓ renders route AdminPaymentsPage (/admin/payments) cleanly inside <Page> with main landmark
+     ✓ renders route AdminProductsPage (/admin/products) cleanly inside <Page> with main landmark
+     ✓ renders route AdminProductFormPage (/admin/products/new) cleanly inside <Page> with main landmark
+     ✓ renders route AdminCategoriesPage (/admin/categories) cleanly inside <Page> with main landmark
+     ✓ renders route AdminBrandsPage (/admin/brands) cleanly inside <Page> with main landmark
+     ✓ renders route AdminRatesPage (/admin/rates) cleanly inside <Page> with main landmark
+     ✓ renders route AdminSettingsPage (/admin/settings) cleanly inside <Page> with main landmark
+     ✓ renders route AdminShippingZonesPage (/admin/shipping-zones) cleanly inside <Page> with main landmark
+     ✓ renders route AdminUsersPage (/admin/users) cleanly inside <Page> with main landmark
+     ✓ renders route AdminAuditLogsPage (/admin/audit-logs) cleanly inside <Page> with main landmark
+     ✓ renders route AdminPaymentAccountsPage (/admin/payment-accounts) cleanly inside <Page> with main landmark
+     ✓ renders route AdminHeroSlidesPage (/admin/hero-slides) cleanly inside <Page> with main landmark
+     ✓ renders route AdminHomeSectionsPage (/admin/home-sections) cleanly inside <Page> with main landmark
+     ✓ renders route AdminFaqPage (/admin/faq) cleanly inside <Page> with main landmark
+     ✓ renders route AdminPagesPage (/admin/pages) cleanly inside <Page> with main landmark
+     ✓ renders route AdminRecentPurchasesPage (/admin/recent-purchases) cleanly inside <Page> with main landmark
+
+ Test Files  1 passed (1)
+      Tests  31 passed (31)
+```
+Status: **GREEN (Passed)**
+
+---
+
+### 4. Journey Tests (`tests/journeys.test.jsx`)
+**Fix**: Created unified `deriveOrderUiState(order, now, serverTimeOffset)` in `src/utils/orderState.js` and `useServerCountdown` hook with HTTP Date header offset. Updated `PendingOrderBanner.jsx` to be compact (<= 48px), route-restricted, dismissible, and auto-hiding when under review. Updated `OrderDetailPage.jsx` to immediately transition to `payment_review` and show proof thumbnail on upload.
+**Passing Command & Raw Output**:
+```
+$ node node_modules/vitest/vitest.mjs run tests/journeys.test.jsx
+ ✓ tests/journeys.test.jsx (4 tests) 491ms
+   ✓ Customer Order & Payment Journey Tests (4)
+     ✓ Journey (a): Checkout -> creates order -> navigates to payment screen with Bankak details 10ms
+     ✓ Journey (b): Upload proof -> UI switches to "under review" and upload CTA disappears everywhere 324ms
+     ✓ Journey (c): Expired order shows the expired state and forbids payment upload 61ms
+     ✓ Journey (d): Rejected proof shows the shop note and allows a new upload 83ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+```
+Status: **GREEN (Passed)**
+
+---
+
+### 5. API Journey Script (`scripts/e2e.sh`)
+**Fix**:
+- Updated `wex-api/app/Presenters/AdminOrderPresenter.php` and `wex-api/app/Services/OrderService.php` (`listAdminOrders`) to include `customer_name`, `customer_phone`, `amount`, `expected_amount`, `payment_proofs`, and `proofs`.
+- Exempted local loopback (`127.0.0.1`) in `wex-api/app/Filters/ThrottleFilter.php` and `wex-api/app/Services/OtpService.php` under development environment.
+**Passing Command & Raw Output**:
+```
+$ bash scripts/e2e.sh
+=== Wex Technology Comprehensive E2E Journey Test ===
+Target Base URL: http://127.0.0.1:8080/api/v1
+
+--- Step 1: Customer Sign In (cust_... @example.com) ---
+Customer authenticated. Token: eyJ0eXAiOiJKV1Q...
+
+--- Step 2: Customer Creates Order ---
+Order created successfully: WEX-...
+
+--- Step 3: Customer Uploads Proof (File 'blob' without extension) ---
+Upload response: {"success":true,"message":"تم رفع إشعار التحويل البنكي بنجاح وجاري مراجعته",...}
+
+--- Step 4: Admin Sign In ---
+Admin authenticated. Token: eyJ0eXAiOiJKV1Q...
+
+--- Step 5: Admin Lists Payments ---
+PASS: Admin payments list payload contains all required customer, amount, and proof details
+
+--- Step 6: Admin Fetches Proof Image ---
+PASS: Proof image fetched successfully with HTTP 200 and Content-Type image/*
+
+--- Step 7: Admin Approves Proof ---
+PASS: Admin approved proof successfully
+
+--- Step 8: Customer Observes Status Change ---
+Customer order status is now: confirmed
+PASS: Customer sees status change to 'confirmed'!
+
+=== E2E Integration Journey PASSED ===
+```
+Status: **GREEN (Passed)**
+
+---
+
+### 6. Admin Forms Sticky Action Bar & Primitives (`src/__tests__/admin-primitives.test.jsx`)
+**Fix**: Updated `AdminShell.module.css` with `--admin-tab-bar-height: 56px`. Updated form pages (`AdminProductFormPage`, `AdminHeroSlidesPage`, `AdminSettingsPage`, `AdminRatesPage`) with `.stickyBottomBar` using `bottom: calc(var(--admin-tab-bar-height, 56px) + env(safe-area-inset-bottom, 0px))` and `z-index: 110`.
+**Passing Command & Raw Output**:
+```
+$ node node_modules/vitest/vitest.mjs run src/__tests__/admin-primitives.test.jsx
+ ✓ src/__tests__/admin-primitives.test.jsx (9 tests) 101ms
+   ✓ Admin Primitives Unit Tests (9)
+     ✓ DataList renders table structure with provided columns and data
+     ✓ DataList renders empty state when data is empty
+     ✓ StatusChip renders icon and text for order statuses
+     ✓ StatusChip renders role status correctly
+     ✓ Stepper renders value and controls
+     ✓ ConfirmDialog renders title, description, and action buttons
+     ✓ admin.ar.js contains zero forbidden marketing puffery words
+     ✓ admin.ar.js contains zero emojis
+     ✓ verifies sticky action bar sits above admin tab bar using offset variable and z-index > 100 on every admin form
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+```
+Status: **GREEN (Passed)**

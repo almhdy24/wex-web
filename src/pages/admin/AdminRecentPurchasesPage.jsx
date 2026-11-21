@@ -10,6 +10,7 @@ import { api } from '../../api/client';
 import { useToast } from '../../context/ToastContext';
 import Skeleton from '../../components/common/Skeleton';
 import ErrorState from '../../components/common/ErrorState';
+import Page from '../../components/common/Page';
 import styles from './AdminRecentPurchasesPage.module.css';
 
 export default function AdminRecentPurchasesPage() {
@@ -71,7 +72,7 @@ export default function AdminRecentPurchasesPage() {
   };
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>النشاط الأخير ومشتريات العملاء</h1>
@@ -189,6 +190,6 @@ export default function AdminRecentPurchasesPage() {
           </div>
         )}
       </section>
-    </div>
+    </Page>
   );
 }

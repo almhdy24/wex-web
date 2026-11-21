@@ -23,6 +23,7 @@ import DataList from '../../components/admin/DataList';
 import FilterBar from '../../components/admin/FilterBar';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import Stepper from '../../components/admin/Stepper';
+import Page from '../../components/common/Page';
 import styles from './AdminProductsPage.module.css';
 
 export default function AdminProductsPage() {
@@ -472,7 +473,7 @@ export default function AdminProductsPage() {
   ];
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       {/* Header */}
       <header className={styles.header}>
         <div className={styles.titleInfo}>
@@ -651,6 +652,6 @@ export default function AdminProductsPage() {
         variant="danger"
         loading={bulkProcessing}
       />
-    </div>
+    </Page>
   );
 }

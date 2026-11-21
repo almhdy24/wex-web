@@ -9,6 +9,7 @@ import Select from '../../components/common/Select';
 import DataList from '../../components/admin/DataList';
 import FilterBar from '../../components/admin/FilterBar';
 import StatusChip from '../../components/admin/StatusChip';
+import Page from '../../components/common/Page';
 import styles from './AdminOrdersPage.module.css';
 
 const STATUS_FILTERS = [
@@ -178,7 +179,7 @@ export default function AdminOrdersPage() {
   ];
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       {/* Page Header */}
       <header className={styles.header}>
         <div className={styles.titleInfo}>
@@ -267,6 +268,6 @@ export default function AdminOrdersPage() {
             : null
         }
       />
-    </div>
+    </Page>
   );
 }

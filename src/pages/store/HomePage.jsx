@@ -10,10 +10,12 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import { productsApi } from '../../api/products';
+import { shopApi } from '../../api/shop';
 import { useAuth } from '../../context/AuthContext';
 import ProductCard from '../../components/products/ProductCard';
 import { ProductCardSkeleton } from '../../components/common/Skeleton';
 import ErrorState from '../../components/common/ErrorState';
+import Page from '../../components/common/Page';
 import { formatPriceUpdateCaption } from '../../utils/formatters';
 import styles from './HomePage.module.css';
 
@@ -38,7 +40,7 @@ export default function HomePage({
       try {
         setLoading(true);
         const [shopRes, prodsRes] = await Promise.all([
-          productsApi.getShopSettings().catch(() => null),
+          shopApi.getShop().catch(() => null),
           productsApi.getProducts({ per_page: 24 }).catch(() => ({ data: [] })),
         ]);
         if (isMounted) {
@@ -102,7 +104,7 @@ export default function HomePage({
 
   if (loading) {
     return (
-      <div className={styles.container}>
+      <Page className={styles.container}>
         <div className={styles.loadingSkeleton}>
           <div className={styles.searchSkeleton} />
           <div className={styles.heroSkeleton} />
@@ -112,19 +114,19 @@ export default function HomePage({
             ))}
           </div>
         </div>
-      </div>
+      </Page>
     );
   }
 
   if (error) {
     return (
-      <div className={styles.container}>
+      <Page className={styles.container}>
         <ErrorState
           title="تعذّر الاتصال"
           message={error}
           onRetry={() => window.location.reload()}
         />
-      </div>
+      </Page>
     );
   }
 
@@ -144,7 +146,7 @@ export default function HomePage({
   const whatsappUrl = `https://wa.me/${whatsappPhone}`;
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       {/* 1. Header Greeting & Search */}
       <header className={styles.header}>
         <h1 className={styles.greeting}>
@@ -360,6 +362,6 @@ export default function HomePage({
           </a>
         </div>
       </section>
-    </div>
+    </Page>
   );
 }

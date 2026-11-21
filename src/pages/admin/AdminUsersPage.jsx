@@ -13,6 +13,7 @@ import DataList from '../../components/admin/DataList';
 import FilterBar from '../../components/admin/FilterBar';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import ErrorState from '../../components/common/ErrorState';
+import Page from '../../components/common/Page';
 import styles from './AdminUsersPage.module.css';
 
 export default function AdminUsersPage() {
@@ -243,7 +244,7 @@ export default function AdminUsersPage() {
   ];
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       {/* Header */}
       <header className={styles.header}>
         <h1 className={styles.title}>إدارة المستخدمين والصلاحيات</h1>
@@ -363,6 +364,6 @@ export default function AdminUsersPage() {
         variant={statusConfirm.user?.is_active ? 'danger' : 'primary'}
         loading={statusConfirm.loading}
       />
-    </div>
+    </Page>
   );
 }

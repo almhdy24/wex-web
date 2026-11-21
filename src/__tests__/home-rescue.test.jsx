@@ -8,9 +8,9 @@ import { CartContext } from '../context/CartContext';
 import { ToastContext } from '../context/ToastContext';
 import { FavoritesContext } from '../context/FavoritesContext';
 
-vi.mock('../api/products', () => ({
-  productsApi: {
-    getShopSettings: vi.fn().mockResolvedValue({
+vi.mock('../api/shop', () => ({
+  shopApi: {
+    getShop: vi.fn().mockResolvedValue({
       data: {
         address: 'مول الواحة، الشهداء، أم درمان',
         lock_hours: 4,
@@ -18,6 +18,11 @@ vi.mock('../api/products', () => ({
         whatsapp: '249912345678',
       },
     }),
+  },
+}));
+
+vi.mock('../api/products', () => ({
+  productsApi: {
     getProducts: vi.fn().mockResolvedValue({
       data: [
         {

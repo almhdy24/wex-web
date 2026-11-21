@@ -4,6 +4,7 @@ import { ArrowRight, CheckCircle2, RefreshCw } from 'lucide-react';
 import { authApi } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import Page from '../../components/common/Page';
 import styles from './Auth.module.css';
 
 export default function VerifyOtpPage() {
@@ -152,7 +153,7 @@ export default function VerifyOtpPage() {
   };
 
   return (
-    <div className={styles.container}>
+    <Page className={styles.container}>
       <div className={styles.bgRibbon1} />
       <div className={styles.bgRibbon2} />
 
@@ -250,6 +251,6 @@ export default function VerifyOtpPage() {
           <span>تغيير البريد الإلكتروني</span>
         </Link>
       </div>
-    </div>
+    </Page>
   );
 }

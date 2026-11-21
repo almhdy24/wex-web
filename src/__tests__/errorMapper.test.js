@@ -34,4 +34,16 @@ describe('Shared Arabic Api Error Mapper', () => {
     const customArabic = 'تم رفض العملية لعدم مطابقة الحساب البنكي';
     expect(mapApiError({ status: 400, message: customArabic })).toBe(customArabic);
   });
+
+  it('never leaks raw JS TypeError or function errors to users', () => {
+    const jsError = new TypeError('productsApi.getShopSettings is not a function');
+    const mapped = mapApiError(jsError);
+    expect(mapped).toBe('حدث خطأ غير متوقع، يرجى المحاولة لاحقاً');
+    expect(mapped).not.toMatch(/is not a function|TypeError|undefined/);
+  });
+
+  it('sanitizes raw error strings containing undefined or NaN', () => {
+    const mapped = mapApiError('Cannot read properties of undefined');
+    expect(mapped).toBe('تعذر إتمام العملية المطلوبة');
+  });
 });
