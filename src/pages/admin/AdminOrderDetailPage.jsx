@@ -14,6 +14,7 @@ import {
   Eye,
   Check,
   Ban,
+  AlertTriangle,
 } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { adminAr } from '../../content/admin.ar';
@@ -30,12 +31,86 @@ import Page from '../../components/common/Page';
 import ProductImage from '../../components/common/ProductImage';
 import styles from './AdminOrderDetailPage.module.css';
 
-export default function AdminOrderDetailPage() {
+function ProofThumbnailItem({ proof, orderNumber, onOpen }) {
+  const [blobUrl, setBlobUrl] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    adminApi
+      .getPaymentProofImage(orderNumber, proof.id)
+      .then((blob) => {
+        if (!active) return;
+        const url = URL.createObjectURL(blob);
+        setBlobUrl(url);
+      })
+      .catch(() => {
+        if (!active) return;
+        setError(true);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+      if (blobUrl) URL.revokeObjectURL(blobUrl);
+    };
+  }, [orderNumber, proof.id]);
+
+  return (
+    <div
+      className={styles.proofHistoryItem}
+      onClick={() => onOpen('approve')}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') onOpen('approve');
+      }}
+    >
+      <div className={styles.proofThumbnailBox}>
+        {loading ? (
+          <Skeleton width="48px" height="48px" borderRadius="var(--radius-sm)" />
+        ) : error || !blobUrl ? (
+          <div className={styles.proofThumbError}>
+            <AlertTriangle size={18} />
+          </div>
+        ) : (
+          <img src={blobUrl} alt="إشعار التحويل" className={styles.proofThumbImg} />
+        )}
+      </div>
+
+      <div className={styles.proofHistoryInfo}>
+        <div className={styles.proofStatusRow}>
+          <StatusChip status={proof.status} size="sm" />
+          <span className={styles.proofDate}>{formatRelativeTime(proof.created_at)}</span>
+        </div>
+        <span className={styles.proofSender}>المرسل: {proof.sender_name || '—'}</span>
+        <span className={styles.proofRef}>الرقم: {proof.reference_number || '—'}</span>
+      </div>
+
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={(e) => {
+          e.stopPropagation();
+          onOpen('approve');
+        }}
+      >
+        <Eye size={14} />
+        <span>معاينة</span>
+      </Button>
+    </div>
+  );
+}
+
+export default function AdminOrderDetailPage({ initialOrder = null, initialLoading = false } = {}) {
   const { orderNumber } = useParams();
   const { success, error: toastError } = useToast();
 
-  const [order, setOrder] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [order, setOrder] = useState(initialOrder);
+  const [loading, setLoading] = useState(initialOrder ? initialLoading : true);
   const [error, setError] = useState(null);
   const [updating, setUpdating] = useState(false);
 
@@ -51,6 +126,7 @@ export default function AdminOrderDetailPage() {
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
   const [cancelling, setCancelling] = useState(false);
+  const [resettingOrphan, setResettingOrphan] = useState(false);
 
   // Proof Review Modal
   const [proofModalOpen, setProofModalOpen] = useState(false);
@@ -75,8 +151,10 @@ export default function AdminOrderDetailPage() {
   };
 
   useEffect(() => {
-    loadOrder(true);
-  }, [orderNumber]);
+    if (initialOrder === null) {
+      loadOrder(true);
+    }
+  }, [orderNumber, initialOrder]);
 
   // Clean up blob URL on unmount
   useEffect(() => {
@@ -102,6 +180,20 @@ export default function AdminOrderDetailPage() {
     }
   };
 
+  // Reset orphan order in payment_review with 0 proofs
+  const handleResetOrphan = async () => {
+    setResettingOrphan(true);
+    try {
+      const res = await adminApi.resetOrphanOrder(orderNumber);
+      success(res.message || 'تمت معالجة الطلب وإعادته لحالة بانتظار التحويل');
+      loadOrder(false);
+    } catch (err) {
+      toastError(err.message || 'فشلت معالجة الطلب');
+    } finally {
+      setResettingOrphan(false);
+    }
+  };
+
   // Primary Next-Step Action Logic
   const handlePrimaryNextStep = () => {
     if (!order) return;
@@ -110,12 +202,10 @@ export default function AdminOrderDetailPage() {
     switch (order.status) {
       case 'payment_review':
       case 'pending_payment': {
-        const proofs = order.proofs || [];
-        const pendingProof = proofs.find((p) => p.status === 'pending') || proofs[0];
+        const proofs = order.proofs || order.payment_proofs || [];
+        const pendingProof = proofs.find((p) => p.status === 'pending') || order.payment?.latest_proof || proofs[0];
         if (pendingProof) {
           openProofReview(pendingProof, 'approve');
-        } else {
-          toastError('لم يرفع العميل إشعار دفع بعد');
         }
         break;
       }
@@ -282,41 +372,60 @@ export default function AdminOrderDetailPage() {
 
   const isDelivery = order.delivery_type === 'delivery';
 
-  // Determine Primary Next-Step Action Label and Icon
-  let nextStepLabel = null;
+  // Determine Primary Next-Step Action Label, Hint, and Icon
+  const proofs = order.proofs || order.payment_proofs || [];
+  const canReviewPayment = order.payment?.can_review ?? (proofs.some((p) => p.status === 'pending') || order.status === 'payment_review');
+
+  let nextStepAction = null;
+  let nextStepHint = null;
   let NextStepIcon = CheckCircle2;
   let isNextStepDisabled = false;
 
   if (order.status === 'payment_review' || order.status === 'pending_payment') {
-    nextStepLabel = 'مراجعة إشعار الدفع واعتماده';
-    NextStepIcon = Eye;
+    if (canReviewPayment && proofs.length > 0) {
+      nextStepAction = 'مراجعة الإشعار';
+      nextStepHint = 'التحقق من إشعار التحويل البنكي وتأكيد استلام المبلغ';
+      NextStepIcon = Eye;
+    } else if (order.status === 'payment_review' && proofs.length === 0) {
+      nextStepAction = null;
+      nextStepHint = null;
+    } else {
+      nextStepAction = 'بانتظار إشعار العميل';
+      nextStepHint = 'لم يقم العميل برفع إشعار التحويل البنكي بعد';
+      NextStepIcon = Clock;
+      isNextStepDisabled = true;
+    }
   } else if (order.status === 'confirmed') {
-    nextStepLabel = 'بدء تجهيز الطلب بالمحل';
+    nextStepAction = 'بدء التجهيز';
+    nextStepHint = 'تجهيز أجهزة الطلب وملحقاتها من المخزن';
     NextStepIcon = Package;
   } else if (order.status === 'processing') {
-    nextStepLabel = isDelivery ? 'تسليم لمندوب التوصيل' : 'جاهز للاستلام بالمحل';
+    nextStepAction = isDelivery ? 'تسليم للمندوب' : 'جاهز للاستلام';
+    nextStepHint = isDelivery ? 'تسليم الطرد لمندوب شركة التوصيل وتحديث الحالة' : 'إشعار العميل بجاهزية الطلب للاستلام من المحل';
     NextStepIcon = isDelivery ? Truck : Store;
   } else if (order.status === 'ready_for_pickup' || order.status === 'out_for_delivery') {
-    nextStepLabel = 'تم التسليم للعميل بنجاح';
+    nextStepAction = 'تأكيد التسليم';
+    nextStepHint = 'تأكيد استلام العميل للطلب بنجاح وإغلاقه';
     NextStepIcon = Check;
   } else if (order.status === 'delivered') {
-    nextStepLabel = 'الطلب مكتمل وتم التسليم';
+    nextStepAction = 'الطلب مكتمل وتم التسليم';
+    nextStepHint = 'تم إغلاق دورة حياة الطلب بنجاح';
     isNextStepDisabled = true;
   }
 
   return (
     <Page className={styles.container}>
-      {/* Printable Invoice Slip (Visible only during window.print) */}
+      {/* Printable Order Slip (Visible only during window.print) */}
       <div className={styles.printOnlySlip} aria-hidden="true">
         <div className={styles.printHeader}>
-          <h1>متجر ويكس تكنولوجي — فاتورة استلام</h1>
+          <h1>متجر ويكس تكنولوجي — بطاقة طلب</h1>
           <p>مول الواحة، الشهداء، أم درمان | هاتف: 0912345678</p>
         </div>
         <hr />
         <div className={styles.printMeta}>
           <div><strong>رقم الطلب:</strong> #{order.order_number}</div>
           <div><strong>التاريخ:</strong> {formatDate(order.created_at)}</div>
-          <div><strong>العميل:</strong> {order.customer_name} ({order.customer_phone})</div>
+          <div><strong>العميل:</strong> {order.customer?.name || order.customer_name || (order.customer?.email ? order.customer.email.split('@')[0] : (order.customer?.phone || order.customer_phone || order.delivery_phone || '—'))} ({order.customer?.phone || order.customer_phone || order.delivery_phone || '—'})</div>
           <div><strong>طريقة الاستلام:</strong> {isDelivery ? 'توصيل' : 'استلام من المحل'}</div>
         </div>
         <table className={styles.printTable}>
@@ -369,7 +478,7 @@ export default function AdminOrderDetailPage() {
           <div className={styles.secondaryActions}>
             <Button variant="outline" size="sm" onClick={handlePrintSlip} title={adminAr.orders.printSlip}>
               <Printer size={14} />
-              <span>طباعة الفاتورة</span>
+              <span>{adminAr.orders.printSlip || 'طباعة بطاقة الطلب'}</span>
             </Button>
             <Button variant="outline" size="sm" onClick={handleCopySummary} title={adminAr.orders.copySummary}>
               <Copy size={14} />
@@ -394,11 +503,11 @@ export default function AdminOrderDetailPage() {
         <div className={styles.titleDivider} aria-hidden="true" />
 
         {/* Primary Next-Step Action Banner */}
-        {nextStepLabel && (
+        {nextStepAction && (
           <aside className={styles.nextStepBanner} aria-label="الإجراء التالي المطلوب">
             <div className={styles.nextStepInfo}>
               <span className={styles.nextStepBadge}>الخطوة التالية في مسار الطلب:</span>
-              <strong className={styles.nextStepTitle}>{nextStepLabel}</strong>
+              <span className={styles.nextStepHint}>{nextStepHint}</span>
             </div>
 
             <Button
@@ -410,7 +519,7 @@ export default function AdminOrderDetailPage() {
               className={styles.nextStepCTA}
             >
               <NextStepIcon size={18} />
-              <span>{nextStepLabel}</span>
+              <span>{nextStepAction}</span>
             </Button>
           </aside>
         )}
@@ -427,20 +536,27 @@ export default function AdminOrderDetailPage() {
               <div className={styles.cardBody}>
                 <div className={styles.customerRow}>
                   <div>
-                    <span className={styles.custName}>{order.customer_name || 'عميل'}</span>
-                    <span className={styles.custPhone}>{order.customer_phone}</span>
+                    <span className={styles.custName}>
+                      {order.customer?.name || order.customer_name || (order.customer?.email ? order.customer.email.split('@')[0] : (order.customer?.phone || order.customer_phone || order.delivery_phone || '—'))}
+                    </span>
+                    <span className={styles.custPhone}>
+                      {order.customer?.phone || order.customer_phone || order.delivery_phone || '—'}
+                    </span>
+                    <span className={styles.deliveryBadge}>
+                      {isDelivery ? 'توصيل إلى العنوان' : 'استلام من المحل (مول الواحة)'}
+                    </span>
                   </div>
                   <div className={styles.custActions}>
-                    {order.customer_phone && (
+                    {(order.customer?.phone || order.customer_phone || order.delivery_phone) && (
                       <>
-                        <a href={`tel:${order.customer_phone}`} className={styles.contactBtn}>
+                        <a href={`tel:${order.customer?.phone || order.customer_phone || order.delivery_phone}`} className={styles.contactBtn}>
                           <Phone size={14} />
                           <span>اتصال هاتف</span>
                         </a>
                         <a
-                          href={`https://wa.me/${order.customer_phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                          href={`https://wa.me/${(order.customer?.phone || order.customer_phone || order.delivery_phone).replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
                             adminAr.orders.whatsappTemplate
-                              .replace('{name}', order.customer_name || '')
+                              .replace('{name}', order.customer?.name || order.customer_name || '')
                               .replace('{orderNumber}', order.order_number)
                           )}`}
                           target="_blank"
@@ -551,27 +667,32 @@ export default function AdminOrderDetailPage() {
                 <h2 className={styles.cardTitle}>{adminAr.orders.proofsHistoryTitle}</h2>
               </div>
               <div className={styles.cardBody}>
-                {(order.proofs || []).length === 0 ? (
+                {order.status === 'payment_review' && proofs.length === 0 && (
+                  <div className={styles.orphanNoticeCard}>
+                    <div className={styles.orphanHeader}>
+                      <AlertTriangle size={18} />
+                      <strong>طلب يتيم بدون إشعار دفع قيد المراجعة</strong>
+                    </div>
+                    <p className={styles.orphanDesc}>
+                      هذا الطلب وصل لحالة مراجعة الدفع بدون وجود سجل إشعار دفع معلق. يمكنك إعادة الطلب لمرحلة بانتظار التحويل لفك التعليق.
+                    </p>
+                    <Button variant="outline" size="sm" onClick={handleResetOrphan} loading={resettingOrphan}>
+                      إعادة الطلب إلى بانتظار التحويل
+                    </Button>
+                  </div>
+                )}
+
+                {proofs.length === 0 ? (
                   <p className={styles.emptyNotice}>لا توجد إشعارات دفع مرفوعة حتى الآن.</p>
                 ) : (
                   <div className={styles.proofsList}>
-                    {order.proofs.map((proof) => (
-                      <div key={proof.id} className={styles.proofHistoryItem}>
-                        <div className={styles.proofHistoryInfo}>
-                          <StatusChip status={proof.status} size="sm" />
-                          <span className={styles.proofSender}>المرسل: {proof.sender_name || '—'}</span>
-                          <span className={styles.proofRef}>الرقم: {proof.reference_number || '—'}</span>
-                          <span className={styles.proofDate}>{formatRelativeTime(proof.created_at)}</span>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openProofReview(proof, 'approve')}
-                        >
-                          <Eye size={14} />
-                          <span>معاينة الإشعار</span>
-                        </Button>
-                      </div>
+                    {proofs.map((proof) => (
+                      <ProofThumbnailItem
+                        key={proof.id}
+                        proof={proof}
+                        orderNumber={orderNumber}
+                        onOpen={(action) => openProofReview(proof, action)}
+                      />
                     ))}
                   </div>
                 )}
@@ -714,7 +835,13 @@ export default function AdminOrderDetailPage() {
             ) : proofImageBlobUrl ? (
               <ImageViewer src={proofImageBlobUrl} alt="صورة إشعار بنكك" />
             ) : (
-              <p>تعذر عرض الصورة</p>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: '12px', padding: '24px', background: 'var(--color-slate-100)', borderRadius: 'var(--radius-md)' }}>
+                <AlertTriangle size={32} color="#D97706" />
+                <p style={{ margin: 0, fontWeight: 'bold', color: 'var(--color-navy)' }}>تعذر عرض صورة الإشعار (الملف مفقود أو غير قابل للقراءة)</p>
+                <p style={{ margin: 0, fontSize: '13px', color: 'var(--color-slate-600)', textAlign: 'center' }}>
+                  يمكنك رفض الإشعار أدناه مع كتابة ملاحظة للعميل لرفع إشعار جديد.
+                </p>
+              </div>
             )}
           </div>
 

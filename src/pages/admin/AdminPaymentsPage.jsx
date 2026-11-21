@@ -114,27 +114,32 @@ export default function AdminPaymentsPage() {
         const orderData = orderRes.data;
         setCurrentOrder(orderData);
 
-        const proofs = orderData?.proofs || [];
-        const pendingProof = proofs.find((p) => p.status === 'pending') || proofs[0];
+        const proofs = orderData?.proofs || orderData?.payment_proofs || [];
+        const pendingProof = proofs.find((p) => p.status === 'pending') || orderData?.payment?.latest_proof || proofs[0];
 
         if (pendingProof) {
           setCurrentProof(pendingProof);
-          const blob = await adminApi.getPaymentProofImage(orderData.order_number, pendingProof.id);
-          if (!isSubscribed) return;
+          try {
+            const blob = await adminApi.getPaymentProofImage(orderData.order_number, pendingProof.id);
+            if (!isSubscribed) return;
 
-          if (prevBlobUrlRef.current) {
-            URL.revokeObjectURL(prevBlobUrlRef.current);
+            if (prevBlobUrlRef.current) {
+              URL.revokeObjectURL(prevBlobUrlRef.current);
+            }
+            const url = URL.createObjectURL(blob);
+            prevBlobUrlRef.current = url;
+            setImageBlobUrl(url);
+          } catch {
+            if (!isSubscribed) return;
+            setImageBlobUrl(null);
           }
-          const url = URL.createObjectURL(blob);
-          prevBlobUrlRef.current = url;
-          setImageBlobUrl(url);
         } else {
           setCurrentProof(null);
           setImageBlobUrl(null);
         }
       } catch {
         if (isSubscribed) {
-          toastError('تعذر تحميل ملف الإشعار للطلب');
+          toastError('تعذر تحميل بيانات الطلب');
         }
       } finally {
         if (isSubscribed) setLoadingProof(false);
@@ -204,6 +209,21 @@ export default function AdminPaymentsPage() {
       toastError(err.message || 'فشل رفض الإشعار');
     } finally {
       setRejecting(false);
+    }
+  };
+
+  const handleResetOrphan = async () => {
+    if (!currentOrder) return;
+    setLoadingProof(true);
+    try {
+      const res = await adminApi.resetOrphanOrder(currentOrder.order_number);
+      success(res.message || 'تمت إعادة الطلب وإزالته من طابور المراجعة');
+      setQueue((prev) => prev.filter((o) => o.order_number !== currentOrder.order_number));
+      advanceQueue();
+    } catch (err) {
+      toastError(err.message || 'فشلت معالجة الطلب');
+    } finally {
+      setLoadingProof(false);
     }
   };
 
@@ -357,6 +377,14 @@ export default function AdminPaymentsPage() {
             </div>
           ) : imageBlobUrl ? (
             <ImageViewer src={imageBlobUrl} alt={`إشعار الطلب #${currentOrder?.order_number}`} />
+          ) : currentProof ? (
+            <div className={styles.noImageBox}>
+              <AlertTriangle size={32} className={styles.noImageIcon} />
+              <span>ملف صورة الإشعار مفقود أو غير قابل للقراءة على الخادم.</span>
+              <p style={{ fontSize: '13px', color: 'var(--color-slate-600)', marginTop: '8px', textAlign: 'center', padding: '0 16px' }}>
+                يمكنك رفض الإشعار مع كتابة سبب الرفض ليقوم العميل برفع إشعار جديد.
+              </p>
+            </div>
           ) : (
             <div className={styles.noImageBox}>
               <AlertTriangle size={32} className={styles.noImageIcon} />
@@ -395,7 +423,9 @@ export default function AdminPaymentsPage() {
               <div className={styles.sectionBlock}>
                 <span className={styles.blockTitle}>{adminAr.payments.customerName}</span>
                 <div className={styles.customerRow}>
-                  <span className={styles.customerName}>{currentOrder.customer_name || currentOrder.customer_phone || currentOrder.delivery_phone || currentOrder.order_number}</span>
+                  <span className={styles.customerName}>
+                    {currentOrder.customer?.name || currentOrder.customer_name || currentOrder.customer?.phone || currentOrder.customer_phone || currentOrder.delivery_phone || (currentOrder.customer?.email ? currentOrder.customer.email.split('@')[0] : currentOrder.order_number)}
+                  </span>
                   <div className={styles.contactButtons}>
                     {currentOrder.customer_phone && (
                       <>
@@ -445,6 +475,21 @@ export default function AdminPaymentsPage() {
                       <span className={styles.proofItemValue}>{formatRelativeTime(currentProof.created_at)}</span>
                     </div>
                   </div>
+                </div>
+              )}
+
+              {!currentProof && (
+                <div style={{ padding: '16px', background: '#FEF3C7', border: '1px solid #F59E0B', borderRadius: 'var(--radius-md)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#92400E', fontWeight: 'bold' }}>
+                    <AlertTriangle size={18} />
+                    <span>طلب يتيم بدون إشعار دفع قيد المراجعة</span>
+                  </div>
+                  <p style={{ fontSize: '13px', color: '#78350F', margin: 0 }}>
+                    هذا الطلب بحالة مراجعة الدفع بدون وجود سجل إشعار دفع معلق. يمكنك إعادة الطلب لمرحلة بانتظار التحويل لفك التعليق.
+                  </p>
+                  <Button variant="outline" size="sm" onClick={handleResetOrphan} loading={loadingProof}>
+                    إعادة الطلب إلى بانتظار التحويل
+                  </Button>
                 </div>
               )}
 

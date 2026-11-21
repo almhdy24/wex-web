@@ -14,18 +14,122 @@ export function deriveOrderUiState(order, now = Date.now(), serverTimeOffset = 0
       countdown: 0,
       message: '',
       latestProof: null,
+      canUpload: false,
+      canReview: false,
     };
   }
 
   const currentTime = now + serverTimeOffset;
   const expiresAt = order.lock_expires_at ? new Date(order.lock_expires_at).getTime() : 0;
-  const isLockExpired = Boolean(expiresAt && expiresAt <= currentTime);
+  const countdown = expiresAt > 0
+    ? Math.max(0, Math.floor((expiresAt - currentTime) / 1000))
+    : (typeof order.seconds_remaining === 'number' ? Math.max(0, Math.floor(order.seconds_remaining)) : 0);
+  const isLockExpired = expiresAt > 0
+    ? expiresAt <= currentTime
+    : (typeof order.seconds_remaining === 'number' ? order.seconds_remaining <= 0 : false);
   const rawStatus = order.status;
 
   const proofs = order.payment_proofs || order.proofs || [];
-  const latestProof = proofs.length > 0 ? proofs[proofs.length - 1] : null;
+  const latestProof = order.payment?.latest_proof || (proofs.length > 0 ? proofs[proofs.length - 1] : null);
 
-  // 1. Expired or Cancelled
+  // When server-provided payment block is available, consume it directly
+  if (order.payment) {
+    const pState = order.payment.state;
+
+    if (pState === 'expired' || rawStatus === 'cancelled' || rawStatus === 'expired') {
+      return {
+        stage: 'expired',
+        label: rawStatus === 'cancelled' ? 'تم إلغاء الطلب' : 'ملغي لانتهاء المهلة',
+        primaryAction: null,
+        showBanner: false,
+        countdown: 0,
+        message: 'انتهت مهلة تثبيت السعر.',
+        latestProof,
+        canUpload: false,
+        canReview: false,
+      };
+    }
+
+    if (pState === 'under_review') {
+      return {
+        stage: 'payment_review',
+        label: 'قيد المراجعة',
+        primaryAction: null,
+        showBanner: false,
+        countdown,
+        message: 'تم استلام الإشعار. بانتظار مراجعة المحل.',
+        latestProof,
+        canUpload: false,
+        canReview: true,
+      };
+    }
+
+    if (pState === 'rejected') {
+      return {
+        stage: 'rejected',
+        label: 'تم رفض الإشعار',
+        primaryAction: 'ارفع إشعارًا جديدًا',
+        showBanner: true,
+        countdown,
+        message: latestProof?.review_note || order.rejection_reason || 'تم رفض إشعار التحويل. يرجى رفع إشعار جديد صالح.',
+        latestProof,
+        canUpload: true,
+        canReview: false,
+      };
+    }
+
+    if (pState === 'awaiting_proof') {
+      return {
+        stage: 'pending_payment',
+        label: 'بانتظار التحويل',
+        primaryAction: 'ارفع إشعار التحويل',
+        showBanner: true,
+        countdown,
+        message: 'يرجى تحويل المبلغ ورفع إشعار التحويل قبل انتهاء المهلة.',
+        latestProof: null,
+        canUpload: true,
+        canReview: false,
+      };
+    }
+
+    if (pState === 'approved') {
+      let stage = 'confirmed';
+      let label = 'تم تأكيد الطلب';
+      let message = 'تم تأكيد استلام المبلغ وجارٍ تجهيز الطلب.';
+
+      if (rawStatus === 'processing') {
+        stage = 'processing';
+        label = 'جاري التجهيز';
+        message = 'جاري تجهيز عناصر الطلب بالمحل.';
+      } else if (rawStatus === 'ready' || rawStatus === 'ready_for_pickup') {
+        stage = 'ready';
+        label = 'جاهز للاستلام / الشحن';
+        message = 'الطلب جاهز للاستلام أو في انتظار شركة التوصيل.';
+      } else if (rawStatus === 'out_for_delivery') {
+        stage = 'out_for_delivery';
+        label = 'خرج للتوصيل';
+        message = 'المندوب في طريقه لتسليم طلبك.';
+      } else if (rawStatus === 'completed' || rawStatus === 'delivered') {
+        stage = 'completed';
+        label = 'مكتمل';
+        message = 'تم تسليم الطلب بنجاح. شكراً لتسوقك معنا.';
+      }
+
+      return {
+        stage,
+        label,
+        primaryAction: null,
+        showBanner: false,
+        countdown: 0,
+        message,
+        latestProof,
+        canUpload: false,
+        canReview: false,
+      };
+    }
+  }
+
+  // Fallback when order.payment is not supplied (fixtures/mock tests)
   if (rawStatus === 'cancelled' || rawStatus === 'expired' || (rawStatus === 'pending_payment' && isLockExpired)) {
     return {
       stage: 'expired',
@@ -33,12 +137,13 @@ export function deriveOrderUiState(order, now = Date.now(), serverTimeOffset = 0
       primaryAction: null,
       showBanner: false,
       countdown: 0,
-      message: 'انتهت مهلة حجز الطلب وتم إلغاؤه تلقائياً.',
+      message: 'انتهت مهلة تثبيت السعر.',
       latestProof,
+      canUpload: false,
+      canReview: false,
     };
   }
 
-  // 2. Under Review (payment_review, payment_uploaded, or latest proof pending)
   if (
     rawStatus === 'payment_review' ||
     rawStatus === 'payment_uploaded' ||
@@ -49,40 +154,43 @@ export function deriveOrderUiState(order, now = Date.now(), serverTimeOffset = 0
       stage: 'payment_review',
       label: 'قيد المراجعة',
       primaryAction: null,
-      showBanner: false, // Disappears immediately when proof is under review
-      countdown: Math.max(0, Math.floor((expiresAt - currentTime) / 1000)),
+      showBanner: false,
+      countdown,
       message: 'تم استلام الإشعار. بانتظار مراجعة المحل.',
       latestProof,
+      canUpload: false,
+      canReview: true,
     };
   }
 
-  // 3. Rejected proof
   if (rawStatus === 'payment_rejected' || (latestProof && latestProof.status === 'rejected')) {
     return {
       stage: 'rejected',
       label: 'تم رفض الإشعار',
       primaryAction: 'ارفع إشعارًا جديدًا',
       showBanner: true,
-      countdown: Math.max(0, Math.floor((expiresAt - currentTime) / 1000)),
-      message: latestProof?.review_note || 'تم رفض إشعار التحويل. يرجى رفع إشعار جديد صالح.',
+      countdown,
+      message: latestProof?.review_note || order.rejection_reason || 'تم رفض إشعار التحويل. يرجى رفع إشعار جديد صالح.',
       latestProof,
+      canUpload: true,
+      canReview: false,
     };
   }
 
-  // 4. Pending payment (unexpired, no proof under review)
   if (rawStatus === 'pending_payment') {
     return {
       stage: 'pending_payment',
       label: 'بانتظار التحويل',
       primaryAction: 'ارفع إشعار التحويل',
       showBanner: true,
-      countdown: Math.max(0, Math.floor((expiresAt - currentTime) / 1000)),
+      countdown,
       message: 'يرجى تحويل المبلغ ورفع إشعار التحويل قبل انتهاء المهلة.',
       latestProof: null,
+      canUpload: true,
+      canReview: false,
     };
   }
 
-  // 5. Confirmed
   if (rawStatus === 'confirmed') {
     return {
       stage: 'confirmed',
@@ -92,11 +200,12 @@ export function deriveOrderUiState(order, now = Date.now(), serverTimeOffset = 0
       countdown: 0,
       message: 'تم تأكيد استلام المبلغ وجارٍ تجهيز الطلب.',
       latestProof,
+      canUpload: false,
+      canReview: false,
     };
   }
 
-  // 6. Ready
-  if (rawStatus === 'ready') {
+  if (rawStatus === 'ready' || rawStatus === 'ready_for_pickup') {
     return {
       stage: 'ready',
       label: 'جاهز للاستلام / الشحن',
@@ -105,10 +214,11 @@ export function deriveOrderUiState(order, now = Date.now(), serverTimeOffset = 0
       countdown: 0,
       message: 'الطلب جاهز للاستلام أو في انتظار شركة التوصيل.',
       latestProof,
+      canUpload: false,
+      canReview: false,
     };
   }
 
-  // 7. Out for Delivery
   if (rawStatus === 'out_for_delivery') {
     return {
       stage: 'out_for_delivery',
@@ -118,11 +228,12 @@ export function deriveOrderUiState(order, now = Date.now(), serverTimeOffset = 0
       countdown: 0,
       message: 'المندوب في طريقه لتسليم طلبك.',
       latestProof,
+      canUpload: false,
+      canReview: false,
     };
   }
 
-  // 8. Completed
-  if (rawStatus === 'completed') {
+  if (rawStatus === 'completed' || rawStatus === 'delivered') {
     return {
       stage: 'completed',
       label: 'مكتمل',
@@ -131,10 +242,11 @@ export function deriveOrderUiState(order, now = Date.now(), serverTimeOffset = 0
       countdown: 0,
       message: 'تم تسليم الطلب بنجاح. شكراً لتسوقك معنا.',
       latestProof,
+      canUpload: false,
+      canReview: false,
     };
   }
 
-  // Fallback
   return {
     stage: rawStatus,
     label: order.status_label || rawStatus,
@@ -143,6 +255,8 @@ export function deriveOrderUiState(order, now = Date.now(), serverTimeOffset = 0
     countdown: 0,
     message: '',
     latestProof,
+    canUpload: false,
+    canReview: false,
   };
 }
 

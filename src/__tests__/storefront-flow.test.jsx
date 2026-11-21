@@ -81,7 +81,7 @@ describe('Phase 5: Payment Screen, Orders List & Flow Tests', () => {
     it('renders header, dark gradient card with countdown and copyable amount', () => {
       const html = renderOrderDetail(samplePendingOrder);
 
-      expect(html).toContain('الدفع - طلب WEX-261121-ABCD1');
+      expect(html).toContain('طلب #WEX-261121-ABCD1');
       expect(html).toContain('المتبقي لتثبيت السعر');
       expect(html).toContain('04:00:00');
       expect(html).toContain('المبلغ المطلوب');

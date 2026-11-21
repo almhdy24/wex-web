@@ -145,7 +145,7 @@ export const adminAr = {
     statusNoteLabel: 'ملاحظة تحديث الحالة (تظهر للعميل)',
     extendLockHoursLabel: 'ساعات التمديد الإضافية',
     cancelReasonLabel: 'سبب إلغاء الطلب',
-    printSlip: 'طباعة تفاصيل الطلب',
+    printSlip: 'طباعة بطاقة الطلب',
     copySummary: 'نسخ ملخص الطلب',
     timelineTitle: 'مسار متابعة الطلب',
     itemsTitle: 'الأجهزة والمنتجات المطلوبة',

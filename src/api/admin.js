@@ -34,6 +34,10 @@ export const adminApi = {
     return api.post(`/admin/orders/${encodeURIComponent(orderNumber)}/lock`, { hours: Number(hours) });
   },
 
+  resetOrphanOrder(orderNumber) {
+    return api.post(`/admin/orders/${encodeURIComponent(orderNumber)}/reset-orphan`);
+  },
+
   reviewPaymentProof(orderNumber, proofId, { action, note }) {
     return api.post(`/admin/orders/${encodeURIComponent(orderNumber)}/proofs/${proofId}/review`, {
       action,

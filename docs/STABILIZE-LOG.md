@@ -780,3 +780,173 @@ Status: **GREEN (Passed)**
 
 
 
+
+---
+
+## Phase 4: Frontend Data Consistency & UI Evidence Fixes
+
+### 1. Overview of Changes
+- **Client-Side State Inference Eliminated**: Replaced manual status checks and proof array length comparisons across customer and admin views with the server-provided `order.payment` block (`state`, `can_upload`, `can_review`, `latest_proof`, `proofs_count`).
+- **Admin Order Detail Evidence Fixes**:
+  - **Evidence 1 (Orphan Deadlock & Proof Thumbnails)**: Displays all payment proofs with image thumbnails and status chips. Added orphan detection alert when an order is in `payment_review` with 0 proofs, offering an audited button `إعادة الطلب إلى بانتظار التحويل` (`adminApi.resetOrphanOrder`).
+  - **Evidence 2 (Customer Placeholder Removal)**: Replaced placeholder "عميل" with real customer name, phone number, and direct Call/WhatsApp action buttons (fallback to email local-part, never "عميل").
+  - **Evidence 4 (Invoice Wording Purge)**: Renamed print action from `طباعة الفاتورة` to `طباعة بطاقة الطلب` and print layout title to `بطاقة طلب` (prohibited `فاتورة` in static scanners).
+  - **Evidence 5 (Next Step Card De-duplication)**: Eliminated repeating title/button text. The card displays a distinct primary CTA action button and an informative one-line guidance hint.
+  - **Contradictory Toasts Removed**: Removed client toasts derived from status state on mount/click.
+- **Customer Storefront (`OrderDetailPage` & `OrdersPage`)**:
+  - `deriveOrderUiState` directly consumes `order.payment` block.
+  - Under review orders strictly suppress file picker/upload buttons and sticky bar.
+  - Rejected orders display rejection note with active re-upload CTA.
+
+### 2. Phase 4 Test Execution
+```bash
+node node_modules/vitest/vitest.mjs run src/__tests__/payment-states.test.jsx
+```
+Output:
+```
+ RUN  v5.1.1 /data/data/com.termux/files/home/projects/wex-web
+
+ ✓ src/__tests__/payment-states.test.jsx (12 tests) 349ms
+   ✓ Phase 4: Payment States & Consistency Tests (12)
+     ✓ deriveOrderUiState (Single Server Source of Truth) (5)
+       ✓ handles awaiting_proof: allows upload, disallows review, sets pending_payment stage 14ms
+       ✓ handles under_review: disallows upload, allows review, sets payment_review stage 2ms
+       ✓ handles rejected: allows re-upload, displays rejection note 2ms
+       ✓ handles approved: confirms order, disallows upload/review 1ms
+       ✓ handles expired: marks expired, disallows upload/review 1ms
+     ✓ Customer OrderDetailPage (3)
+       ✓ awaiting_proof: renders upload section, never shows under_review or rejected hints 176ms
+       ✓ under_review: renders review notice and suppresses upload action buttons 14ms
+       ✓ rejected: renders rejection notice with note and permits re-upload 15ms
+     ✓ Admin OrderDetailPage (Phase 4 Evidence Fixes) (4)
+       ✓ Evidence 2: Never shows "عميل" placeholder; displays real customer name and phone 50ms
+       ✓ Evidence 4: Print button says "طباعة بطاقة الطلب", print layout title is "بطاقة طلب" (never "فاتورة") 25ms
+       ✓ Evidence 5: Next step card has single primary CTA button with distinct hint (never repeats same sentence) 19ms
+       ✓ Evidence 1 & Phase 2.4: Deadlock prevention - orphan order shows warning and reset button 17ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Duration  4.07s
+```
+
+---
+
+## Phase 5: Comprehensive Verification & Acceptance Testing
+
+### 1. Vitest Full Test Suite
+```bash
+node node_modules/vitest/vitest.mjs run
+```
+Output:
+```
+ Test Files  42 passed (42)
+      Tests  292 passed (292)
+   Duration  37.37s
+```
+
+### 2. Static Analysis Checks
+```bash
+node scripts/check-api-surface.mjs && node scripts/check-css-modules.mjs && node scripts/check-claims.mjs && node scripts/check-admin-english.mjs
+```
+Output:
+```
+=== Checking API Surface Integrity ===
+Scanned 135 source files, checked 155 API calls.
+✅ PASS: All API method calls match exported API surfaces.
+
+=== Checking CSS Modules Class Integrity ===
+Checked 91 CSS module imports across 144 files.
+✅ PASS: All referenced CSS module classes exist.
+
+=== Checking Forbidden Marketing Claims & Placeholder Data ===
+Scanning:
+  - 115 Storefront source files
+  - 2 Admin preset files
+  - 46 API seeders, migrations, language, and email files
+✅ PASS: Zero forbidden claims or placeholders found across all scanned files.
+
+=== Checking Admin UI for Disallowed Latin Words ===
+Scanned 28 admin UI and content files.
+✅ PASS: Admin UI strings contain only Arabic and allowlisted technical/brand terms.
+```
+
+### 3. Lint and Production Build
+```bash
+npm run lint && npm run build
+```
+Output:
+```
+✅ [check-contrast] All token contrast ratios pass WCAG AA standards.
+✅ PASS: Zero forbidden claims or placeholders found across all scanned files.
+✅ [i18n-check] PASS: All translation keys are valid and defined.
+✅ [check-layout] Layout checks passed.
+✅ [check-duplicate-messages] PASS: All messages live strictly once per customer journey.
+✓ built in 4.03s
+```
+
+### 4. End-to-End Journey & Integrity Invariants
+```bash
+bash scripts/e2e.sh
+```
+Output:
+```
+=== Wex Technology Comprehensive E2E Journey Test ===
+Target Base URL: http://127.0.0.1:8080/api/v1
+--- Step 1: Customer Sign In ---
+--- Step 2: Customer Creates Order ---
+Order created successfully: WEX-261121-BAC00
+✔ integrity:check passed (0 violations) after Step 2: Order Creation
+--- Step 3: Customer Uploads Proof (File 'blob' without extension) ---
+Payment proof uploaded with ID: 32
+✔ integrity:check passed (0 violations) after Step 3: Proof Upload
+--- Step 4: Admin Sign In ---
+--- Step 5: Consistency Cross-Check Across Customer, Admin Detail, and Payments Queue ---
+PASS: Customer order, Admin detail, and Payments queue agree completely!
+✔ integrity:check passed (0 violations) after Step 5: Consistency Verification
+--- Step 6: Admin Fetches Proof Image ---
+Image fetch HTTP status: 200 (image/png, 67 bytes)
+PASS: Proof image fetched successfully with HTTP 200 and Content-Type image/*
+✔ integrity:check passed (0 violations) after Step 6: Image Fetch
+--- Step 7: Admin Approves Proof ---
+PASS: Admin approved proof successfully
+✔ integrity:check passed (0 violations) after Step 7: Admin Approval
+--- Step 8: Customer Observes Status Change ---
+Customer order status is now: confirmed
+PASS: Customer sees status change to 'confirmed'!
+✔ integrity:check passed (0 violations) after Step 8: Confirmed Status
+--- Step 9: Legacy-Orphan Path Simulation & Repair ---
+PASS: integrity:check caught seeded orphan violation
+PASS: Dashboard reports inconsistent orders count: 1
+Repairs applied.
+✔ integrity:check passed (0 violations) after Step 9: After Integrity Repair
+
+=== E2E Integration Journey PASSED (with zero integrity violations) ===
+```
+
+### 5. Backend PHPUnit Suite (`wex-api`)
+```bash
+cd ~/projects/wex-api && php vendor/bin/phpunit
+```
+Output:
+```
+PHPUnit 10.5.67 by Sebastian Bergmann and contributors.
+Runtime:       PHP 8.5.12
+Configuration: /data/data/com.termux/files/home/projects/wex-api/phpunit.dist.xml
+...............................................................  63 / 109 ( 57%)
+..............................................                  109 / 109 (100%)
+Time: 01:08.098, Memory: 17.00 MB
+OK (109 tests, 2989 assertions)
+```
+
+### 6. Backend Lint & Security Audit (`wex-api`)
+```bash
+find app/ -name "*.php" -exec php -l {} +
+composer audit
+bash scripts/audit-db.sh
+```
+Output:
+```
+ALL PHP FILES CLEAN (0 syntax errors)
+No security vulnerability advisories found.
+Database Content Audit: 0 forbidden claims or placeholder values.
+```

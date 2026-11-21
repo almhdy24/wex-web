@@ -64,8 +64,13 @@ export default function OrdersPage({
       ) : (
         <div className={styles.ordersList}>
           {orders.map((order) => {
-            const statusInfo = getOrderStatusInfo(order.status);
-            const isPending = order.status === 'pending_payment';
+            const paymentState = order.payment?.state;
+            const isPending = order.payment ? order.payment.can_upload : order.status === 'pending_payment';
+            const statusInfo = paymentState === 'under_review'
+              ? { label: 'قيد المراجعة', variant: 'info' }
+              : paymentState === 'rejected'
+              ? { label: 'تم رفض الإشعار', variant: 'danger' }
+              : getOrderStatusInfo(order.status);
             const orderTotal = order.total_sdg ?? order.total_amount_sdg ?? 0;
 
             return (

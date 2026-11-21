@@ -144,8 +144,15 @@ function extractStatusCode(input) {
  */
 export function errorMapper(error) {
   // Check if non-ApiError (native JS TypeError, ReferenceError, etc.)
+  const isNetworkFetchError = Boolean(
+    error &&
+    (error.name === 'TypeError' || error.name === 'FetchError') &&
+    String(error.message).toLowerCase().includes('fetch')
+  );
+
   const isApiError = Boolean(
     error && (
+      isNetworkFetchError ||
       error.name === 'ApiError' ||
       error.isApiError === true ||
       typeof error.status === 'number' ||

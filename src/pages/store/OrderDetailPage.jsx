@@ -133,25 +133,24 @@ export default function OrderDetailPage({
     formData.append('proof_image', proofFile);
 
     try {
-      await ordersApi.uploadPaymentProof(orderNumber, formData);
+      const res = await ordersApi.uploadPaymentProof(orderNumber, formData);
       success('أُرسل الإشعار. بانتظار مراجعة المحل.');
       setUploadedProofThumbnail(proofPreview);
       setProofFile(null);
       setProofPreview(null);
-      // Immediately reflect review state in UI
-      setOrder((prev) =>
-        prev
-          ? {
-              ...prev,
-              status: 'payment_review',
-              status_label: 'قيد المراجعة',
-              payment_proofs: [
-                ...(prev.payment_proofs || []),
-                { id: Date.now(), status: 'pending', created_at: new Date().toISOString() },
-              ],
-            }
-          : prev
-      );
+      if (res?.data) {
+        setOrder((prev) =>
+          prev
+            ? {
+                ...prev,
+                status: res.data.order_status || 'payment_review',
+                payment: res.data.payment || prev.payment,
+                proofs: res.data.proof ? [...(prev.proofs || []), res.data.proof] : prev.proofs,
+                payment_proofs: res.data.proof ? [...(prev.payment_proofs || []), res.data.proof] : prev.payment_proofs,
+              }
+            : prev
+        );
+      }
       loadOrder(false);
     } catch (err) {
       const msg = err.message || 'تعذر رفع الإشعار، يرجى المحاولة مرة أخرى';

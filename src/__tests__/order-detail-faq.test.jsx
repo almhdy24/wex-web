@@ -17,7 +17,7 @@ describe('Phase 6: Order Detail & FAQ Systems Unit Tests', () => {
       expect(html).toContain('البحث في الأسئلة الشائعة');
       expect(html).toContain('تثبيت السعر والحجز');
       expect(html).toContain('السداد عبر بنكك');
-      expect(html).toContain('الاستلام والمعاينة');
+      expect(html).toContain('الاستلام والتوصيل');
       expect(html).toContain('الموقع والتوصيل');
     });
 
@@ -29,7 +29,7 @@ describe('Phase 6: Order Detail & FAQ Systems Unit Tests', () => {
       );
 
       expect(html).toContain('تثبيت السعر');
-      expect(html).toContain('معاينة مباشرة');
+      expect(html).toContain('استلام مباشر');
       expect(html).toContain('مول الواحة، أم درمان');
       expect(html).toContain('تواصل عبر واتساب');
     });

@@ -116,7 +116,7 @@ describe('Admin New Features Component Tests', () => {
       </AuthContext.Provider>
     );
 
-    expect(html).toContain('شرائح الواجهة الرئيسية');
+    expect(html).toContain('شرائح الواجهة');
     expect(html).toContain('إضافة شريحة');
   });
 
@@ -146,7 +146,7 @@ describe('Admin New Features Component Tests', () => {
       </AuthContext.Provider>
     );
 
-    expect(html).toContain('الأسئلة الشائعة (FAQ)');
+    expect(html).toContain('الأسئلة الشائعة');
     expect(html).toContain('إضافة سؤال');
   });
 
