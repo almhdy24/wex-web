@@ -3,9 +3,20 @@ set -e
 
 PORT=${API_PORT:-8080}
 BASE_URL="http://127.0.0.1:${PORT}/api/v1"
+API_DIR="/data/data/com.termux/files/home/projects/wex-api"
 
 echo "=== Wex Technology Comprehensive E2E Journey Test ==="
 echo "Target Base URL: ${BASE_URL}"
+
+assert_clean_integrity() {
+  local step_name="$1"
+  if ! (cd "$API_DIR" && php spark integrity:check > /dev/null 2>&1); then
+    echo "FAIL: integrity:check reported violations after ${step_name}"
+    (cd "$API_DIR" && php spark integrity:check)
+    exit 1
+  fi
+  echo "✔ integrity:check passed (0 violations) after ${step_name}"
+}
 
 # 1. Customer Sign In (log driver)
 CUST_EMAIL="cust_$(date +%s)@example.com"
@@ -40,7 +51,6 @@ echo "Customer authenticated. Token: ${CUST_TOKEN:0:15}..."
 # 2. Customer Creates Order
 echo ""
 echo "--- Step 2: Customer Creates Order ---"
-# Get first available in-stock product ID
 PRODUCTS_RES=$(curl -s "${BASE_URL}/products?per_page=20")
 PRODUCT_ID=$(node -e "
 try {
@@ -63,12 +73,12 @@ if [ -z "$ORDER_NUMBER" ]; then
   exit 1
 fi
 echo "Order created successfully: ${ORDER_NUMBER}"
+assert_clean_integrity "Step 2: Order Creation"
 
 # 3. Customer Uploads Proof (file named "blob" without extension)
 echo ""
 echo "--- Step 3: Customer Uploads Proof (File 'blob' without extension) ---"
 TMP_BLOB="/data/data/com.termux/files/home/projects/wex-api/writable/tmp_test_blob"
-# Create a 1x1 valid PNG image
 printf '\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15c4\x00\x00\x00\rIDATx\x9cc`\x00\x00\x00\x02\x00\x01Haf\xa0\x00\x00\x00\x00IEND\xaeB`\x82' > "$TMP_BLOB"
 ORIGINAL_SIZE=$(wc -c < "$TMP_BLOB" | tr -d ' ')
 
@@ -86,6 +96,7 @@ if [ -z "$PROOF_ID" ]; then
   exit 1
 fi
 echo "Payment proof uploaded with ID: ${PROOF_ID}"
+assert_clean_integrity "Step 3: Proof Upload"
 
 # 4. Admin Sign In
 echo ""
@@ -111,51 +122,64 @@ if [ -z "$ADMIN_TOKEN" ]; then
 fi
 echo "Admin authenticated. Token: ${ADMIN_TOKEN:0:15}..."
 
-# 5. Admin Lists Payments & Asserts Required Fields
+# 5. Cross-Check: Customer Order, Admin Order Detail, and Payments Queue Must All Agree
 echo ""
-echo "--- Step 5: Admin Lists Payments ---"
-ADMIN_PAYMENTS=$(curl -s "${BASE_URL}/admin/orders?status=payment_review" \
-  -H "Authorization: Bearer ${ADMIN_TOKEN}")
+echo "--- Step 5: Consistency Cross-Check Across Customer, Admin Detail, and Payments Queue ---"
+CUST_ORDER=$(curl -s "${BASE_URL}/orders/${ORDER_NUMBER}" -H "Authorization: Bearer ${CUST_TOKEN}")
+ADMIN_DETAIL=$(curl -s "${BASE_URL}/admin/orders/${ORDER_NUMBER}" -H "Authorization: Bearer ${ADMIN_TOKEN}")
+ADMIN_QUEUE=$(curl -s "${BASE_URL}/admin/orders?status=payment_review" -H "Authorization: Bearer ${ADMIN_TOKEN}")
 
-echo "Admin Payments Response: $(echo "$ADMIN_PAYMENTS" | cut -c1-200)..."
-
-# Find our created order in the payments list
-# Assertions: customer name, customer phone, order number, amount, expected_amount, and proof with id/status/created_at
 node -e "
-const json = JSON.parse(process.argv[1]);
-const orderNum = process.argv[2];
-const items = json.data || [];
-const found = items.find(o => o.order_number === orderNum);
-if (!found) {
-  console.error('FAIL: Order ' + orderNum + ' not found in admin payment_review queue');
-  process.exit(1);
-}
-console.log('Verifying order payload fields:');
-const required = ['customer_name', 'customer_phone', 'order_number', 'amount', 'expected_amount', 'payment_proofs'];
-const missing = [];
-for (const f of required) {
-  if (found[f] === undefined || found[f] === null) {
-    missing.push(f);
-  }
-}
-if (missing.length > 0) {
-  console.error('FAIL: Admin payments list item is missing required fields:', missing);
+const cust = JSON.parse(process.argv[1]).data;
+const admin = JSON.parse(process.argv[2]).data;
+const queue = JSON.parse(process.argv[3]).data || [];
+const orderNum = process.argv[4];
+const proofId = parseInt(process.argv[5], 10);
+
+const queueItem = queue.find(o => o.order_number === orderNum);
+if (!queueItem) {
+  console.error('FAIL: Order not found in payments queue');
   process.exit(1);
 }
 
-// Assert proof contains id, status, created_at
-const proofs = found.payment_proofs;
-if (!Array.isArray(proofs) || proofs.length === 0) {
-  console.error('FAIL: Order has no payment_proofs in list item');
+console.log('1. Checking unified payment block across all endpoints:');
+if (!cust.payment || cust.payment.state !== 'under_review') {
+  console.error('FAIL: Customer order missing or incorrect payment block:', cust.payment);
   process.exit(1);
 }
-const p = proofs[0];
-if (!p.id || !p.status || !p.created_at) {
-  console.error('FAIL: Payment proof is missing id, status, or created_at:', p);
+if (!admin.payment || admin.payment.state !== 'under_review') {
+  console.error('FAIL: Admin detail missing or incorrect payment block:', admin.payment);
   process.exit(1);
 }
-console.log('PASS: All required fields present in admin payments item');
-" "$ADMIN_PAYMENTS" "$ORDER_NUMBER"
+if (!queueItem.payment || queueItem.payment.state !== 'under_review') {
+  console.error('FAIL: Queue item missing or incorrect payment block:', queueItem.payment);
+  process.exit(1);
+}
+
+console.log('2. Checking customer name and contact consistency:');
+if (!admin.customer || !admin.customer.name || admin.customer.name.includes('عميل')) {
+  console.error('FAIL: Admin detail customer name invalid or placeholder:', admin.customer);
+  process.exit(1);
+}
+if (admin.customer_name !== queueItem.customer_name) {
+  console.error('FAIL: Admin detail and queue disagree on customer_name:', admin.customer_name, queueItem.customer_name);
+  process.exit(1);
+}
+
+console.log('3. Checking proofs list consistency:');
+if (!Array.isArray(admin.proofs) || admin.proofs.length === 0 || admin.proofs[0].id !== proofId) {
+  console.error('FAIL: Admin detail proofs list missing or mismatch:', admin.proofs);
+  process.exit(1);
+}
+if (!Array.isArray(queueItem.proofs) || queueItem.proofs.length === 0 || queueItem.proofs[0].id !== proofId) {
+  console.error('FAIL: Queue proofs list missing or mismatch:', queueItem.proofs);
+  process.exit(1);
+}
+
+console.log('PASS: Customer order, Admin detail, and Payments queue agree completely!');
+" "$CUST_ORDER" "$ADMIN_DETAIL" "$ADMIN_QUEUE" "$ORDER_NUMBER" "$PROOF_ID"
+
+assert_clean_integrity "Step 5: Consistency Verification"
 
 # 6. Admin Fetches Proof Image through Authorized Endpoint
 echo ""
@@ -194,6 +218,7 @@ if [ "$BODY_SIZE" -le 0 ]; then
   exit 1
 fi
 echo "PASS: Proof image fetched successfully with HTTP 200 and Content-Type image/*"
+assert_clean_integrity "Step 6: Image Fetch"
 
 # 7. Admin Approves Proof
 echo ""
@@ -210,6 +235,7 @@ if ! echo "$REVIEW_RES" | grep -q -E '"success"[[:space:]]*:[[:space:]]*true'; t
   exit 1
 fi
 echo "PASS: Admin approved proof successfully"
+assert_clean_integrity "Step 7: Admin Approval"
 
 # 8. Customer Sees Status Change to Confirmed
 echo ""
@@ -226,8 +252,50 @@ if [ "$CUST_STATUS" != "confirmed" ]; then
   exit 1
 fi
 echo "PASS: Customer sees status change to 'confirmed'!"
+assert_clean_integrity "Step 8: Confirmed Status"
 
-# Cleanup temporary test files
-rm -f "$TMP_BLOB" "$IMG_HEADER_FILE" "$IMG_BODY_FILE"
+# 9. Legacy-Orphan Simulation and Repair
 echo ""
-echo "=== E2E Integration Journey PASSED ==="
+echo "--- Step 9: Legacy-Orphan Path Simulation & Repair ---"
+ORPHAN_NUM="WEX-E2E-ORPH-$(date +%s)"
+sqlite3 /data/data/com.termux/files/home/projects/wex-api/writable/database/wex.sqlite "
+INSERT INTO orders (order_number, user_id, status, delivery_type, delivery_phone, rate_sdg_snapshot, app_discount_percent_snapshot, subtotal_aed, subtotal_sdg, discount_sdg, delivery_fee_sdg, total_sdg, lock_expires_at, created_at)
+VALUES ('${ORPHAN_NUM}', 1, 'payment_review', 'pickup', '+249912345678', 650, 0, 10, 6500, 0, 0, 6500, datetime('now', '+2 hours'), datetime('now'));
+INSERT INTO order_events (order_id, from_status, to_status, note, created_at)
+SELECT id, 'pending_payment', 'payment_review', 'طلب معلق تجريبي', datetime('now') FROM orders WHERE order_number = '${ORPHAN_NUM}';
+"
+
+# Assert integrity:check detects the violation
+if (cd "$API_DIR" && php spark integrity:check > /dev/null 2>&1); then
+  echo "FAIL: integrity:check should have failed on seeded orphan order"
+  exit 1
+fi
+echo "PASS: integrity:check caught seeded orphan violation"
+
+# Verify Dashboard API returns warning
+DASH_RES=$(curl -s "${BASE_URL}/admin/dashboard" -H "Authorization: Bearer ${ADMIN_TOKEN}")
+node -e "
+const d = JSON.parse(process.argv[1]).data;
+if (!d || d.inconsistent_orders_count < 1) {
+  console.error('FAIL: Dashboard did not report inconsistent_orders_count:', d);
+  process.exit(1);
+}
+console.log('PASS: Dashboard reports inconsistent orders count:', d.inconsistent_orders_count);
+" "$DASH_RES"
+
+# Apply repair
+(cd "$API_DIR" && php spark integrity:repair --apply > /dev/null 2>&1)
+echo "Repairs applied."
+
+# Assert integrity:check is now clean
+assert_clean_integrity "Step 9: After Integrity Repair"
+
+# Cleanup temporary test files and seeded order
+rm -f "$TMP_BLOB" "$IMG_HEADER_FILE" "$IMG_BODY_FILE"
+sqlite3 /data/data/com.termux/files/home/projects/wex-api/writable/database/wex.sqlite "
+DELETE FROM order_events WHERE order_id IN (SELECT id FROM orders WHERE order_number = '${ORPHAN_NUM}');
+DELETE FROM orders WHERE order_number = '${ORPHAN_NUM}';
+"
+
+echo ""
+echo "=== E2E Integration Journey PASSED (with zero integrity violations) ==="
