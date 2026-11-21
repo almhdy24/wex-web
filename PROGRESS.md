@@ -983,6 +983,37 @@ Hotfix of critical storefront issues identified during phone testing:
     - Vitest: 42 test files, 295/295 tests PASS (100% green).
     - `npm run build`: built cleanly in 3.73s.
 
+- [x] **Full Redesign Phase 2: Home, Catalog & Product Detail**
+  - **HomePage Redesign (`src/pages/store/HomePage.jsx` & `HomePage.module.css`):**
+    - Pulsing rate freshness chip (`pulseDot`) paired with `formatPriceUpdateCaption` without currency/rate leaks.
+    - Hero Card upgraded with official brand gradient (`#0B3FBF` → `#1E6BFF` → `#00B7FF`), slanted ribbon shine overlay (`rotate(-12deg)`), floating device silhouette (`ProductTypeSvg`), and animated pagination dots.
+    - Category Bubbles (`52px` squircle with `--shadow-sm`, royal active state, and hover lift).
+    - App Discount Ribbon Banner (`appDiscountBanner wexRibbon` with circular `-3%` badge and frosted glass blur).
+    - Brand Logos strip (`brandStripSection`) for quick brand filtering (Dell, Lenovo, HP, Apple, Acer, Asus).
+    - Sudanese Shop block: Al-Waha Mall address, business hours, Google Maps link, WhatsApp CTA, and friendly store team greeting.
+  - **Catalog Page Polish (`src/pages/store/CatalogPage.jsx` & `CatalogPage.module.css`):**
+    - Eliminated duplicate title bug on mobile screens by hiding `.header` on `<1024px` while preserving accessible desktop display.
+    - Sticky search and filter row with touch-friendly 48px input and rounded filter chip buttons.
+    - Refined 2-column mobile product grid with clean gap and responsive breakpoint scaling.
+  - **Product Detail Page Polish (`src/pages/store/ProductDetailPage.jsx` & `ProductDetailPage.module.css`):**
+    - Gallery upgraded to 4:3 ratio with subtle gradient/ice card background, zoom button, and thumbnail borders.
+    - Specs list balanced with structured grid labels and LTR values.
+    - Segmented control tabs (المواصفات / الاستلام والتوصيل) styled as an authentic iOS/PWA segmented control.
+    - Tactile action buttons (Compare, Share) with active press animation (`scale(0.97)`).
+    - Sticky bottom bar: 48px height quantity stepper with safe-area padding and 16px backdrop blur.
+  - **Product Card (`src/components/products/ProductCard.module.css`):**
+    - Tactile card lift (`translateY(-2px)` on hover with `--shadow-md`).
+    - Spec pills with subtle ice background and border.
+    - Heavy font weight (800) for price display with `tabular-nums`.
+    - Favorite heart button with subtle press transition.
+  - **Quality & Audit Checks:**
+    - Purged remaining legacy `transition: all` instances in `AccountPage.module.css` and `FavoritesPage.module.css`.
+    - `bash scripts/audit.sh`: All 5 quality checks pass (0 puffery, 0 AED leaks, 0 transition:all, 0 emojis, 0 invented claims).
+    - `npm run check:all`: PASS (11 contrast pairs, claims, i18n, layout, duplicate messages).
+    - `npm run lint`: 0 errors, 0 warnings.
+    - Vitest: 42 test files, 295/295 tests PASS (100% green).
+    - `npm run build`: built cleanly in 3.64s.
+
 
 
 

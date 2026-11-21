@@ -17,9 +17,16 @@
 }
 
 .header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--wex-space-8);
+  }
 }
 
 .title {

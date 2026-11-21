@@ -204,7 +204,7 @@
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
-  transition: all 150ms ease;
+  transition: background-color 150ms ease, color 150ms ease;
   min-height: 40px;
 }
 

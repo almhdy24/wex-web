@@ -1,18 +1,20 @@
-/* Product Card conforming to ONE visual system */
+/* Product Card conforming to approved brand identity */
 .card {
   background: var(--wex-white);
   border-radius: var(--radius-card, 16px);
   padding: var(--space-3, 12px);
   border: 1px solid var(--wex-border);
-  box-shadow: none;
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   position: relative;
   height: 100%;
-  transition: border-color 200ms ease;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 }
 
 .card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
   border-color: var(--wex-royal);
 }
 
@@ -38,6 +40,7 @@
   border-radius: var(--radius-chip, 999px);
   z-index: 5;
   line-height: 1.35;
+  box-shadow: var(--shadow-sm);
 }
 
 /* Favorite Heart (Top Start) */
@@ -56,11 +59,17 @@
   justify-content: center;
   cursor: pointer;
   z-index: 6;
-  transition: opacity 200ms ease;
+  box-shadow: var(--shadow-sm);
+  transition: transform 120ms ease, opacity 180ms ease, border-color 180ms ease;
 }
 
 .favBtn:hover {
-  opacity: 0.8;
+  opacity: 0.9;
+  border-color: var(--wex-royal);
+}
+
+.favBtn:active {
+  transform: scale(0.9);
 }
 
 .favBtnActive {
@@ -72,8 +81,9 @@
 .imageContainer {
   width: 100%;
   aspect-ratio: 4 / 3;
-  background: var(--wex-ice);
+  background: linear-gradient(180deg, #FFFFFF 0%, var(--wex-ice) 100%);
   border-radius: var(--radius-control, 12px);
+  border: 1px solid rgba(11, 63, 191, 0.06);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -144,17 +154,24 @@
   overflow-wrap: break-word;
 }
 
-/* Spec Line */
+/* Spec Line Pills */
 .specsLine {
-  font-size: var(--text-caption, 12px);
-  font-weight: 400;
-  color: var(--wex-text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--wex-royal);
+  background: var(--wex-ice);
+  border: 1px solid rgba(11, 63, 191, 0.1);
+  border-radius: var(--radius-sm, 8px);
+  padding: 3px 8px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   direction: ltr;
   text-align: right;
   margin-bottom: var(--space-2, 8px);
+  align-self: flex-start;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* Price */
@@ -168,7 +185,7 @@
 
 .priceSdg {
   font-size: var(--text-body, 16px);
-  font-weight: 700;
+  font-weight: 800;
   color: var(--wex-navy);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
@@ -191,15 +208,17 @@
   font-size: var(--text-small, 14px);
   font-weight: 700;
   cursor: pointer;
-  transition: opacity 200ms ease;
+  box-shadow: var(--shadow-sm);
+  transition: transform 120ms ease, opacity 180ms ease, box-shadow 180ms ease;
 }
 
 .addCartBtn:hover {
-  opacity: 0.9;
+  opacity: 0.95;
+  box-shadow: var(--shadow-md);
 }
 
 .addCartBtn:active {
-  opacity: 0.8;
+  transform: scale(0.97);
 }
 
 .addedBtn {

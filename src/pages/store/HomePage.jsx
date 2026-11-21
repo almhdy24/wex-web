@@ -16,6 +16,7 @@ import ProductCard from '../../components/products/ProductCard';
 import { ProductCardSkeleton } from '../../components/common/Skeleton';
 import ErrorState from '../../components/common/ErrorState';
 import Page from '../../components/common/Page';
+import ProductTypeSvg from '../../components/common/ProductTypeSvg';
 import { formatPriceUpdateCaption } from '../../utils/formatters';
 import styles from './HomePage.module.css';
 
@@ -167,25 +168,37 @@ export default function HomePage({
           </div>
         </form>
 
-        {/* Caption: Last Price Update (once) */}
-        <p className={styles.priceUpdateCaption}>
-          آخر تحديث للأسعار: {formatPriceUpdateCaption(shopInfo?.prices_updated_at)}
-        </p>
+        {/* Caption: Last Price Update (once) with pulsing freshness dot */}
+        <div className={styles.priceUpdateWrapper}>
+          <span className={styles.pulseDot} aria-hidden="true" />
+          <p className={styles.priceUpdateCaption}>
+            آخر تحديث للأسعار: {formatPriceUpdateCaption(shopInfo?.prices_updated_at)}
+          </p>
+        </div>
       </header>
 
-      {/* 2. Hero Section (Gradient Royal to Navy, 3 Slides) */}
+      {/* 2. Hero Section (Official Brand Gradient with Slanted Ribbon & Device Silhouette) */}
       <section className={styles.heroCard} aria-label="العروض الرئيسية">
-        <div className={styles.heroContent}>
-          <h2 className={styles.heroTitle}>{slides[activeSlide].title}</h2>
-          <p className={styles.heroText}>{slides[activeSlide].text}</p>
-          <button
-            type="button"
-            onClick={slides[activeSlide].action}
-            className={styles.heroBtn}
-          >
-            <span>{slides[activeSlide].buttonLabel}</span>
-            <ArrowLeft size={18} strokeWidth={1.75} aria-hidden="true" />
-          </button>
+        <div className={styles.heroRibbonShine} aria-hidden="true" />
+        <div className={styles.heroInner}>
+          <div className={styles.heroContent}>
+            <h2 className={styles.heroTitle}>{slides[activeSlide].title}</h2>
+            <p className={styles.heroText}>{slides[activeSlide].text}</p>
+            <button
+              type="button"
+              onClick={slides[activeSlide].action}
+              className={styles.heroBtn}
+            >
+              <span>{slides[activeSlide].buttonLabel}</span>
+              <ArrowLeft size={18} strokeWidth={1.75} aria-hidden="true" />
+            </button>
+          </div>
+          <div className={styles.heroVisual} aria-hidden="true">
+            <ProductTypeSvg
+              type={activeSlide === 1 ? 'laptop' : (activeSlide === 2 ? 'accessory' : 'laptop')}
+              className={styles.heroIllustration}
+            />
+          </div>
         </div>
 
         {/* Slide Indicators */}
@@ -204,31 +217,68 @@ export default function HomePage({
         </div>
       </section>
 
-      {/* 3. Category Tiles (ONE Row: الحواسيب، الهواتف، الملحقات) */}
+      {/* 3. Category Bubbles (ONE Row: الحواسيب، الهواتف، الملحقات) */}
       <section className={styles.categoriesRow} aria-label="أقسام المتجر">
         <Link to="/products?type=laptop" className={styles.categoryTile}>
-          <div className={styles.categoryIconBox}>
-            <Laptop size={20} strokeWidth={1.75} />
+          <div className={styles.categoryIconBubble}>
+            <Laptop size={24} strokeWidth={1.75} />
           </div>
           <span className={styles.categoryTitle}>الحواسيب</span>
         </Link>
 
         <Link to="/products?type=phone" className={styles.categoryTile}>
-          <div className={styles.categoryIconBox}>
-            <Smartphone size={20} strokeWidth={1.75} />
+          <div className={styles.categoryIconBubble}>
+            <Smartphone size={24} strokeWidth={1.75} />
           </div>
           <span className={styles.categoryTitle}>الهواتف</span>
         </Link>
 
         <Link to="/products?type=accessory" className={styles.categoryTile}>
-          <div className={styles.categoryIconBox}>
-            <Headphones size={20} strokeWidth={1.75} />
+          <div className={styles.categoryIconBubble}>
+            <Headphones size={24} strokeWidth={1.75} />
           </div>
           <span className={styles.categoryTitle}>الملحقات</span>
         </Link>
       </section>
 
-      {/* 4. Section: وصل حديثًا */}
+      {/* 4. App Discount Ribbon Banner */}
+      <div
+        className={`${styles.appDiscountBanner} ${styles.wexRibbon}`}
+        onClick={() => navigate('/products')}
+        role="button"
+        tabIndex={0}
+        aria-label="خصم 3% للطلب عبر التطبيق"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') navigate('/products');
+        }}
+      >
+        <div className={styles.discountTextCol}>
+          <span className={styles.discountTag}>خصم الطلب بالتطبيق</span>
+          <h3 className={styles.discountTitle}>خصم 3% للطلب عبر التطبيق</h3>
+          <p className={styles.discountSubtitle}>تصفّح العروض المتوفرة وأكّد طلبك بسهولة</p>
+        </div>
+        <div className={styles.discountBadgeCircle}>
+          <span className={styles.discountBadgeNum}>-3%</span>
+          <span className={styles.discountBadgeLabel}>تخفيض</span>
+        </div>
+      </div>
+
+      {/* 5. Brand Logos Strip */}
+      <section className={styles.brandStripSection} aria-label="العلامات التجارية">
+        <div className={styles.brandScroll}>
+          {['Dell', 'Lenovo', 'HP', 'Apple', 'Acer', 'Asus'].map((brand) => (
+            <Link
+              key={brand}
+              to={`/products?brand=${encodeURIComponent(brand)}`}
+              className={styles.brandChip}
+            >
+              {brand}
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* 6. Section: وصل حديثًا */}
       {newArrivals.length > 0 && (
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
@@ -245,7 +295,7 @@ export default function HomePage({
         </section>
       )}
 
-      {/* 5. Section: للدراسة */}
+      {/* 7. Section: للدراسة */}
       {studyProducts.length > 0 && (
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
@@ -262,7 +312,7 @@ export default function HomePage({
         </section>
       )}
 
-      {/* 6. Section: للعمل */}
+      {/* 8. Section: للعمل */}
       {workProducts.length > 0 && (
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
@@ -279,7 +329,7 @@ export default function HomePage({
         </section>
       )}
 
-      {/* 7. Section: ملحقات */}
+      {/* 9. Section: ملحقات */}
       {accessoryProducts.length > 0 && (
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
@@ -296,7 +346,7 @@ export default function HomePage({
         </section>
       )}
 
-      {/* 8. Steps: طريقة الطلب (Once) */}
+      {/* 10. Steps: طريقة الطلب (Once) */}
       <section id="how-to-order" className={styles.stepsSection}>
         <h2 className={styles.sectionTitle}>طريقة الطلب</h2>
         <div className={styles.stepsGrid}>
@@ -330,9 +380,10 @@ export default function HomePage({
         </div>
       </section>
 
-      {/* 9. Shop Block (Once) */}
+      {/* 11. Shop Block (Once) */}
       <section className={styles.shopBlock}>
         <h2 className={styles.shopTitle}>ويكس تكنولوجي</h2>
+        <p className={styles.teamTagline}>فريق ويكس في خدمتكم في المتجر بأم درمان</p>
         <p className={styles.shopAddress}>
           {shopInfo?.address || 'مول الواحة، الشهداء، أم درمان'}
         </p>
