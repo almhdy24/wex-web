@@ -1,49 +1,73 @@
-# Wex Technology — Design System & UI Specification
+# Wex Technology — Unified Design System & Storefront Rescue Specification
 
-## 1. Brand Identity & Visual Guidelines
+## 1. Brand Identity & Color System (`src/styles/tokens.css`)
 
-Wex Technology is an established electronics retail store located in Omdurman, Sudan (Al-Waha Mall, Al-Shuhada). The design system conveys technical competence, calm reliability, and honest transparency without artificial marketing puffery.
+Wex Technology is an established electronics retail store located in Omdurman, Sudan (Al-Waha Mall, Al-Shuhada). The visual system conveys technical calm, reliable transparency, and honest communication without decorative noise or repeated messages.
 
-### 1.1 Color Palette (`src/styles/tokens.css`)
+### 1.1 Brand Palette
 
-| Token | Hex Value | Usage & Meaning |
+| Token | Hex Value | Usage & Meaning | WCAG AA Contrast |
+| :--- | :--- | :--- | :--- |
+| `--wex-navy` | `#061A55` | Primary text, headings, dark surfaces | 16.32:1 on White, 14.58:1 on Ice |
+| `--wex-royal` | `#0B3FBF` | Primary buttons, active tabs/chips, links | 8.48:1 on White |
+| `--wex-vivid` | `#1E6BFF` | Focus rings (`:focus-visible`), small active details | 4.65:1 on White |
+| `--wex-cyan` | `#00B7FF` | **2px Accents ONLY**: countdown ring accents, tiny indicators | (Never used for text or backgrounds) |
+| `--wex-ice` | `#EAF3FF` | Page background, tag background | Base surface |
+| `--wex-white` | `#FFFFFF` | Cards, modal sheets, input backgrounds | Base surface |
+
+### 1.2 Neutrals (Derived from Navy)
+
+| Token | Hex Value | Usage |
 | :--- | :--- | :--- |
-| `--color-navy` | `#061A55` | Primary headings, high-contrast body text, dark app bar surfaces. |
-| `--color-royal` / `--color-royal-blue` | `#0B3FBF` | Primary buttons, active state accents, interactive anchors. |
-| `--color-vivid` | `#1E6BFF` | Hover states, active tabs, focused elements. |
-| `--color-cyan` | `#00B7FF` | **Restrained Accent ONLY**: Focus rings (`:focus-visible`), live indicators, tiny dots. |
-| `--color-ice` / `--color-ice-blue` | `#EAF3FF` | Page backgrounds, subtle card highlights, informational strips. |
-| `--color-white` | `#FFFFFF` | Card surfaces, modal sheets, input backgrounds. |
+| `--wex-text-secondary` | `#4B5B85` | Secondary captions, timestamps, helpers (6.70:1 on White) |
+| `--wex-border` | `#D5E2F7` | 1px card and control borders |
+| `--wex-text-disabled` | `#9AA8C7` | Disabled states, placeholders |
 
-#### Semantic Status Tokens
-- **Success (`#10B981`):** In stock, confirmed order, approved payment receipt, active item.
-- **Warning (`#F59E0B`):** Low stock warning, pending payment, price lock < 30 minutes remaining.
-- **Danger (`#EF4444`):** Out of stock, expired price lock, cancelled order, rejected payment receipt.
-- **Info (`#2563EB`):** Delivery in transit, ready for store pickup, operational notifications.
+### 1.3 High-Contrast Semantic Status Tokens (Inside Status Chips & Text ONLY)
+
+- **Success (`--wex-success: #12805C`):** 4.92:1 on White. Confirmed orders, verified receipts.
+- **Warning (`--wex-warning: #B45309`):** 5.02:1 on White. Pending payment, urgent timer.
+- **Danger (`--wex-danger: #B42318`):** 6.57:1 on White. Expired orders, rejected proof.
+- **Zero other greens/oranges/reds:** WhatsApp buttons are royal outline with the WhatsApp icon (no green); favorite active heart is royal filled (no red); no colored dots on chips.
 
 ---
 
-## 2. Typography & Numeral System
+## 2. Surfaces & Gradients
 
-### 2.1 Self-Hosted Tajawal Font
-- **Family:** `Tajawal`, sans-serif (hosted via `@fontsource/tajawal`).
-- **Weights:** 400 (Regular), 500 (Medium), 700 (Bold), 800 (Extra Bold).
-- **Preloaded:** WOFF2 files for 400 and 700 weights preloaded in `index.html`.
-- **Eliminated:** All dependencies on Cairo, Inter, or Google Fonts CDN.
+### 2.1 Surfaces (Exactly Two)
+1. **Card (`Card.jsx` / `*.module.css`):** White surface (`#FFFFFF`), 1px border (`#D5E2F7`), radius 16px, zero box-shadow.
+2. **Dark Card (`DarkCard.jsx`):** Navy surface (`#061A55`), max ONE dark card per screen. Text strictly uses tokens `--on-dark: #FFFFFF` and `--on-dark-muted: #C9D6F5`.
 
-### 2.2 Western Digits & Tabular Numerals
-- **Rule:** Western Arabic digits (`0-9`) used across all screens for technical precision.
-- **Tabular Figures:** `font-variant-numeric: tabular-nums` enforced globally on html, inputs, timers, and prices.
-- **Arabic Paragraphs:** `line-height: 1.7` for comfortable Arabic reading.
+### 2.2 Gradients
+- Strictly **Royal to Navy** (`linear-gradient(135deg, #0B3FBF 0%, #061A55 100%)`).
+- Restricted to **EXACTLY TWO PLACES**: Hero banner and Payment Amount card.
+- Never used on buttons, tags, chips, or regular cards.
 
 ---
 
-## 3. Brand Graphic: Slanted Ribbon
+## 3. Spacing, Radius & Type Scale
 
-The slanted ribbon graphic (derived from the Wex X-arrow motif) is restricted to **EXACTLY TWO PLACES**:
-1. **Splash & Sign-In Header:** Header card on `LoginPage.jsx` and `VerifyOtpPage.jsx`.
-2. **Admin Screen Divider:** 2px subtle gradient bar directly below the page title in administrative views.
-3. **Nowhere Else:** No floating ribbons, background shapes, or decorative gradient noise on product cards or content areas.
+- **Spacing Scale:** 4px, 8px, 12px, 16px, 24px, 32px.
+- **Page Padding:** 16px (mobile) / 24px (desktop). Section gap: 24px.
+- **Radius Scale:** 12px (controls/inputs/buttons), 16px (cards/sheets), 999px (chips).
+- **Type Scale:**
+  - Caption: 12px
+  - Small: 14px
+  - Body: 16px (line-height 1.7)
+  - Title: 18px (line-height 1.35)
+  - Heading: 22px (line-height 1.35)
+  - Hero Title: 26-28px (weight 800)
+- **Weights:** 400 (regular) and 700 (bold) only (800 hero title only). Zero letter-spacing on Arabic.
+
+---
+
+## 4. Single-Source Message Principle
+
+Each message lives in ONE place per customer journey and nowhere else:
+1. **Price-lock explanation:** Only (a) one line above the checkout "تأكيد الطلب" button and (b) the payment screen. Never in cart, home banner, product page, or toasts.
+2. **Last price update:** Once, small caption under the Home search field (`آخر تحديث للأسعار: اليوم 9:00 ص`).
+3. **Shop address and hours:** Once on Home (shop block) and once in the footer/menu. Never inside hero or product tabs except the factual pickup line.
+4. **"How to order" steps:** Once, on Home. Number badges only, no icons over numbers.
 
 ---
 

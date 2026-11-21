@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Mail, ArrowRight, Loader2, RefreshCw } from 'lucide-react';
+import { Mail, Loader2, RefreshCw } from 'lucide-react';
 import Sheet from '../common/Sheet';
 import Button from '../common/Button';
 import { authApi } from '../../api/auth';
@@ -9,7 +9,7 @@ import styles from './AuthSheet.module.css';
 
 export default function AuthSheet({ isOpen, onClose, onSuccess }) {
   const { loginWithSession } = useAuth();
-  const { success, error: toastError } = useToast();
+  const { success } = useToast();
 
   const [mode, setMode] = useState('menu'); // 'menu' | 'email' | 'otp'
   const [email, setEmail] = useState('');

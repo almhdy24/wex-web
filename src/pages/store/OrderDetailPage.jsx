@@ -9,13 +9,12 @@ import {
   Upload,
   Info,
   Clock,
-  RotateCcw,
   CheckCircle2,
   AlertCircle,
   Loader2,
 } from 'lucide-react';
 import { ordersApi } from '../../api/orders';
-import { formatSdg, formatDate, format12hTime, getOrderStatusInfo } from '../../utils/formatters';
+import { formatSdg, formatDate } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
 import DarkCard from '../../components/common/DarkCard';

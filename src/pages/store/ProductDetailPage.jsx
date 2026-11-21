@@ -10,7 +10,6 @@ import {
   Maximize2,
   X,
   MapPin,
-  Clock,
   Truck,
 } from 'lucide-react';
 import { productsApi } from '../../api/products';

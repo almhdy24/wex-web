@@ -4,16 +4,16 @@ This checklist confirms adherence to the design rules, performance budgets, resp
 
 ---
 
-## 1. Responsive Viewport Matrix (Manual Verification Points)
+## 1. 360px Mobile Inspection Matrix (6 Key Screens to Review)
 
-| Breakpoint | Tier | Primary Layout Architecture | Key Component Behavior | Verification Status |
-| :--- | :--- | :--- | :--- | :--- |
-| **360 px** | Phone | Compact 1-column AppShell, max 480px | Compact `AppBar`, sticky `BottomTabBar`, 2-column compact product grids, bottom `Sheet` filter drawer, full-width sticky checkout CTA. Zero horizontal overflow. | **PASSED** |
-| **390 px** | Phone | Standard mobile AppShell (iPhone 12/13/14) | 44px touch targets, comfortable reading line length, sticky action bars above safe area, bottom sheets for filters. | **PASSED** |
-| **768 px** | Tablet | Fluid AppShell (expanding up to 768px) | 3-column product cards grid, `BottomTabBar` preserved for comfortable thumb interaction, bottom sheets automatically upgrade to centered modal `Dialog` (max 560px). | **PASSED** |
-| **1024 px** | Desktop (Entry) | Web layout switch (`DesktopShell`), max 1240px | `BottomTabBar` removed; 72px sticky `DesktopHeader` + 32px status strip active; side `CartDrawer` opens from header; 4-column footer; 2-column Catalog with sticky filter sidebar. | **PASSED** |
-| **1280 px** | Desktop (Standard) | 1240px centered container, 4vw side padding | 2-column Hero with drifting ribbons, 4-5 items visible per product rail with arrow scroll buttons, 2-column Product Detail (large gallery zoom + sticky buy box), 2-column Checkout. | **PASSED** |
-| **1536 px** | Desktop (Wide) | 1240px centered container with ice margins | Margins expand cleanly with `--color-ice-blue: #EAF3FF` background; content remains strictly bounded to 1240px; crisp Tajawal typography and no visual stretching. | **PASSED** |
+| Screen | Route | Key Verification Elements at 360px Viewport | Status |
+| :--- | :--- | :--- | :--- |
+| **1. Home** | `/` | Guest/user greeting without subtitle; single search field; small caption under search: `آخر تحديث للأسعار: اليوم 9:00 ص`; 3 hero slides (royal-to-navy gradient); exactly 1 row of category tiles (الحواسيب، الهواتف، الملحقات); sections (وصل حديثًا، للدراسة، للعمل، ملحقات); steps block "طريقة الطلب" with number badges only (no icons over numbers); shop block "ويكس تكنولوجي" with hours and royal outline WhatsApp button. Removed quick actions, category dots, floating WhatsApp, duplicate notices. | **VERIFIED** |
+| **2. Catalog** | `/products` | Title "الأجهزة"; single search field; 1 type chip row (الكل، لابتوبات، هواتف، ملحقات); "تصفية" button with active badge opening bottom sheet (الماركة، الحالة، السعر، الترتيب، زر تطبيق، زر مسح); result count with `pluralAr` ("لا توجد نتائج" / "نتيجة واحدة" / "نتيجتان" / "3 نتائج" / "14 نتيجة"); empty state "لا توجد أجهزة مطابقة. جرّب تغيير التصفية." with reset button; cards with 1 spec line, nowrap price, button "أضف", royal filled heart. | **VERIFIED** |
+| **3. Product Detail**| `/products/:slug` | 4:3 image area with gallery thumbnails or neutral laptop vector; condition tag; title; price line + single caption "السعر قابل للتغيير حتى تأكيد الطلب."; tabs "المواصفات" and "الاستلام والتوصيل" (factual settings/zones text only); button "مقارنة" with GitCompare icon; sticky bottom bar with quantity stepper, "أضف إلى السلة", and "اطلب الآن". Zero benefit boxes. | **VERIFIED** |
+| **4. Cart** | `/cart` | Title "السلة"; item rows with stepper, trash action, nowrap price; link "إضافة منتجات أخرى"; summary card: "المجموع ({count})" with `pluralAr` (جهاز واحد / جهازان / 3 أجهزة), "خصم التطبيق (3%)", "الإجمالي" (nowrap); sticky button "متابعة" with total. Zero notices or repeated totals. | **VERIFIED** |
+| **5. Checkout** | `/checkout` | Title "تأكيد الطلب" (ONE page, zero steppers or banners); section "طريقة الاستلام" with "الاستلام من المحل" (مجانًا) and "التوصيل" (حسب المنطقة); delivery fields (المنطقة select with fee, العنوان بالتفصيل); section "التواصل" (رقم الهاتف with helper, ملاحظات); summary card; ONE line above button: "بعد التأكيد يُثبَّت السعر لمدة {N} ساعات لتحوّل المبلغ وترفع إشعار التحويل."; sticky button "تأكيد الطلب"; AuthSheet on confirm if unauthenticated with auto-create on success. | **VERIFIED** |
+| **6. Payment** | `/orders/:number` | Header "الدفع - طلب {الرقم}" with back button to `/orders`; single gradient dark card with countdown "المتبقي لتثبيت السعر" and "المبلغ المطلوب" with copy button; card "حساب التحويل" with copy button; card "ارفع إشعار التحويل" with buttons "التقاط صورة" and "اختيار من المعرض", preview, button "إرسال الإشعار", and post-submission state "أُرسل الإشعار. بانتظار مراجعة المحل."; line "بعد المراجعة نُشعرك بتأكيد الدفع."; timeline; sticky "ارفع إشعار التحويل" button while pending. | **VERIFIED** |
 
 ---
 

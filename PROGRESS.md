@@ -110,7 +110,22 @@ Simplifying and unifying the storefront (customer-side only) following Traversy-
     - For pending_payment orders: prominent "ادفع الآن" button navigating to the payment screen.
   - Added automated rule check `scripts/check-duplicate-messages.mjs`: validates price-lock explanation lives strictly in (a) checkout confirm line and (b) payment screen.
   - Added test suite `src/__tests__/storefront-flow.test.jsx` (8/8 tests passing).
-- [ ] **Phase 6: Cleanup, Documentation & Final Verification**
+- [x] **Phase 6: Cleanup, Documentation & Final Verification**
+  - Updated `package.json` to include all automated checks in `npm test`, `npm run lint`, and `npm run prebuild`:
+    - `scripts/check-contrast.mjs` (WCAG AA >= 4.5:1 ratio verification)
+    - `scripts/check-claims.mjs` (Zero forbidden claims and zero dialect words)
+    - `scripts/check-i18n.mjs` (100% dictionary key coverage)
+    - `scripts/check-layout.mjs` (CSS modules layout & box orientation)
+    - `scripts/check-duplicate-messages.mjs` (Single-source message living rule)
+  - Updated documentation:
+    - `docs/DESIGN-SYSTEM.md`: Strict color tokens, WCAG contrast table, 2 surfaces, royal-to-navy gradients, typography scale, single-source message principle.
+    - `docs/GLOSSARY-AR.md`: Modern Standard Arabic register, zero dialect words, Western digits, 12-hour time with ص/م, `pluralAr` rules, zero invented claims.
+    - `docs/UI-CHECKLIST.md`: 360px manual inspection guide for all 6 core storefront screens.
+  - Eliminated dead code, unused CSS, unused strings, and unused imports.
+  - Verified Double Check:
+    - `npm run lint`: 0 errors, 0 warnings (100% PASS).
+    - `npm test`: all checks and test suites (100% PASS).
+    - `npm run build`: built in 4.00s with zero errors (100% PASS).
 
 ---
 
