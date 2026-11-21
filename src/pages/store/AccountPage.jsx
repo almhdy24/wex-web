@@ -437,7 +437,7 @@ export default function AccountPage() {
                 <h3 className={styles.quickCardTitle}>قائمة الأجهزة المفضلة</h3>
                 <p className={styles.quickCardDesc}>
                   {favorites.length > 0
-                    ? `لديك ${favorites.length} أجهزة محفوظة للشراء السريع`
+                    ? `لديك ${favorites.length} أجهزة محفوظة للشراء`
                     : 'احفظ الأجهزة لمتابعة الأسعار ونقلها للسلة بضغطة واحدة'}
                 </p>
               </div>

@@ -128,7 +128,7 @@ export default function StoreFooter({ shopInfo = null }) {
             {ar.desktop.footer.copyright.replace('{year}', currentYear)}
           </div>
           <div className={styles.disclaimer}>
-            جميع الأسعار معروضة بالجنيه السوداني فقط (ج.س) وتُثبت فور تأكيد الطلب.
+            جميع الأسعار معروضة بعملة ج.س وتُثبَّت عند تأكيد الطلب.
           </div>
         </div>
       </div>

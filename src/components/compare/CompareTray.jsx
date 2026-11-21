@@ -30,7 +30,7 @@ export default function CompareTray() {
   return (
     <aside
       className={styles.trayContainer}
-      aria-label="شريط المقارنة السريعة"
+      aria-label="شريط المقارنة"
     >
       <div className={styles.trayCard}>
         <div className={styles.itemsList}>

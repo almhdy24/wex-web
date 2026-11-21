@@ -8,7 +8,7 @@ export const actions = {
   confirmDeleteTitle: 'تأكيد الحذف',
   confirmDeleteDesc: 'هل أنت متأكد من رغبتك في الحذف؟ لا يمكن التراجع عن هذا الإجراء.',
   confirmCancelOrderTitle: 'تأكيد إلغاء الطلب',
-  confirmCancelOrderDesc: 'هل أنت متأكد من رغبتك في إلغاء هذا الطلب؟ سيتم فك حجز الأجهزة فوراً.',
+  confirmCancelOrderDesc: 'هل أنت متأكد من رغبتك في إلغاء هذا الطلب؟ سيتم إلغاء حجز الأجهزة.',
   unsavedChangesTitle: 'تغييرات غير محفوظة',
   unsavedChangesDesc: 'لديك تعديلات لم يتم حفظها. هل تريد مغادرة الصفحة دون حفظ؟',
   discardChanges: 'تجاهل التغييرات',

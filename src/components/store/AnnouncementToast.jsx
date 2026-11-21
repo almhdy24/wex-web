@@ -124,7 +124,7 @@ export default function AnnouncementToast({ announcements: propAnnouncements }) 
   const kindBorderClass = styles[currentToast.kind] || styles.info;
 
   return (
-    <div className={styles.toastWrapper} role="region" aria-label="تنبيه سريع">
+    <div className={styles.toastWrapper} role="region" aria-label="تنبيه">
       <div
         className={`${styles.toast} ${kindBorderClass} ${isExiting ? styles.leaving : styles.entering}`}
         role="alert"

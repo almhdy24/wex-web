@@ -1,6 +1,30 @@
 # Wex Technology Web - Project Progress Tracker
 
-## App Shell Track (Branch: app-shell) — Current
+## Storefront Rescue Track (Branch: storefront-rescue) — Active
+
+Simplifying and unifying the storefront (customer-side only) following Traversy-style readable code, strict Design System tokens, single message living rule, zero dialect or puffery, and end-to-end purchase flow integrity.
+
+- [x] **Phase 0: Baseline, Copy Deck & Automated Verification Infrastructure**
+  - Read `PROGRESS.md` and verified receipt upload with live curl test end-to-end (POST `/api/v1/orders/{id}/payment-proof` returned 201 Created).
+  - Verified seeder spelling for Omdurman (`أم درمان`) and added unit test in `wex-api/tests/unit/ShippingZonesTest.php`.
+  - Replaced `src/content/ar.js` storefront strings with the designated Copy Deck in Modern Standard Arabic, replacing dialect words, non-standard currency names, and invented warranty/delivery claims.
+  - Added automated checks:
+    - `scripts/check-contrast.mjs`: WCAG AA contrast ratio validator (>= 4.5:1 for standard text, >= 3:1 for large).
+    - `scripts/check-claims.mjs`: Scanner for forbidden claims (`ضمان|فحص|اختبار|تجربة|استبدال|استرجاع|إرجاع|معتمد|وكيل|رسمي|مضمون|فورًا|فوراً|سريع|الآمن|24|48 ساعة|فاتورة|جنيه|ستسجل`) and Sudanese dialect (`بنثبت|ليك|شنو|عاوز|دا |دي |هسي|كدا`).
+    - `scripts/check-layout.mjs`: Layout rules scanner (nowrap on prices, line-clamp orientation).
+    - `scripts/check-i18n.mjs`: 100% dictionary key coverage validator.
+  - Verified `scripts/check-i18n.mjs` PASS on 131 files and 456 keys.
+
+- [ ] **Phase 1: Design System Tokens & Base Primitives**
+- [ ] **Phase 2: Home Screen Simplification**
+- [ ] **Phase 3: Catalog, Filter Sheet, Product Card & Product Page**
+- [ ] **Phase 4: Cart, Checkout & Inline Sign-in Sheet**
+- [ ] **Phase 5: Payment Screen, Orders List & Flow Verification**
+- [ ] **Phase 6: Cleanup, Documentation & Final Verification**
+
+---
+
+## App Shell Track (Branch: app-shell)
 
 Rebuilding storefront UI as ONE mobile-app-style experience identical on phone and desktop matching `~/projects/wex-mockup` (source of truth).
 

@@ -185,7 +185,7 @@ export default function LoginPage() {
           </div>
           <h1 className={styles.cardTitle}>تسجيل الدخول إلى ويكس</h1>
           <p className={styles.cardSubtitle}>
-            سجل دخولك بدون كلمة مرور للوصول السريع لطلباتك والتمتع بمزايا التطبيق
+            سجل دخولك بدون كلمة مرور للوصول لطلباتك والتمتع بمزايا التطبيق
           </p>
 
           {/* Value proposition badges */}
@@ -324,7 +324,7 @@ export default function LoginPage() {
         <div className={styles.footerNote}>
           <div className={styles.trustBadge}>
             <ShieldCheck size={14} className={styles.trustIcon} />
-            <span>تسجيل آمن وسريع بدون كلمة مرور معقدة</span>
+            <span>تسجيل الدخول بدون كلمة مرور</span>
           </div>
           <p className={styles.termsText}>
             بالتسجيل، أنت توافق على شروط متجر ويكس تكنولوجي وسياسة الخصوصية.

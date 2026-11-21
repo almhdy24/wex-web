@@ -7,7 +7,7 @@ export default function NotFoundPage() {
   return (
     <div className={styles.wrapper}>
       <div className={styles.code}>404</div>
-      <h1 className={styles.title}>الصفحة دي ما موجودة</h1>
+      <h1 className={styles.title}>الصفحة غير موجودة</h1>
       <p className={styles.message}>
         الرابط غلط أو تم نقل الصفحة. تقدر ترجع للرئيسية أو تتصفح كتالوج الأجهزة.
       </p>
