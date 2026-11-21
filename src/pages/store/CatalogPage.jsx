@@ -1,66 +1,112 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import {
-  Search,
-  RotateCcw,
-  ArrowRight,
-  ArrowLeft,
-  LayoutGrid,
-  List,
-  Filter,
-} from 'lucide-react';
+import { Search, SlidersHorizontal, RotateCcw } from 'lucide-react';
 import { productsApi } from '../../api/products';
 import ProductCard from '../../components/products/ProductCard';
 import { ProductCardSkeleton } from '../../components/common/Skeleton';
-import EmptyState from '../../components/common/EmptyState';
-import ErrorState from '../../components/common/ErrorState';
-import { t } from '../../content/ar';
+import Sheet from '../../components/common/Sheet';
+import Button from '../../components/common/Button';
+import Chip from '../../components/common/Chip';
+import { pluralAr } from '../../utils/pluralAr';
 import styles from './CatalogPage.module.css';
+
+const TYPE_CHIPS = [
+  { id: 'all', label: 'الكل' },
+  { id: 'laptops', label: 'لابتوبات' },
+  { id: 'phones', label: 'هواتف' },
+  { id: 'accessories', label: 'ملحقات' },
+];
 
 const POPULAR_BRANDS = ['Dell', 'Lenovo', 'HP', 'Apple', 'Acer', 'Asus'];
 
-export default function CatalogPage() {
+const CONDITION_OPTIONS = [
+  { id: 'all', label: 'الكل' },
+  { id: 'new', label: 'جديد' },
+  { id: 'used', label: 'مستعمل استيراد' },
+];
+
+const PRICE_OPTIONS = [
+  { id: 'all', label: 'الكل' },
+  { id: 'under-400k', label: 'أقل من 400,000 ج.س' },
+  { id: '400k-800k', label: '400,000 - 800,000 ج.س' },
+  { id: 'over-800k', label: 'أكثر من 800,000 ج.س' },
+];
+
+const SORT_OPTIONS = [
+  { id: 'newest', label: 'الأحدث' },
+  { id: 'price-low', label: 'الأقل سعرًا' },
+  { id: 'price-high', label: 'الأعلى سعرًا' },
+];
+
+export function formatResultsCount(count) {
+  if (count === 0) return 'لا توجد نتائج';
+  if (count === 1) return 'نتيجة واحدة';
+  return pluralAr(count, {
+    two: 'نتيجتان',
+    few: 'نتائج',
+    many: 'نتيجة',
+    one: 'نتيجة',
+  });
+}
+
+export default function CatalogPage({
+  initialProducts = null,
+  initialLoading = null,
+} = {}) {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Active filters initialized from URL
-  const [query, setQuery] = useState(searchParams.get('search') || searchParams.get('q') || '');
-  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
-  const [selectedBrand, setSelectedBrand] = useState(searchParams.get('brand') || 'all');
-  const [selectedCondition, setSelectedCondition] = useState(searchParams.get('condition') || 'all');
-  const [selectedSort, setSelectedSort] = useState(searchParams.get('sort') || 'newest');
-  const [pricePreset, setPricePreset] = useState(searchParams.get('price') || 'all');
-  const [inStockOnly, setInStockOnly] = useState(searchParams.get('in_stock') === '1');
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
-  const [currentPage, setCurrentPage] = useState(Number(searchParams.get('page')) || 1);
+  // URL state
+  const urlSearch = searchParams.get('search') || searchParams.get('q') || '';
+  const urlCategory = searchParams.get('category') || 'all';
+  const urlBrand = searchParams.get('brand') || 'all';
+  const urlCondition = searchParams.get('condition') || 'all';
+  const urlPrice = searchParams.get('price') || 'all';
+  const urlSort = searchParams.get('sort') || 'newest';
+  const urlPage = Number(searchParams.get('page')) || 1;
+
+  // Active filters
+  const [searchQuery, setSearchQuery] = useState(urlSearch);
+  const [selectedType, setSelectedType] = useState(urlCategory);
+  const [selectedBrand, setSelectedBrand] = useState(urlBrand);
+  const [selectedCondition, setSelectedCondition] = useState(urlCondition);
+  const [selectedPrice, setSelectedPrice] = useState(urlPrice);
+  const [selectedSort, setSelectedSort] = useState(urlSort);
+  const [currentPage, setCurrentPage] = useState(urlPage);
+
+  // Bottom Sheet Filter draft state
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+  const [draftBrand, setDraftBrand] = useState(urlBrand);
+  const [draftCondition, setDraftCondition] = useState(urlCondition);
+  const [draftPrice, setDraftPrice] = useState(urlPrice);
+  const [draftSort, setDraftSort] = useState(urlSort);
 
   // Data states
-  const [categoriesList, setCategoriesList] = useState([]);
-  const [brandsList, setBrandsList] = useState([]);
-  const [products, setProducts] = useState([]);
+  const [brandsList, setBrandsList] = useState(POPULAR_BRANDS);
+  const [products, setProducts] = useState(initialProducts || []);
   const [meta, setMeta] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(initialLoading ?? (initialProducts === null));
   const [error, setError] = useState(null);
 
-  // Fetch metadata once
+  // Fetch brands once
   useEffect(() => {
     let isMounted = true;
-    Promise.all([productsApi.getCategories(), productsApi.getBrands()])
-      .then(([catsRes, brandsRes]) => {
+    productsApi
+      .getBrands()
+      .then((res) => {
         if (!isMounted) return;
-        setCategoriesList(catsRes?.data || []);
-        const bList = brandsRes?.data || [];
-        setBrandsList(bList.length > 0 ? bList.map((b) => b.name) : POPULAR_BRANDS);
+        const list = res?.data || [];
+        if (list.length > 0) {
+          setBrandsList(list.map((b) => b.name));
+        }
       })
-      .catch(() => {
-        if (isMounted) setBrandsList(POPULAR_BRANDS);
-      });
+      .catch(() => {});
     return () => {
       isMounted = false;
     };
   }, []);
 
-  // Fetch products matching filters
-  const loadProducts = useCallback(async () => {
+  // Fetch products
+  const fetchProducts = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -69,20 +115,18 @@ export default function CatalogPage() {
       per_page: 12,
     };
 
-    if (query.trim()) params.q = query.trim();
-    if (selectedCategory && selectedCategory !== 'all') params.category = selectedCategory;
-    if (selectedBrand && selectedBrand !== 'all') params.brand = selectedBrand;
-    if (selectedCondition && selectedCondition !== 'all') params.condition = selectedCondition;
-    if (inStockOnly) params.in_stock = 1;
+    if (searchQuery.trim()) params.q = searchQuery.trim();
+    if (selectedType !== 'all') params.category = selectedType;
+    if (selectedBrand !== 'all') params.brand = selectedBrand;
+    if (selectedCondition !== 'all') params.condition = selectedCondition;
 
-    // Price preset mapping (SDG only)
-    if (pricePreset === 'under-400k') {
-      params.max_price = 400000;
-    } else if (pricePreset === '400k-800k') {
-      params.min_price = 400000;
-      params.max_price = 800000;
-    } else if (pricePreset === 'over-800k') {
-      params.min_price = 800000;
+    if (selectedPrice === 'under-400k') {
+      params.max_price_sdg = 400000;
+    } else if (selectedPrice === '400k-800k') {
+      params.min_price_sdg = 400000;
+      params.max_price_sdg = 800000;
+    } else if (selectedPrice === 'over-800k') {
+      params.min_price_sdg = 800000;
     }
 
     if (selectedSort === 'price-low') {
@@ -93,23 +137,22 @@ export default function CatalogPage() {
       params.sort = 'newest';
     }
 
-    // Keep URL in sync
-    const urlParams = {};
-    if (query.trim()) urlParams.search = query.trim();
-    if (selectedCategory && selectedCategory !== 'all') urlParams.category = selectedCategory;
-    if (selectedBrand && selectedBrand !== 'all') urlParams.brand = selectedBrand;
-    if (selectedCondition && selectedCondition !== 'all') urlParams.condition = selectedCondition;
-    if (pricePreset !== 'all') urlParams.price = pricePreset;
-    if (inStockOnly) urlParams.in_stock = '1';
-    if (selectedSort !== 'newest') urlParams.sort = selectedSort;
-    if (currentPage > 1) urlParams.page = currentPage;
+    // Sync URL params
+    const nextParams = {};
+    if (searchQuery.trim()) nextParams.search = searchQuery.trim();
+    if (selectedType !== 'all') nextParams.category = selectedType;
+    if (selectedBrand !== 'all') nextParams.brand = selectedBrand;
+    if (selectedCondition !== 'all') nextParams.condition = selectedCondition;
+    if (selectedPrice !== 'all') nextParams.price = selectedPrice;
+    if (selectedSort !== 'newest') nextParams.sort = selectedSort;
+    if (currentPage > 1) nextParams.page = currentPage;
 
-    setSearchParams(urlParams, { replace: true });
+    setSearchParams(nextParams, { replace: true });
 
     try {
       const res = await productsApi.getProducts(params);
-      setProducts(res.data || []);
-      setMeta(res.meta || null);
+      setProducts(res?.data || []);
+      setMeta(res?.meta || null);
     } catch (err) {
       setError(err.message || 'تعذر تحميل المنتجات');
     } finally {
@@ -117,401 +160,297 @@ export default function CatalogPage() {
     }
   }, [
     currentPage,
-    query,
-    selectedCategory,
+    searchQuery,
+    selectedType,
     selectedBrand,
     selectedCondition,
-    pricePreset,
-    inStockOnly,
+    selectedPrice,
     selectedSort,
     setSearchParams,
   ]);
 
   useEffect(() => {
-    loadProducts();
-  }, [loadProducts]);
+    if (initialProducts === null) {
+      fetchProducts();
+    }
+  }, [fetchProducts, initialProducts]);
 
-  const handleSearchChange = (e) => {
-    setQuery(e.target.value);
-    setCurrentPage(1);
+  // Open filter sheet and initialize draft state
+  const handleOpenFilterSheet = () => {
+    setDraftBrand(selectedBrand);
+    setDraftCondition(selectedCondition);
+    setDraftPrice(selectedPrice);
+    setDraftSort(selectedSort);
+    setIsFilterSheetOpen(true);
   };
 
-  const handleCategorySelect = (slug) => {
-    setSelectedCategory(slug);
+  // Apply filters from bottom sheet
+  const handleApplySheetFilters = () => {
+    setSelectedBrand(draftBrand);
+    setSelectedCondition(draftCondition);
+    setSelectedPrice(draftPrice);
+    setSelectedSort(draftSort);
     setCurrentPage(1);
+    setIsFilterSheetOpen(false);
   };
 
-  const handleBrandSelect = (brandName) => {
-    setSelectedBrand(brandName);
-    setCurrentPage(1);
+  // Reset filters inside bottom sheet
+  const handleResetSheetDraft = () => {
+    setDraftBrand('all');
+    setDraftCondition('all');
+    setDraftPrice('all');
+    setDraftSort('newest');
   };
 
-  const handleResetFilters = () => {
-    setQuery('');
-    setSelectedCategory('all');
+  // Reset all filters
+  const handleResetAll = () => {
+    setSearchQuery('');
+    setSelectedType('all');
     setSelectedBrand('all');
     setSelectedCondition('all');
-    setPricePreset('all');
-    setInStockOnly(false);
+    setSelectedPrice('all');
     setSelectedSort('newest');
     setCurrentPage(1);
   };
 
-  const totalCount = meta?.total || products.length;
-  const hasActiveFilters = Boolean(
-    query.trim() ||
-    selectedCategory !== 'all' ||
-    selectedBrand !== 'all' ||
-    selectedCondition !== 'all' ||
-    pricePreset !== 'all' ||
-    inStockOnly
-  );
+  // Active filter count for badge (brand, condition, price, sort)
+  let activeFiltersCount = 0;
+  if (selectedBrand !== 'all') activeFiltersCount++;
+  if (selectedCondition !== 'all') activeFiltersCount++;
+  if (selectedPrice !== 'all') activeFiltersCount++;
+  if (selectedSort !== 'newest') activeFiltersCount++;
+
+  const totalResults = meta?.total !== undefined ? meta.total : products.length;
 
   return (
     <div className={styles.container}>
-      {/* Mobile/Tablet In-Catalog Search Bar (hidden on desktop where top header search lives) */}
-      <section className={styles.searchSection} aria-label={t('catalog.searchPlaceholder')}>
-        <div className={styles.searchForm}>
+      {/* Title */}
+      <header className={styles.header}>
+        <h1 className={styles.title}>الأجهزة</h1>
+      </header>
+
+      {/* Search Field */}
+      <div className={styles.searchRow}>
+        <div className={styles.searchBox}>
+          <Search size={18} className={styles.searchIcon} aria-hidden="true" />
           <input
             type="search"
-            value={query}
-            onChange={handleSearchChange}
-            placeholder={t('catalog.searchPlaceholder')}
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
+            placeholder="ابحث عن جهاز أو ماركة"
             className={styles.searchInput}
-            aria-label={t('catalog.searchPlaceholder')}
+            aria-label="ابحث عن جهاز أو ماركة"
           />
-          <Search size={16} className={styles.searchIcon} />
         </div>
-      </section>
-
-      {/* Mobile/Tablet Filter Bar 1: Categories & Conditions */}
-      <section className={styles.filterScrollSection} aria-label="تصنيفات الأجهزة">
-        <div className={styles.filterChipsScroll}>
-          <button
-            type="button"
-            className={`${styles.filterChip} ${selectedCategory === 'all' && selectedCondition === 'all' ? styles.active : ''}`}
-            onClick={() => { setSelectedCategory('all'); setSelectedCondition('all'); setCurrentPage(1); }}
-          >
-            الكل
-          </button>
-
-          <button
-            type="button"
-            className={`${styles.filterChip} ${selectedCondition === 'new' ? styles.active : ''}`}
-            onClick={() => { setSelectedCondition(selectedCondition === 'new' ? 'all' : 'new'); setCurrentPage(1); }}
-          >
-            {t('home.categories.conditionNew')}
-          </button>
-
-          <button
-            type="button"
-            className={`${styles.filterChip} ${selectedCondition === 'used' ? styles.active : ''}`}
-            onClick={() => { setSelectedCondition(selectedCondition === 'used' ? 'all' : 'used'); setCurrentPage(1); }}
-          >
-            {t('home.categories.conditionUsed')}
-          </button>
-
-          {categoriesList.map((cat) => (
-            <button
-              key={cat.id}
-              type="button"
-              className={`${styles.filterChip} ${selectedCategory === cat.slug ? styles.active : ''}`}
-              onClick={() => handleCategorySelect(cat.slug)}
-            >
-              {cat.name_ar || cat.name}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Mobile/Tablet Filter Bar 2: Brands & Sort Dropdown */}
-      <section className={styles.brandSortSection} aria-label="الماركات والترتيب">
-        <div className={styles.filterChipsScroll}>
-          <button
-            type="button"
-            className={`${styles.filterChip} ${selectedBrand === 'all' ? styles.active : ''}`}
-            onClick={() => handleBrandSelect('all')}
-          >
-            كل الماركات
-          </button>
-
-          {brandsList.map((brand) => (
-            <button
-              key={brand}
-              type="button"
-              className={`${styles.filterChip} ${selectedBrand === brand ? styles.active : ''}`}
-              onClick={() => handleBrandSelect(brand)}
-            >
-              {brand}
-            </button>
-          ))}
-        </div>
-
-        <select
-          value={selectedSort}
-          onChange={(e) => { setSelectedSort(e.target.value); setCurrentPage(1); }}
-          className={styles.sortSelect}
-          aria-label={t('catalog.sortTitle')}
-        >
-          <option value="newest">{t('catalog.sortNewest')}</option>
-          <option value="price-low">{t('catalog.sortPriceAsc')}</option>
-          <option value="price-high">{t('catalog.sortPriceDesc')}</option>
-        </select>
-      </section>
-
-      {/* Main 2-Column Catalog Container (Sidebar + Results) */}
-      <div className={styles.catalogLayout}>
-        {/* Desktop Sticky Filter Sidebar */}
-        <aside className={styles.desktopSidebar} aria-label="تصفية الأجهزة">
-          <div className={styles.sidebarCard}>
-            <div className={styles.sidebarHeader}>
-              <div className={styles.sidebarTitleRow}>
-                <Filter size={18} className={styles.filterIcon} />
-                <h3 className={styles.sidebarTitle}>تصفية الأجهزة</h3>
-              </div>
-              {hasActiveFilters && (
-                <button
-                  type="button"
-                  onClick={handleResetFilters}
-                  className={styles.sidebarResetBtn}
-                  title={t('catalog.resetFilters')}
-                >
-                  <RotateCcw size={12} />
-                  <span>مسح الكل</span>
-                </button>
-              )}
-            </div>
-
-            {/* Filter Section: Categories */}
-            <div className={styles.filterGroup}>
-              <h4 className={styles.groupHeading}>نوع الجهاز</h4>
-              <div className={styles.groupOptions}>
-                <button
-                  type="button"
-                  className={`${styles.sidebarChip} ${selectedCategory === 'all' ? styles.sidebarChipActive : ''}`}
-                  onClick={() => handleCategorySelect('all')}
-                >
-                  الكل
-                </button>
-                {categoriesList.map((cat) => (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    className={`${styles.sidebarChip} ${selectedCategory === cat.slug ? styles.sidebarChipActive : ''}`}
-                    onClick={() => handleCategorySelect(cat.slug)}
-                  >
-                    {cat.name_ar || cat.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Filter Section: Condition */}
-            <div className={styles.filterGroup}>
-              <h4 className={styles.groupHeading}>حالة الجهاز</h4>
-              <div className={styles.groupOptions}>
-                <button
-                  type="button"
-                  className={`${styles.sidebarChip} ${selectedCondition === 'all' ? styles.sidebarChipActive : ''}`}
-                  onClick={() => { setSelectedCondition('all'); setCurrentPage(1); }}
-                >
-                  الكل
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.sidebarChip} ${selectedCondition === 'new' ? styles.sidebarChipActive : ''}`}
-                  onClick={() => { setSelectedCondition('new'); setCurrentPage(1); }}
-                >
-                  {t('home.categories.conditionNew')}
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.sidebarChip} ${selectedCondition === 'used' ? styles.sidebarChipActive : ''}`}
-                  onClick={() => { setSelectedCondition('used'); setCurrentPage(1); }}
-                >
-                  {t('home.categories.conditionUsed')}
-                </button>
-              </div>
-            </div>
-
-            {/* Filter Section: Brands */}
-            <div className={styles.filterGroup}>
-              <h4 className={styles.groupHeading}>الماركة</h4>
-              <div className={styles.brandOptionsList}>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="radio"
-                    name="brand-filter"
-                    checked={selectedBrand === 'all'}
-                    onChange={() => handleBrandSelect('all')}
-                    className={styles.radioInput}
-                  />
-                  <span>كل الماركات</span>
-                </label>
-                {brandsList.map((brand) => (
-                  <label key={brand} className={styles.checkboxLabel}>
-                    <input
-                      type="radio"
-                      name="brand-filter"
-                      checked={selectedBrand === brand}
-                      onChange={() => handleBrandSelect(brand)}
-                      className={styles.radioInput}
-                    />
-                    <span>{brand}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Filter Section: Price Presets (SDG tabular) */}
-            <div className={styles.filterGroup}>
-              <h4 className={styles.groupHeading}>نطاق السعر (ج.س)</h4>
-              <div className={styles.groupOptions}>
-                {[
-                  { id: 'all', label: 'الكل' },
-                  { id: 'under-400k', label: 'أقل من 400,000 ج.س' },
-                  { id: '400k-800k', label: '400,000 — 800,000 ج.س' },
-                  { id: 'over-800k', label: 'أكثر من 800,000 ج.س' },
-                ].map((preset) => (
-                  <button
-                    key={preset.id}
-                    type="button"
-                    className={`${styles.sidebarChip} ${pricePreset === preset.id ? styles.sidebarChipActive : ''}`}
-                    onClick={() => { setPricePreset(preset.id); setCurrentPage(1); }}
-                  >
-                    {preset.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Filter Section: In-Stock Toggle */}
-            <div className={styles.filterGroup}>
-              <label className={styles.toggleLabel}>
-                <input
-                  type="checkbox"
-                  checked={inStockOnly}
-                  onChange={(e) => { setInStockOnly(e.target.checked); setCurrentPage(1); }}
-                  className={styles.checkboxInput}
-                />
-                <span className={styles.toggleText}>الأجهزة المتوفرة فقط</span>
-              </label>
-            </div>
-          </div>
-        </aside>
-
-        {/* Results Column */}
-        <section className={styles.resultsColumn} aria-label="قائمة الأجهزة">
-          {/* Desktop Toolbar */}
-          <div className={styles.toolbar}>
-            <div className={styles.resultsCount}>
-              {loading ? (
-                <span>{t('common.loading')}</span>
-              ) : (
-                <span>{t('catalog.resultsCount', { count: totalCount })}</span>
-              )}
-            </div>
-
-            <div className={styles.toolbarControls}>
-              {/* Grid / List View Toggle */}
-              <div className={styles.viewToggleGroup}>
-                <button
-                  type="button"
-                  className={`${styles.viewBtn} ${viewMode === 'grid' ? styles.viewBtnActive : ''}`}
-                  onClick={() => setViewMode('grid')}
-                  aria-label="عرض شبكي"
-                  title="عرض شبكي"
-                >
-                  <LayoutGrid size={16} />
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.viewBtn} ${viewMode === 'list' ? styles.viewBtnActive : ''}`}
-                  onClick={() => setViewMode('list')}
-                  aria-label="عرض قائمة"
-                  title="عرض قائمة"
-                >
-                  <List size={16} />
-                </button>
-              </div>
-
-              {/* Sort Dropdown */}
-              <select
-                value={selectedSort}
-                onChange={(e) => { setSelectedSort(e.target.value); setCurrentPage(1); }}
-                className={styles.toolbarSortSelect}
-                aria-label={t('catalog.sortTitle')}
-              >
-                <option value="newest">{t('catalog.sortNewest')}</option>
-                <option value="price-low">{t('catalog.sortPriceAsc')}</option>
-                <option value="price-high">{t('catalog.sortPriceDesc')}</option>
-              </select>
-
-              {hasActiveFilters && (
-                <button
-                  type="button"
-                  onClick={handleResetFilters}
-                  className={styles.mobileResetBtn}
-                >
-                  <RotateCcw size={12} />
-                  <span>{t('catalog.resetFilters')}</span>
-                </button>
-              )}
-            </div>
-          </div>
-
-          {error && <ErrorState message={error} onRetry={loadProducts} />}
-
-          {/* Product Grid / List */}
-          <div className={viewMode === 'list' ? styles.productList : styles.productGrid}>
-            {loading ? (
-              Array.from({ length: 6 }).map((_, i) => <ProductCardSkeleton key={i} />)
-            ) : products.length > 0 ? (
-              products.map((prod, idx) => (
-                <ProductCard key={prod.id} product={prod} index={idx} />
-              ))
-            ) : !error ? (
-              <div className={styles.emptyContainer}>
-                <EmptyState
-                  title={t('catalog.noResultsTitle')}
-                  description={t('catalog.noResultsDesc')}
-                  actionLabel={t('catalog.resetFilters')}
-                  onAction={handleResetFilters}
-                />
-              </div>
-            ) : null}
-          </div>
-
-          {/* Pagination */}
-          {meta && meta.last_page > 1 && (
-            <nav className={styles.pagination} aria-label="صفحات المنتجات">
-              <button
-                type="button"
-                disabled={currentPage <= 1}
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                className={styles.pageBtn}
-              >
-                <ArrowRight size={16} />
-                <span>السابق</span>
-              </button>
-
-              <span className={styles.pageInfo}>
-                صفحة {currentPage} من {meta.last_page}
-              </span>
-
-              <button
-                type="button"
-                disabled={currentPage >= meta.last_page}
-                onClick={() => setCurrentPage((p) => Math.min(meta.last_page, p + 1))}
-                className={styles.pageBtn}
-              >
-                <span>التالي</span>
-                <ArrowLeft size={16} />
-              </button>
-            </nav>
-          )}
-        </section>
       </div>
+
+      {/* Controls Bar: Type Chips Row + Filter Button */}
+      <div className={styles.controlsBar}>
+        <div className={styles.typeChipsRow} role="tablist" aria-label="نوع الأجهزة">
+          {TYPE_CHIPS.map((chip) => (
+            <Chip
+              key={chip.id}
+              selected={selectedType === chip.id}
+              onClick={() => {
+                setSelectedType(chip.id);
+                setCurrentPage(1);
+              }}
+              size="sm"
+            >
+              {chip.label}
+            </Chip>
+          ))}
+        </div>
+
+        <button
+          type="button"
+          onClick={handleOpenFilterSheet}
+          className={`${styles.filterButton} ${activeFiltersCount > 0 ? styles.filterButtonActive : ''}`}
+          aria-label="تصفية"
+        >
+          <SlidersHorizontal size={18} strokeWidth={1.75} aria-hidden="true" />
+          <span>تصفية</span>
+          {activeFiltersCount > 0 && (
+            <span className={styles.filterBadge}>{activeFiltersCount}</span>
+          )}
+        </button>
+      </div>
+
+      {/* Result Count Bar */}
+      <div className={styles.resultBar}>
+        <span className={styles.resultCount}>
+          {formatResultsCount(totalResults)}
+        </span>
+        {(activeFiltersCount > 0 || selectedType !== 'all' || searchQuery.trim()) && (
+          <button
+            type="button"
+            onClick={handleResetAll}
+            className={styles.resetInlineBtn}
+          >
+            <RotateCcw size={14} aria-hidden="true" />
+            <span>مسح التصفية</span>
+          </button>
+        )}
+      </div>
+
+      {/* Product Grid / Empty State */}
+      {loading ? (
+        <div className={styles.grid}>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <ProductCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : error ? (
+        <div className={styles.errorBox}>
+          <p>{error}</p>
+          <Button variant="secondary" onClick={fetchProducts}>
+            إعادة المحاولة
+          </Button>
+        </div>
+      ) : products.length === 0 ? (
+        <div className={styles.emptyState}>
+          <p className={styles.emptyText}>لا توجد أجهزة مطابقة. جرّب تغيير التصفية.</p>
+          <Button variant="secondary" onClick={handleResetAll}>
+            مسح التصفية
+          </Button>
+        </div>
+      ) : (
+        <div className={styles.grid}>
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {meta && meta.last_page > 1 && (
+        <div className={styles.pagination}>
+          <Button
+            variant="secondary"
+            size="sm"
+            disabled={currentPage <= 1}
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+          >
+            السابق
+          </Button>
+          <span className={styles.pageNumber}>
+            {currentPage} / {meta.last_page}
+          </span>
+          <Button
+            variant="secondary"
+            size="sm"
+            disabled={currentPage >= meta.last_page}
+            onClick={() => setCurrentPage((p) => Math.min(meta.last_page, p + 1))}
+          >
+            التالي
+          </Button>
+        </div>
+      )}
+
+      {/* Filter Bottom Sheet */}
+      <Sheet
+        isOpen={isFilterSheetOpen}
+        onClose={() => setIsFilterSheetOpen(false)}
+        title="تصفية"
+      >
+        <div className={styles.sheetContent}>
+          {/* Brand section */}
+          <div className={styles.sheetSection}>
+            <h3 className={styles.sheetSectionTitle}>الماركة</h3>
+            <div className={styles.sheetChipsWrap}>
+              <Chip
+                selected={draftBrand === 'all'}
+                onClick={() => setDraftBrand('all')}
+                size="sm"
+              >
+                الكل
+              </Chip>
+              {brandsList.map((brand) => (
+                <Chip
+                  key={brand}
+                  selected={draftBrand === brand}
+                  onClick={() => setDraftBrand(brand)}
+                  size="sm"
+                >
+                  {brand}
+                </Chip>
+              ))}
+            </div>
+          </div>
+
+          {/* Condition section */}
+          <div className={styles.sheetSection}>
+            <h3 className={styles.sheetSectionTitle}>الحالة</h3>
+            <div className={styles.sheetChipsWrap}>
+              {CONDITION_OPTIONS.map((opt) => (
+                <Chip
+                  key={opt.id}
+                  selected={draftCondition === opt.id}
+                  onClick={() => setDraftCondition(opt.id)}
+                  size="sm"
+                >
+                  {opt.label}
+                </Chip>
+              ))}
+            </div>
+          </div>
+
+          {/* Price section */}
+          <div className={styles.sheetSection}>
+            <h3 className={styles.sheetSectionTitle}>السعر</h3>
+            <div className={styles.sheetChipsWrap}>
+              {PRICE_OPTIONS.map((opt) => (
+                <Chip
+                  key={opt.id}
+                  selected={draftPrice === opt.id}
+                  onClick={() => setDraftPrice(opt.id)}
+                  size="sm"
+                >
+                  {opt.label}
+                </Chip>
+              ))}
+            </div>
+          </div>
+
+          {/* Sort section */}
+          <div className={styles.sheetSection}>
+            <h3 className={styles.sheetSectionTitle}>الترتيب</h3>
+            <div className={styles.sheetChipsWrap}>
+              {SORT_OPTIONS.map((opt) => (
+                <Chip
+                  key={opt.id}
+                  selected={draftSort === opt.id}
+                  onClick={() => setDraftSort(opt.id)}
+                  size="sm"
+                >
+                  {opt.label}
+                </Chip>
+              ))}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className={styles.sheetActions}>
+            <Button
+              variant="primary"
+              onClick={handleApplySheetFilters}
+              className={styles.applyBtn}
+            >
+              تطبيق
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={handleResetSheetDraft}
+              className={styles.resetDraftBtn}
+            >
+              مسح
+            </Button>
+          </div>
+        </div>
+      </Sheet>
     </div>
   );
 }

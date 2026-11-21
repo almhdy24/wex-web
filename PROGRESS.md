@@ -53,7 +53,24 @@ Simplifying and unifying the storefront (customer-side only) following Traversy-
   - Removed from Home: quick actions row, category chips row with colored dots, duplicated category tiles, floating WhatsApp button, second price notice card, and second "last update" chip.
   - Rebuilt `ProductCard.jsx` and `ProductCard.module.css`: image area, condition tag, 2-line title clamp, 1 spec line, nowrap price, "أضف" button, royal filled heart for favorites, compare removed (lives only on product page), neutral laptop SVG vector placeholder fallback.
   - Added test suite `src/__tests__/home-rescue.test.jsx` (4/4 tests passing).
-- [ ] **Phase 3: Catalog, Filter Sheet, Product Card & Product Page**
+- [x] **Phase 3: Catalog, Filter Sheet, Product Card & Product Page**
+  - Rebuilt `CatalogPage.jsx` and `CatalogPage.module.css`:
+    - Title: "الأجهزة".
+    - Single search input with search icon ("ابحث عن جهاز أو ماركة").
+    - Exactly one type chip row: "الكل"، "لابتوبات"، "هواتف"، "ملحقات".
+    - "تصفية" button with dynamic active-count badge opening bottom Sheet (`Sheet.jsx`).
+    - Filter Sheet controls: brand chips from API / popular, condition (الكل / جديد / مستعمل استيراد), price range in SDG, sort options (الأحدث / الأقل سعرًا / الأعلى سعرًا), and buttons "تطبيق" and "مسح".
+    - Result count with `pluralAr`: "لا توجد نتائج" / "نتيجة واحدة" / "نتيجتان" / "3 نتائج" / "14 نتيجة".
+    - Empty state: "لا توجد أجهزة مطابقة. جرّب تغيير التصفية." with reset button.
+    - Removed: second chip row, sort dropdown in header row, view mode toggle.
+  - Rebuilt `ProductDetailPage.jsx` and `ProductDetailPage.module.css`:
+    - Price line + single caption: "السعر قابل للتغيير حتى تأكيد الطلب." (zero price-lock repetition per Principle 1).
+    - Tabs: "المواصفات" and "الاستلام والتوصيل".
+    - Factual text only: "الاستلام من {العنوان}. ساعات العمل: {الساعات}." and "التوصيل متاح إلى: {المناطق}. تُحتسب الرسوم حسب المنطقة عند تأكيد الطلب.".
+    - Specs definition: المعالج، الذاكرة العشوائية، التخزين، كرت الشاشة، الشاشة، البطارية, and warranty/inspection row only if text present. Removed green benefit box.
+    - Actions: compare toggle button "مقارنة", favorite heart, share button, quantity stepper, "أضف إلى السلة", and "اطلب الآن".
+  - Cleaned stray forbidden words in `ComparePage.jsx`.
+  - Added test suite `src/__tests__/catalog-rescue.test.jsx` (6/6 tests passing).
 - [ ] **Phase 4: Cart, Checkout & Inline Sign-in Sheet**
 - [ ] **Phase 5: Payment Screen, Orders List & Flow Verification**
 - [ ] **Phase 6: Cleanup, Documentation & Final Verification**

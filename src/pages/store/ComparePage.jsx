@@ -51,7 +51,7 @@ export default function ComparePage() {
     { id: 'screen', label: t('compare.screen', 'الشاشة') },
     { id: 'condition', label: t('compare.condition', 'حالة الجهاز') },
     { id: 'battery', label: t('compare.battery', 'البطارية') },
-    { id: 'warranty', label: t('compare.warranty', 'الضمان') },
+    { id: 'warranty', label: t('compare.warranty', 'الاستلام والتوصيل') },
   ];
 
   const getSpecValue = (item, specId) => {
