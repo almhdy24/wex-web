@@ -39,7 +39,20 @@ Simplifying and unifying the storefront (customer-side only) following Traversy-
   - Added test suite `src/__tests__/design-system.test.jsx`: 8/8 tests passing.
   - Automated WCAG contrast check `scripts/check-contrast.mjs`: All 11 token pairs pass WCAG AA (>= 4.5:1).
 
-- [ ] **Phase 2: Home Screen Simplification**
+- [x] **Phase 2: Home Screen Simplification**
+  - Single greeting line: guest "مرحبًا بك", signed in "مرحبًا، {الاسم}". Removed subtitle under greeting.
+  - Search field: single input with small caption under it: "آخر تحديث للأسعار: {اليوم|أمس} {الوقت}" using 12-hour Arabic time with ص/م.
+  - 3 Hero slides (royal to navy gradient):
+    1. "أجهزة لابتوب جديدة ومستعملة" / "تصفّح الأجهزة المتوفرة بأسعار واضحة." / "تصفّح الأجهزة".
+    2. "ثبّت السعر عند الطلب" / "بعد تأكيد الطلب يبقى السعر ثابتًا لمدة {N} ساعات لتتمكّن من التحويل." / "طريقة الطلب" (scrolls to steps).
+    3. "ملحقات الحاسوب" / "اختر ما يلزم جهازك من الملحقات." / "تصفّح الملحقات".
+  - Exactly one row of category tiles: الحواسيب، الهواتف، الملحقات.
+  - Four sections: "وصل حديثًا"، "ل للدراسة" (مناسبة للدراسة)، "للعمل" (مناسبة للعمل)، "ملحقات" with "عرض الكل".
+  - Steps block ("طريقة الطلب"): 4 numbered badges with no icons over numbers ("اختر الجهاز"، "أكّد الطلب وثبّت السعر"، "حوّل المبلغ وارفع الإشعار"، "استلم من المحل أو بالتوصيل").
+  - Shop block ("ويكس تكنولوجي"): address once from settings, working hours ("السبت - الخميس: 9:00 ص - 9:00 م"، "الجمعة: مغلق"), "الموقع على الخريطة", and royal outline "تواصل عبر واتساب" button.
+  - Removed from Home: quick actions row, category chips row with colored dots, duplicated category tiles, floating WhatsApp button, second price notice card, and second "last update" chip.
+  - Rebuilt `ProductCard.jsx` and `ProductCard.module.css`: image area, condition tag, 2-line title clamp, 1 spec line, nowrap price, "أضف" button, royal filled heart for favorites, compare removed (lives only on product page), neutral laptop SVG vector placeholder fallback.
+  - Added test suite `src/__tests__/home-rescue.test.jsx` (4/4 tests passing).
 - [ ] **Phase 3: Catalog, Filter Sheet, Product Card & Product Page**
 - [ ] **Phase 4: Cart, Checkout & Inline Sign-in Sheet**
 - [ ] **Phase 5: Payment Screen, Orders List & Flow Verification**

@@ -99,7 +99,7 @@ describe('Translation Integrity and Runtime Safety', () => {
 
   it('PriceNotice renders the exact required Arabic notice', () => {
     const html = renderWithProviders(<PriceNotice hours={4} variant="full" />);
-    expect(html).toContain('الأسعار تتغيّر مع تقلّب سعر الصرف. عند إتمام الطلب نثبّت لك السعر لمدة 4 ساعات لتتمكّن من التحويل.');
+    expect(html).toContain('بعد تأكيد الطلب يبقى السعر ثابتًا لمدة 4 ساعات لتتمكّن من التحويل.');
   });
 
   it('ProductCard renders without any raw dot keys or corrupted tokens', () => {

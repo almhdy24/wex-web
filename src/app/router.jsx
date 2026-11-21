@@ -76,6 +76,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: load(HomePage) },
       { path: 'products', element: load(CatalogPage) },
+      { path: 'catalog', element: load(CatalogPage) },
       { path: 'products/:slug', element: load(ProductDetailPage) },
       { path: 'compare', element: load(ComparePage) },
       { path: 'favorites', element: load(FavoritesPage) },

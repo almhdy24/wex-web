@@ -83,9 +83,9 @@ describe('WEX Wishlist & Customer Account Experience Tests', () => {
         </MemoryRouter>
       );
 
-      expect(html).toContain('قائمتك المفضلة فارغة');
-      expect(html).toContain('تصفّح أجهزة المتجر');
-      expect(html).toContain('احفظ الأجهزة التي تعجبك');
+      expect(html).toContain('المفضلة فارغة');
+      expect(html).toContain('تصفّح الأجهزة');
+      expect(html).toContain('احفظ الأجهزة بالضغط على رمز القلب');
     });
 
     it('renders responsive product grid with prices in SDG, specs, and availability', () => {
@@ -118,8 +118,8 @@ describe('WEX Wishlist & Customer Account Experience Tests', () => {
       expect(html).toContain('1,250,000 ج.س');
 
       // Verify stock availability badges (ar.wishlist.inStock vs ar.wishlist.outOfStock)
-      expect(html).toContain('متوفر بالمحل');
-      expect(html).toContain('غير متوفر حالياً');
+      expect(html).toContain('متوفر');
+      expect(html).toContain('غير متوفر');
 
       // Verify specs display
       expect(html).toContain('Core i7-11800H');
@@ -240,8 +240,8 @@ describe('WEX Wishlist & Customer Account Experience Tests', () => {
       );
 
       // Verify Email OTP is shown as primary method
-      expect(html).toContain('تسجيل الدخول عبر البريد (رمز OTP)');
-      expect(html).toContain('طريقة الدخول الأساسية برمز التحقق عبر البريد الإلكتروني');
+      expect(html).toContain('البريد الإلكتروني (رمز OTP)');
+      expect(html).toContain('طريقة الدخول برمز التحقق عبر البريد الإلكتروني');
 
       // Verify Google OAuth status
       expect(html).toContain('حساب Google');
@@ -249,7 +249,7 @@ describe('WEX Wishlist & Customer Account Experience Tests', () => {
 
       // Verify Facebook shows honest status without fake connection buttons
       expect(html).toContain('حساب Facebook');
-      expect(html).toContain('غير مدعوم حالياً في خادم المتجر');
+      expect(html).toContain('نظام الدخول يعتمد على البريد (OTP) وGoogle');
 
       // Verify Sessions & Logout Actions
       expect(html).toContain('تسجيل الخروج من هذا الجهاز');

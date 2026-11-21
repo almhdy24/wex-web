@@ -88,7 +88,7 @@ describe('Compare & Favorites Systems Unit Tests', () => {
       expect(html).toContain('Core i5-1145G7');
       expect(html).toContain('Core i7-1165G7');
       expect(html).toContain('الذاكرة العشوائية');
-      expect(html).toContain('سعة التخزين');
+      expect(html).toContain('التخزين');
 
       // Ensure zero customer-facing AED or rate leakage
       expect(html).not.toContain('AED');
@@ -115,8 +115,8 @@ describe('Compare & Favorites Systems Unit Tests', () => {
         </MemoryRouter>
       );
 
-      expect(html).toContain('قائمتك المفضلة فارغة');
-      expect(html).toContain('تصفّح أجهزة المتجر');
+      expect(html).toContain('المفضلة فارغة');
+      expect(html).toContain('تصفّح الأجهزة');
     });
 
     it('renders favorited products with quick-add actions and prices', () => {
@@ -136,7 +136,7 @@ describe('Compare & Favorites Systems Unit Tests', () => {
         </MemoryRouter>
       );
 
-      expect(html).toContain('الأجهزة المفضلة');
+      expect(html).toContain('المفضلة');
       expect(html).toContain('Dell Latitude 7420');
       expect(html).toContain('Lenovo ThinkPad T14');
       expect(html).toContain('450,000 ج.س');

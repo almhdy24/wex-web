@@ -144,7 +144,7 @@ describe('Phase 3: Compare Feature Unit & UI Tests', () => {
     expect(html).toContain('مسح المقارنة');
   });
 
-  it('4. ProductCard has compare toggle with proper aria-pressed and GitCompare icon', () => {
+  it('4. ProductCard compare lives only on product page (card has heart and add buttons)', () => {
     const html = renderToStaticMarkup(
       <MemoryRouter>
         <ToastProvider>
@@ -159,10 +159,10 @@ describe('Phase 3: Compare Feature Unit & UI Tests', () => {
       </MemoryRouter>
     );
 
-    // Should have compare toggle button with aria-pressed="false" initially
-    expect(html).toContain('aria-pressed="false"');
-    expect(html).toContain('أضف للمقارنة');
-    expect(html).toContain('aria-label="أضف للمقارنة"');
+    // Per Design System principles: compare lives only on product page, not in product card
+    expect(html).not.toContain('أضف للمقارنة');
+    expect(html).toContain('أضف');
+    expect(html).toContain('aria-label="حفظ"');
   });
 
   it('5. Differences-only spec filtering: identifies identical vs divergent rows', () => {

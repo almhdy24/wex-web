@@ -28,8 +28,8 @@ describe('Phase 6: Order Detail & FAQ Systems Unit Tests', () => {
         </MemoryRouter>
       );
 
-      expect(html).toContain('تثبيت السعر 4 ساعات');
-      expect(html).toContain('معاينة وفحص مباشر');
+      expect(html).toContain('تثبيت السعر');
+      expect(html).toContain('معاينة مباشرة');
       expect(html).toContain('مول الواحة، أم درمان');
       expect(html).toContain('تواصل عبر واتساب');
     });

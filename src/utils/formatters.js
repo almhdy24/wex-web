@@ -48,6 +48,61 @@ export function formatDate(isoString) {
 }
 
 /**
+ * Format 12-hour time with ص/م in Africa/Khartoum timezone
+ */
+export function format12hTime(dateOrIso) {
+  if (!dateOrIso) return '9:00 ص';
+  try {
+    const d = dateOrIso instanceof Date ? dateOrIso : new Date(dateOrIso);
+    if (isNaN(d.getTime())) return '9:00 ص';
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Africa/Khartoum',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+    const parts = formatter.formatToParts(d);
+    const hour = parts.find((p) => p.type === 'hour')?.value || '12';
+    const minute = parts.find((p) => p.type === 'minute')?.value || '00';
+    const dayPeriod = parts.find((p) => p.type === 'dayPeriod')?.value || 'AM';
+    const periodAr = dayPeriod.toUpperCase() === 'PM' ? 'م' : 'ص';
+    return `${hour}:${minute} ${periodAr}`;
+  } catch {
+    return '9:00 ص';
+  }
+}
+
+/**
+ * Format price update caption: "اليوم 9:00 ص" or "أمس 9:00 ص"
+ */
+export function formatPriceUpdateCaption(isoString) {
+  if (!isoString) return `اليوم ${format12hTime(null)}`;
+  try {
+    const d = new Date(isoString);
+    if (isNaN(d.getTime())) return `اليوم ${format12hTime(null)}`;
+
+    const now = new Date();
+    const dStr = d.toLocaleDateString('en-US', { timeZone: 'Africa/Khartoum' });
+    const nowStr = now.toLocaleDateString('en-US', { timeZone: 'Africa/Khartoum' });
+
+    const yest = new Date(now);
+    yest.setDate(now.getDate() - 1);
+    const yestStr = yest.toLocaleDateString('en-US', { timeZone: 'Africa/Khartoum' });
+
+    const timeStr = format12hTime(d);
+    if (dStr === nowStr) {
+      return `اليوم ${timeStr}`;
+    }
+    if (dStr === yestStr) {
+      return `أمس ${timeStr}`;
+    }
+    return `${d.toLocaleDateString('en-GB', { timeZone: 'Africa/Khartoum' })} ${timeStr}`;
+  } catch {
+    return `اليوم ${format12hTime(null)}`;
+  }
+}
+
+/**
  * Format timestamp to relative human-readable Arabic time in Africa/Khartoum timezone
  */
 export function formatRelativeTime(isoString) {
