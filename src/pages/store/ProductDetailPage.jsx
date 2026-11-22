@@ -278,8 +278,8 @@ export default function ProductDetailPage({
             <Heart
               size={20}
               strokeWidth={1.75}
-              fill={isFav ? '#00B7FF' : 'none'}
-              stroke={isFav ? '#00B7FF' : '#ffffff'}
+              fill={isFav ? 'var(--wex-cyan)' : 'none'}
+              stroke={isFav ? 'var(--wex-cyan)' : 'var(--wex-white)'}
               aria-hidden="true"
             />
           </button>

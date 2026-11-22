@@ -1,11 +1,12 @@
-/* Self-hosted Tajawal font weights (400, 500, 700, 800, 900) */
+/* Self-hosted Tajawal font weights (400, 500, 700, 800) */
 @import '@fontsource/tajawal/arabic-400.css';
 @import '@fontsource/tajawal/arabic-500.css';
 @import '@fontsource/tajawal/arabic-700.css';
 @import '@fontsource/tajawal/arabic-800.css';
-@import '@fontsource/tajawal/arabic-900.css';
 @import '@fontsource/tajawal/latin-400.css';
+@import '@fontsource/tajawal/latin-500.css';
 @import '@fontsource/tajawal/latin-700.css';
+@import '@fontsource/tajawal/latin-800.css';
 @import './tokens.css';
 
 /* CSS Reset & Box Sizing */
@@ -27,7 +28,7 @@ html {
 body {
   font-family: var(--font-arabic);
   font-size: var(--text-base);
-  line-height: var(--leading-normal);
+  line-height: var(--leading-relaxed);
   color: var(--wex-navy);
   background-color: var(--color-backdrop);
   min-height: 100vh;
@@ -36,7 +37,7 @@ body {
   text-align: right;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* Headings */
@@ -60,8 +61,13 @@ h3 {
 }
 
 p {
-  color: var(--wex-gray-600);
+  color: inherit;
   line-height: var(--leading-relaxed);
+}
+
+.text-muted,
+.p-muted {
+  color: var(--wex-text-secondary);
 }
 
 a {
@@ -70,8 +76,10 @@ a {
   transition: color var(--transition-fast);
 }
 
-a:hover {
-  color: var(--wex-vivid);
+@media (hover: hover) {
+  a:hover {
+    color: var(--wex-vivid);
+  }
 }
 
 button, input, select, textarea {
@@ -96,6 +104,13 @@ button:active,
   transform: scale(0.98);
 }
 
+/* Large surfaces press feedback */
+.card:active,
+.card-large:active,
+[data-card-interactive]:active {
+  transform: scale(0.985);
+}
+
 img, svg {
   display: block;
   max-width: 100%;
@@ -105,10 +120,16 @@ ul, ol {
   list-style: none;
 }
 
-/* Focus Visible: 2px cyan outline with 2px offset */
+/* Focus Visible: >= 3:1 contrast focus indicator */
 :focus-visible {
-  outline: 2px solid var(--wex-cyan);
-  outline-offset: 2px;
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-ring-offset, 2px);
+}
+
+.dark :focus-visible,
+[data-theme="dark"] :focus-visible,
+.dark:focus-visible {
+  outline: var(--focus-ring-dark);
 }
 
 /* Skip Link for Keyboard Accessibility */

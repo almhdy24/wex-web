@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: 100dvh;
   background-color: var(--wex-ice);
 }
 
@@ -48,17 +49,17 @@
 .imageSkeleton {
   width: 100%;
   height: 250px;
-  background-color: #fff;
-  border: 1px solid #D5E2F7;
-  border-radius: 30px;
+  background-color: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--radius-panel);
   animation: wexPulse 1.5s ease-in-out infinite;
 }
 
 .lineSkeleton {
   width: 80%;
   height: 24px;
-  background-color: #fff;
-  border-radius: 12px;
+  background-color: var(--wex-white);
+  border-radius: var(--radius-control);
   animation: wexPulse 1.5s ease-in-out infinite;
 }
 
@@ -75,15 +76,15 @@
   justify-content: center;
   gap: 16px;
   padding: 32px;
-  background-color: #fff;
-  border: 1px solid #D5E2F7;
+  background-color: var(--wex-white);
+  border: 1px solid var(--wex-border);
   border-radius: var(--radius-card-v2);
   margin: 24px 16px;
   text-align: center;
 }
 
 .errorText {
-  color: #4B5B85;
+  color: var(--wex-text-secondary);
   font-size: 16px;
   margin: 0;
 }
@@ -93,7 +94,7 @@
   position: relative;
   margin: -56px 16px 0;
   height: 230px;
-  border-radius: 30px;
+  border-radius: var(--radius-panel);
   background: var(--grad-stage);
   overflow: hidden;
   display: flex;
@@ -120,7 +121,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--wex-white);
   position: relative;
   z-index: 2;
 }
@@ -146,12 +147,12 @@
   position: absolute;
   top: 14px;
   inset-inline-start: 14px;
-  background: #fff;
-  color: #061A55;
+  background: var(--wex-white);
+  color: var(--wex-navy);
   font-size: 13px;
   font-weight: 800;
   padding: 5px 14px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   z-index: 3;
 }
 
@@ -161,7 +162,7 @@
   inset-inline-end: 12px;
   width: 40px;
   height: 40px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   display: flex;
@@ -169,7 +170,7 @@
   justify-content: center;
   cursor: pointer;
   z-index: 3;
-  color: #fff;
+  color: var(--wex-white);
   transition: transform 120ms ease;
 }
 
@@ -179,7 +180,7 @@
 
 .glassFavBtnActive {
   background: rgba(0, 183, 255, 0.2);
-  border-color: #00B7FF;
+  border-color: var(--wex-cyan);
 }
 
 .zoomButton {
@@ -188,13 +189,13 @@
   inset-inline-start: 12px;
   width: 36px;
   height: 36px;
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--wex-white);
   cursor: pointer;
   z-index: 3;
 }
@@ -212,9 +213,9 @@
 .thumbBtn {
   width: 56px;
   height: 56px;
-  border: 1.5px solid #D5E2F7;
-  border-radius: 14px;
-  background-color: #fff;
+  border: 1.5px solid var(--wex-border);
+  border-radius: var(--radius-control);
+  background-color: var(--wex-white);
   padding: 4px;
   cursor: pointer;
   flex-shrink: 0;
@@ -222,7 +223,7 @@
 }
 
 .thumbBtnActive {
-  border-color: #0B3FBF;
+  border-color: var(--wex-royal);
 }
 
 .thumbImage {
@@ -241,7 +242,7 @@
 .title {
   font-size: 26px;
   font-weight: 800;
-  color: #061A55;
+  color: var(--wex-navy);
   line-height: 1.3;
   margin: 0;
 }
@@ -256,7 +257,7 @@
 .priceNumber {
   font-size: 34px;
   font-weight: 800;
-  color: #0B3FBF;
+  color: var(--wex-royal);
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
@@ -264,29 +265,29 @@
 .priceCurrency {
   font-size: 16px;
   font-weight: 700;
-  color: #4B5B85;
+  color: var(--wex-text-secondary);
 }
 
 .priceNoticeBox {
   margin-top: 12px;
-  background: #fff;
-  border: 1px solid #D5E2F7;
-  border-radius: 16px;
+  background: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--radius-card);
   padding: 12px 14px;
   display: flex;
   align-items: center;
   gap: 10px;
   font-size: 13.5px;
-  color: #061A55;
+  color: var(--wex-navy);
   box-shadow: var(--shadow-tile-v2);
 }
 
 .noticeIconBox {
   width: 30px;
   height: 30px;
-  border-radius: 10px;
-  background: #EAF3FF;
-  color: #0B3FBF;
+  border-radius: var(--radius-control);
+  background: var(--wex-ice);
+  color: var(--wex-royal);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -296,7 +297,7 @@
 .priceCaption {
   margin: 0;
   font-size: 13.5px;
-  color: #061A55;
+  color: var(--wex-navy);
   line-height: 1.4;
 }
 
@@ -310,10 +311,10 @@
 
 .gridActionBtn {
   height: 46px;
-  border-radius: 15px;
-  background: #fff;
-  border: 1.5px solid #D5E2F7;
-  color: #0B3FBF;
+  border-radius: var(--radius-control);
+  background: var(--wex-white);
+  border: 1.5px solid var(--wex-border);
+  color: var(--wex-royal);
   font-family: inherit;
   font-size: 15px;
   font-weight: 800;
@@ -330,16 +331,16 @@
 }
 
 .gridActionBtnActive {
-  background: #EAF3FF;
-  border-color: #0B3FBF;
+  background: var(--wex-ice);
+  border-color: var(--wex-royal);
 }
 
 /* Tabs */
 .tabsContainer {
   margin: 18px 16px 0;
-  background: #fff;
-  border: 1px solid #D5E2F7;
-  border-radius: 18px;
+  background: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--radius-card);
   padding: 5px;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -349,11 +350,11 @@
 
 .tabBtn {
   height: 44px;
-  border-radius: 14px;
+  border-radius: var(--radius-control);
   font-family: inherit;
   font-size: 15px;
   font-weight: 700;
-  color: #4B5B85;
+  color: var(--wex-text-secondary);
   background: none;
   border: none;
   cursor: pointer;
@@ -369,7 +370,7 @@
 
 .tabBtnActive {
   background: var(--grad-cta);
-  color: #fff;
+  color: var(--wex-white);
   font-weight: 800;
   box-shadow: 0 6px 14px rgba(30, 107, 255, 0.3);
 }
@@ -377,9 +378,9 @@
 /* Specs List Card */
 .specsCard {
   margin: 12px 16px 0;
-  background: #fff;
-  border: 1px solid #D5E2F7;
-  border-radius: 24px;
+  background: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--radius-card);
   padding: 6px 16px;
   box-shadow: var(--shadow-card-v2);
   display: flex;
@@ -391,7 +392,7 @@
   align-items: center;
   gap: 14px;
   padding: 14px 0;
-  border-bottom: 1px solid #EAF3FF;
+  border-bottom: 1px solid var(--wex-ice);
 }
 
 .specRow:last-child {
@@ -401,9 +402,9 @@
 .specIconBox {
   width: 42px;
   height: 42px;
-  border-radius: 14px;
-  background: #EAF3FF;
-  color: #0B3FBF;
+  border-radius: var(--radius-control);
+  background: var(--wex-ice);
+  color: var(--wex-royal);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -413,13 +414,13 @@
 .specLabel {
   font-size: 13px;
   font-weight: 500;
-  color: #4B5B85;
+  color: var(--wex-text-secondary);
 }
 
 .specValue {
   font-size: 16px;
   font-weight: 800;
-  color: #061A55;
+  color: var(--wex-navy);
   text-align: start;
   margin-inline-start: auto;
 }
@@ -427,9 +428,9 @@
 /* Delivery Card */
 .deliveryCard {
   margin: 12px 16px 0;
-  background: #fff;
-  border: 1px solid #D5E2F7;
-  border-radius: 24px;
+  background: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--radius-card);
   padding: 18px 16px;
   box-shadow: var(--shadow-card-v2);
   display: flex;
@@ -449,16 +450,16 @@
   gap: 8px;
   font-size: 15px;
   font-weight: 800;
-  color: #061A55;
+  color: var(--wex-navy);
 }
 
 .deliveryIcon {
-  color: #0B3FBF;
+  color: var(--wex-royal);
 }
 
 .deliveryText {
   font-size: 13.5px;
-  color: #4B5B85;
+  color: var(--wex-text-secondary);
   line-height: 1.5;
   margin: 0;
 }
@@ -474,9 +475,9 @@
   padding: 12px 14px;
   box-sizing: border-box;
   overflow: hidden;
-  background: #fff;
-  border: 1px solid #D5E2F7;
-  border-radius: 28px;
+  background: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--radius-panel);
   box-shadow: var(--shadow-float-v2);
   z-index: 50;
   max-width: 480px;
@@ -501,14 +502,14 @@
 
 .purchasePriceLabel {
   font-size: 12px;
-  color: #4B5B85;
+  color: var(--wex-text-secondary);
   font-weight: 500;
 }
 
 .purchasePriceValue {
   font-size: 18px;
   font-weight: 800;
-  color: #061A55;
+  color: var(--wex-navy);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -516,8 +517,8 @@
 .stepperBox {
   display: flex;
   align-items: center;
-  background: #EAF3FF;
-  border-radius: 14px;
+  background: var(--wex-ice);
+  border-radius: var(--radius-control);
   height: 40px;
   padding: 0 4px;
   gap: 2px;
@@ -534,13 +535,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #4B5B85;
+  color: var(--wex-text-secondary);
   cursor: pointer;
 }
 
 .stepperPlus {
-  background: #fff;
-  color: #0B3FBF;
+  background: var(--wex-white);
+  color: var(--wex-royal);
 }
 
 .stepperMinus:disabled,
@@ -554,7 +555,7 @@
   text-align: center;
   font-size: 14px;
   font-weight: 800;
-  color: #061A55;
+  color: var(--wex-navy);
 }
 
 .purchaseButtonsRow {
@@ -567,10 +568,10 @@
 .cartIconButton {
   width: 54px;
   height: 54px;
-  border-radius: 18px;
-  background: #EAF3FF;
-  border: 1px solid #D5E2F7;
-  color: #0B3FBF;
+  border-radius: var(--radius-card);
+  background: var(--wex-ice);
+  border: 1px solid var(--wex-border);
+  color: var(--wex-royal);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -587,9 +588,9 @@
   flex: 1;
   min-width: 0;
   height: 54px;
-  border-radius: 18px;
+  border-radius: var(--radius-card);
   background: var(--grad-cta-hot);
-  color: #fff;
+  color: var(--wex-white);
   font-family: inherit;
   font-size: 16px;
   font-weight: 800;
@@ -607,9 +608,9 @@
   flex: 1;
   min-width: 0;
   height: 54px;
-  border-radius: 18px;
-  background: #EAF3FF;
-  color: #4B5B85;
+  border-radius: var(--radius-card);
+  background: var(--wex-ice);
+  color: var(--wex-text-secondary);
   font-family: inherit;
   font-size: 15px;
   font-weight: 800;
@@ -641,7 +642,7 @@
   inset-inline-end: 24px;
   background: none;
   border: none;
-  color: #fff;
+  color: var(--wex-white);
   cursor: pointer;
 }
 
@@ -649,7 +650,7 @@
   max-width: 90vw;
   max-height: 80vh;
   object-fit: contain;
-  background-color: #fff;
-  border-radius: 20px;
+  background-color: var(--wex-white);
+  border-radius: var(--radius-card);
   padding: 16px;
 }

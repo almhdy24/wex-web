@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: 100dvh;
   background-color: var(--wex-ice);
 }
 
@@ -39,9 +40,9 @@
 }
 
 .orderCard {
-  background: #fff;
-  border: 1px solid #D5E2F7;
-  border-radius: 24px;
+  background: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--radius-card);
   padding: 16px;
   box-shadow: var(--shadow-card-v2);
   cursor: pointer;
@@ -75,13 +76,13 @@
   font-size: 16px;
   font-weight: 800;
   text-align: start;
-  color: #061A55;
+  color: var(--wex-navy);
   font-variant-numeric: tabular-nums;
 }
 
 .orderDate {
   font-size: 13px;
-  color: #4B5B85;
+  color: var(--wex-text-secondary);
   direction: ltr;
   text-align: start;
   unicode-bidi: isolate;
@@ -89,7 +90,7 @@
 
 .statusChip {
   padding: 5px 14px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   font-size: 13px;
   font-weight: 800;
   white-space: nowrap;
@@ -98,27 +99,27 @@
 
 .statusPending,
 .pending_payment {
-  background: #EAF3FF;
-  color: #0B3FBF;
+  background: var(--wex-ice);
+  color: var(--wex-royal);
 }
 
 .statusSuccess,
 .confirmed,
 .completed {
-  background: #E8F5EE;
-  color: #12805C;
+  background: var(--wex-success-bg);
+  color: var(--wex-success);
 }
 
 .statusWaiting {
-  background: #FEF3E2;
-  color: #B45309;
+  background: var(--wex-warning-bg);
+  color: var(--wex-warning);
 }
 
 .statusDanger,
 .cancelled,
 .payment_rejected {
-  background: #FEE8E7;
-  color: #B42318;
+  background: var(--wex-danger-bg);
+  color: var(--wex-danger);
 }
 
 .cardFooter {
@@ -126,7 +127,7 @@
   align-items: center;
   justify-content: space-between;
   padding-top: 12px;
-  border-top: 1px solid #EAF3FF;
+  border-top: 1px solid var(--wex-ice);
 }
 
 .priceCol {
@@ -137,13 +138,13 @@
 
 .priceLabel {
   font-size: 13px;
-  color: #4B5B85;
+  color: var(--wex-text-secondary);
 }
 
 .priceVal {
   font-size: 17px;
   font-weight: 800;
-  color: #061A55;
+  color: var(--wex-navy);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
@@ -157,14 +158,14 @@
   align-items: center;
   gap: 4px;
   font-size: 14px;
-  color: #0B3FBF;
+  color: var(--wex-royal);
   font-weight: 800;
 }
 
 .emptyCard {
-  background: #fff;
-  border: 1px solid #D5E2F7;
-  border-radius: 24px;
+  background: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--radius-card);
   padding: 32px 20px;
   box-shadow: var(--shadow-card-v2);
   display: flex;
@@ -177,7 +178,7 @@
 }
 
 .emptyText {
-  color: #4B5B85;
+  color: var(--wex-text-secondary);
   font-size: 15px;
   margin: 0;
 }
@@ -185,9 +186,9 @@
 .skeletonCard {
   width: 100%;
   height: 90px;
-  background-color: #fff;
-  border: 1px solid #D5E2F7;
-  border-radius: 24px;
+  background-color: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--radius-card);
   animation: wexSkeletonPulse 1.5s ease-in-out infinite;
 }
 
@@ -198,11 +199,11 @@
 
 .errorCard {
   padding: 24px;
-  background-color: #fff;
-  border: 1px solid #D5E2F7;
-  border-radius: 24px;
+  background-color: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--radius-card);
   text-align: center;
-  color: #B42318;
+  color: var(--wex-danger);
   display: flex;
   flex-direction: column;
   align-items: center;

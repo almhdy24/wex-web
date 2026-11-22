@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: 100dvh;
   background-color: var(--wex-ice);
   width: 100%;
 }
@@ -40,9 +41,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 14px 16px;
-  background-color: #fff;
-  border: 1px solid #D5E2F7;
-  border-radius: 20px;
+  background-color: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--radius-card);
   box-shadow: var(--shadow-card-v2);
   box-sizing: border-box;
 }
@@ -51,17 +52,17 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #4B5B85;
+  color: var(--wex-text-secondary);
   font-size: 14px;
   font-weight: 600;
 }
 
 .stepDone {
-  color: #0B3FBF;
+  color: var(--wex-royal);
 }
 
 .stepActive {
-  color: #061A55;
+  color: var(--wex-navy);
   font-weight: 800;
 }
 
@@ -69,8 +70,8 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background-color: #EAF3FF;
-  color: #0B3FBF;
+  background-color: var(--wex-ice);
+  color: var(--wex-royal);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -80,27 +81,27 @@
 }
 
 .stepDone .stepNum {
-  background-color: #0B3FBF;
-  color: #fff;
+  background-color: var(--wex-royal);
+  color: var(--wex-white);
 }
 
 .stepActive .stepNum {
-  background-color: #061A55;
-  color: #fff;
+  background-color: var(--wex-navy);
+  color: var(--wex-white);
 }
 
 .stepLine {
   flex: 1;
   height: 2px;
-  background-color: #EAF3FF;
+  background-color: var(--wex-ice);
   margin: 0 8px;
 }
 
 /* Section Cards */
 .sectionCard {
-  background-color: #fff;
-  border: 1px solid #D5E2F7;
-  border-radius: 26px;
+  background-color: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--radius-panel);
   box-shadow: var(--shadow-card-v2);
   padding: 20px;
   display: flex;
@@ -112,7 +113,7 @@
 .sectionHeading {
   font-size: 19px;
   font-weight: 800;
-  color: #061A55;
+  color: var(--wex-navy);
   margin: 0;
   line-height: 1.3;
 }
@@ -130,9 +131,9 @@
   align-items: flex-start;
   gap: 6px;
   padding: 14px 16px;
-  background-color: #fff;
-  border: 1.5px solid #D5E2F7;
-  border-radius: 18px;
+  background-color: var(--wex-white);
+  border: 1.5px solid var(--wex-border);
+  border-radius: var(--radius-card);
   cursor: pointer;
   text-align: start;
   box-shadow: var(--shadow-tile-v2);
@@ -141,7 +142,7 @@
 }
 
 .optionBtn:hover {
-  border-color: #0B3FBF;
+  border-color: var(--wex-royal);
 }
 
 .optionBtn:active {
@@ -149,8 +150,8 @@
 }
 
 .optionBtnActive {
-  border: 2px solid #0B3FBF;
-  background: #EAF3FF;
+  border: 2px solid var(--wex-royal);
+  background: var(--wex-ice);
   box-shadow: 0 4px 12px rgba(11, 63, 191, 0.12);
 }
 
@@ -158,11 +159,11 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #061A55;
+  color: var(--wex-navy);
 }
 
 .optionBtnActive .optionHeader {
-  color: #0B3FBF;
+  color: var(--wex-royal);
 }
 
 .optionTitle {
@@ -172,7 +173,7 @@
 
 .optionSub {
   font-size: 12px;
-  color: #4B5B85;
+  color: var(--wex-text-secondary);
 }
 
 /* Delivery Fields */
@@ -181,7 +182,7 @@
   flex-direction: column;
   gap: 12px;
   padding-top: 14px;
-  border-top: 1px solid #D5E2F7;
+  border-top: 1px solid var(--wex-border);
 }
 
 .fieldGroup {
@@ -193,18 +194,18 @@
 .fieldLabel {
   font-size: 14px;
   font-weight: 700;
-  color: #061A55;
+  color: var(--wex-navy);
 }
 
 .select,
 .input {
   height: 52px;
-  border-radius: 16px;
-  border: 1.5px solid #D5E2F7;
-  background: #fff;
+  border-radius: var(--radius-card);
+  border: 1.5px solid var(--wex-border);
+  background: var(--wex-white);
   padding-inline: 16px;
   font-size: 16px;
-  color: #061A55;
+  color: var(--wex-navy);
   font-family: inherit;
   transition: border-color 150ms ease, box-shadow 150ms ease;
   box-sizing: border-box;
@@ -221,10 +222,10 @@
 .textarea {
   min-height: 84px;
   padding: 12px 16px;
-  border: 1.5px solid #D5E2F7;
-  border-radius: 16px;
-  background-color: #fff;
-  color: #061A55;
+  border: 1.5px solid var(--wex-border);
+  border-radius: var(--radius-card);
+  background-color: var(--wex-white);
+  color: var(--wex-navy);
   font-family: inherit;
   font-size: 16px;
   resize: vertical;
@@ -237,26 +238,26 @@
 .input:focus,
 .textarea:focus {
   outline: none;
-  border-color: #0B3FBF;
+  border-color: var(--wex-royal);
   box-shadow: 0 0 0 4px rgba(30, 107, 255, 0.15);
 }
 
 .fieldHelper {
   font-size: 12px;
-  color: #4B5B85;
+  color: var(--wex-text-secondary);
 }
 
 .fieldError {
   font-size: 12px;
-  color: #B42318;
+  color: var(--wex-danger);
   font-weight: 700;
 }
 
 /* Summary Card */
 .summaryCard {
-  background-color: #fff;
-  border: 1px solid #D5E2F7;
-  border-radius: 26px;
+  background-color: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--radius-panel);
   box-shadow: var(--shadow-card-v2);
   padding: 20px;
   display: flex;
@@ -273,17 +274,17 @@
 }
 
 .summaryLabel {
-  color: #4B5B85;
+  color: var(--wex-text-secondary);
 }
 
 .summaryValue {
-  color: #061A55;
+  color: var(--wex-navy);
   font-weight: 700;
   white-space: nowrap;
 }
 
 .discountValue {
-  color: #12805C;
+  color: var(--wex-success);
   font-weight: 700;
   white-space: nowrap;
 }
@@ -293,17 +294,17 @@
   align-items: center;
   justify-content: space-between;
   padding-top: 14px;
-  border-top: 1px solid #D5E2F7;
+  border-top: 1px solid var(--wex-border);
   font-size: 18px;
   font-weight: 800;
 }
 
 .totalLabel {
-  color: #061A55;
+  color: var(--wex-navy);
 }
 
 .totalValue {
-  color: #0B3FBF;
+  color: var(--wex-royal);
   font-size: 20px;
   font-weight: 800;
   white-space: nowrap;
@@ -314,9 +315,9 @@
   position: fixed;
   inset-inline: 12px;
   bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-  background: #fff;
-  border: 1px solid #D5E2F7;
-  border-radius: 28px;
+  background: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--radius-panel);
   box-shadow: var(--shadow-float-v2);
   padding: 12px 14px;
   display: flex;
@@ -339,22 +340,22 @@
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: #4B5B85;
+  color: var(--wex-text-secondary);
   margin: 0;
   line-height: 1.4;
 }
 
 .infoIcon {
-  color: #0B3FBF;
+  color: var(--wex-royal);
   flex-shrink: 0;
 }
 
 .confirmBtn {
   width: 100%;
   height: 56px;
-  border-radius: 18px;
+  border-radius: var(--radius-card);
   background: var(--grad-cta-hot);
-  color: #fff;
+  color: var(--wex-white);
   font-size: 17px;
   font-weight: 800;
   border: none;

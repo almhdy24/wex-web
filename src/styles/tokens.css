@@ -38,6 +38,11 @@
   --wex-grad-urgent: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
   --gradient-brand-cta: linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 100%);
 
+  /* Focus ring tokens (WCAG 2.2 AA >= 3:1 on all surfaces) */
+  --focus-ring: 2px solid var(--wex-vivid);
+  --focus-ring-dark: 2px solid var(--wex-cyan);
+  --focus-ring-offset: 2px;
+
   /* =========================================================================
      3. Spacing Scale & Full Backward Compatibility Aliases
      ========================================================================= */
@@ -68,26 +73,28 @@
   --section-gap: 24px;
 
   /* =========================================================================
-     4. Border Radii (12 Control, 14 MD, 16 Card, 20 LG, 28 XL, 999 Chip)
+     4. Border Radii (Canonical: 12 Control, 20 Card, 28 Panel, 999 Pill)
      ========================================================================= */
   --radius-xs: 4px;
   --radius-sm: 8px;
   --radius-control: 12px;
   --radius-button: 12px;
-  --radius-md: 14px;
-  --radius-card: 16px;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
-  --radius-chip: 999px;
-  --radius-full: 999px;
   --radius-btn: 12px;
   --radius-input: 12px;
+  --radius-md: 12px;
+  --radius-card: 20px;
+  --radius-lg: 20px;
+  --radius-panel: 28px;
+  --radius-xl: 28px;
+  --radius-pill: 999px;
+  --radius-chip: 999px;
+  --radius-full: 999px;
 
   /* Aliases for store modules using --wex-radius-* */
   --wex-radius-8: 8px;
   --wex-radius-12: 12px;
-  --wex-radius-md: 14px;
-  --wex-radius-16: 16px;
+  --wex-radius-md: 12px;
+  --wex-radius-16: 20px;
   --wex-radius-20: 20px;
   --wex-radius-28: 28px;
   --wex-radius-chip: 999px;
@@ -191,6 +198,11 @@
   --admin-tab-bar-height: 56px;
   --bottom-offset: 68px;
   --touch-target: 48px;
+  --sticky-bar-height: 72px;
+  --sticky-bar-tall: 120px;
+  --sticky-bar-clearance: calc(var(--sticky-bar-height) + env(safe-area-inset-bottom, 0px));
+  --sticky-bar-tall-clearance: calc(var(--sticky-bar-tall) + env(safe-area-inset-bottom, 0px));
+  --appbar-overlap: 36px;
   --active-index: 0;
   --drawer-width: 320px;
   --popover-width: 280px;
