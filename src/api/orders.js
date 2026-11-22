@@ -4,7 +4,7 @@ export const ordersApi = {
   /**
    * List authenticated customer's orders
    */
-  getOrders(params = {}) {
+  getOrders(params = {}, options = {}) {
     const query = new URLSearchParams();
     Object.entries(params).forEach(([k, v]) => {
       if (v !== undefined && v !== null && v !== '') {
@@ -12,14 +12,14 @@ export const ordersApi = {
       }
     });
     const qs = query.toString();
-    return api.get(`/orders${qs ? `?${qs}` : ''}`);
+    return api.get(`/orders${qs ? `?${qs}` : ''}`, options);
   },
 
   /**
    * Get single order detail by order number
    */
-  getOrderDetail(orderNumber) {
-    return api.get(`/orders/${encodeURIComponent(orderNumber)}`);
+  getOrderDetail(orderNumber, options = {}) {
+    return api.get(`/orders/${encodeURIComponent(orderNumber)}`, options);
   },
 
   /**

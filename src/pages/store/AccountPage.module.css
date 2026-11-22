@@ -137,8 +137,10 @@
   transform: scale(0.985);
 }
 
-.statItem:hover {
-  background: rgba(255, 255, 255, 0.14);
+@media (hover: hover) {
+  .statItem:hover {
+    background: rgba(255, 255, 255, 0.14);
+  }
 }
 
 .statNumber {
@@ -217,9 +219,11 @@
   min-height: 40px;
 }
 
-.tabBtn:hover {
-  background: var(--wex-ice);
-  color: var(--wex-royal);
+@media (hover: hover) {
+  .tabBtn:hover {
+    background: var(--wex-ice);
+    color: var(--wex-royal);
+  }
 }
 
 .tabBtnActive {
@@ -227,9 +231,11 @@
   color: var(--wex-white);
 }
 
-.tabBtnActive:hover {
-  background: var(--wex-royal);
-  color: var(--wex-white);
+@media (hover: hover) {
+  .tabBtnActive:hover {
+    background: var(--wex-royal);
+    color: var(--wex-white);
+  }
 }
 
 /* Tab Content */
@@ -306,10 +312,12 @@
   transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
 }
 
-.quickCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(6, 26, 85, 0.06);
-  border-color: var(--wex-border);
+@media (hover: hover) {
+  .quickCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(6, 26, 85, 0.06);
+    border-color: var(--wex-border);
+  }
 }
 
 .quickCardIcon {
@@ -492,8 +500,10 @@
   min-height: 44px;
 }
 
-.saveBtn:hover:not(:disabled) {
-  background: var(--wex-vivid);
+@media (hover: hover) {
+  .saveBtn:hover:not(:disabled) {
+    background: var(--wex-vivid);
+  }
 }
 
 .saveBtn:disabled {
@@ -622,8 +632,10 @@
   min-height: 36px;
 }
 
-.unlinkBtn:hover {
-  background: var(--wex-danger-bg);
+@media (hover: hover) {
+  .unlinkBtn:hover {
+    background: var(--wex-danger-bg);
+  }
 }
 
 /* Session Actions */
@@ -666,8 +678,10 @@
   min-height: 44px;
 }
 
-.logoutAllBtn:hover {
-  background: var(--wex-danger-bg);
+@media (hover: hover) {
+  .logoutAllBtn:hover {
+    background: var(--wex-danger-bg);
+  }
 }
 
 /* Settings Menu Rows */

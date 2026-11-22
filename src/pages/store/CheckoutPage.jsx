@@ -15,6 +15,7 @@ import Price from '../../components/common/Price';
 import NoticeLine from '../../components/common/NoticeLine';
 import StickyBar from '../../components/common/StickyBar';
 import AuthSheet from '../../components/auth/AuthSheet';
+import { swrCache } from '../../utils/swrCache';
 import styles from './CheckoutPage.module.css';
 
 const SAVED_PHONE_KEY = 'wex_saved_contact_phone';
@@ -43,7 +44,9 @@ export default function CheckoutPage({
     }
   }); // 'pickup' | 'delivery'
 
-  const [shippingZones, setShippingZones] = useState(initialShippingZones || []);
+  const cachedZones = swrCache.get('shipping_zones');
+  const cachedShop = swrCache.get('shop_info');
+  const [shippingZones, setShippingZones] = useState(() => initialShippingZones || cachedZones?.data || []);
 
   const [selectedZoneId, setSelectedZoneId] = useState(() => {
     try {
@@ -75,7 +78,7 @@ export default function CheckoutPage({
     return user?.phone || '';
   });
   const [customerNotes, setCustomerNotes] = useState('');
-  const [shopInfo, setShopInfo] = useState(initialShopInfo);
+  const [shopInfo, setShopInfo] = useState(() => initialShopInfo || cachedShop?.data || null);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [isAuthSheetOpen, setIsAuthSheetOpen] = useState(false);
@@ -104,23 +107,30 @@ export default function CheckoutPage({
     if (initialShippingZones !== null && initialShopInfo !== null) return;
     let isMounted = true;
     refreshCartPrices();
+    const controller = new AbortController();
 
     Promise.all([
-      productsApi.getShippingZones().catch(() => ({ data: [] })),
-      shopApi.getShop().catch(() => ({ data: null })),
+      productsApi.getShippingZones({ signal: controller.signal }).catch(() => ({ data: [] })),
+      shopApi.getShop({ signal: controller.signal }).catch(() => ({ data: null })),
     ]).then(([zonesRes, shopRes]) => {
       if (!isMounted) return;
       const zList = zonesRes?.data || [];
+      const sInfo = shopRes?.data || null;
       setShippingZones(zList);
+      swrCache.set('shipping_zones', zList);
+      if (sInfo) swrCache.set('shop_info', sInfo);
       setSelectedZoneId((current) => {
         if (current) return current;
         return zList.length > 0 ? String(zList[0].id) : '';
       });
-      setShopInfo(shopRes?.data || null);
+      setShopInfo(sInfo);
+    }).catch((err) => {
+      if (!isMounted || err?.name === 'AbortError') return;
     });
 
     return () => {
       isMounted = false;
+      controller.abort();
     };
   }, [refreshCartPrices, initialShippingZones, initialShopInfo]);
 

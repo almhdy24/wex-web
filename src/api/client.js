@@ -313,6 +313,9 @@ export async function apiClient(endpoint, options = {}, retryOn401 = true) {
 
     return json;
   } catch (error) {
+    if (error?.name === 'AbortError') {
+      throw error;
+    }
     if (error instanceof ApiError) {
       throw error;
     }

@@ -211,10 +211,14 @@ export function getProductImageUrl(path, _thumb = false) {
   if (!path) {
     return '/favicon.svg';
   }
-  if (path.startsWith('http://') || path.startsWith('https://')) {
-    return path;
+  const resolvedPath = typeof path === 'object' ? (path.image_url || path.url || path.path || '') : path;
+  if (!resolvedPath || typeof resolvedPath !== 'string') {
+    return '/favicon.svg';
   }
-  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  if (resolvedPath.startsWith('http://') || resolvedPath.startsWith('https://')) {
+    return resolvedPath;
+  }
+  const cleanPath = resolvedPath.startsWith('/') ? resolvedPath : `/${resolvedPath}`;
   return `${HOST_BASE}${cleanPath}`;
 }
 

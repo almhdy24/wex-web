@@ -209,11 +209,11 @@ ul, ol {
   margin-block-start: var(--space-2);
 }
 
-/* Slide Transition Animations for App Screens */
+/* Slide Transition Animations for App Screens (RTL forward: enter from inline-end / -16px) */
 @keyframes screenSlideInRight {
   from {
     opacity: 0;
-    transform: translateX(16px);
+    transform: translateX(-16px);
   }
   to {
     opacity: 1;

@@ -316,8 +316,10 @@
   transition: background-color 150ms ease;
 }
 
-.addMoreLink:hover {
-  background: var(--wex-ice);
+@media (hover: hover) {
+  .addMoreLink:hover {
+    background: var(--wex-ice);
+  }
 }
 
 /* Summary Card */
@@ -426,8 +428,10 @@
   min-height: 36px;
 }
 
-.confirmPriceChangesBtn:hover {
-  background: var(--wex-royal);
+@media (hover: hover) {
+  .confirmPriceChangesBtn:hover {
+    background: var(--wex-royal);
+  }
 }
 
 .deliveryFeeEstimate {

@@ -12,6 +12,7 @@ import Tabs from '../../components/common/Tabs';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import Skeleton from '../../components/common/Skeleton';
+import { swrCache } from '../../utils/swrCache';
 import styles from './OrdersPage.module.css';
 
 const ORDER_TABS = [
@@ -25,29 +26,40 @@ export default function OrdersPage({
   initialOrders = null,
   initialLoading = null,
 } = {}) {
-  const [orders, setOrders] = useState(initialOrders || []);
+  const cachedOrders = swrCache.get('my_orders');
+  const [orders, setOrders] = useState(() => initialOrders ?? cachedOrders?.data ?? []);
   const [activeTab, setActiveTab] = useState('all');
-  const [loading, setLoading] = useState(initialLoading ?? (initialOrders === null));
+  const [loading, setLoading] = useState(
+    initialLoading ?? (initialOrders === null && !cachedOrders?.data)
+  );
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const fetchOrders = async () => {
-    setLoading(true);
+  const fetchOrders = async (signal) => {
+    if (!cachedOrders?.data) {
+      setLoading(true);
+    }
     setError(null);
     try {
-      const res = await ordersApi.getOrders({ per_page: 20 });
-      setOrders(res?.data || []);
+      const res = await ordersApi.getOrders({ per_page: 20 }, { signal });
+      const fresh = res?.data || [];
+      setOrders(fresh);
+      swrCache.set('my_orders', fresh);
     } catch (err) {
-      setError(err.message || 'تعذر تحميل قائمة الطلبات');
+      if (err?.name === 'AbortError') return;
+      if (!cachedOrders?.data) {
+        setError(err.message || 'تعذر تحميل قائمة الطلبات');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (initialOrders === null) {
-      fetchOrders();
-    }
+    if (initialOrders !== null) return;
+    const controller = new AbortController();
+    fetchOrders(controller.signal);
+    return () => controller.abort();
   }, [initialOrders]);
 
   const filteredOrders = useMemo(() => {
@@ -91,7 +103,7 @@ export default function OrdersPage({
         ) : loading ? (
           <div className={styles.ordersList}>
             {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} variant="card" height={118} className={styles.skeletonCard} />
+              <Skeleton key={i} variant="card" height={118} borderRadius="var(--radius-card)" />
             ))}
           </div>
         ) : orders.length === 0 ? (

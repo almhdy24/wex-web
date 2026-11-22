@@ -29,6 +29,8 @@ import Price from '../../components/common/Price';
 import NoticeLine from '../../components/common/NoticeLine';
 import Tabs from '../../components/common/Tabs';
 import StickyBar from '../../components/common/StickyBar';
+import Skeleton from '../../components/common/Skeleton';
+import { swrCache } from '../../utils/swrCache';
 import styles from './ProductDetailPage.module.css';
 
 function getSpecPath(label = '', key = '') {
@@ -71,13 +73,18 @@ export default function ProductDetailPage({
   const { toggleFavorite, isFavorite } = useFavorites();
   const { success, error: toastError } = useToast();
 
-  const [product, setProduct] = useState(initialProduct);
-  const [shopInfo, setShopInfo] = useState(initialShopInfo);
-  const [shippingZones, setShippingZones] = useState(initialShippingZones || []);
+  const cacheKey = slug ? `pdp_${slug}` : null;
+  const cached = cacheKey ? swrCache.get(cacheKey) : null;
+
+  const [product, setProduct] = useState(() => initialProduct || cached?.data?.product || null);
+  const [shopInfo, setShopInfo] = useState(() => initialShopInfo || cached?.data?.shopInfo || null);
+  const [shippingZones, setShippingZones] = useState(() => initialShippingZones || cached?.data?.shippingZones || []);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [imageError, setImageError] = useState(false);
   const [quantity, setQuantity] = useState(1);
-  const [loading, setLoading] = useState(initialLoading ?? (initialProduct === null));
+  const [loading, setLoading] = useState(
+    initialLoading ?? (initialProduct === null && !cached?.data?.product)
+  );
   const [error, setError] = useState(null);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('specs'); // 'specs' | 'delivery'
@@ -86,23 +93,38 @@ export default function ProductDetailPage({
   useEffect(() => {
     if (initialProduct !== null) return;
     let isMounted = true;
-    setLoading(true);
+    if (!cached?.data?.product) {
+      setLoading(true);
+    }
     setError(null);
+    const controller = new AbortController();
 
     Promise.all([
-      productsApi.getProductDetail(slug),
-      shopApi.getShop().catch(() => ({ data: null })),
-      productsApi.getShippingZones().catch(() => ({ data: [] })),
+      productsApi.getProductDetail(slug, { signal: controller.signal }),
+      shopApi.getShop({ signal: controller.signal }).catch(() => ({ data: null })),
+      productsApi.getShippingZones({ signal: controller.signal }).catch(() => ({ data: [] })),
     ])
       .then(([prodRes, shopRes, zonesRes]) => {
         if (!isMounted) return;
-        setProduct(prodRes?.data || null);
-        setShopInfo(shopRes?.data || null);
-        setShippingZones(zonesRes?.data || []);
+        const freshProduct = prodRes?.data || null;
+        const freshShop = shopRes?.data || null;
+        const freshZones = zonesRes?.data || [];
+        setProduct(freshProduct);
+        setShopInfo(freshShop);
+        setShippingZones(freshZones);
+        if (cacheKey) {
+          swrCache.set(cacheKey, {
+            product: freshProduct,
+            shopInfo: freshShop,
+            shippingZones: freshZones,
+          });
+        }
       })
       .catch((err) => {
-        if (!isMounted) return;
-        setError(err.message || 'تعذر تحميل بيانات الجهاز');
+        if (!isMounted || err?.name === 'AbortError') return;
+        if (!cached?.data?.product) {
+          setError(err.message || 'تعذر تحميل بيانات الجهاز');
+        }
       })
       .finally(() => {
         if (isMounted) setLoading(false);
@@ -110,15 +132,16 @@ export default function ProductDetailPage({
 
     return () => {
       isMounted = false;
+      controller.abort();
     };
   }, [slug, initialProduct]);
 
   if (loading) {
     return (
       <Page className={styles.loadingContainer}>
-        <div className={styles.imageSkeleton} />
-        <div className={styles.lineSkeleton} />
-        <div className={styles.lineSkeleton} />
+        <Skeleton height="250px" borderRadius="var(--radius-panel)" />
+        <Skeleton height="24px" width="80%" borderRadius="var(--radius-control)" />
+        <Skeleton height="24px" width="60%" borderRadius="var(--radius-control)" />
       </Page>
     );
   }
@@ -288,6 +311,7 @@ export default function ProductDetailPage({
         tone="navy"
         overlap={84}
         title={product.name}
+        titleAs="span"
         showBack={true}
         backTo="/products"
         showCart={true}
@@ -325,6 +349,11 @@ export default function ProductDetailPage({
               src={displayImage}
               alt={product.name}
               className={styles.stageImage}
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+              width="400"
+              height="300"
               onError={() => setImageError(true)}
             />
           ) : (
@@ -364,6 +393,10 @@ export default function ProductDetailPage({
                 <img
                   src={getProductImageUrl(img.image_url || img.path || img)}
                   alt=""
+                  width="56"
+                  height="56"
+                  loading="lazy"
+                  decoding="async"
                   className={styles.thumbImage}
                 />
               </button>

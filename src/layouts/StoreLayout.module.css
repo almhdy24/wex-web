@@ -15,7 +15,8 @@
 
 .skipLink:focus {
   top: 16px;
-  outline: 3px solid var(--wex-cyan, #00B7FF);
+  outline: var(--focus-ring);
+  outline-offset: 2px;
 }
 
 /* Desktop Web Shell (>= 1024px) */

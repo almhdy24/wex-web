@@ -23,6 +23,7 @@ import Price from '../../components/common/Price';
 import ErrorState from '../../components/common/ErrorState';
 import StickyBar from '../../components/common/StickyBar';
 import NoticeLine from '../../components/common/NoticeLine';
+import Skeleton from '../../components/common/Skeleton';
 import { triggerHaptic } from '../../utils/haptics';
 import { deriveOrderUiState, formatCountdownTime } from '../../utils/orderState';
 import { getServerTimeOffset } from '../../api/client';
@@ -389,7 +390,7 @@ export default function OrderDetailPage({
           backTo="/orders"
         />
         <Page className={styles.container}>
-          <div className={styles.loadingSkeleton} />
+          <Skeleton height="200px" borderRadius="var(--radius-panel)" />
         </Page>
       </div>
     );

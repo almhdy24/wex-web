@@ -201,19 +201,7 @@
   margin: 0;
 }
 
-.skeletonCard {
-  width: 100%;
-  height: 90px;
-  background-color: var(--wex-white);
-  border: 1px solid var(--wex-border);
-  border-radius: var(--radius-card);
-  animation: wexSkeletonPulse 1.5s ease-in-out infinite;
-}
 
-@keyframes wexSkeletonPulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
 
 .errorCard {
   padding: 24px;

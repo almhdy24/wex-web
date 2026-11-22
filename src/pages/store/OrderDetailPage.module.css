@@ -47,20 +47,7 @@
 }
 
 /* Loading Skeleton */
-.loadingSkeleton {
-  width: calc(100% - 32px);
-  margin: 20px 16px;
-  height: 200px;
-  background: var(--wex-white);
-  border-radius: var(--radius-panel);
-  border: 1px solid var(--wex-border);
-  animation: wexPulse 1.5s ease-in-out infinite;
-}
 
-@keyframes wexPulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
 
 /* Error Card */
 .errorCard {
@@ -456,8 +443,10 @@
   transition: opacity 150ms ease;
 }
 
-.proofThumbnailBox:hover .proofThumbOverlay {
-  opacity: 1;
+@media (hover: hover) {
+  .proofThumbnailBox:hover .proofThumbOverlay {
+    opacity: 1;
+  }
 }
 
 .proofLoadingBox {

@@ -141,8 +141,10 @@
   box-sizing: border-box;
 }
 
-.optionBtn:hover {
-  border-color: var(--wex-royal);
+@media (hover: hover) {
+  .optionBtn:hover {
+    border-color: var(--wex-royal);
+  }
 }
 
 .optionBtn:active {

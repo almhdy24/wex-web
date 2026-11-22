@@ -19,6 +19,7 @@ export default function AppBar({
   customAction,
   tone = 'light',
   overlap,
+  titleAs = 'h1',
   className = '',
   style = {},
   children,
@@ -42,6 +43,7 @@ export default function AppBar({
 
   const isHome = location.pathname === '/';
   const isNavy = tone === 'navy';
+  const TitleTag = titleAs || 'h1';
 
   const overlapValue = overlap !== undefined
     ? (typeof overlap === 'number' ? `${overlap}px` : overlap)
@@ -91,7 +93,7 @@ export default function AppBar({
 
           {isNavy && title && (
             <div className={styles.navyTitleWrapper}>
-              <h1 className={styles.title}>{title}</h1>
+              <TitleTag className={styles.title}>{title}</TitleTag>
               {subtitle && <div className={styles.subtitle}>{subtitle}</div>}
             </div>
           )}
@@ -100,7 +102,7 @@ export default function AppBar({
         {/* Center Section: Page Title (for light tone) */}
         {!isNavy && (
           <div className={styles.titleWrapper}>
-            {title && !isHome && <h1 className={styles.title}>{title}</h1>}
+            {title && !isHome && <TitleTag className={styles.title}>{title}</TitleTag>}
             {subtitle && <div className={styles.subtitle}>{subtitle}</div>}
           </div>
         )}
