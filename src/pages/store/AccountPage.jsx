@@ -12,7 +12,6 @@ import {
   LogOut,
   ChevronLeft,
   Check,
-  AlertCircle,
   MessageCircle,
   Sparkles,
   Store,
@@ -29,6 +28,9 @@ import { useMotionMode } from '../../motion';
 import { authApi } from '../../api/auth';
 import { ordersApi } from '../../api/orders';
 import Page from '../../components/common/Page';
+import Modal from '../../components/common/Modal';
+import Button from '../../components/common/Button';
+import Tabs from '../../components/common/Tabs';
 import { notificationsApi } from '../../api/notifications';
 import { productsApi } from '../../api/products';
 import { normalizeSudanPhone, isValidSudanPhone } from '../../utils/formatters';
@@ -360,53 +362,20 @@ export default function AccountPage() {
         </div>
       </div>
 
-      {/* 2. Horizontal Navigation Tabs (Mobile-friendly segmented bar) */}
-      <nav className={styles.navTabs} aria-label="أقسام الحساب">
-        <button
-          type="button"
-          className={`${styles.tabBtn} ${activeTab === 'overview' ? styles.tabBtnActive : ''}`}
-          onClick={() => handleTabChange('overview')}
-        >
-          <Sliders size={16} />
-          <span>{ar.account.tabOverview}</span>
-        </button>
-
-        <button
-          type="button"
-          className={`${styles.tabBtn} ${activeTab === 'profile' ? styles.tabBtnActive : ''}`}
-          onClick={() => handleTabChange('profile')}
-        >
-          <User size={16} />
-          <span>{ar.account.tabProfile}</span>
-        </button>
-
-        <button
-          type="button"
-          className={`${styles.tabBtn} ${activeTab === 'addresses' ? styles.tabBtnActive : ''}`}
-          onClick={() => handleTabChange('addresses')}
-        >
-          <MapPin size={16} />
-          <span>{ar.account.tabAddresses}</span>
-        </button>
-
-        <button
-          type="button"
-          className={`${styles.tabBtn} ${activeTab === 'security' ? styles.tabBtnActive : ''}`}
-          onClick={() => handleTabChange('security')}
-        >
-          <Shield size={16} />
-          <span>{ar.account.tabSecurity}</span>
-        </button>
-
-        <button
-          type="button"
-          className={`${styles.tabBtn} ${activeTab === 'settings' ? styles.tabBtnActive : ''}`}
-          onClick={() => handleTabChange('settings')}
-        >
-          <Sparkles size={16} />
-          <span>{ar.account.tabSettings}</span>
-        </button>
-      </nav>
+      {/* 2. Horizontal Navigation Tabs */}
+      <Tabs
+        tabs={[
+          { id: 'overview', label: ar.account.tabOverview, icon: Sliders },
+          { id: 'profile', label: ar.account.tabProfile, icon: User },
+          { id: 'addresses', label: ar.account.tabAddresses, icon: MapPin },
+          { id: 'security', label: ar.account.tabSecurity, icon: Shield },
+          { id: 'settings', label: ar.account.tabSettings, icon: Sparkles },
+        ]}
+        activeTab={activeTab}
+        onChange={handleTabChange}
+        ariaLabel="أقسام الحساب"
+        className={styles.navTabs}
+      />
 
       {/* =========================================================================
          TAB 1: OVERVIEW (نظرة عامة)
@@ -881,99 +850,72 @@ export default function AccountPage() {
          ========================================================================= */}
 
       {/* Logout All Devices Modal */}
-      {logoutAllModalOpen && (
-        <div
-          className={styles.modalOverlay}
-          onClick={() => setLogoutAllModalOpen(false)}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <div className={styles.modalDangerIcon}>
-                <ShieldAlert size={22} />
-              </div>
-              <h3 className={styles.modalTitle}>{ar.account.logoutAllConfirmTitle}</h3>
-            </div>
-            <p className={styles.modalBody}>{ar.account.logoutAllConfirmBody}</p>
-            <div className={styles.modalActions}>
-              <button
-                type="button"
-                className={styles.cancelModalBtn}
-                onClick={() => setLogoutAllModalOpen(false)}
-              >
-                {ar.account.cancel}
-              </button>
-              <button
-                type="button"
-                className={styles.confirmDangerBtn}
-                onClick={handleLogoutAllDevices}
-              >
-                {ar.account.logoutAll}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={logoutAllModalOpen}
+        onClose={() => setLogoutAllModalOpen(false)}
+        title={ar.account.logoutAllConfirmTitle}
+        footer={
+          <>
+            <Button
+              variant="outline"
+              onClick={() => setLogoutAllModalOpen(false)}
+            >
+              {ar.account.cancel}
+            </Button>
+            <Button
+              variant="danger"
+              onClick={handleLogoutAllDevices}
+            >
+              {ar.account.logoutAll}
+            </Button>
+          </>
+        }
+      >
+        <p className={styles.modalBody}>{ar.account.logoutAllConfirmBody}</p>
+      </Modal>
 
       {/* Unlink Google Modal */}
-      {unlinkGoogleModalOpen && (
-        <div
-          className={styles.modalOverlay}
-          onClick={() => setUnlinkGoogleModalOpen(false)}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <div className={styles.modalDangerIcon}>
-                <AlertCircle size={22} />
-              </div>
-              <h3 className={styles.modalTitle}>{ar.account.unlinkConfirmTitle}</h3>
-            </div>
-            <p className={styles.modalBody}>{ar.account.unlinkConfirmBody}</p>
-            <div className={styles.modalActions}>
-              <button
-                type="button"
-                className={styles.cancelModalBtn}
-                onClick={() => setUnlinkGoogleModalOpen(false)}
-              >
-                {ar.account.cancel}
-              </button>
-              <button
-                type="button"
-                disabled={unlinkingGoogle}
-                className={styles.confirmDangerBtn}
-                onClick={handleConfirmUnlinkGoogle}
-              >
-                {unlinkingGoogle ? 'جاري الإلغاء...' : ar.account.unlinkGoogle}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={unlinkGoogleModalOpen}
+        onClose={() => setUnlinkGoogleModalOpen(false)}
+        title={ar.account.unlinkConfirmTitle}
+        footer={
+          <>
+            <Button
+              variant="outline"
+              onClick={() => setUnlinkGoogleModalOpen(false)}
+            >
+              {ar.account.cancel}
+            </Button>
+            <Button
+              variant="danger"
+              disabled={unlinkingGoogle}
+              onClick={handleConfirmUnlinkGoogle}
+            >
+              {unlinkingGoogle ? 'جاري الإلغاء...' : ar.account.unlinkGoogle}
+            </Button>
+          </>
+        }
+      >
+        <p className={styles.modalBody}>{ar.account.unlinkConfirmBody}</p>
+      </Modal>
 
       {/* Price Lock Modal */}
-      {priceLockModalOpen && (
-        <div
-          className={styles.modalOverlay}
-          onClick={() => setPriceLockModalOpen(false)}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
-            <h3 className={styles.modalTitle}>{ar.account.priceLockModalTitle}</h3>
-            <p className={styles.modalBody}>{ar.account.priceLockModalBody}</p>
-            <button
-              type="button"
-              className={styles.modalCloseBtn}
-              onClick={() => setPriceLockModalOpen(false)}
-            >
-              {ar.account.understood}
-            </button>
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={priceLockModalOpen}
+        onClose={() => setPriceLockModalOpen(false)}
+        title={ar.account.priceLockModalTitle}
+        footer={
+          <Button
+            variant="primary"
+            onClick={() => setPriceLockModalOpen(false)}
+          >
+            {ar.account.understood}
+          </Button>
+        }
+      >
+        <p className={styles.modalBody}>{ar.account.priceLockModalBody}</p>
+      </Modal>
     </Page>
   );
 }

@@ -1,0 +1,75 @@
+.price {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  white-space: nowrap;
+  font-family: var(--font-arabic);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.amount {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.currency {
+  font-size: 0.72em;
+  font-weight: 600;
+  opacity: 0.88;
+}
+
+/* Sizes */
+.xs {
+  font-size: 13px;
+}
+
+.sm {
+  font-size: 14px;
+}
+
+.md {
+  font-size: 16px;
+}
+
+.lg {
+  font-size: 18px;
+}
+
+.xl {
+  font-size: 22px;
+}
+
+.hero {
+  font-size: 28px;
+}
+
+/* Tones */
+.navy {
+  color: var(--wex-navy);
+}
+
+.royal {
+  color: var(--wex-royal);
+}
+
+.vivid {
+  color: var(--wex-vivid);
+}
+
+.success {
+  color: var(--wex-success);
+}
+
+.onDark {
+  color: var(--wex-white);
+}
+
+.inherit {
+  color: inherit;
+}
+
+.strike {
+  text-decoration: line-through;
+  opacity: 0.6;
+}

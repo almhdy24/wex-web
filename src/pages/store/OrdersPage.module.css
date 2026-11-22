@@ -45,15 +45,33 @@
   border-radius: var(--radius-card);
   padding: 16px;
   box-shadow: var(--shadow-card-v2);
-  cursor: pointer;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  transition: transform 120ms ease-out;
+  position: relative;
+  transition: transform var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard);
 }
 
 .orderCard:active {
-  transform: scale(0.97);
+  transform: scale(0.985);
+}
+
+.cardOverlayLink {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: var(--radius-card);
+  text-decoration: none;
+}
+
+.cardOverlayLink:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.raisedAction {
+  position: relative;
+  z-index: 2;
 }
 
 .cardHeader {

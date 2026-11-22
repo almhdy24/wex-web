@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Check, Heart } from 'lucide-react';
-import { formatSdg, getProductImageUrl, getConditionLabel } from '../../utils/formatters';
+import { getProductImageUrl, getConditionLabel } from '../../utils/formatters';
 import { useCart } from '../../context/CartContext';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useToast } from '../../context/ToastContext';
 import { t } from '../../content/ar';
-import { ProductImage, BrandRibbons } from '../common';
+import { ProductImage, BrandRibbons, Price } from '../common';
 import LatinText from '../common/LatinText';
 import { triggerHaptic } from '../../utils/haptics';
 import styles from './ProductCard.module.css';
@@ -156,13 +156,9 @@ export default function ProductCard({ product, index, style = {} }) {
             </p>
           )}
 
-          {/* Price Row: number tabular-nums + currency */}
+          {/* Price Row */}
           <div className={styles.pricing}>
-            <span className={styles.priceNum}>
-              {Number(product.price_sdg || 0).toLocaleString('en-US')}
-            </span>
-            <span className={styles.priceCurrency}>ج.س</span>
-            <span className={styles.srOnly}>{formatSdg(product.price_sdg)}</span>
+            <Price value={product.price_sdg} size="md" tone="royal" />
           </div>
         </div>
       </Link>

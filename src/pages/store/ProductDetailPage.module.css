@@ -92,7 +92,7 @@
 /* Image Stage */
 .imageStage {
   position: relative;
-  margin: -56px 16px 0;
+  margin: calc(-1 * var(--appbar-overlap, 84px) * 2 / 3) 16px 0;
   height: 230px;
   border-radius: var(--radius-panel);
   background: var(--grad-stage);

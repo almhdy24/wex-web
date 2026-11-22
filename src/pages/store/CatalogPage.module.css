@@ -27,7 +27,7 @@
   gap: 12px;
   padding: 0 18px;
   border: 0;
-  margin: -30px 16px 0;
+  margin: calc(-1 * var(--appbar-overlap, 60px) / 2) 16px 0;
   position: relative;
   z-index: 2;
   box-sizing: border-box;

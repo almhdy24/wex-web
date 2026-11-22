@@ -4,6 +4,8 @@ import { Search, SlidersHorizontal, RotateCcw } from 'lucide-react';
 import { productsApi } from '../../api/products';
 import ProductCard from '../../components/products/ProductCard';
 import { ProductCardSkeleton } from '../../components/common/Skeleton';
+import EmptyState from '../../components/common/EmptyState';
+import ErrorState from '../../components/common/ErrorState';
 import Sheet from '../../components/common/Sheet';
 import Button from '../../components/common/Button';
 import Chip from '../../components/common/Chip';
@@ -241,7 +243,7 @@ export default function CatalogPage({
     <div className={styles.pageWrapper}>
       <AppBar
         tone="navy"
-        style={{ '--header-bottom': '62px' }}
+        overlap={62}
         title="الأجهزة"
         showBack={true}
         backTo="/"
@@ -323,19 +325,16 @@ export default function CatalogPage({
           ))}
         </div>
       ) : error ? (
-        <div className={styles.errorBox}>
-          <p>{error}</p>
-          <Button variant="secondary" onClick={fetchProducts}>
-            إعادة المحاولة
-          </Button>
-        </div>
+        <ErrorState message={error} onRetry={fetchProducts} />
       ) : products.length === 0 ? (
-        <div className={styles.emptyState}>
-          <p className={styles.emptyText}>لا توجد أجهزة مطابقة. جرّب تغيير التصفية.</p>
-          <Button variant="secondary" onClick={handleResetAll}>
-            مسح التصفية
-          </Button>
-        </div>
+        <EmptyState
+          title="لا توجد أجهزة مطابقة. جرّب تغيير التصفية."
+          action={
+            <Button variant="secondary" onClick={handleResetAll}>
+              مسح التصفية
+            </Button>
+          }
+        />
       ) : (
         <Stagger className={styles.grid}>
           {displayedProducts.map((product, idx) => (

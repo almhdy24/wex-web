@@ -9,14 +9,12 @@ import {
   GitCompare,
   Share2,
   Maximize2,
-  X,
   MapPin,
   Truck,
-  Info,
 } from 'lucide-react';
 import { productsApi } from '../../api/products';
 import { shopApi } from '../../api/shop';
-import { formatSdg, getProductImageUrl, getConditionLabel } from '../../utils/formatters';
+import { getProductImageUrl, getConditionLabel } from '../../utils/formatters';
 import { useCart } from '../../context/CartContext';
 import { useCompare } from '../../context/CompareContext';
 import { useFavorites } from '../../context/FavoritesContext';
@@ -26,6 +24,11 @@ import AppBar from '../../components/common/AppBar';
 import BrandRibbons from '../../components/common/BrandRibbons';
 import Button from '../../components/common/Button';
 import Page from '../../components/common/Page';
+import Modal from '../../components/common/Modal';
+import Price from '../../components/common/Price';
+import NoticeLine from '../../components/common/NoticeLine';
+import Tabs from '../../components/common/Tabs';
+import StickyBar from '../../components/common/StickyBar';
 import styles from './ProductDetailPage.module.css';
 
 function getSpecPath(label = '', key = '') {
@@ -251,7 +254,7 @@ export default function ProductDetailPage({
     <div className={styles.pageWrapper}>
       <AppBar
         tone="navy"
-        style={{ '--header-bottom': '84px' }}
+        overlap={84}
         title={product.name}
         showBack={true}
         backTo="/products"
@@ -339,21 +342,12 @@ export default function ProductDetailPage({
           <h1 className={styles.title} dir="auto">{product.name}</h1>
 
           <div className={styles.priceRow}>
-            <span className={styles.priceNumber}>
-              {Number(product.price_sdg).toLocaleString('en-US')}
-            </span>
-            <span className={styles.priceCurrency}>ج.س</span>
-            <span className={styles.srOnly}>{formatSdg(product.price_sdg)}</span>
+            <Price value={product.price_sdg} size="xl" tone="royal" />
           </div>
 
-          <div className={styles.priceNoticeBox}>
-            <div className={styles.noticeIconBox}>
-              <Info size={18} strokeWidth={1.75} aria-hidden="true" />
-            </div>
-            <p className={styles.priceCaption}>
-              السعر قابل للتغيير حتى تأكيد الطلب.
-            </p>
-          </div>
+          <NoticeLine variant="secondary" className={styles.priceNoticeBox}>
+            السعر قابل للتغيير حتى تأكيد الطلب.
+          </NoticeLine>
         </div>
 
         {/* Compare / Share Buttons */}
@@ -377,30 +371,20 @@ export default function ProductDetailPage({
         </div>
 
         {/* Tabs */}
-        <div className={styles.tabsContainer} role="tablist">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === 'specs'}
-            className={`${styles.tabBtn} ${activeTab === 'specs' ? styles.tabBtnActive : ''}`}
-            onClick={() => setActiveTab('specs')}
-          >
-            المواصفات
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === 'delivery'}
-            className={`${styles.tabBtn} ${activeTab === 'delivery' ? styles.tabBtnActive : ''}`}
-            onClick={() => setActiveTab('delivery')}
-          >
-            الاستلام والتوصيل
-          </button>
-        </div>
+        <Tabs
+          tabs={[
+            { id: 'specs', label: 'المواصفات' },
+            { id: 'delivery', label: 'الاستلام والتوصيل' },
+          ]}
+          activeTab={activeTab}
+          onChange={setActiveTab}
+          ariaLabel="تفاصيل الجهاز"
+          className={styles.tabsContainer}
+        />
 
         {/* Specs or Delivery Card */}
         {activeTab === 'specs' ? (
-          <div className={styles.specsCard}>
+          <div role="tabpanel" id="tabpanel-specs" aria-labelledby="tab-specs" className={styles.specsCard}>
             {specRows
               .filter((row) => row.value)
               .map((row, idx) => (
@@ -427,7 +411,7 @@ export default function ProductDetailPage({
               ))}
           </div>
         ) : (
-          <div className={styles.deliveryCard}>
+          <div role="tabpanel" id="tabpanel-delivery" aria-labelledby="tab-delivery" className={styles.deliveryCard}>
             <div className={styles.deliverySection}>
               <div className={styles.deliveryHeading}>
                 <MapPin size={18} strokeWidth={1.75} className={styles.deliveryIcon} aria-hidden="true" />
@@ -451,12 +435,10 @@ export default function ProductDetailPage({
         )}
 
         {/* Purchase Bar (Fixed) */}
-        <div className={styles.purchaseBar}>
+        <StickyBar className={styles.purchaseBar}>
           <div className={styles.purchasePriceCol}>
             <span className={styles.purchasePriceLabel}>السعر</span>
-            <span className={styles.purchasePriceValue}>
-              {Number(product.price_sdg).toLocaleString('en-US')} ج.س
-            </span>
+            <Price value={product.price_sdg} size="title" />
           </div>
 
           <div className={styles.stepperBox}>
@@ -507,32 +489,23 @@ export default function ProductDetailPage({
               {isOutOfStock ? 'غير متوفر حاليًا' : 'اطلب الآن'}
             </button>
           </div>
-        </div>
+        </StickyBar>
 
         {/* Zoom Modal */}
-        {isZoomOpen && displayImage && (
-          <div
-            className={styles.zoomModal}
-            role="dialog"
-            aria-modal="true"
-            onClick={() => setIsZoomOpen(false)}
-          >
-            <button
-              type="button"
-              className={styles.zoomCloseBtn}
-              onClick={() => setIsZoomOpen(false)}
-              aria-label="إغلاق"
-            >
-              <X size={24} strokeWidth={1.75} aria-hidden="true" />
-            </button>
+        <Modal
+          isOpen={isZoomOpen && Boolean(displayImage)}
+          onClose={() => setIsZoomOpen(false)}
+          variant="image"
+          ariaLabel="تكبير صورة الجهاز"
+        >
+          {displayImage && (
             <img
               src={displayImage}
               alt={product.name}
               className={styles.zoomImg}
-              onClick={(e) => e.stopPropagation()}
             />
-          </div>
-        )}
+          )}
+        </Modal>
       </Page>
     </div>
   );

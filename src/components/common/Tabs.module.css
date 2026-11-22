@@ -1,0 +1,116 @@
+.tablist {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  user-select: none;
+  position: relative;
+}
+
+.tablist::-webkit-scrollbar {
+  display: none;
+}
+
+/* Base Tab Button */
+.tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 8px 16px;
+  font-family: var(--font-arabic);
+  font-size: var(--text-small);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--wex-text-secondary);
+  border-radius: var(--radius-control);
+  transition: all var(--motion-fast) var(--ease-standard);
+  outline: none;
+}
+
+.tab:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.tabIcon {
+  flex-shrink: 0;
+}
+
+.tabCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--wex-ice);
+  color: var(--wex-royal);
+}
+
+/* Variant: Segment (pill bar with background container) */
+.segment {
+  background: var(--wex-ice-light);
+  padding: 4px;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--wex-border);
+}
+
+.segment .tab.selected {
+  background: var(--wex-white);
+  color: var(--wex-navy);
+  box-shadow: var(--shadow-sm);
+  font-weight: 700;
+}
+
+.segment .tab.selected .tabCount {
+  background: var(--wex-royal);
+  color: var(--wex-white);
+}
+
+/* Variant: Pill */
+.pill .tab {
+  border-radius: var(--radius-pill);
+  background: var(--wex-white);
+  border: 1px solid var(--wex-border);
+}
+
+.pill .tab.selected {
+  background: var(--wex-royal);
+  border-color: var(--wex-royal);
+  color: var(--wex-white);
+}
+
+.pill .tab.selected .tabCount {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--wex-white);
+}
+
+/* Variant: Line (underlined) */
+.line {
+  border-bottom: 2px solid var(--wex-border);
+  gap: 16px;
+  border-radius: 0;
+}
+
+.line .tab {
+  border-radius: 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  padding-inline: 4px;
+}
+
+.line .tab.selected {
+  color: var(--wex-royal);
+  border-bottom-color: var(--wex-royal);
+  font-weight: 700;
+}

@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { ordersApi } from '../../api/orders';
-import { formatSdg, formatDate, getOrderStatusInfo } from '../../utils/formatters';
+import { formatDate, getOrderStatusInfo } from '../../utils/formatters';
 import AppBar from '../../components/common/AppBar';
 import Button from '../../components/common/Button';
 import Page from '../../components/common/Page';
+import Price from '../../components/common/Price';
+import EmptyState from '../../components/common/EmptyState';
+import ErrorState from '../../components/common/ErrorState';
+import Skeleton from '../../components/common/Skeleton';
 import styles from './OrdersPage.module.css';
 
 export default function OrdersPage({
@@ -47,32 +51,29 @@ export default function OrdersPage({
     <div className={styles.pageWrapper}>
       <AppBar
         tone="navy"
-        style={{ '--header-bottom': '28px' }}
+        overlap={28}
         title="طلباتي"
         showBack={false}
       />
 
       <Page className={styles.container}>
         {error ? (
-          <div className={styles.errorCard}>
-            <p>{error}</p>
-            <Button variant="secondary" onClick={fetchOrders}>
-              إعادة المحاولة
-            </Button>
-          </div>
+          <ErrorState message={error} onRetry={fetchOrders} />
         ) : loading ? (
           <div className={styles.ordersList}>
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className={styles.skeletonCard} />
+              <Skeleton key={i} variant="card" height={118} className={styles.skeletonCard} />
             ))}
           </div>
         ) : orders.length === 0 ? (
-          <div className={styles.emptyCard}>
-            <p className={styles.emptyText}>لا توجد طلبات سابقة.</p>
-            <Button variant="primary" onClick={() => navigate('/products')}>
-              تصفّح الأجهزة
-            </Button>
-          </div>
+          <EmptyState
+            title="لا توجد طلبات سابقة."
+            action={
+              <Button variant="primary" onClick={() => navigate('/products')}>
+                تصفّح الأجهزة
+              </Button>
+            }
+          />
         ) : (
           <div className={styles.ordersList}>
             {orders.map((order) => {
@@ -87,16 +88,14 @@ export default function OrdersPage({
               const chipClass = getChipStyle(order.status, paymentState);
 
               return (
-                <article
-                  key={order.id}
-                  className={styles.orderCard}
-                  onClick={() => navigate(`/orders/${order.order_number || order.id}`)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') navigate(`/orders/${order.order_number || order.id}`);
-                  }}
-                >
+                <div key={order.id} className={styles.orderCard}>
+                  {/* Accessible stretched link for whole card */}
+                  <Link
+                    to={`/orders/${order.order_number || order.id}`}
+                    className={styles.cardOverlayLink}
+                    aria-label={`طلب #${order.order_number}`}
+                  />
+
                   {/* Header Row: رقم، الوقت، الحالة */}
                   <div className={styles.cardHeader}>
                     <div className={styles.orderTopLine}>
@@ -108,7 +107,7 @@ export default function OrdersPage({
                       </span>
                     </div>
 
-                    <span className={styles.orderDate} dir="ltr">
+                    <span className={styles.orderDate} dir="auto">
                       {formatDate(order.created_at)}
                     </span>
                   </div>
@@ -117,7 +116,7 @@ export default function OrdersPage({
                   <div className={styles.cardFooter}>
                     <div className={styles.priceCol}>
                       <span className={styles.priceLabel}>الإجمالي:</span>
-                      <span className={styles.priceVal}>{formatSdg(orderTotal)}</span>
+                      <Price value={orderTotal} size="sm" tone="navy" />
                     </div>
 
                     {isPending ? (
@@ -128,7 +127,7 @@ export default function OrdersPage({
                           e.stopPropagation();
                           navigate(`/orders/${order.order_number || order.id}`);
                         }}
-                        className={styles.payNowBtn}
+                        className={`${styles.payNowBtn} ${styles.raisedAction}`}
                       >
                         ادفع الآن
                       </Button>
@@ -139,7 +138,7 @@ export default function OrdersPage({
                       </div>
                     )}
                   </div>
-                </article>
+                </div>
               );
             })}
           </div>

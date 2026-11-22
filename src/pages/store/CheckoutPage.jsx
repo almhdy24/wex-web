@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Store, Truck, Info, Loader2 } from 'lucide-react';
+import { Store, Truck, Loader2 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -11,6 +11,9 @@ import { formatSdg, isValidSudanPhone } from '../../utils/formatters';
 import AppBar from '../../components/common/AppBar';
 import Button from '../../components/common/Button';
 import Page from '../../components/common/Page';
+import Price from '../../components/common/Price';
+import NoticeLine from '../../components/common/NoticeLine';
+import StickyBar from '../../components/common/StickyBar';
 import AuthSheet from '../../components/auth/AuthSheet';
 import styles from './CheckoutPage.module.css';
 
@@ -189,30 +192,12 @@ export default function CheckoutPage({
     <div className={styles.pageWrapper}>
       <AppBar
         tone="navy"
-        style={{ '--header-bottom': '36px' }}
+        overlap={36}
         title="تأكيد الطلب"
         showBack={true}
       />
 
       <Page className={styles.container}>
-        {/* Stepper: الاستلام → التواصل → المراجعة */}
-      <div className={styles.stepperRow} aria-label="مراحل إتمام الطلب">
-        <div className={`${styles.stepIndicator} ${styles.stepDone}`}>
-          <span className={styles.stepNum}>1</span>
-          <span className={styles.stepText}>الاستلام</span>
-        </div>
-        <div className={styles.stepLine} />
-        <div className={`${styles.stepIndicator} ${styles.stepActive}`}>
-          <span className={styles.stepNum}>2</span>
-          <span className={styles.stepText}>التواصل</span>
-        </div>
-        <div className={styles.stepLine} />
-        <div className={styles.stepIndicator}>
-          <span className={styles.stepNum}>3</span>
-          <span className={styles.stepText}>المراجعة</span>
-        </div>
-      </div>
-
       {/* Section 1: طريقة الاستلام */}
       <section className={styles.sectionCard} aria-labelledby="delivery-type-heading">
         <h2 id="delivery-type-heading" className={styles.sectionHeading}>
@@ -348,50 +333,48 @@ export default function CheckoutPage({
 
         <div className={styles.summaryRow}>
           <span className={styles.summaryLabel}>المجموع</span>
-          <span className={styles.summaryValue}>{formatSdg(subtotal)}</span>
+          <span className={styles.summaryValue}><Price value={subtotal} size="md" tone="navy" /></span>
         </div>
 
         <div className={styles.summaryRow}>
           <span className={styles.summaryLabel}>خصم التطبيق (3%)</span>
-          <span className={styles.discountValue}>- {formatSdg(discount)}</span>
+          <span className={styles.discountValue}>- <Price value={discount} size="md" tone="success" /></span>
         </div>
 
         <div className={styles.summaryRow}>
           <span className={styles.summaryLabel}>رسوم التوصيل</span>
           <span className={styles.summaryValue}>
-            {orderType === 'pickup' || shippingFee === 0 ? 'مجانًا' : formatSdg(shippingFee)}
+            {orderType === 'pickup' || shippingFee === 0 ? 'مجانًا' : <Price value={shippingFee} size="md" tone="navy" />}
           </span>
         </div>
 
         <div className={styles.totalRow}>
           <span className={styles.totalLabel}>الإجمالي</span>
-          <span className={styles.totalValue}>{formatSdg(total)}</span>
+          <span className={styles.totalValue}><Price value={total} size="lg" tone="royal" /></span>
         </div>
       </section>
 
       {/* Sticky Bottom Bar */}
-      <div className={styles.stickyBar}>
-        {/* ONE line above the button */}
-        <p className={styles.lockNoticeLine}>
-          <Info size={16} strokeWidth={1.75} className={styles.infoIcon} aria-hidden="true" />
-          <span>
+      <StickyBar hideOnInput={true}>
+        <div className={styles.stickyContent}>
+          <NoticeLine variant="secondary" className={styles.lockNoticeLine}>
             بعد التأكيد يُثبَّت السعر لمدة {lockHours} ساعات لتحوّل المبلغ وترفع إشعار التحويل.
-          </span>
-        </p>
+          </NoticeLine>
 
-        <Button
-          variant="primary"
-          onClick={handleConfirmOrder}
-          disabled={submitting || items.length === 0}
-          className={styles.confirmBtn}
-        >
-          {submitting ? (
-            <Loader2 size={18} className={styles.spinner} />
-          ) : (
-            'تأكيد الطلب'
-          )}
-        </Button>
-      </div>
+          <Button
+            variant="primary"
+            onClick={handleConfirmOrder}
+            disabled={submitting || items.length === 0}
+            className={styles.confirmBtn}
+          >
+            {submitting ? (
+              <Loader2 size={18} className={styles.spinner} />
+            ) : (
+              <span>تأكيد الطلب</span>
+            )}
+          </Button>
+        </div>
+      </StickyBar>
 
       {/* Auth Bottom Sheet (for signed-out users) */}
       <AuthSheet

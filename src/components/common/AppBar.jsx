@@ -18,6 +18,7 @@ export default function AppBar({
   showCart = true,
   customAction,
   tone = 'light',
+  overlap,
   className = '',
   style = {},
   children,
@@ -42,8 +43,17 @@ export default function AppBar({
   const isHome = location.pathname === '/';
   const isNavy = tone === 'navy';
 
+  const overlapValue = overlap !== undefined
+    ? (typeof overlap === 'number' ? `${overlap}px` : overlap)
+    : undefined;
+
+  const combinedStyle = {
+    ...(overlapValue ? { '--appbar-overlap': overlapValue, '--header-bottom': overlapValue } : {}),
+    ...style,
+  };
+
   return (
-    <header className={`${styles.appBar} ${isNavy ? styles.navy : ''} ${className}`} style={style}>
+    <header className={`${styles.appBar} ${isNavy ? styles.navy : ''} ${className}`} style={combinedStyle}>
       {isNavy && <BrandRibbons variant="header" />}
       <div className={styles.headerRow}>
         {/* Right Section (in RTL: right / start side of screen) */}

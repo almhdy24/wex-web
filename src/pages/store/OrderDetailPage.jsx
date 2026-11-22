@@ -6,22 +6,22 @@ import {
   Camera,
   Image as ImageIcon,
   Upload,
-  Info,
   Clock,
-  CheckCircle2,
   AlertCircle,
   Loader2,
   ZoomIn,
-  X,
 } from 'lucide-react';
 import { ordersApi } from '../../api/orders';
-import { formatSdg, formatDate } from '../../utils/formatters';
-import { useCountUp } from '../../motion';
+import { formatDate } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
 import AppBar from '../../components/common/AppBar';
 import BrandRibbons from '../../components/common/BrandRibbons';
 import Button from '../../components/common/Button';
 import Page from '../../components/common/Page';
+import Modal from '../../components/common/Modal';
+import Price from '../../components/common/Price';
+import StickyBar from '../../components/common/StickyBar';
+import NoticeLine from '../../components/common/NoticeLine';
 import { triggerHaptic } from '../../utils/haptics';
 import { deriveOrderUiState, formatCountdownTime } from '../../utils/orderState';
 import { getServerTimeOffset } from '../../api/client';
@@ -166,7 +166,6 @@ export default function OrderDetailPage({
   const uploadCardRef = useRef(null);
 
   const totalAmount = order?.total_sdg ?? order?.total_amount_sdg ?? 0;
-  const [animatedAmount, amountRef] = useCountUp(totalAmount, 600);
 
   // Load Order Data
   const loadOrder = async (showLoading = true) => {
@@ -336,7 +335,7 @@ export default function OrderDetailPage({
       {/* AppBar tone="navy", header-bottom: 36px, order number in title, subtitle, status chip on end side */}
       <AppBar
         tone="navy"
-        style={{ '--header-bottom': '36px' }}
+        overlap={36}
         title={`طلب #${order.order_number}`}
         subtitle={formatDate(order.created_at)}
         showBack={true}
@@ -371,12 +370,8 @@ export default function OrderDetailPage({
             <div className={styles.amountSection}>
               <div className={styles.amountTextCol}>
                 <span className={styles.amountLabel}>المبلغ المطلوب</span>
-                <div className={styles.amountValueRow} ref={amountRef}>
-                  <span className={styles.amountNum} aria-hidden="true">
-                    {Number(animatedAmount).toLocaleString('en-US')}
-                  </span>
-                  <span className={styles.amountCur} aria-hidden="true">ج.س</span>
-                  <span className={styles.srOnly}>{formatSdg(totalAmount)}</span>
+                <div className={styles.amountValueRow}>
+                  <Price value={totalAmount} size="hero" tone="onDark" />
                 </div>
               </div>
 
@@ -603,10 +598,9 @@ export default function OrderDetailPage({
         ) : null}
 
         {/* 4. Notice line */}
-        <div className={styles.noticeLine}>
-          <Info size={16} strokeWidth={1.75} className={styles.noticeIcon} aria-hidden="true" />
-          <span>بعد المراجعة نُشعرك بتأكيد الدفع.</span>
-        </div>
+        <NoticeLine variant="secondary" className={styles.noticeLine}>
+          بعد المراجعة نُشعرك بتأكيد الدفع.
+        </NoticeLine>
 
         {/* Timeline */}
         <section className={styles.timelineCard} aria-label="مراحل الطلب">
@@ -685,7 +679,7 @@ export default function OrderDetailPage({
 
         {/* Sticky Bottom Button (only while order needs upload) */}
         {(isPending || isRejected) && !isExpired && (
-          <div className={styles.stickyBar}>
+          <StickyBar className={styles.stickyBar}>
             <button
               type="button"
               onClick={() => {
@@ -696,43 +690,24 @@ export default function OrderDetailPage({
               <Upload size={18} strokeWidth={1.75} aria-hidden="true" />
               <span>{isRejected ? 'ارفع إشعارًا جديدًا' : 'ارفع إشعار التحويل'}</span>
             </button>
-          </div>
+          </StickyBar>
         )}
 
         {/* Full-size Proof Preview Modal */}
-        {fullPreviewUrl && (
-          <div
-            className={styles.modalBackdrop}
-            onClick={() => setFullPreviewUrl(null)}
-            role="dialog"
-            aria-modal="true"
-            aria-label="عرض صورة الإشعار"
-          >
-            <div
-              className={styles.modalContent}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className={styles.modalHeader}>
-                <h3 className={styles.modalTitle}>إشعار التحويل</h3>
-                <button
-                  type="button"
-                  className={styles.modalCloseBtn}
-                  onClick={() => setFullPreviewUrl(null)}
-                  aria-label="إغلاق"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-              <div className={styles.modalBody}>
-                <img
-                  src={fullPreviewUrl}
-                  alt="صورة إشعار التحويل كاملة"
-                  className={styles.modalFullImg}
-                />
-              </div>
-            </div>
-          </div>
-        )}
+        <Modal
+          isOpen={Boolean(fullPreviewUrl)}
+          onClose={() => setFullPreviewUrl(null)}
+          variant="image"
+          ariaLabel="عرض صورة الإشعار"
+        >
+          {fullPreviewUrl && (
+            <img
+              src={fullPreviewUrl}
+              alt="صورة إشعار التحويل كاملة"
+              className={styles.modalFullImg}
+            />
+          )}
+        </Modal>
       </Page>
     </div>
   );

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, Minus, Trash2, ArrowLeft, Info } from 'lucide-react';
+import { Plus, Minus, Trash2, ArrowLeft } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
 import { formatSdg, getProductImageUrl } from '../../utils/formatters';
@@ -11,6 +11,10 @@ import AppBar from '../../components/common/AppBar';
 import BrandRibbons from '../../components/common/BrandRibbons';
 import Button from '../../components/common/Button';
 import Page from '../../components/common/Page';
+import Price from '../../components/common/Price';
+import EmptyState from '../../components/common/EmptyState';
+import NoticeLine from '../../components/common/NoticeLine';
+import StickyBar from '../../components/common/StickyBar';
 import styles from './CartPage.module.css';
 
 export function formatCartDevicesCount(count) {
@@ -49,19 +53,20 @@ export default function CartPage() {
       <div className={styles.pageWrapper}>
         <AppBar
           tone="navy"
-          style={{ '--header-bottom': '36px' }}
+          overlap={36}
           title="السلة"
           showBack={true}
           showCart={false}
         />
         <Page className={styles.container}>
-          <div className={styles.emptyCard}>
-            <h1 className={styles.emptyTitle}>السلة</h1>
-            <p className={styles.emptyText}>السلة فارغة حاليًا.</p>
-            <Button variant="primary" onClick={() => navigate('/products')}>
-              تصفّح الأجهزة
-            </Button>
-          </div>
+          <EmptyState
+            title="السلة فارغة حاليًا."
+            action={
+              <Button variant="primary" onClick={() => navigate('/products')}>
+                تصفّح الأجهزة
+              </Button>
+            }
+          />
         </Page>
       </div>
     );
@@ -82,7 +87,7 @@ export default function CartPage() {
     <div className={styles.pageWrapper}>
       <AppBar
         tone="navy"
-        style={{ '--header-bottom': '36px' }}
+        overlap={36}
         title="السلة"
         showBack={true}
         showCart={false}
@@ -139,14 +144,14 @@ export default function CartPage() {
                     </button>
                   </div>
 
-                  {item.quantity > 1 && (
-                    <div className={styles.unitPriceRow}>
+                  <div className={styles.unitPriceRow}>
+                    {item.quantity > 1 && (
                       <span className={styles.unitPrice}>{formatSdg(item.price_sdg)}</span>
-                      {item.stock_quantity !== undefined && item.stock_quantity !== null && item.stock_quantity <= 3 && item.stock_quantity > 0 && (
-                        <span className={styles.stockNotice}> (متبقي {item.stock_quantity} فقط)</span>
-                      )}
-                    </div>
-                  )}
+                    )}
+                    {item.stock_quantity !== undefined && item.stock_quantity !== null && item.stock_quantity <= 3 && item.stock_quantity > 0 && (
+                      <span className={styles.stockNotice}> (متبقي {item.stock_quantity} فقط)</span>
+                    )}
+                  </div>
 
                   <div className={styles.itemBottomRow}>
                     {/* Stepper */}
@@ -175,11 +180,7 @@ export default function CartPage() {
 
                     {/* Line price */}
                     <div className={styles.linePrice}>
-                      <span className={styles.linePriceNum}>
-                        {Number(lineTotal).toLocaleString('en-US')}
-                      </span>
-                      <span className={styles.linePriceCur}>ج.س</span>
-                      <span className={styles.srOnly}>{formatSdg(lineTotal)}</span>
+                      <Price value={lineTotal} size="sm" tone="navy" />
                     </div>
                   </div>
                 </div>
@@ -201,45 +202,41 @@ export default function CartPage() {
               المجموع ({formatCartDevicesCount(totalItems)})
             </span>
             <span className={styles.summaryValue}>
-              <span className={styles.srOnly}>{formatSdg(estimatedSubtotalSdg)}</span>
-              <span>{Number(estimatedSubtotalSdg).toLocaleString('en-US')} ج.س</span>
+              <Price value={estimatedSubtotalSdg} size="md" tone="navy" />
             </span>
           </div>
 
           <div className={styles.summaryRow}>
             <span className={styles.summaryLabel}>خصم التطبيق (3%)</span>
-            <span className={styles.discountPill}>- {formatSdg(discount)}</span>
+            <span className={styles.discountPill}>
+              - <Price value={discount} size="md" tone="success" />
+            </span>
           </div>
 
           <div className={styles.totalRow}>
             <span className={styles.totalLabel}>الإجمالي</span>
             <div className={styles.totalValueCol} ref={countUpRef}>
-              <span className={styles.totalNum} aria-hidden="true">
-                {Number(animatedTotal).toLocaleString('en-US')}
-              </span>
-              <span className={styles.totalCur} aria-hidden="true">ج.س</span>
-              <span className={styles.srOnly}>{formatSdg(total)}</span>
+              <Price value={animatedTotal} size="lg" tone="royal" />
             </div>
           </div>
         </div>
 
         {/* Price notice */}
-        <div className={styles.priceNoticeRow}>
-          <Info size={18} strokeWidth={1.75} className={styles.noticeIcon} aria-hidden="true" />
-          <span>السعر قابل للتغيير حتى تأكيد الطلب.</span>
-        </div>
+        <NoticeLine variant="secondary" className={styles.priceNoticeRow}>
+          السعر قابل للتغيير حتى تأكيد الطلب.
+        </NoticeLine>
 
         {/* Fixed Bottom Bar */}
-        <div className={styles.fixedBottomBar}>
+        <StickyBar>
           <button
             type="button"
             onClick={() => navigate('/checkout')}
             className={styles.checkoutBtn}
           >
             <span>متابعة</span>
-            <span className={styles.stickyTotal}>({formatSdg(total)})</span>
+            <span className={styles.stickyTotal}>(<Price value={total} tone="inherit" size="sm" />)</span>
           </button>
-        </div>
+        </StickyBar>
       </Page>
     </div>
   );
