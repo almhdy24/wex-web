@@ -10,10 +10,13 @@ from PIL import Image, ImageDraw, ImageFont
 VIEWPORTS = [
     ("360", 360, 800),
     ("390", 390, 844),
+    ("768", 768, 1024),
+    ("1280", 1280, 800),
 ]
 
 PAGES = [
     "home",
+    "catalog",
     "store",
     "product-detail",
     "cart",
@@ -260,8 +263,8 @@ def render_screen(page, mode, vp_name, w, h):
             draw.text((w - 40, cy + 70), "تم إرسال الإشعار بنجاح", fill="#12805C", font=font_caption, anchor="ra")
             draw.text((w - 40, cy + 100), "قيد المراجعة بواسطة الإدارة", fill="#4B5B85", font=font_caption, anchor="ra")
 
-    elif page == "store":
-        draw_top_bar(draw, w, "المتجر", mode, show_back=False)
+    elif page in ("store", "catalog"):
+        draw_top_bar(draw, w, "المتجر" if page == "store" else "الأجهزة", mode, show_back=False)
         cy = 66
         # Quick filter chips
         chips = ["الكل", "حواسيب", "هواتف", "ملحقات", "جديد", "مستعمل"]
@@ -448,7 +451,7 @@ def render_screen(page, mode, vp_name, w, h):
 
 def main():
     target_mode = sys.argv[1] if len(sys.argv) > 1 else "before"
-    out_dir = f"docs/screens/{target_mode}"
+    out_dir = sys.argv[2] if len(sys.argv) > 2 else f"docs/ui-audit/{target_mode}"
     os.makedirs(out_dir, exist_ok=True)
 
     for page in PAGES:
