@@ -33,6 +33,7 @@ import Button from '../../components/common/Button';
 import Tabs from '../../components/common/Tabs';
 import { notificationsApi } from '../../api/notifications';
 import { productsApi } from '../../api/products';
+import { shopApi } from '../../api/shop';
 import { normalizeSudanPhone, isValidSudanPhone } from '../../utils/formatters';
 import { ar } from '../../content/ar';
 import styles from './AccountPage.module.css';
@@ -76,7 +77,9 @@ export default function AccountPage() {
   const [preferredZoneId, setPreferredZoneId] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [savedContactPhone, setSavedContactPhone] = useState('');
+  const [initialAddressDraft, setInitialAddressDraft] = useState({ zoneId: '', address: '', phone: '' });
   const [savingAddress, setSavingAddress] = useState(false);
+  const [shopInfo, setShopInfo] = useState(null);
 
   // Modals
   const [priceLockModalOpen, setPriceLockModalOpen] = useState(false);
@@ -140,16 +143,39 @@ export default function AccountPage() {
       })
       .catch(() => {});
 
+    // Load shop information
+    shopApi
+      .getShop()
+      .then((res) => {
+        if (isMounted && res?.data) {
+          setShopInfo(res.data);
+        }
+      })
+      .catch(() => {});
+
     // Load draft delivery address if saved
     try {
+      let dZone = '';
+      let dAddr = '';
+      let dPhone = '';
       const savedDraft = localStorage.getItem(DRAFT_STORAGE_KEY);
       if (savedDraft) {
         const parsed = JSON.parse(savedDraft);
-        if (parsed.deliveryAddress) setDeliveryAddress(parsed.deliveryAddress);
-        if (parsed.selectedZoneId) setPreferredZoneId(parsed.selectedZoneId);
+        if (parsed.deliveryAddress) {
+          dAddr = parsed.deliveryAddress;
+          setDeliveryAddress(dAddr);
+        }
+        if (parsed.selectedZoneId) {
+          dZone = parsed.selectedZoneId;
+          setPreferredZoneId(dZone);
+        }
       }
       const savedPhone = localStorage.getItem(SAVED_PHONE_KEY);
-      if (savedPhone) setSavedContactPhone(savedPhone);
+      if (savedPhone) {
+        dPhone = savedPhone;
+        setSavedContactPhone(dPhone);
+      }
+      setInitialAddressDraft({ zoneId: dZone, address: dAddr, phone: dPhone });
     } catch {
       // storage unavailable
     }
@@ -303,7 +329,23 @@ export default function AccountPage() {
   const displayEmail = user?.email || 'لا يوجد بريد مسجل';
   const displayPhone = user?.phone || ar.account.phoneNotSet;
   const isGoogleLinked = Boolean(user?.google_linked || user?.avatar_url?.includes('googleusercontent'));
-  const isAdmin = user?.role === 'admin' || user?.role === 'super_admin';
+  const isAdmin = user?.role === 'admin' || user?.role === 'super_admin' || user?.role === 'staff';
+  const roleBadgeLabel = (user?.role === 'admin' || user?.role === 'super_admin')
+    ? 'مدير المتجر'
+    : user?.role === 'staff'
+    ? 'فريق العمل'
+    : 'عميل المتجر';
+
+  const isProfileDirty = Boolean(
+    (name.trim() !== (user?.name || '').trim()) ||
+    (phone.trim() !== (user?.phone || '').trim())
+  );
+
+  const isAddressDirty = Boolean(
+    preferredZoneId !== initialAddressDraft.zoneId ||
+    deliveryAddress.trim() !== initialAddressDraft.address.trim() ||
+    savedContactPhone.trim() !== initialAddressDraft.phone.trim()
+  );
 
   return (
     <Page className={styles.container}>
@@ -329,7 +371,7 @@ export default function AccountPage() {
             <div className={styles.nameBadgeRow}>
               <h1 className={styles.userName}>{displayName}</h1>
               <span className={styles.roleBadge}>
-                {isAdmin ? 'مدير المتجر' : 'عميل المتجر'}
+                {roleBadgeLabel}
               </span>
             </div>
             <div className={styles.userEmail} dir="ltr">{displayEmail}</div>
@@ -439,11 +481,11 @@ export default function AccountPage() {
             <div className={styles.shopInfoList}>
               <div className={styles.shopInfoRow}>
                 <MapPin size={16} className={styles.shopInfoIcon} />
-                <span>أم درمان، الشهداء — مول الواحة، الطابق الأرضي</span>
+                <span>{shopInfo?.address || 'أم درمان، الشهداء — مول الواحة، الطابق الأرضي'}</span>
               </div>
               <div className={styles.shopInfoRow}>
                 <Smartphone size={16} className={styles.shopInfoIcon} />
-                <span dir="ltr">+249 91 234 5678</span>
+                <span dir="ltr">{shopInfo?.contact_phone || shopInfo?.phone || '+249 91 234 5678'}</span>
               </div>
             </div>
           </div>
@@ -472,6 +514,8 @@ export default function AccountPage() {
                 <input
                   id="account-name"
                   type="text"
+                  autoComplete="name"
+                  enterKeyHint="next"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className={`${styles.input} ${profileErrors.name ? styles.inputError : ''}`}
@@ -490,6 +534,8 @@ export default function AccountPage() {
                 <input
                   id="account-phone"
                   type="tel"
+                  autoComplete="tel"
+                  inputMode="tel"
                   dir="ltr"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
@@ -524,7 +570,7 @@ export default function AccountPage() {
               <div className={styles.formActions}>
                 <button
                   type="submit"
-                  disabled={savingProfile}
+                  disabled={savingProfile || !isProfileDirty}
                   className={styles.saveBtn}
                 >
                   {savingProfile ? ar.account.savingChanges : ar.account.saveChanges}
@@ -576,6 +622,7 @@ export default function AccountPage() {
                 <textarea
                   id="address-details"
                   rows={3}
+                  autoComplete="street-address"
                   value={deliveryAddress}
                   onChange={(e) => setDeliveryAddress(e.target.value)}
                   className={styles.textarea}
@@ -590,6 +637,8 @@ export default function AccountPage() {
                 <input
                   id="address-contact-phone"
                   type="tel"
+                  autoComplete="tel"
+                  inputMode="tel"
                   dir="ltr"
                   value={savedContactPhone}
                   onChange={(e) => setSavedContactPhone(e.target.value)}
@@ -601,7 +650,7 @@ export default function AccountPage() {
               <div className={styles.formActions}>
                 <button
                   type="submit"
-                  disabled={savingAddress}
+                  disabled={savingAddress || !isAddressDirty}
                   className={styles.saveBtn}
                 >
                   {savingAddress ? 'جاري الحفظ...' : ar.account.saveAddressAction}
@@ -807,7 +856,7 @@ export default function AccountPage() {
 
               {/* Direct WhatsApp Support */}
               <a
-                href="https://wa.me/249912345678?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D9%85%D8%AA%D8%AC%D8%B1%20%D9%88%D9%8A%D9%83%D8%B3"
+                href={`https://wa.me/${(shopInfo?.whatsapp_number || shopInfo?.contact_phone || '249912345678').replace(/\D/g, '')}?text=${encodeURIComponent('مرحباً، أريد الاستفسار عن متجر ويكس')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.menuRow}

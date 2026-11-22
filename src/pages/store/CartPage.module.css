@@ -172,8 +172,10 @@
 }
 
 .deleteBtn {
-  width: 36px;
-  height: 36px;
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-control);
   background: var(--wex-danger-bg);
   color: var(--wex-danger);
@@ -218,14 +220,17 @@
   align-items: center;
   background: var(--wex-ice);
   border-radius: var(--radius-control);
-  height: 40px;
+  min-height: 44px;
+  height: 44px;
   padding: 0 4px;
   gap: 2px;
 }
 
 .stepperPlusBtn {
-  width: 34px;
-  height: 32px;
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-control);
   background: var(--wex-white);
   color: var(--wex-royal);
@@ -239,8 +244,10 @@
 }
 
 .stepperMinusBtn {
-  width: 34px;
-  height: 32px;
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
   position: relative;
   border-radius: var(--radius-control);
   background: transparent;
@@ -391,7 +398,42 @@
   color: var(--wex-text-secondary);
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+}
+
+.priceChangeBanner {
+  margin: 12px 16px 0;
+  padding: 12px 14px;
+  background: var(--wex-white);
+  border: 1px solid var(--wex-warning);
+  border-radius: var(--radius-card);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.confirmPriceChangesBtn {
+  background: var(--wex-navy);
+  color: var(--wex-white);
+  border: none;
+  border-radius: var(--radius-control);
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  min-height: 36px;
+}
+
+.confirmPriceChangesBtn:hover {
+  background: var(--wex-royal);
+}
+
+.deliveryFeeEstimate {
+  font-size: 13px;
+  color: var(--wex-text-secondary);
+  font-weight: 600;
 }
 
 .noticeIcon {

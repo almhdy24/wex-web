@@ -156,6 +156,18 @@
   z-index: 3;
 }
 
+.lowStockBadge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--wex-danger);
+  background: var(--wex-danger-subtle, #fde8e8);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  margin-inline-start: 8px;
+}
+
 .glassFavBtn {
   position: absolute;
   top: 12px;

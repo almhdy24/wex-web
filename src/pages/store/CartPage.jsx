@@ -36,6 +36,8 @@ export default function CartPage() {
     totalItems,
     estimatedSubtotalSdg,
     refreshCartPrices,
+    hasUnconfirmedPriceChanges,
+    confirmAllPriceChanges,
   } = useCart();
   const { success } = useToast();
   const navigate = useNavigate();
@@ -195,6 +197,22 @@ export default function CartPage() {
           <ArrowLeft size={16} strokeWidth={1.75} aria-hidden="true" />
         </Link>
 
+        {/* Price change notice if detected */}
+        {hasUnconfirmedPriceChanges && (
+          <div className={styles.priceChangeBanner}>
+            <NoticeLine variant="warning">
+              تم تحديث بعض الأسعار وفقًا لأحدث البيانات المتوفرة.
+            </NoticeLine>
+            <button
+              type="button"
+              onClick={confirmAllPriceChanges}
+              className={styles.confirmPriceChangesBtn}
+            >
+              فهمت
+            </button>
+          </div>
+        )}
+
         {/* Summary Card */}
         <div className={styles.summaryCard}>
           <div className={styles.summaryRow}>
@@ -211,6 +229,11 @@ export default function CartPage() {
             <span className={styles.discountPill}>
               - <Price value={discount} size="md" tone="success" />
             </span>
+          </div>
+
+          <div className={styles.summaryRow}>
+            <span className={styles.summaryLabel}>رسوم التوصيل</span>
+            <span className={styles.deliveryFeeEstimate}>تُحسب في الخطوة التالية</span>
           </div>
 
           <div className={styles.totalRow}>

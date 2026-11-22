@@ -379,6 +379,70 @@
   to { transform: rotate(360deg); }
 }
 
+.pickupInfoCard {
+  background-color: var(--wex-ice);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--radius-control);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--wex-navy);
+}
+
+.pickupInfoRow {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.itemsReviewDetails {
+  border: 1px solid var(--wex-border);
+  border-radius: var(--radius-control);
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  background-color: var(--wex-gray-50, #f8faff);
+}
+
+.itemsReviewSummary {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--wex-royal);
+  cursor: pointer;
+  outline: none;
+}
+
+.itemsReviewSummary:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.itemsReviewList {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--wex-border);
+  padding-top: 8px;
+}
+
+.reviewItemRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.reviewItemName {
+  color: var(--wex-navy);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 70%;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .spinner {
     animation: none;

@@ -45,6 +45,12 @@ function getSpecPath(label = '', key = '') {
   if (l.includes('شاشة') && (l.includes('كرت') || l.includes('gpu') || l.includes('graphics'))) {
     return 'M3 7h18v9H3zM3 19h6M14 11.5a2.5 2.5 0 1 0 0 .01';
   }
+  if (l.includes('بطارية') || l.includes('battery')) {
+    return 'M6 7h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2zM21 11v2';
+  }
+  if (l.includes('استلام') || l.includes('delivery')) {
+    return 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z';
+  }
   if (l.includes('شاشة') || l.includes('screen') || l.includes('display')) {
     return 'M3 5h18v11H3zM8 20h8M12 16v4';
   }
@@ -134,8 +140,10 @@ export default function ProductDetailPage({
 
   // Images
   const rawImages = product.images || [];
-  const primaryImg = product.primary_image || (rawImages.length > 0 ? rawImages[0] : null);
-  const rawImageUrl = primaryImg ? getProductImageUrl(primaryImg) : null;
+  const activeImageObj = (rawImages.length > 0 && rawImages[selectedImageIndex])
+    ? rawImages[selectedImageIndex]
+    : (product.primary_image || (rawImages.length > 0 ? rawImages[0] : null));
+  const rawImageUrl = activeImageObj ? getProductImageUrl(activeImageObj) : null;
   const isRealPhoto = rawImageUrl && !rawImageUrl.includes('favicon.svg');
   const displayImage = !imageError && isRealPhoto ? rawImageUrl : null;
 
@@ -189,7 +197,7 @@ export default function ProductDetailPage({
     },
   ];
 
-  // Warranty row: only if API provides text
+  // Inspection/delivery note row: only if API provides text
   if (product.warranty_text && String(product.warranty_text).trim()) {
     specRows.push({
       key: 'warranty',
@@ -198,9 +206,33 @@ export default function ProductDetailPage({
     });
   }
 
+  // Full spec grouping: add any remaining specs from product.specs
+  const knownKeys = new Set(['processor', 'cpu', 'ram', 'storage', 'graphics', 'gpu', 'screen', 'screen_size', 'battery', 'warranty']);
+  if (Array.isArray(product.specs)) {
+    product.specs.forEach((s) => {
+      const k = (s.spec_key || s.name || s.spec_name || '').toLowerCase();
+      const rawLabel = s.spec_name || s.name || s.label;
+      const v = s.spec_value || s.value || '';
+      if (!knownKeys.has(k) && v && rawLabel) {
+        specRows.push({
+          key: k,
+          label: rawLabel,
+          value: v,
+        });
+        knownKeys.add(k);
+      }
+    });
+  }
+
+  // Stock and quantity limits
+  const stockCount = typeof product.stock_quantity === 'number'
+    ? product.stock_quantity
+    : (isOutOfStock ? 0 : 10);
+  const maxQuantity = Math.max(1, Math.min(10, stockCount > 0 ? stockCount : 1));
+
   // Factual shop and delivery info
   const shopAddress = shopInfo?.address || 'مول الواحة، الشهداء، أم درمان';
-  const shopHours = 'السبت - الخميس: 9:00 ص - 9:00 م، الجمعة: مغلق';
+  const shopHours = shopInfo?.business_hours || 'السبت - الخميس: 9:00 ص - 9:00 م، الجمعة: مغلق';
   const zonesText =
     shippingZones.length > 0
       ? shippingZones.map((z) => z.zone_name || z.name).join('، ')
@@ -320,6 +352,8 @@ export default function ProductDetailPage({
               <button
                 key={idx}
                 type="button"
+                role="tab"
+                aria-selected={selectedImageIndex === idx}
                 className={`${styles.thumbBtn} ${selectedImageIndex === idx ? styles.thumbBtnActive : ''}`}
                 onClick={() => {
                   setSelectedImageIndex(idx);
@@ -343,6 +377,9 @@ export default function ProductDetailPage({
 
           <div className={styles.priceRow}>
             <Price value={product.price_sdg} size="xl" tone="royal" />
+            {stockCount > 0 && stockCount <= 3 && !isOutOfStock && (
+              <span className={styles.lowStockBadge}>متبقي {stockCount} فقط</span>
+            )}
           </div>
 
           <NoticeLine variant="secondary" className={styles.priceNoticeBox}>
@@ -455,8 +492,8 @@ export default function ProductDetailPage({
             <button
               type="button"
               className={styles.stepperPlus}
-              disabled={isOutOfStock}
-              onClick={() => setQuantity((q) => q + 1)}
+              disabled={quantity >= maxQuantity || isOutOfStock}
+              onClick={() => setQuantity((q) => Math.min(maxQuantity, q + 1))}
               aria-label="زيادة"
             >
               <Plus size={14} strokeWidth={2} aria-hidden="true" />

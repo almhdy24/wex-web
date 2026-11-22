@@ -18,6 +18,7 @@ import AuthSheet from '../../components/auth/AuthSheet';
 import styles from './CheckoutPage.module.css';
 
 const SAVED_PHONE_KEY = 'wex_saved_contact_phone';
+const CHECKOUT_DRAFT_KEY = 'wex_checkout_draft';
 
 export default function CheckoutPage({
   initialShippingZones = null,
@@ -33,10 +34,35 @@ export default function CheckoutPage({
   const { success, error: toastError } = useToast();
   const navigate = useNavigate();
 
-  const [orderType, setOrderType] = useState('pickup'); // 'pickup' | 'delivery'
+  const [orderType, setOrderType] = useState(() => {
+    try {
+      const draft = JSON.parse(localStorage.getItem(CHECKOUT_DRAFT_KEY) || '{}');
+      return draft.orderType || 'pickup';
+    } catch {
+      return 'pickup';
+    }
+  }); // 'pickup' | 'delivery'
+
   const [shippingZones, setShippingZones] = useState(initialShippingZones || []);
-  const [selectedZoneId, setSelectedZoneId] = useState('');
-  const [deliveryAddress, setDeliveryAddress] = useState('');
+
+  const [selectedZoneId, setSelectedZoneId] = useState(() => {
+    try {
+      const draft = JSON.parse(localStorage.getItem(CHECKOUT_DRAFT_KEY) || '{}');
+      return draft.selectedZoneId || '';
+    } catch {
+      return '';
+    }
+  });
+
+  const [deliveryAddress, setDeliveryAddress] = useState(() => {
+    try {
+      const draft = JSON.parse(localStorage.getItem(CHECKOUT_DRAFT_KEY) || '{}');
+      return draft.deliveryAddress || '';
+    } catch {
+      return '';
+    }
+  });
+
   const [contactPhone, setContactPhone] = useState(() => {
     if (typeof localStorage !== 'undefined') {
       try {
@@ -53,6 +79,18 @@ export default function CheckoutPage({
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [isAuthSheetOpen, setIsAuthSheetOpen] = useState(false);
+
+  // Save checkout draft to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        CHECKOUT_DRAFT_KEY,
+        JSON.stringify({ orderType, selectedZoneId, deliveryAddress })
+      );
+    } catch {
+      // storage unavailable
+    }
+  }, [orderType, selectedZoneId, deliveryAddress]);
 
   // Autofill phone from user when authenticated
   useEffect(() => {
@@ -74,16 +112,17 @@ export default function CheckoutPage({
       if (!isMounted) return;
       const zList = zonesRes?.data || [];
       setShippingZones(zList);
-      if (zList.length > 0 && !selectedZoneId) {
-        setSelectedZoneId(String(zList[0].id));
-      }
+      setSelectedZoneId((current) => {
+        if (current) return current;
+        return zList.length > 0 ? String(zList[0].id) : '';
+      });
       setShopInfo(shopRes?.data || null);
     });
 
     return () => {
       isMounted = false;
     };
-  }, [refreshCartPrices, initialShippingZones, initialShopInfo, selectedZoneId]);
+  }, [refreshCartPrices, initialShippingZones, initialShopInfo]);
 
   // Redirect if cart is empty
   useEffect(() => {
@@ -99,6 +138,25 @@ export default function CheckoutPage({
   const shippingFee = orderType === 'delivery' ? Number(selectedZone?.delivery_fee_sdg || selectedZone?.fee_sdg || 0) : 0;
   const total = Math.max(0, subtotal - discount + shippingFee);
   const lockHours = shopInfo?.lock_hours || shopInfo?.price_lock_hours || 4;
+
+  // Validate phone on blur
+  const handlePhoneBlur = () => {
+    const cleanPhone = contactPhone.trim().replace(/[\s-]/g, '');
+    if (!cleanPhone) {
+      setErrors((prev) => ({ ...prev, contactPhone: 'يرجى إدخال رقم الهاتف' }));
+    } else if (!isValidSudanPhone(cleanPhone)) {
+      setErrors((prev) => ({
+        ...prev,
+        contactPhone: 'يرجى إدخال رقم هاتف سوداني صحيح يبدأ بـ 09 أو 01 أو 012',
+      }));
+    } else {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next.contactPhone;
+        return next;
+      });
+    }
+  };
 
   // Validate fields
   const validateForm = () => {
@@ -132,6 +190,7 @@ export default function CheckoutPage({
     try {
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem(SAVED_PHONE_KEY, cleanPhone);
+        localStorage.removeItem(CHECKOUT_DRAFT_KEY);
       }
     } catch {
       // storage unavailable
@@ -234,6 +293,20 @@ export default function CheckoutPage({
           </button>
         </div>
 
+        {/* Pickup Info */}
+        {orderType === 'pickup' && (
+          <div className={styles.pickupInfoCard}>
+            <div className={styles.pickupInfoRow}>
+              <strong>العنوان:</strong>
+              <span>{shopInfo?.address || 'مول الواحة، الشهداء، أم درمان'}</span>
+            </div>
+            <div className={styles.pickupInfoRow}>
+              <strong>ساعات العمل:</strong>
+              <span>{shopInfo?.business_hours || 'السبت - الخميس: 9:00 ص - 9:00 م، الجمعة: مغلق'}</span>
+            </div>
+          </div>
+        )}
+
         {/* Delivery Fields */}
         {orderType === 'delivery' && (
           <div className={styles.deliveryFields}>
@@ -296,17 +369,21 @@ export default function CheckoutPage({
             id="checkout-phone-input"
             type="tel"
             inputMode="tel"
+            autoComplete="tel"
             value={contactPhone}
             onChange={(e) => setContactPhone(e.target.value)}
+            onBlur={handlePhoneBlur}
+            aria-invalid={Boolean(errors.contactPhone)}
+            aria-describedby={errors.contactPhone ? "checkout-phone-error checkout-phone-helper" : "checkout-phone-helper"}
             placeholder="09XXXXXXXX"
             className={styles.input}
             dir="ltr"
           />
-          <span className={styles.fieldHelper}>
+          <span id="checkout-phone-helper" className={styles.fieldHelper}>
             نتواصل معك على هذا الرقم بشأن طلبك.
           </span>
           {errors.contactPhone && (
-            <span className={styles.fieldError}>{errors.contactPhone}</span>
+            <span id="checkout-phone-error" role="alert" className={styles.fieldError}>{errors.contactPhone}</span>
           )}
         </div>
 
@@ -314,13 +391,13 @@ export default function CheckoutPage({
           <label htmlFor="checkout-notes-input" className={styles.fieldLabel}>
             ملاحظات (اختياري)
           </label>
-          <input
+          <textarea
             id="checkout-notes-input"
-            type="text"
+            rows={2}
             value={customerNotes}
             onChange={(e) => setCustomerNotes(e.target.value)}
             placeholder="أي تعليمات إضافية بخصوص الطلب"
-            className={styles.input}
+            className={styles.textarea}
           />
         </div>
       </section>
@@ -330,6 +407,23 @@ export default function CheckoutPage({
         <h2 id="order-summary-heading" className={styles.sectionHeading}>
           ملخص الطلب
         </h2>
+
+        {/* Collapsible Order Items Review */}
+        <details className={styles.itemsReviewDetails}>
+          <summary className={styles.itemsReviewSummary}>
+            مراجعة الأجهزة ({items.length})
+          </summary>
+          <div className={styles.itemsReviewList}>
+            {items.map((item) => (
+              <div key={item.id} className={styles.reviewItemRow}>
+                <span className={styles.reviewItemName} dir="auto">
+                  {item.name} × {item.quantity}
+                </span>
+                <Price value={(item.price_sdg || 0) * item.quantity} size="sm" tone="navy" />
+              </div>
+            ))}
+          </div>
+        </details>
 
         <div className={styles.summaryRow}>
           <span className={styles.summaryLabel}>المجموع</span>

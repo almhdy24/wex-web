@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, SlidersHorizontal, RotateCcw } from 'lucide-react';
+import { Search, SlidersHorizontal, RotateCcw, X } from 'lucide-react';
 import { productsApi } from '../../api/products';
 import ProductCard from '../../components/products/ProductCard';
 import { ProductCardSkeleton } from '../../components/common/Skeleton';
@@ -60,7 +60,7 @@ export default function CatalogPage({
 } = {}) {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // URL state
+  // URL state as single source of truth
   const urlSearch = searchParams.get('search') || searchParams.get('q') || '';
   const urlCategory = searchParams.get('category') || 'all';
   const urlBrand = searchParams.get('brand') || 'all';
@@ -69,14 +69,8 @@ export default function CatalogPage({
   const urlSort = searchParams.get('sort') || 'newest';
   const urlPage = Number(searchParams.get('page')) || 1;
 
-  // Active filters
-  const [searchQuery, setSearchQuery] = useState(urlSearch);
-  const [selectedType, setSelectedType] = useState(urlCategory);
-  const [selectedBrand, setSelectedBrand] = useState(urlBrand);
-  const [selectedCondition, setSelectedCondition] = useState(urlCondition);
-  const [selectedPrice, setSelectedPrice] = useState(urlPrice);
-  const [selectedSort, setSelectedSort] = useState(urlSort);
-  const [currentPage, setCurrentPage] = useState(urlPage);
+  // Local immediate input state for snappy typing
+  const [searchInput, setSearchInput] = useState(urlSearch);
 
   // Bottom Sheet Filter draft state
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
@@ -91,6 +85,42 @@ export default function CatalogPage({
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(initialLoading ?? (initialProducts === null));
   const [error, setError] = useState(null);
+
+  const abortControllerRef = useRef(null);
+
+  // Sync search input if URL changes externally
+  useEffect(() => {
+    setSearchInput(urlSearch);
+  }, [urlSearch]);
+
+  // Debounce search input (300ms) to update URL searchParams
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const trimmed = searchInput.trim();
+      const currentParam = searchParams.get('search') || searchParams.get('q') || '';
+      if (trimmed !== currentParam) {
+        setSearchParams((prev) => {
+          const next = new URLSearchParams(prev);
+          if (trimmed) {
+            next.set('search', trimmed);
+            next.delete('q');
+          } else {
+            next.delete('search');
+            next.delete('q');
+          }
+          next.delete('page');
+          return next;
+        }, { replace: true });
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchInput, searchParams, setSearchParams]);
+
+  // Scroll to top of grid when page changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [urlPage]);
 
   // Fetch brands once
   useEffect(() => {
@@ -110,69 +140,55 @@ export default function CatalogPage({
     };
   }, []);
 
-  // Fetch products
+  // Fetch products based on URL parameters
   const fetchProducts = useCallback(async () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     setLoading(true);
     setError(null);
 
     const params = {
-      page: currentPage,
+      page: urlPage,
       per_page: 12,
     };
 
-    if (searchQuery.trim()) params.q = searchQuery.trim();
-    if (selectedType !== 'all') params.category = selectedType;
-    if (selectedBrand !== 'all') params.brand = selectedBrand;
-    if (selectedCondition !== 'all') params.condition = selectedCondition;
+    if (urlSearch.trim()) params.q = urlSearch.trim();
+    if (urlCategory !== 'all') params.category = urlCategory;
+    if (urlBrand !== 'all') params.brand = urlBrand;
+    if (urlCondition !== 'all') params.condition = urlCondition;
 
-    if (selectedPrice === 'under-400k') {
+    if (urlPrice === 'under-400k') {
       params.max_price_sdg = 400000;
-    } else if (selectedPrice === '400k-800k') {
+    } else if (urlPrice === '400k-800k') {
       params.min_price_sdg = 400000;
       params.max_price_sdg = 800000;
-    } else if (selectedPrice === 'over-800k') {
+    } else if (urlPrice === 'over-800k') {
       params.min_price_sdg = 800000;
     }
 
-    if (selectedSort === 'price-low') {
+    if (urlSort === 'price-low') {
       params.sort = 'price_asc';
-    } else if (selectedSort === 'price-high') {
+    } else if (urlSort === 'price-high') {
       params.sort = 'price_desc';
     } else {
       params.sort = 'newest';
     }
 
-    // Sync URL params
-    const nextParams = {};
-    if (searchQuery.trim()) nextParams.search = searchQuery.trim();
-    if (selectedType !== 'all') nextParams.category = selectedType;
-    if (selectedBrand !== 'all') nextParams.brand = selectedBrand;
-    if (selectedCondition !== 'all') nextParams.condition = selectedCondition;
-    if (selectedPrice !== 'all') nextParams.price = selectedPrice;
-    if (selectedSort !== 'newest') nextParams.sort = selectedSort;
-    if (currentPage > 1) nextParams.page = currentPage;
-
-    setSearchParams(nextParams, { replace: true });
-
     try {
-      const res = await productsApi.getProducts(params);
+      const res = await productsApi.getProducts(params, { signal: controller.signal });
       setProducts(res?.data || []);
       setMeta(res?.meta || null);
     } catch (err) {
+      if (err.name === 'AbortError' || err.code === 20) return;
       setError(err.message || 'تعذر تحميل المنتجات');
     } finally {
       setLoading(false);
     }
-  }, [
-    currentPage,
-    searchQuery,
-    selectedType,
-    selectedBrand,
-    selectedCondition,
-    selectedPrice,
-    selectedSort,
-    setSearchParams,
-  ]);
+  }, [urlPage, urlSearch, urlCategory, urlBrand, urlCondition, urlPrice, urlSort]);
 
   useEffect(() => {
     if (initialProducts === null) {
@@ -182,20 +198,32 @@ export default function CatalogPage({
 
   // Open filter sheet and initialize draft state
   const handleOpenFilterSheet = () => {
-    setDraftBrand(selectedBrand);
-    setDraftCondition(selectedCondition);
-    setDraftPrice(selectedPrice);
-    setDraftSort(selectedSort);
+    setDraftBrand(urlBrand);
+    setDraftCondition(urlCondition);
+    setDraftPrice(urlPrice);
+    setDraftSort(urlSort);
     setIsFilterSheetOpen(true);
   };
 
-  // Apply filters from bottom sheet
+  // Apply filters from bottom sheet directly to URL
   const handleApplySheetFilters = () => {
-    setSelectedBrand(draftBrand);
-    setSelectedCondition(draftCondition);
-    setSelectedPrice(draftPrice);
-    setSelectedSort(draftSort);
-    setCurrentPage(1);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (draftBrand !== 'all') next.set('brand', draftBrand);
+      else next.delete('brand');
+
+      if (draftCondition !== 'all') next.set('condition', draftCondition);
+      else next.delete('condition');
+
+      if (draftPrice !== 'all') next.set('price', draftPrice);
+      else next.delete('price');
+
+      if (draftSort !== 'newest') next.set('sort', draftSort);
+      else next.delete('sort');
+
+      next.delete('page');
+      return next;
+    });
     setIsFilterSheetOpen(false);
   };
 
@@ -209,35 +237,18 @@ export default function CatalogPage({
 
   // Reset all filters
   const handleResetAll = () => {
-    setSearchQuery('');
-    setSelectedType('all');
-    setSelectedBrand('all');
-    setSelectedCondition('all');
-    setSelectedPrice('all');
-    setSelectedSort('newest');
-    setCurrentPage(1);
+    setSearchInput('');
+    setSearchParams({});
   };
 
   // Active filter count for badge (brand, condition, price, sort)
   let activeFiltersCount = 0;
-  if (selectedBrand !== 'all') activeFiltersCount++;
-  if (selectedCondition !== 'all') activeFiltersCount++;
-  if (selectedPrice !== 'all') activeFiltersCount++;
-  if (selectedSort !== 'newest') activeFiltersCount++;
+  if (urlBrand !== 'all') activeFiltersCount++;
+  if (urlCondition !== 'all') activeFiltersCount++;
+  if (urlPrice !== 'all') activeFiltersCount++;
+  if (urlSort !== 'newest') activeFiltersCount++;
 
   const totalResults = meta?.total !== undefined ? meta.total : products.length;
-
-  // Sort unavailable items to the end (UI-only, if stock info is present)
-  const displayedProducts = useMemo(() => {
-    if (!products || products.length === 0) return [];
-    return [...products].sort((a, b) => {
-      const aOut = a.stock_status === 'out_of_stock' || (a.stock_quantity !== undefined && a.stock_quantity <= 0);
-      const bOut = b.stock_status === 'out_of_stock' || (b.stock_quantity !== undefined && b.stock_quantity <= 0);
-      if (aOut && !bOut) return 1;
-      if (!aOut && bOut) return -1;
-      return 0;
-    });
-  }, [products]);
 
   return (
     <div className={styles.pageWrapper}>
@@ -257,15 +268,24 @@ export default function CatalogPage({
         <Search size={22} strokeWidth={2} className={styles.searchIcon} aria-hidden="true" />
         <input
           type="search"
-          value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-            setCurrentPage(1);
-          }}
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
           placeholder="ابحث عن جهاز أو ماركة"
           className={styles.searchInput}
           aria-label="ابحث عن جهاز أو ماركة"
+          enterKeyHint="search"
+          dir="auto"
         />
+        {searchInput && (
+          <button
+            type="button"
+            onClick={() => setSearchInput('')}
+            className={styles.searchClearBtn}
+            aria-label="مسح البحث"
+          >
+            <X size={16} aria-hidden="true" />
+          </button>
+        )}
       </div>
 
       {/* Controls Bar: Type Chips Row + Filter Button */}
@@ -274,10 +294,18 @@ export default function CatalogPage({
           {TYPE_CHIPS.map((chip) => (
             <Chip
               key={chip.id}
-              selected={selectedType === chip.id}
+              selected={urlCategory === chip.id}
               onClick={() => {
-                setSelectedType(chip.id);
-                setCurrentPage(1);
+                setSearchParams((prev) => {
+                  const next = new URLSearchParams(prev);
+                  if (chip.id !== 'all') {
+                    next.set('category', chip.id);
+                  } else {
+                    next.delete('category');
+                  }
+                  next.delete('page');
+                  return next;
+                });
               }}
               size="sm"
             >
@@ -302,10 +330,10 @@ export default function CatalogPage({
 
       {/* Result Count Bar */}
       <div className={styles.resultBar}>
-        <span className={styles.resultCount}>
+        <span className={styles.resultCount} aria-live="polite">
           {formatResultsCount(totalResults)}
         </span>
-        {(activeFiltersCount > 0 || selectedType !== 'all' || searchQuery.trim()) && (
+        {(activeFiltersCount > 0 || urlCategory !== 'all' || urlSearch.trim()) && (
           <button
             type="button"
             onClick={handleResetAll}
@@ -337,7 +365,7 @@ export default function CatalogPage({
         />
       ) : (
         <Stagger className={styles.grid}>
-          {displayedProducts.map((product, idx) => (
+          {products.map((product, idx) => (
             <ProductCard key={product.id} product={product} index={idx} />
           ))}
         </Stagger>
@@ -349,19 +377,31 @@ export default function CatalogPage({
           <Button
             variant="secondary"
             size="sm"
-            disabled={currentPage <= 1}
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={urlPage <= 1}
+            onClick={() => {
+              setSearchParams((prev) => {
+                const next = new URLSearchParams(prev);
+                next.set('page', Math.max(1, urlPage - 1));
+                return next;
+              });
+            }}
           >
             السابق
           </Button>
           <span className={styles.pageNumber}>
-            {currentPage} / {meta.last_page}
+            {urlPage} / {meta.last_page}
           </span>
           <Button
             variant="secondary"
             size="sm"
-            disabled={currentPage >= meta.last_page}
-            onClick={() => setCurrentPage((p) => Math.min(meta.last_page, p + 1))}
+            disabled={urlPage >= meta.last_page}
+            onClick={() => {
+              setSearchParams((prev) => {
+                const next = new URLSearchParams(prev);
+                next.set('page', Math.min(meta.last_page, urlPage + 1));
+                return next;
+              });
+            }}
           >
             التالي
           </Button>

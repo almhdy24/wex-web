@@ -1,22 +1,32 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { ordersApi } from '../../api/orders';
 import { formatDate, getOrderStatusInfo } from '../../utils/formatters';
+import { deriveOrderUiState } from '../../utils/orderState';
 import AppBar from '../../components/common/AppBar';
 import Button from '../../components/common/Button';
 import Page from '../../components/common/Page';
 import Price from '../../components/common/Price';
+import Tabs from '../../components/common/Tabs';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import Skeleton from '../../components/common/Skeleton';
 import styles from './OrdersPage.module.css';
+
+const ORDER_TABS = [
+  { id: 'all', label: 'الكل' },
+  { id: 'pending', label: 'بانتظار الدفع' },
+  { id: 'active', label: 'قيد المعالجة' },
+  { id: 'completed', label: 'المكتملة' },
+];
 
 export default function OrdersPage({
   initialOrders = null,
   initialLoading = null,
 } = {}) {
   const [orders, setOrders] = useState(initialOrders || []);
+  const [activeTab, setActiveTab] = useState('all');
   const [loading, setLoading] = useState(initialLoading ?? (initialOrders === null));
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -40,10 +50,29 @@ export default function OrdersPage({
     }
   }, [initialOrders]);
 
-  const getChipStyle = (status, paymentState) => {
-    if (status === 'completed' || status === 'confirmed' || paymentState === 'verified') return styles.statusSuccess;
-    if (status === 'cancelled' || status === 'payment_rejected' || paymentState === 'rejected') return styles.statusDanger;
-    if (status === 'pending_payment' || paymentState === 'under_review') return styles.statusPending;
+  const filteredOrders = useMemo(() => {
+    if (!orders || orders.length === 0) return [];
+    if (activeTab === 'pending') {
+      return orders.filter((o) => {
+        const ui = deriveOrderUiState(o);
+        return ui.stage === 'pending_upload' || ui.stage === 'under_review' || o.status === 'pending_payment';
+      });
+    }
+    if (activeTab === 'active') {
+      return orders.filter((o) => {
+        return ['confirmed', 'processing', 'ready_for_pickup', 'out_for_delivery'].includes(o.status);
+      });
+    }
+    if (activeTab === 'completed') {
+      return orders.filter((o) => o.status === 'completed');
+    }
+    return orders;
+  }, [orders, activeTab]);
+
+  const getChipStyle = (status, uiStage) => {
+    if (status === 'completed' || status === 'confirmed' || uiStage === 'verified') return styles.statusSuccess;
+    if (status === 'cancelled' || status === 'payment_rejected' || uiStage === 'rejected' || uiStage === 'expired') return styles.statusDanger;
+    if (status === 'pending_payment' || uiStage === 'under_review' || uiStage === 'pending_upload') return styles.statusPending;
     return styles.statusWaiting;
   };
 
@@ -75,73 +104,102 @@ export default function OrdersPage({
             }
           />
         ) : (
-          <div className={styles.ordersList}>
-            {orders.map((order) => {
-              const paymentState = order.payment?.state;
-              const isPending = order.payment ? order.payment.can_upload : order.status === 'pending_payment';
-              const statusInfo = paymentState === 'under_review'
-                ? { label: 'قيد المراجعة', variant: 'info' }
-                : paymentState === 'rejected'
-                ? { label: 'تم رفض الإشعار', variant: 'danger' }
-                : getOrderStatusInfo(order.status);
-              const orderTotal = order.total_sdg ?? order.total_amount_sdg ?? 0;
-              const chipClass = getChipStyle(order.status, paymentState);
+          <>
+            {/* Filter Tabs */}
+            <div className={styles.orderTabsWrapper}>
+              <Tabs
+                tabs={ORDER_TABS}
+                activeTab={activeTab}
+                onChange={setActiveTab}
+                ariaLabel="تصنيف الطلبات"
+                variant="segment"
+              />
+            </div>
 
-              return (
-                <div key={order.id} className={styles.orderCard}>
-                  {/* Accessible stretched link for whole card */}
-                  <Link
-                    to={`/orders/${order.order_number || order.id}`}
-                    className={styles.cardOverlayLink}
-                    aria-label={`طلب #${order.order_number}`}
-                  />
+            {filteredOrders.length === 0 ? (
+              <EmptyState
+                title="لا توجد طلبات في هذا التصنيف."
+              />
+            ) : (
+              <div className={styles.ordersList}>
+                {filteredOrders.map((order) => {
+                  const uiState = deriveOrderUiState(order);
+                  const isPending = uiState.canUpload || (order.payment ? order.payment.can_upload : order.status === 'pending_payment');
+                  const statusLabel = uiState.label || getOrderStatusInfo(order.status).label;
+                  const orderTotal = order.total_sdg ?? order.total_amount_sdg ?? 0;
+                  const chipClass = getChipStyle(order.status, uiState.stage);
 
-                  {/* Header Row: رقم، الوقت، الحالة */}
-                  <div className={styles.cardHeader}>
-                    <div className={styles.orderTopLine}>
-                      <span className={styles.orderNumber} dir="ltr">
-                        #{order.order_number}
-                      </span>
-                      <span className={`${styles.statusChip} ${chipClass} ${styles[order.status] || ''}`}>
-                        {statusInfo.label}
-                      </span>
-                    </div>
+                  return (
+                    <div key={order.id} className={styles.orderCard}>
+                      {/* Accessible stretched link for whole card */}
+                      <Link
+                        to={`/orders/${order.order_number || order.id}`}
+                        className={styles.cardOverlayLink}
+                        aria-label={`طلب #${order.order_number}`}
+                      />
 
-                    <span className={styles.orderDate} dir="auto">
-                      {formatDate(order.created_at)}
-                    </span>
-                  </div>
+                      {/* Header Row: رقم، الوقت، الحالة */}
+                      <div className={styles.cardHeader}>
+                        <div className={styles.orderTopLine}>
+                          <span className={styles.orderNumber} dir="ltr">
+                            #{order.order_number}
+                          </span>
+                          <span className={`${styles.statusChip} ${chipClass}`}>
+                            {statusLabel}
+                          </span>
+                        </div>
 
-                  {/* Footer Row: الإجمالي، و زر ادفع الآن إن كان بانتظار الدفع */}
-                  <div className={styles.cardFooter}>
-                    <div className={styles.priceCol}>
-                      <span className={styles.priceLabel}>الإجمالي:</span>
-                      <Price value={orderTotal} size="sm" tone="navy" />
-                    </div>
-
-                    {isPending ? (
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/orders/${order.order_number || order.id}`);
-                        }}
-                        className={`${styles.payNowBtn} ${styles.raisedAction}`}
-                      >
-                        ادفع الآن
-                      </Button>
-                    ) : (
-                      <div className={styles.viewLink}>
-                        <span>تفاصيل</span>
-                        <ArrowLeft size={14} strokeWidth={1.75} aria-hidden="true" />
+                        <span className={styles.orderDate} dir="auto">
+                          {formatDate(order.created_at)}
+                        </span>
                       </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+
+                      {/* Items Snippet (if items array exists) */}
+                      {order.items && order.items.length > 0 && (
+                        <div className={styles.orderSnippet}>
+                          <span className={styles.firstItemName} dir="auto">
+                            {order.items[0].product_name || order.items[0].name || order.items[0].title}
+                          </span>
+                          {order.items.length > 1 && (
+                            <span className={styles.moreItemsBadge}>
+                              +{order.items.length - 1} أجهزة أخرى
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Footer Row: الإجمالي، و زر ادفع الآن إن كان بانتظار الدفع */}
+                      <div className={styles.cardFooter}>
+                        <div className={styles.priceCol}>
+                          <span className={styles.priceLabel}>الإجمالي:</span>
+                          <Price value={orderTotal} size="sm" tone="navy" />
+                        </div>
+
+                        {isPending ? (
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/orders/${order.order_number || order.id}`);
+                            }}
+                            className={`${styles.payNowBtn} ${styles.raisedAction}`}
+                          >
+                            ادفع الآن
+                          </Button>
+                        ) : (
+                          <div className={styles.viewLink}>
+                            <span>تفاصيل</span>
+                            <ArrowLeft size={14} strokeWidth={1.75} aria-hidden="true" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </>
         )}
       </Page>
     </div>

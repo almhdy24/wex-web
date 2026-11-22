@@ -4,7 +4,7 @@ export const productsApi = {
   /**
    * Fetch paginated and filtered public products
    */
-  getProducts(params = {}) {
+  getProducts(params = {}, options = {}) {
     const query = new URLSearchParams();
     Object.entries(params).forEach(([key, val]) => {
       if (val !== undefined && val !== null && val !== '') {
@@ -12,7 +12,7 @@ export const productsApi = {
       }
     });
     const queryString = query.toString();
-    return api.get(`/products${queryString ? `?${queryString}` : ''}`);
+    return api.get(`/products${queryString ? `?${queryString}` : ''}`, options);
   },
 
   /**

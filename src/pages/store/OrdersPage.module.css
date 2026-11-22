@@ -228,6 +228,39 @@
   gap: 12px;
 }
 
+.orderTabsWrapper {
+  margin-bottom: 16px;
+}
+
+.orderSnippet {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: var(--wex-ice);
+  border-radius: var(--radius-control);
+  font-size: 13px;
+}
+
+.firstItemName {
+  font-weight: 600;
+  color: var(--wex-navy);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.moreItemsBadge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--wex-royal);
+  background: var(--wex-white);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  flex-shrink: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .orderCard {
     transition: none !important;

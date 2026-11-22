@@ -20,6 +20,7 @@ import Button from '../../components/common/Button';
 import Page from '../../components/common/Page';
 import Modal from '../../components/common/Modal';
 import Price from '../../components/common/Price';
+import ErrorState from '../../components/common/ErrorState';
 import StickyBar from '../../components/common/StickyBar';
 import NoticeLine from '../../components/common/NoticeLine';
 import { triggerHaptic } from '../../utils/haptics';
@@ -139,6 +140,60 @@ function PaymentProofViewer({ orderNumber, proof, localPreview, onOpenFull }) {
   );
 }
 
+/**
+ * Isolated Countdown Timer to prevent full page re-renders every 1s
+ */
+function OrderCountdown({ lockExpiresAt, secondsRemaining, isExpired, onExpire }) {
+  const [remaining, setRemaining] = useState(() => {
+    if (isExpired) return 0;
+    const offset = getServerTimeOffset();
+    const expiresAt = lockExpiresAt ? new Date(lockExpiresAt).getTime() : 0;
+    if (expiresAt > 0) {
+      return Math.max(0, Math.floor((expiresAt - (Date.now() + offset)) / 1000));
+    }
+    return typeof secondsRemaining === 'number' ? Math.max(0, Math.floor(secondsRemaining)) : 0;
+  });
+
+  useEffect(() => {
+    if (isExpired) {
+      setRemaining(0);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      const offset = getServerTimeOffset();
+      const expiresAt = lockExpiresAt ? new Date(lockExpiresAt).getTime() : 0;
+      let nextRemaining = 0;
+      if (expiresAt > 0) {
+        nextRemaining = Math.max(0, Math.floor((expiresAt - (Date.now() + offset)) / 1000));
+      } else if (typeof secondsRemaining === 'number') {
+        nextRemaining = Math.max(0, remaining - 1);
+      }
+
+      setRemaining(nextRemaining);
+
+      if (nextRemaining <= 0) {
+        clearInterval(interval);
+        if (typeof onExpire === 'function') {
+          onExpire();
+        }
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [lockExpiresAt, secondsRemaining, isExpired, onExpire, remaining]);
+
+  if (isExpired || remaining <= 0) {
+    return <span className={styles.countdownText} dir="ltr">00:00:00</span>;
+  }
+
+  return (
+    <span className={styles.countdownText} dir="ltr">
+      {formatCountdownTime(remaining)}
+    </span>
+  );
+}
+
 export default function OrderDetailPage({
   initialOrder = null,
   initialLoading = null,
@@ -159,7 +214,6 @@ export default function OrderDetailPage({
   const [fullPreviewUrl, setFullPreviewUrl] = useState(null);
   const [copiedKey, setCopiedKey] = useState(null);
   const [reordering, setReordering] = useState(false);
-  const [now, setNow] = useState(Date.now());
 
   const cameraInputRef = useRef(null);
   const galleryInputRef = useRef(null);
@@ -188,13 +242,19 @@ export default function OrderDetailPage({
     }
   }, [orderNumber, initialOrder]);
 
-  // Live countdown timer ticking every 1 second
+  // Poll every 30s while in payment_review (paused on hidden tab)
   useEffect(() => {
-    const timer = setInterval(() => {
-      setNow(Date.now());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+    const isUnderReview = order?.payment?.state === 'under_review' || order?.status === 'payment_review';
+    if (!isUnderReview) return;
+
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        loadOrder(false);
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [order?.payment?.state, order?.status, orderNumber]);
 
   // Auto-scroll to upload card if navigated right after creation
   useEffect(() => {
@@ -205,21 +265,43 @@ export default function OrderDetailPage({
     }
   }, [location.state?.justCreated]);
 
-  // Copy helper
-  const handleCopy = (text, key, msg = 'تم النسخ') => {
+  // Copy helper with robust fallback
+  const handleCopy = async (text, key, msg = 'تم النسخ') => {
     if (!text) return;
     triggerHaptic(10);
     const str = String(text);
+
+    let succeeded = false;
     if (navigator?.clipboard?.writeText) {
-      navigator.clipboard.writeText(str).then(() => {
-        setCopiedKey(key);
-        success(msg);
-        setTimeout(() => setCopiedKey(null), 2000);
-      });
-    } else {
+      try {
+        await navigator.clipboard.writeText(str);
+        succeeded = true;
+      } catch {
+        succeeded = false;
+      }
+    }
+
+    if (!succeeded) {
+      try {
+        const textarea = document.createElement('textarea');
+        textarea.value = str;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        succeeded = document.execCommand('copy');
+        document.body.removeChild(textarea);
+      } catch {
+        succeeded = false;
+      }
+    }
+
+    if (succeeded) {
       setCopiedKey(key);
       success(msg);
       setTimeout(() => setCopiedKey(null), 2000);
+    } else {
+      toastError('تعذر نسخ النص تلقائياً');
     }
   };
 
@@ -298,27 +380,43 @@ export default function OrderDetailPage({
 
   if (loading) {
     return (
-      <Page className={styles.container}>
-        <div className={styles.loadingSkeleton} />
-      </Page>
+      <div className={styles.pageWrapper}>
+        <AppBar
+          tone="navy"
+          overlap={36}
+          title="تفاصيل الطلب"
+          showBack={true}
+          backTo="/orders"
+        />
+        <Page className={styles.container}>
+          <div className={styles.loadingSkeleton} />
+        </Page>
+      </div>
     );
   }
 
   if (error || !order) {
     return (
-      <Page className={styles.container}>
-        <div className={styles.errorCard}>
-          <p>{error || 'الطلب غير موجود'}</p>
-          <Button variant="secondary" onClick={() => navigate('/orders')}>
-            العودة للطلبات
-          </Button>
-        </div>
-      </Page>
+      <div className={styles.pageWrapper}>
+        <AppBar
+          tone="navy"
+          overlap={36}
+          title="تفاصيل الطلب"
+          showBack={true}
+          backTo="/orders"
+        />
+        <Page className={styles.container}>
+          <ErrorState
+            message={error || 'الطلب غير موجود'}
+            onRetry={() => loadOrder(true)}
+          />
+        </Page>
+      </div>
     );
   }
 
   const offset = getServerTimeOffset();
-  const uiState = deriveOrderUiState(order, now, offset);
+  const uiState = deriveOrderUiState(order, Date.now(), offset);
 
   const isPending = uiState.stage === 'pending_payment';
   const isReview = uiState.stage === 'payment_review';
@@ -326,8 +424,7 @@ export default function OrderDetailPage({
   const isExpired = uiState.stage === 'expired';
   const isConfirmed = uiState.stage === 'confirmed';
   const isCompleted = uiState.stage === 'completed';
-
-  const countdownFormatted = formatCountdownTime(uiState.countdown);
+  const isCancelled = order.status === 'cancelled';
   const paymentAccounts = order.payment_accounts || [];
 
   return (
@@ -359,9 +456,12 @@ export default function OrderDetailPage({
               </span>
               <div className={styles.countdownClock}>
                 <Clock size={18} strokeWidth={1.75} className={styles.clockIcon} aria-hidden="true" />
-                <span className={styles.countdownText} dir="ltr">
-                  {isExpired ? '00:00:00' : countdownFormatted}
-                </span>
+                <OrderCountdown
+                  lockExpiresAt={order.lock_expires_at}
+                  secondsRemaining={order.seconds_remaining}
+                  isExpired={isExpired}
+                  onExpire={() => loadOrder(false)}
+                />
               </div>
             </div>
 
@@ -420,8 +520,16 @@ export default function OrderDetailPage({
         )}
 
         {/* 2. Card "حساب التحويل" */}
-        <section className={styles.accountsSection} aria-label="حسابات التحويل">
+        <section
+          className={`${styles.accountsSection} ${(isExpired || isCancelled) ? styles.accountsSectionMuted : ''}`}
+          aria-label="حسابات التحويل"
+        >
           <h2 className={styles.sectionTitle}>حساب التحويل</h2>
+          {(isExpired || isCancelled) && (
+            <p className={styles.accountsNoticeMuted}>
+              تم إيقاف التحويل البنكي لهذا الطلب.
+            </p>
+          )}
           <div className={styles.accountsList}>
             {paymentAccounts.length > 0 ? (
               paymentAccounts.map((acc, idx) => (

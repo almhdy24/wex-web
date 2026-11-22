@@ -53,6 +53,32 @@
   color: var(--wex-text-secondary);
 }
 
+.searchClearBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+  background: var(--wex-gray-100);
+  color: var(--wex-gray-600);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background-color var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard);
+}
+
+.searchClearBtn:hover {
+  background: var(--wex-gray-200);
+  color: var(--wex-navy);
+}
+
+.searchClearBtn:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
+}
+
 .controlsBar {
   margin: 14px 0 0;
   display: flex;

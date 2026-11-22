@@ -301,6 +301,18 @@
   box-shadow: var(--shadow-card-v2);
 }
 
+.accountsSectionMuted {
+  opacity: 0.6;
+  filter: grayscale(0.6);
+}
+
+.accountsNoticeMuted {
+  font-size: 13px;
+  color: var(--wex-danger);
+  margin: 0 0 10px 0;
+  font-weight: 700;
+}
+
 .accountsList {
   display: flex;
   flex-direction: column;
