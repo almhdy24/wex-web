@@ -8,15 +8,20 @@ import {
   MapPin,
   MessageCircle,
   ArrowLeft,
+  Heart,
+  ShoppingCart,
 } from 'lucide-react';
 import { productsApi } from '../../api/products';
 import { shopApi } from '../../api/shop';
 import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
+import { useFavorites } from '../../context/FavoritesContext';
 import ProductCard from '../../components/products/ProductCard';
 import { ProductCardSkeleton } from '../../components/common/Skeleton';
 import ErrorState from '../../components/common/ErrorState';
 import Page from '../../components/common/Page';
-import ProductTypeSvg from '../../components/common/ProductTypeSvg';
+import BrandRibbons from '../../components/common/BrandRibbons';
+import { Reveal, Stagger } from '../../motion';
 import { formatPriceUpdateCaption } from '../../utils/formatters';
 import styles from './HomePage.module.css';
 
@@ -27,6 +32,8 @@ export default function HomePage({
 } = {}) {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { totalItems } = useCart();
+  const { favoriteCount } = useFavorites();
 
   const [shopInfo, setShopInfo] = useState(initialShopInfo);
   const [products, setProducts] = useState(initialProducts);
@@ -60,7 +67,6 @@ export default function HomePage({
     };
   }, []);
 
-  // Search handler
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -70,7 +76,6 @@ export default function HomePage({
 
   const lockHours = shopInfo?.lock_hours || 4;
 
-  // Hero Slides Deck
   const slides = [
     {
       title: 'أجهزة لابتوب جديدة ومستعملة',
@@ -95,7 +100,6 @@ export default function HomePage({
     },
   ];
 
-  // Auto slide interval
   useEffect(() => {
     const timer = setInterval(() => {
       setActiveSlide((prev) => (prev + 1) % slides.length);
@@ -107,7 +111,6 @@ export default function HomePage({
     return (
       <Page className={styles.container}>
         <div className={styles.loadingSkeleton}>
-          <div className={styles.searchSkeleton} />
           <div className={styles.heroSkeleton} />
           <div className={styles.grid}>
             {[1, 2, 3, 4].map((n) => (
@@ -131,78 +134,87 @@ export default function HomePage({
     );
   }
 
-  // Filtered Product Lists for sections
-  const newArrivals = products.slice(0, 4);
-  const studyProducts = products
-    .filter((p) => p.type === 'laptop' || (p.category_name && p.category_name.includes('دراسة')))
-    .slice(0, 4);
-  const workProducts = products
-    .filter((p) => p.type === 'laptop' || (p.category_name && p.category_name.includes('عمل')))
-    .slice(0, 4);
-  const accessoryProducts = products
-    .filter((p) => p.type === 'accessory' || p.category_name?.includes('ملحق'))
-    .slice(0, 4);
+  const distinctProducts = Array.from(
+    new Map((products || []).map((p) => [p.id, p])).values()
+  );
+  const featuredProducts = distinctProducts.slice(0, 6);
 
   const whatsappPhone = shopInfo?.whatsapp || '249912345678';
   const whatsappUrl = `https://wa.me/${whatsappPhone}`;
 
   return (
-    <Page className={styles.container}>
-      {/* 1. Header Greeting & Search */}
-      <header className={styles.header}>
-        <h1 className={styles.greeting}>
-          {user?.name ? `مرحبًا، ${user.name}` : 'مرحبًا بك'}
-        </h1>
+    <div className={styles.pageWrapper}>
+      {/* 1. Hero block (navy) containing: logo chip + cart/fav buttons, greeting, title, subtitle, CTA, dots */}
+      <section className={styles.heroBlock} aria-label="العروض الرئيسية">
+        <BrandRibbons variant="hero" />
 
-        <form onSubmit={handleSearchSubmit} className={styles.searchForm}>
-          <div className={styles.searchWrapper}>
-            <Search size={20} strokeWidth={1.75} className={styles.searchIcon} aria-hidden="true" />
-            <input
-              type="search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="ابحث عن جهاز أو ماركة"
-              className={styles.searchInput}
-              aria-label="ابحث عن جهاز أو ماركة"
+        {/* Top row: Logo Chip on start side, glass Cart / Fav buttons on end side */}
+        <div className={styles.heroTopRow}>
+          <Link to="/" className={styles.logoChip} aria-label="ويكس تكنولوجي">
+            <img
+              src="/assets/logo.png"
+              alt="ويكس تكنولوجي"
+              className={styles.logoImg}
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
             />
-          </div>
-        </form>
+          </Link>
 
-        {/* Caption: Last Price Update (once) with pulsing freshness dot */}
-        <div className={styles.priceUpdateWrapper}>
-          <span className={styles.pulseDot} aria-hidden="true" />
-          <p className={styles.priceUpdateCaption}>
-            آخر تحديث للأسعار: {formatPriceUpdateCaption(shopInfo?.prices_updated_at)}
-          </p>
-        </div>
-      </header>
-
-      {/* 2. Hero Section (Official Brand Gradient with Slanted Ribbon & Device Silhouette) */}
-      <section className={styles.heroCard} aria-label="العروض الرئيسية">
-        <div className={styles.heroRibbonShine} aria-hidden="true" />
-        <div className={styles.heroInner}>
-          <div className={styles.heroContent}>
-            <h2 className={styles.heroTitle}>{slides[activeSlide].title}</h2>
-            <p className={styles.heroText}>{slides[activeSlide].text}</p>
-            <button
-              type="button"
-              onClick={slides[activeSlide].action}
-              className={styles.heroBtn}
+          <div className={styles.heroActions}>
+            <Link
+              to="/favorites"
+              className={styles.heroActionBtn}
+              aria-label="المفضلة"
             >
-              <span>{slides[activeSlide].buttonLabel}</span>
-              <ArrowLeft size={18} strokeWidth={1.75} aria-hidden="true" />
-            </button>
-          </div>
-          <div className={styles.heroVisual} aria-hidden="true">
-            <ProductTypeSvg
-              type={activeSlide === 1 ? 'laptop' : (activeSlide === 2 ? 'accessory' : 'laptop')}
-              className={styles.heroIllustration}
-            />
+              <Heart size={22} strokeWidth={1.75} />
+              {favoriteCount > 0 && (
+                <span className={styles.actionBadge}>
+                  {favoriteCount > 99 ? '99+' : favoriteCount}
+                </span>
+              )}
+            </Link>
+
+            <Link
+              to="/cart"
+              className={styles.heroActionBtn}
+              aria-label="السلة"
+            >
+              <ShoppingCart size={22} strokeWidth={1.75} />
+              {totalItems > 0 && (
+                <span className={styles.actionBadge}>
+                  {totalItems > 99 ? '99+' : totalItems}
+                </span>
+              )}
+            </Link>
           </div>
         </div>
 
-        {/* Slide Indicators */}
-        <div className={styles.heroDots} role="tablist" aria-label="شرائح العرض">
+        {/* Greeting */}
+        <p className={styles.greeting}>
+          {user?.name ? `مرحبًا، ${user.name}` : 'مرحبًا بك'}
+        </p>
+
+        {/* Slide Title */}
+        <h2 key={`title-${activeSlide}`} className={styles.slideTitle}>{slides[activeSlide].title}</h2>
+
+        {/* Slide Subtitle */}
+        <p key={`sub-${activeSlide}`} className={styles.slideSubtitle}>{slides[activeSlide].text}</p>
+
+        {/* Slide CTA */}
+        <button
+          type="button"
+          onClick={slides[activeSlide].action}
+          className={styles.slideCta}
+        >
+          <span>{slides[activeSlide].buttonLabel}</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M19 12H5M11 6l-6 6 6 6" />
+          </svg>
+        </button>
+
+        {/* Dots */}
+        <div className={styles.dots} role="tablist" aria-label="شرائح العرض">
           {slides.map((_, idx) => (
             <button
               key={idx}
@@ -210,209 +222,172 @@ export default function HomePage({
               role="tab"
               aria-selected={activeSlide === idx}
               aria-label={`الشريحة ${idx + 1}`}
-              className={`${styles.heroDot} ${activeSlide === idx ? styles.heroDotActive : ''}`}
+              className={`${styles.dot} ${activeSlide === idx ? styles.dotActive : ''}`}
               onClick={() => setActiveSlide(idx)}
             />
           ))}
         </div>
       </section>
 
-      {/* 3. Category Bubbles (ONE Row: الحواسيب، الهواتف، الملحقات) */}
-      <section className={styles.categoriesRow} aria-label="أقسام المتجر">
-        <Link to="/products?type=laptop" className={styles.categoryTile}>
-          <div className={styles.categoryIconBubble}>
-            <Laptop size={24} strokeWidth={1.75} />
-          </div>
-          <span className={styles.categoryTitle}>الحواسيب</span>
-        </Link>
-
-        <Link to="/products?type=phone" className={styles.categoryTile}>
-          <div className={styles.categoryIconBubble}>
-            <Smartphone size={24} strokeWidth={1.75} />
-          </div>
-          <span className={styles.categoryTitle}>الهواتف</span>
-        </Link>
-
-        <Link to="/products?type=accessory" className={styles.categoryTile}>
-          <div className={styles.categoryIconBubble}>
-            <Headphones size={24} strokeWidth={1.75} />
-          </div>
-          <span className={styles.categoryTitle}>الملحقات</span>
-        </Link>
-      </section>
-
-      {/* 4. App Discount Ribbon Banner */}
-      <div
-        className={`${styles.appDiscountBanner} ${styles.wexRibbon}`}
-        onClick={() => navigate('/products')}
-        role="button"
-        tabIndex={0}
-        aria-label="خصم 3% للطلب عبر التطبيق"
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') navigate('/products');
-        }}
-      >
-        <div className={styles.discountTextCol}>
-          <span className={styles.discountTag}>خصم الطلب بالتطبيق</span>
-          <h3 className={styles.discountTitle}>خصم 3% للطلب عبر التطبيق</h3>
-          <p className={styles.discountSubtitle}>تصفّح العروض المتوفرة وأكّد طلبك بسهولة</p>
+      <Page padded={false} className={styles.container}>
+        {/* 2. Search field (overlapping the hero) */}
+      <form onSubmit={handleSearchSubmit} className={styles.searchForm}>
+        <div className={styles.searchContainer}>
+          <Search size={22} strokeWidth={2} className={styles.searchIcon} aria-hidden="true" />
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="ابحث عن جهاز أو ماركة"
+            className={styles.searchInput}
+            aria-label="ابحث عن جهاز أو ماركة"
+          />
         </div>
-        <div className={styles.discountBadgeCircle}>
-          <span className={styles.discountBadgeNum}>-3%</span>
-          <span className={styles.discountBadgeLabel}>تخفيض</span>
-        </div>
-      </div>
+      </form>
 
-      {/* 5. Brand Logos Strip */}
-      <section className={styles.brandStripSection} aria-label="العلامات التجارية">
-        <div className={styles.brandScroll}>
-          {['Dell', 'Lenovo', 'HP', 'Apple', 'Acer', 'Asus'].map((brand) => (
-            <Link
-              key={brand}
-              to={`/products?brand=${encodeURIComponent(brand)}`}
-              className={styles.brandChip}
-            >
-              {brand}
-            </Link>
-          ))}
+      {/* 3. "آخر تحديث للأسعار" line */}
+      <Reveal>
+        <div className={styles.priceUpdateLine}>
+          <span className={styles.priceDot} aria-hidden="true" />
+          <span className={styles.priceUpdateCaption}>
+            آخر تحديث للأسعار: {formatPriceUpdateCaption(shopInfo?.prices_updated_at)}
+          </span>
         </div>
-      </section>
+      </Reveal>
 
-      {/* 6. Section: وصل حديثًا */}
-      {newArrivals.length > 0 && (
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>وصل حديثًا</h2>
-            <Link to="/products" className={styles.viewAllLink}>
-              عرض الكل
-            </Link>
-          </div>
-          <div className={styles.grid}>
-            {newArrivals.map((product) => (
-              <ProductCard key={product.id} product={product} />
+      {/* 4. Category tiles (3) */}
+      <Reveal>
+        <section className={styles.categoryTiles} aria-label="أقسام المتجر">
+          <Link to="/products?type=laptop" className={styles.categoryTile}>
+            <div className={styles.categoryIconWell}>
+              <Laptop size={28} strokeWidth={1.75} />
+            </div>
+            <span className={styles.categoryLabel}>الحواسيب</span>
+          </Link>
+
+          <Link to="/products?type=phone" className={styles.categoryTile}>
+            <div className={styles.categoryIconWell}>
+              <Smartphone size={28} strokeWidth={1.75} />
+            </div>
+            <span className={styles.categoryLabel}>الهواتف</span>
+          </Link>
+
+          <Link to="/products?type=accessory" className={styles.categoryTile}>
+            <div className={styles.categoryIconWell}>
+              <Headphones size={28} strokeWidth={1.75} />
+            </div>
+            <span className={styles.categoryLabel}>الملحقات</span>
+          </Link>
+        </section>
+      </Reveal>
+
+      {/* 5. "أجهزة مختارة" section (title + "كل الأجهزة" link + 2-column grid of ProductCard) */}
+      {featuredProducts.length > 0 && (
+        <section className={styles.featuredSection} aria-label="أجهزة مختارة">
+          <Reveal>
+            <div className={styles.featuredHeader}>
+              <h2 className={styles.featuredTitle}>أجهزة مختارة</h2>
+              <Link to="/products" className={styles.featuredLink}>
+                <span>كل الأجهزة</span>
+                <ArrowLeft size={18} strokeWidth={2} aria-hidden="true" />
+              </Link>
+            </div>
+          </Reveal>
+          <Stagger className={styles.featuredGrid}>
+            {featuredProducts.map((product, idx) => (
+              <ProductCard key={product.id} product={product} index={idx} />
             ))}
-          </div>
+          </Stagger>
         </section>
       )}
 
-      {/* 7. Section: للدراسة */}
-      {studyProducts.length > 0 && (
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>للدراسة</h2>
-            <Link to="/products?type=laptop" className={styles.viewAllLink}>
-              عرض الكل
-            </Link>
-          </div>
-          <div className={styles.grid}>
-            {studyProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+      {/* 6. "طريقة الطلب" navy panel */}
+      <Reveal>
+        <section id="how-to-order" className={styles.howToOrderPanel} aria-label="طريقة الطلب">
+          <BrandRibbons variant="panel" />
+          <div className={styles.howToOrderContent}>
+            <h2 className={styles.howToOrderTitle}>طريقة الطلب</h2>
+            <div className={styles.howToOrderSteps}>
+              <div className={styles.howToOrderStep}>
+                <div className={styles.stepIndicatorCol}>
+                  <span className={styles.stepNumCircle}>1</span>
+                  <span className={styles.stepConnector} />
+                </div>
+                <p className={styles.stepText}>اختر الجهاز</p>
+              </div>
+
+              <div className={styles.howToOrderStep}>
+                <div className={styles.stepIndicatorCol}>
+                  <span className={styles.stepNumCircle}>2</span>
+                  <span className={styles.stepConnector} />
+                </div>
+                <p className={styles.stepText}>أكّد الطلب وثبّت السعر</p>
+              </div>
+
+              <div className={styles.howToOrderStep}>
+                <div className={styles.stepIndicatorCol}>
+                  <span className={styles.stepNumCircle}>3</span>
+                  <span className={styles.stepConnector} />
+                </div>
+                <p className={styles.stepText}>حوّل المبلغ وارفع الإشعار</p>
+              </div>
+
+              <div className={styles.howToOrderStep}>
+                <div className={styles.stepIndicatorCol}>
+                  <span className={styles.stepNumCircle}>4</span>
+                </div>
+                <p className={styles.stepText}>استلم من المحل أو بالتوصيل</p>
+              </div>
+            </div>
           </div>
         </section>
-      )}
+      </Reveal>
 
-      {/* 8. Section: للعمل */}
-      {workProducts.length > 0 && (
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>للعمل</h2>
-            <Link to="/products?type=laptop" className={styles.viewAllLink}>
-              عرض الكل
-            </Link>
+      {/* 7. Store info card */}
+      <Reveal>
+        <section className={styles.storeInfoCard} aria-label="معلومات المتجر">
+          <div className={styles.storeTopBand}>
+            <BrandRibbons variant="header" />
+            <div className={styles.storeTopBandContent}>
+              <h2 className={styles.storeName}>ويكس تكنولوجي</h2>
+              <p className={styles.storeTagline}>فريق ويكس في خدمتكم في المتجر بأم درمان</p>
+            </div>
           </div>
-          <div className={styles.grid}>
-            {workProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+
+          <div className={styles.storeBody}>
+            <p className={styles.storeAddress}>
+              {shopInfo?.address || 'مول الواحة، الشهداء، أم درمان'}
+            </p>
+            <div className={styles.storeHours}>
+              <p>السبت - الخميس: 9:00 ص - 9:00 م</p>
+              <p>الجمعة: مغلق</p>
+            </div>
+
+            <div className={styles.storeButtons}>
+              <a
+                href="https://maps.google.com/?q=Al-Waha+Mall+Omdurman"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.storeBtnPrimary}
+              >
+                <MapPin size={18} strokeWidth={2} aria-hidden="true" />
+                <span>الموقع على الخريطة</span>
+              </a>
+
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.storeBtnOutline}
+              >
+                <MessageCircle size={18} strokeWidth={2} aria-hidden="true" />
+                <span>تواصل عبر واتساب</span>
+              </a>
+            </div>
           </div>
         </section>
-      )}
-
-      {/* 9. Section: ملحقات */}
-      {accessoryProducts.length > 0 && (
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>ملحقات</h2>
-            <Link to="/products?type=accessory" className={styles.viewAllLink}>
-              عرض الكل
-            </Link>
-          </div>
-          <div className={styles.grid}>
-            {accessoryProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 10. Steps: طريقة الطلب (Once) */}
-      <section id="how-to-order" className={styles.stepsSection}>
-        <h2 className={styles.sectionTitle}>طريقة الطلب</h2>
-        <div className={styles.stepsGrid}>
-          <div className={styles.stepCard}>
-            <span className={styles.stepBadge}>1</span>
-            <div className={styles.stepText}>
-              <h3 className={styles.stepTitle}>اختر الجهاز</h3>
-            </div>
-          </div>
-
-          <div className={styles.stepCard}>
-            <span className={styles.stepBadge}>2</span>
-            <div className={styles.stepText}>
-              <h3 className={styles.stepTitle}>أكّد الطلب وثبّت السعر</h3>
-            </div>
-          </div>
-
-          <div className={styles.stepCard}>
-            <span className={styles.stepBadge}>3</span>
-            <div className={styles.stepText}>
-              <h3 className={styles.stepTitle}>حوّل المبلغ وارفع الإشعار</h3>
-            </div>
-          </div>
-
-          <div className={styles.stepCard}>
-            <span className={styles.stepBadge}>4</span>
-            <div className={styles.stepText}>
-              <h3 className={styles.stepTitle}>استلم من المحل أو بالتوصيل</h3>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 11. Shop Block (Once) */}
-      <section className={styles.shopBlock}>
-        <h2 className={styles.shopTitle}>ويكس تكنولوجي</h2>
-        <p className={styles.teamTagline}>فريق ويكس في خدمتكم في المتجر بأم درمان</p>
-        <p className={styles.shopAddress}>
-          {shopInfo?.address || 'مول الواحة، الشهداء، أم درمان'}
-        </p>
-        <div className={styles.shopHours}>
-          <p>السبت - الخميس: 9:00 ص - 9:00 م</p>
-          <p>الجمعة: مغلق</p>
-        </div>
-        <div className={styles.shopActions}>
-          <a
-            href="https://maps.google.com/?q=Al-Waha+Mall+Omdurman"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.mapBtn}
-          >
-            <MapPin size={18} strokeWidth={1.75} aria-hidden="true" />
-            <span>الموقع على الخريطة</span>
-          </a>
-
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.whatsappBtn}
-          >
-            <MessageCircle size={18} strokeWidth={1.75} aria-hidden="true" />
-            <span>تواصل عبر واتساب</span>
-          </a>
-        </div>
-      </section>
+      </Reveal>
     </Page>
+    </div>
   );
 }

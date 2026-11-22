@@ -8,6 +8,7 @@ import { productsApi } from '../../api/products';
 import { shopApi } from '../../api/shop';
 import { api } from '../../api/client';
 import { formatSdg, isValidSudanPhone } from '../../utils/formatters';
+import AppBar from '../../components/common/AppBar';
 import Button from '../../components/common/Button';
 import Page from '../../components/common/Page';
 import AuthSheet from '../../components/auth/AuthSheet';
@@ -185,12 +186,16 @@ export default function CheckoutPage({
   };
 
   return (
-    <Page className={styles.container}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>تأكيد الطلب</h1>
-      </header>
+    <div className={styles.pageWrapper}>
+      <AppBar
+        tone="navy"
+        style={{ '--header-bottom': '36px' }}
+        title="تأكيد الطلب"
+        showBack={true}
+      />
 
-      {/* Stepper: الاستلام → التواصل → المراجعة */}
+      <Page className={styles.container}>
+        {/* Stepper: الاستلام → التواصل → المراجعة */}
       <div className={styles.stepperRow} aria-label="مراحل إتمام الطلب">
         <div className={`${styles.stepIndicator} ${styles.stepDone}`}>
           <span className={styles.stepNum}>1</span>
@@ -395,5 +400,6 @@ export default function CheckoutPage({
         onSuccess={handleAuthSuccess}
       />
     </Page>
+    </div>
   );
 }

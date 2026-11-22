@@ -1,9 +1,10 @@
 import React from 'react';
+import Ripple from '../../motion/Ripple';
 import styles from './Button.module.css';
 
 /**
  * Design System Button
- * - Primary: solid royal (#0B3FBF), white text, 48px high, radius 12
+ * - Primary: brand gradient (--wex-grad-brand), white text, 48px high, radius 12, ripple
  * - Secondary: white, 1px royal border, royal text, 48px high, radius 12
  * - Tertiary: text link (color royal, no border, transparent)
  */
@@ -20,6 +21,8 @@ export default function Button({
   onClick,
   ...rest
 }) {
+  const { triggerProps, rippleElement } = Ripple();
+
   const classNames = [
     styles.button,
     styles[variant] || styles.primary,
@@ -36,6 +39,7 @@ export default function Button({
       className={classNames}
       disabled={disabled || loading}
       onClick={onClick}
+      {...triggerProps}
       {...rest}
     >
       {loading ? (
@@ -43,7 +47,8 @@ export default function Button({
       ) : Icon ? (
         <Icon size={20} strokeWidth={1.75} className={styles.icon} aria-hidden="true" />
       ) : null}
-      <span>{children}</span>
+      <span className={styles.label}>{children}</span>
+      {rippleElement}
     </button>
   );
 }

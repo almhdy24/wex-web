@@ -44,10 +44,15 @@ export function CartProvider({ children }) {
     if (!product || !product.id) return;
     setItems((prev) => {
       const existing = prev.find((i) => i.id === product.id);
+      const stock = product.stock_quantity !== undefined && product.stock_quantity !== null
+        ? Number(product.stock_quantity)
+        : (existing?.stock_quantity !== undefined ? existing.stock_quantity : 10);
+      const maxLimit = Math.max(1, Math.min(10, stock));
+
       if (existing) {
-        const newQty = Math.min(10, existing.quantity + quantity);
+        const newQty = Math.min(maxLimit, existing.quantity + quantity);
         return prev.map((i) =>
-          i.id === product.id ? { ...i, quantity: newQty } : i
+          i.id === product.id ? { ...i, quantity: newQty, stock_quantity: stock } : i
         );
       }
       return [
@@ -58,7 +63,8 @@ export function CartProvider({ children }) {
           slug: product.slug,
           price_sdg: Number(product.price_sdg) || 0,
           image: product.image,
-          quantity: Math.min(10, Math.max(1, quantity)),
+          stock_quantity: stock,
+          quantity: Math.min(maxLimit, Math.max(1, quantity)),
         },
       ];
     });
@@ -69,9 +75,15 @@ export function CartProvider({ children }) {
       removeItem(productId);
       return;
     }
-    const safeQty = Math.min(10, quantity);
     setItems((prev) =>
-      prev.map((i) => (i.id === productId ? { ...i, quantity: safeQty } : i))
+      prev.map((i) => {
+        if (i.id !== productId) return i;
+        const maxLimit = i.stock_quantity !== undefined && i.stock_quantity !== null
+          ? Math.max(1, Math.min(10, Number(i.stock_quantity)))
+          : 10;
+        const safeQty = Math.min(maxLimit, quantity);
+        return { ...i, quantity: safeQty };
+      })
     );
   };
 
@@ -120,9 +132,14 @@ export function CartProvider({ children }) {
 
       const updatedItems = items.map((item) => {
         const fresh = prodMap.get(item.id) || (item.slug ? prodMap.get(item.slug) : null);
-        if (fresh && fresh.price_sdg !== undefined) {
-          const freshPrice = Number(fresh.price_sdg);
+        let nextItem = item;
+
+        if (fresh) {
+          const freshPrice = fresh.price_sdg !== undefined ? Number(fresh.price_sdg) : Number(item.price_sdg);
           const currentPrice = Number(item.price_sdg);
+          const freshStock = fresh.stock_quantity !== undefined && fresh.stock_quantity !== null
+            ? Number(fresh.stock_quantity)
+            : item.stock_quantity;
 
           if (freshPrice !== currentPrice) {
             detectedChanges[item.id] = {
@@ -131,13 +148,22 @@ export function CartProvider({ children }) {
               confirmed: false,
             };
             hasUpdates = true;
-            return {
+          }
+
+          const maxAllowed = freshStock !== undefined ? Math.max(1, Math.min(10, freshStock)) : 10;
+          const adjustedQty = Math.min(maxAllowed, item.quantity);
+
+          if (freshPrice !== currentPrice || freshStock !== item.stock_quantity || adjustedQty !== item.quantity) {
+            hasUpdates = true;
+            nextItem = {
               ...item,
               price_sdg: freshPrice,
+              stock_quantity: freshStock,
+              quantity: adjustedQty,
             };
           }
         }
-        return item;
+        return nextItem;
       });
 
       if (hasUpdates) {

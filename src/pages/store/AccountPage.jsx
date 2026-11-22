@@ -416,7 +416,7 @@ export default function AccountPage() {
           {/* Quick Shortcuts Grid */}
           <div className={styles.quickGrid}>
             <Link to="/orders" className={styles.quickCard}>
-              <div className={styles.quickCardIcon} style={{ background: '#EFF6FF', color: '#2563EB' }}>
+              <div className={styles.quickCardIcon} style={{ background: 'var(--wex-ice)', color: 'var(--wex-royal)' }}>
                 <Package size={22} />
               </div>
               <div className={styles.quickCardContent}>
@@ -431,8 +431,8 @@ export default function AccountPage() {
             </Link>
 
             <Link to="/favorites" className={styles.quickCard}>
-              <div className={styles.quickCardIcon} style={{ background: '#FEE2E2', color: '#EF4444' }}>
-                <Heart size={22} fill="#EF4444" />
+              <div className={styles.quickCardIcon} style={{ background: 'var(--wex-ice)', color: 'var(--wex-royal)' }}>
+                <Heart size={22} fill="var(--wex-royal)" />
               </div>
               <div className={styles.quickCardContent}>
                 <h3 className={styles.quickCardTitle}>قائمة الأجهزة المفضلة</h3>
@@ -446,7 +446,7 @@ export default function AccountPage() {
             </Link>
 
             <Link to="/notifications" className={styles.quickCard}>
-              <div className={styles.quickCardIcon} style={{ background: '#FEF3C7', color: '#D97706' }}>
+              <div className={styles.quickCardIcon} style={{ background: 'var(--wex-ice)', color: 'var(--wex-royal)' }}>
                 <Bell size={22} />
               </div>
               <div className={styles.quickCardContent}>
@@ -662,7 +662,7 @@ export default function AccountPage() {
               {/* 1. Email OTP Provider (Always Verified Primary) */}
               <div className={styles.providerItem}>
                 <div className={styles.providerInfo}>
-                  <div className={styles.providerIconCircle} style={{ background: '#EFF6FF', color: '#1E40AF' }}>
+                  <div className={styles.providerIconCircle} style={{ background: '#EAF3FF', color: '#0B3FBF' }}>
                     <Mail size={18} />
                   </div>
                   <div>
@@ -680,7 +680,7 @@ export default function AccountPage() {
               {/* 2. Google OAuth Provider (Accurate Backend State) */}
               <div className={styles.providerItem}>
                 <div className={styles.providerInfo}>
-                  <div className={styles.providerIconCircle} style={{ background: '#F1F5F9', color: '#0F172A' }}>
+                  <div className={styles.providerIconCircle} style={{ background: '#EAF3FF', color: '#061A55' }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
                       <path
                         fill="#4285F4"
@@ -733,7 +733,7 @@ export default function AccountPage() {
               {/* 3. Facebook Provider (Accurate Report: Not Supported on Backend) */}
               <div className={`${styles.providerItem} ${styles.providerItemDisabled}`}>
                 <div className={styles.providerInfo}>
-                  <div className={styles.providerIconCircle} style={{ background: '#F1F5F9', color: '#64748B' }}>
+                  <div className={styles.providerIconCircle} style={{ background: '#EAF3FF', color: '#4B5B85' }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                       <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                     </svg>
@@ -844,7 +844,7 @@ export default function AccountPage() {
                 className={styles.menuRow}
               >
                 <div className={styles.menuRowLeft}>
-                  <MessageCircle size={18} className={styles.menuRowIcon} style={{ color: '#10B981' }} />
+                  <MessageCircle size={18} className={styles.menuRowIcon} style={{ color: '#12805C' }} />
                   <div>
                     <h4 className={styles.menuRowTitle}>{ar.account.menuSupport}</h4>
                     <p className={styles.menuRowSub}>فريق خدمة عملاء ويكس متاح طوال ساعات العمل</p>

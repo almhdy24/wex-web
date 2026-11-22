@@ -6,6 +6,8 @@ export default function PwaPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [updateAvailable, setUpdateAvailable] = useState(false);
+  const [waitingWorker, setWaitingWorker] = useState(null);
 
   useEffect(() => {
     const handleOnline = () => setIsOffline(false);
@@ -13,6 +15,24 @@ export default function PwaPrompt() {
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
+
+    // Listen for Service Worker update
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistration?.().then((reg) => {
+        if (!reg) return;
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                setUpdateAvailable(true);
+                setWaitingWorker(newWorker);
+              }
+            });
+          }
+        });
+      }).catch(() => {});
+    }
 
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
@@ -55,12 +75,32 @@ export default function PwaPrompt() {
     sessionStorage.setItem('wex_pwa_dismissed', '1');
   };
 
+  const handleRefreshUpdate = () => {
+    if (waitingWorker) {
+      waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+    }
+    window.location.reload();
+  };
+
   return (
     <>
       {isOffline && (
         <div className={styles.offlineBanner} role="status" aria-live="polite">
           <WifiOff size={16} strokeWidth={1.75} aria-hidden="true" />
-          <span>أنت شغال بدون إنترنت حالياً. بتشوف البيانات المحفوظة فقط.</span>
+          <span>أنت في وضع عدم الاتصال حالياً. يتم عرض البيانات المحفوظة فقط.</span>
+        </div>
+      )}
+
+      {updateAvailable && (
+        <div className={styles.updateCard} role="status" aria-live="polite">
+          <span className={styles.updateText}>يتوفر تحديث جديد للمتجر</span>
+          <button
+            type="button"
+            onClick={handleRefreshUpdate}
+            className={styles.refreshBtn}
+          >
+            تحديث الآن
+          </button>
         </div>
       )}
 

@@ -8,6 +8,7 @@ import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import { Skeleton } from '../../components/common/Skeleton';
 import Page from '../../components/common/Page';
+import AppBar from '../../components/common/AppBar';
 import { t } from '../../content/ar';
 import styles from './NotificationsPage.module.css';
 
@@ -71,13 +72,23 @@ export default function NotificationsPage() {
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   return (
-    <Page className={styles.container}>
+    <div className={styles.pageWrapper}>
+      <AppBar
+        tone="navy"
+        style={{ '--header-bottom': '36px' }}
+        title={t('notifications.title')}
+        showBack={true}
+        showCart={false}
+      />
+      <Page className={styles.container}>
       <header className={styles.header}>
         <div>
           <h1 className={styles.title}>{t('notifications.title')}</h1>
-          <p className={styles.subtitle}>
-            {t('notifications.subtitle')}
-          </p>
+          <div className={styles.counterBadge}>
+            <span className={styles.unreadTag}>غير مقروء ({unreadCount})</span>
+            <span className={styles.separator}>•</span>
+            <span className={styles.totalTag}>الكل ({notifications.length})</span>
+          </div>
         </div>
 
         {unreadCount > 0 && (
@@ -156,5 +167,6 @@ export default function NotificationsPage() {
         </div>
       )}
     </Page>
+    </div>
   );
 }

@@ -13,7 +13,7 @@ export default defineConfig({
         short_name: 'Wex',
         description: 'متجر أجهزة لابتوب وهواتف ذكية وإلكترونيات في أم درمان، السودان',
         theme_color: '#061A55',
-        background_color: '#FFFFFF',
+        background_color: '#EAF3FF',
         display: 'standalone',
         orientation: 'portrait-primary',
         dir: 'rtl',
@@ -35,6 +35,29 @@ export default defineConfig({
             type: 'image/png',
             purpose: 'any maskable'
           }
+        ],
+        shortcuts: [
+          {
+            name: 'المتجر',
+            short_name: 'المتجر',
+            description: 'تصفح جميع الأجهزة',
+            url: '/products',
+            icons: [{ src: '/icons/icon-192.png', sizes: '192x192' }]
+          },
+          {
+            name: 'سلة المشتريات',
+            short_name: 'السلة',
+            description: 'عرض السلة وإتمام الطلب',
+            url: '/cart',
+            icons: [{ src: '/icons/icon-192.png', sizes: '192x192' }]
+          },
+          {
+            name: 'طلباتي',
+            short_name: 'الطلبات',
+            description: 'متابعة وتتبع الطلبات',
+            url: '/orders',
+            icons: [{ src: '/icons/icon-192.png', sizes: '192x192' }]
+          }
         ]
       },
       workbox: {
@@ -43,16 +66,39 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/api\//, /^\/admin/],
         runtimeCaching: [
           {
-            // Only cache explicitly public shop metadata, categories and brands with NetworkFirst. Never cache admin or customer orders.
+            // Explicitly NEVER cache authenticated customer orders, admin, payment proofs or user profile
             urlPattern: ({ url }) => {
               const pathname = url.pathname;
-              if (pathname.includes('/admin') || pathname.includes('/me') || pathname.includes('/orders')) {
-                return false;
-              }
-              return pathname.startsWith('/api/v1/shop') ||
+              return pathname.includes('/admin') ||
+                     pathname.includes('/me') ||
+                     pathname.includes('/orders') ||
+                     pathname.includes('/payment-proof');
+            },
+            handler: 'NetworkOnly',
+          },
+          {
+            // Public catalog cached with StaleWhileRevalidate
+            urlPattern: ({ url }) => {
+              const pathname = url.pathname;
+              return pathname.startsWith('/api/v1/products') ||
                      pathname.startsWith('/api/v1/categories') ||
                      pathname.startsWith('/api/v1/brands');
             },
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'wex-catalog-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 12 // 12 hours
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            // Public shop metadata
+            urlPattern: ({ url }) => url.pathname.startsWith('/api/v1/shop'),
             handler: 'NetworkFirst',
             options: {
               cacheName: 'wex-public-api-cache',

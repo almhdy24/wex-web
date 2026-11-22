@@ -16,6 +16,7 @@ import { ProductImage } from '../../components/common';
 import LatinText from '../../components/common/LatinText';
 import SpecValue from '../../utils/formatSpecValue';
 import Page from '../../components/common/Page';
+import AppBar from '../../components/common/AppBar';
 import { ar } from '../../content/ar';
 import styles from './FavoritesPage.module.css';
 
@@ -61,13 +62,21 @@ export default function FavoritesPage() {
   };
 
   return (
-    <Page className={styles.container}>
+    <div className={styles.pageWrapper}>
+      <AppBar
+        tone="navy"
+        style={{ '--header-bottom': '36px' }}
+        title={ar.wishlist.title}
+        showBack={true}
+        showCart={true}
+      />
+      <Page className={styles.container}>
       {/* Page Header */}
       <div className={styles.header}>
         <div className={styles.headerInfo}>
           <div className={styles.titleRow}>
             <div className={styles.titleIconBadge}>
-              <Heart size={20} className={styles.titleHeartIcon} fill="#EF4444" />
+              <Heart size={20} className={styles.titleHeartIcon} fill="var(--wex-royal)" />
             </div>
             <h1 className={styles.title}>{ar.wishlist.title}</h1>
           </div>
@@ -168,7 +177,7 @@ export default function FavoritesPage() {
                   aria-label={ar.wishlist.removeFromWishlist}
                   title={ar.wishlist.removeFromWishlist}
                 >
-                  <Heart size={16} fill="#EF4444" color="#EF4444" />
+                  <Heart size={16} fill="#B42318" color="#B42318" />
                 </button>
 
                 {/* Product Image Link */}
@@ -342,5 +351,6 @@ export default function FavoritesPage() {
         </div>
       )}
     </Page>
+    </div>
   );
 }

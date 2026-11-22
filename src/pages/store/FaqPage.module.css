@@ -1,4 +1,11 @@
 /* Wex FAQ Page Styling */
+.pageWrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--wex-ice, #EAF3FF);
+}
+
 .container {
   padding: 16px;
   display: flex;
@@ -38,14 +45,14 @@
 
 .title {
   font-size: 24px;
-  font-weight: 900;
+  font-weight: 800;
   color: var(--wex-navy, #061A55);
   margin: 0;
 }
 
 .subtitle {
   font-size: 14px;
-  color: var(--wex-gray-600, #5A6B85);
+  color: var(--wex-gray-600, #4B5B85);
   max-width: 520px;
   margin: 0;
   line-height: 1.5;
@@ -63,7 +70,7 @@
   inset-inline-start: 14px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--wex-gray-400, #9AA8BC);
+  color: var(--wex-gray-400, #4B5B85);
   pointer-events: none;
 }
 
@@ -74,7 +81,7 @@
   padding-inline-end: 16px;
   border: 1px solid var(--wex-ice, #EAF3FF);
   border-radius: var(--radius-full, 9999px);
-  background: var(--wex-ice-light, #F4F8FD);
+  background: var(--wex-ice-light, #EAF3FF);
   font-size: 13px;
   font-family: inherit;
   color: var(--wex-navy, #061A55);
@@ -123,7 +130,7 @@
 
 .highlightDesc {
   font-size: 11px;
-  color: var(--wex-gray-600, #5A6B85);
+  color: var(--wex-gray-600, #4B5B85);
   margin: 0;
   line-height: 1.4;
 }
@@ -190,7 +197,7 @@
 }
 
 .chevron {
-  color: var(--wex-gray-400, #9AA8BC);
+  color: var(--wex-gray-400, #4B5B85);
   flex-shrink: 0;
   transition: transform var(--motion-fast, 150ms) var(--ease-standard);
 }
@@ -207,7 +214,7 @@
 
 .answerText {
   font-size: 13px;
-  color: var(--wex-gray-600, #5A6B85);
+  color: var(--wex-gray-600, #4B5B85);
   line-height: 1.6;
   margin: 0;
   padding-top: 4px;
@@ -231,7 +238,7 @@
   background: #FFFFFF;
   border-radius: var(--radius-lg, 16px);
   border: 1px solid var(--wex-ice, #EAF3FF);
-  color: var(--wex-gray-600, #5A6B85);
+  color: var(--wex-gray-600, #4B5B85);
   font-size: 13px;
 }
 
@@ -267,14 +274,14 @@
 
 .supportTitle {
   font-size: 15px;
-  font-weight: 900;
+  font-weight: 800;
   color: var(--wex-navy, #061A55);
   margin: 0 0 4px 0;
 }
 
 .supportDesc {
   font-size: 12px;
-  color: var(--wex-gray-600, #5A6B85);
+  color: var(--wex-gray-600, #4B5B85);
   margin: 0;
 }
 
@@ -289,7 +296,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #25D366;
+  background: #12805C;
   color: #FFFFFF;
   padding: 8px 16px;
   border-radius: var(--radius-sm, 10px);
@@ -337,7 +344,14 @@
 }
 
 @media (min-width: 1024px) {
-  .container {
+  .pageWrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--wex-ice, #EAF3FF);
+}
+
+.container {
     padding: 32px 0;
   }
 

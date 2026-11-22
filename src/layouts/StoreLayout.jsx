@@ -277,7 +277,7 @@ export default function StoreLayout() {
     ? '0px'
     : (hideBottomNav
       ? 'calc(76px + env(safe-area-inset-bottom, 0px))'
-      : 'calc(var(--bottom-tab-height, 56px) + 8px + env(safe-area-inset-bottom, 0px))');
+      : 'var(--tabbar-clearance-v2)');
 
   return (
     <div className={styles.desktopViewport}>
@@ -290,16 +290,6 @@ export default function StoreLayout() {
       )}
 
       <div className={styles.appShell} style={{ '--bottom-offset': bottomOffset }}>
-        <AppBar
-          title={activeTitle}
-          showLogo={routeInfo.isHome}
-          showBack={routeInfo.showBack}
-          backTo={routeInfo.backTo}
-          unreadCount={unreadCount}
-          showNotifications={false}
-          showWishlist={routeInfo.isHome || location.pathname === '/products'}
-          showCart={location.pathname !== '/checkout'}
-        />
         {shopInfo && shopInfo.orders_enabled === false && (
           <div style={{ paddingInline: 'var(--space-4)' }}>
             <OrdersDisabledBanner message={shopInfo.orders_disabled_message} />

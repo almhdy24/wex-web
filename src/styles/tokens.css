@@ -36,16 +36,20 @@
   --wex-grad-royal-navy: linear-gradient(135deg, #0B3FBF 0%, #061A55 100%);
   --wex-grad-surface: linear-gradient(180deg, #FFFFFF 0%, #EAF3FF 100%);
   --wex-grad-urgent: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+  --gradient-brand-cta: linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 100%);
 
   /* =========================================================================
      3. Spacing Scale & Full Backward Compatibility Aliases
      ========================================================================= */
   --space-1: 4px;
+  --space-1-5: 6px;
   --space-2: 8px;
+  --space-2-5: 10px;
   --space-3: 12px;
+  --space-3-5: 14px;
   --space-4: 16px;
-  --space-5: 24px;
-  --space-6: 32px;
+  --space-5: 20px;
+  --space-6: 24px;
   --space-8: 32px;
   --space-10: 40px;
   --space-12: 48px;
@@ -69,6 +73,7 @@
   --radius-xs: 4px;
   --radius-sm: 8px;
   --radius-control: 12px;
+  --radius-button: 12px;
   --radius-md: 14px;
   --radius-card: 16px;
   --radius-lg: 20px;
@@ -81,6 +86,7 @@
   /* Aliases for store modules using --wex-radius-* */
   --wex-radius-8: 8px;
   --wex-radius-12: 12px;
+  --wex-radius-md: 14px;
   --wex-radius-16: 16px;
   --wex-radius-20: 20px;
   --wex-radius-28: 28px;
@@ -99,7 +105,7 @@
   --text-body: 16px;
   --text-title: 18px;
   --text-heading: 22px;
-  --text-display: 28px;
+  --text-display: 30px;
 
   /* Aliases for store modules using --wex-fs-* */
   --wex-fs-caption: 12px;
@@ -107,23 +113,31 @@
   --wex-fs-body: 16px;
   --wex-fs-title: 18px;
   --wex-fs-heading: 22px;
-  --wex-fs-display: 28px;
+  --wex-fs-display: 30px;
 
   --text-xs: 12px;
   --text-sm: 14px;
   --text-base: 16px;
   --text-lg: 18px;
-  --text-xl: 18px;
-  --text-price: 18px;
-  --text-2xl: 22px;
-  --text-3xl: 22px;
+  --text-xl: 20px;
+  --text-price: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 28px;
 
-  /* Weights: 400, 500, 700, 800, 900 */
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 28px;
+
+  /* Weights: 400, 500, 700, 800 (Tajawal Brand Guide standard: max 800) */
   --weight-regular: 400;
   --weight-medium: 500;
   --weight-bold: 700;
   --weight-hero: 800;
-  --weight-black: 900;
+  --weight-black: 800;
 
   /* Line Heights: 1.7 body, 1.35 headings */
   --leading-body: 1.7;
@@ -131,6 +145,8 @@
   --leading-tight: 1.35;
   --leading-normal: 1.5;
   --leading-relaxed: 1.7;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.7;
 
   --wex-lh-heading: 1.35;
   --wex-lh-body: 1.7;
@@ -145,18 +161,20 @@
      6. Tactile Blue-Tinted Shadows (Restored Richness)
      ========================================================================= */
   --shadow-none: none;
-  --shadow-sm: 0 2px 6px rgba(6, 26, 85, 0.05);
-  --shadow-md: 0 8px 20px rgba(6, 26, 85, 0.08);
+  --shadow-sm: 0 2px 6px rgba(6, 26, 85, 0.06);
+  --shadow-md: 0 8px 20px rgba(6, 26, 85, 0.09);
   --shadow-lg: 0 16px 32px rgba(6, 26, 85, 0.12);
   --shadow-floating: 0 12px 30px rgba(30, 107, 255, 0.22);
   --shadow-float: var(--shadow-floating);
   --shadow-toast: 0 8px 24px rgba(6, 26, 85, 0.14);
   --shadow-sheet: 0 -8px 30px rgba(6, 26, 85, 0.12);
-  --shadow-sticky: 0 -4px 16px rgba(6, 26, 85, 0.06);
+  --shadow-sticky: 0 -4px 16px rgba(6, 26, 85, 0.08);
 
   /* =========================================================================
-     7. App Shell Dimensions & Admin Missing Variables (Fix 2.D)
+     7. App Shell Dimensions & Safe Areas
      ========================================================================= */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
   --sidebar-width: 260px;
   --header-height: 64px;
   --app-shell-max-width: 480px;
@@ -167,19 +185,29 @@
   --desktop-side-padding: 16px;
   --app-bar-height: 56px;
   --bottom-tab-height: 56px;
+  --bottom-bar-height: 64px;
+  --bottom-nav-height: 56px;
+  --tab-bar-height: 56px;
+  --admin-tab-bar-height: 56px;
   --bottom-offset: 68px;
   --touch-target: 48px;
+  --active-index: 0;
+  --drawer-width: 320px;
+  --popover-width: 280px;
+  --z-sticky: 50;
 
   /* =========================================================================
      8. Motion & Animations
      ========================================================================= */
   --motion-fast: 150ms;
+  --motion-normal: 250ms;
   --motion-base: 250ms;
   --motion-slow: 400ms;
   --motion-hero: 250ms;
   --motion-stagger: 50ms;
   --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-emphasized: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-normal: 250ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-slow: 400ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -187,7 +215,7 @@
   --wex-motion-easing: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* =========================================================================
-     9. Compatibility Aliases for admin and existing modules
+     9. Semantic Color & Component Aliases
      ========================================================================= */
   --color-navy: var(--wex-navy);
   --color-royal: var(--wex-royal);
@@ -199,6 +227,22 @@
   --color-ice-blue: var(--wex-ice);
   --color-backdrop: var(--wex-ice);
   --color-white: var(--wex-white);
+
+  --color-primary: var(--wex-royal);
+  --color-error: var(--wex-danger);
+  --color-surface: var(--wex-white);
+  --color-surface-hover: var(--wex-ice);
+  --color-surface-sunken: var(--wex-ice-light);
+  --color-text-main: var(--wex-navy);
+  --color-text-muted: var(--wex-text-secondary);
+
+  --border-subtle: var(--wex-border);
+  --color-border: var(--wex-border);
+  --color-border-subtle: var(--wex-border);
+  --wex-border-focus-ice: var(--wex-border);
+  --wex-text-disabled: var(--wex-disabled);
+  --wex-text-muted: var(--wex-text-secondary);
+
   --wex-gray-100: #F4F8FE;
   --wex-gray-200: var(--wex-border);
   --wex-gray-300: var(--wex-border);
@@ -215,9 +259,7 @@
   --color-slate-700: var(--wex-navy);
   --color-slate-800: var(--wex-navy);
   --color-slate-900: var(--wex-navy);
-  --color-border: var(--wex-border);
-  --color-border-subtle: var(--wex-border);
-  --wex-border-focus-ice: var(--wex-border);
+
   --color-success: var(--wex-success);
   --color-success-bg: var(--wex-success-bg);
   --color-success-border: var(--wex-border);
@@ -232,11 +274,38 @@
   --color-info-border: var(--wex-border);
   --wex-info: var(--wex-royal);
   --wex-info-bg: var(--wex-ice);
+
+  /* UI redesign v2 */
+  --grad-hero: linear-gradient(135deg, #061A55 0%, #0B3FBF 100%);
+  --grad-hero-soft: linear-gradient(150deg, #061A55 0%, #0B3FBF 100%);
+  --grad-cta: linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 100%);
+  --grad-cta-hot: linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 60%, #00B7FF 100%);
+  --grad-stage: linear-gradient(135deg, #061A55 0%, #0B3FBF 100%);
+
+  --glass-bg: rgba(255, 255, 255, 0.12);
+  --glass-border: rgba(255, 255, 255, 0.25);
+
+  --shadow-card-v2: 0 6px 16px rgba(6, 26, 85, 0.07);
+  --shadow-tile-v2: 0 4px 12px rgba(6, 26, 85, 0.06);
+  --shadow-cta-v2: 0 8px 16px rgba(30, 107, 255, 0.28);
+  --shadow-search-v2: 0 14px 30px rgba(6, 26, 85, 0.2);
+  --shadow-float-v2: 0 16px 36px rgba(6, 26, 85, 0.24);
+  --shadow-dark-card-v2: 0 16px 34px rgba(6, 26, 85, 0.28);
+
+  --radius-header-v2: 32px;
+  --radius-card-v2: 22px;
+  --radius-panel-v2: 26px;
+  --radius-bar-v2: 28px;
+
+  --tabbar-height-v2: 70px;
+  --tabbar-gap-v2: 16px;
+  --tabbar-clearance-v2: calc(var(--tabbar-height-v2) + var(--tabbar-gap-v2) + 24px + env(safe-area-inset-bottom, 0px));
 }
 
 @media (prefers-reduced-motion: reduce) {
   :root {
     --motion-fast: 0ms;
+    --motion-normal: 0ms;
     --motion-base: 0ms;
     --motion-slow: 0ms;
     --motion-hero: 0ms;
@@ -252,6 +321,7 @@
 
 html[data-motion="reduced"] {
   --motion-fast: 0ms;
+  --motion-normal: 0ms;
   --motion-base: 0ms;
   --motion-slow: 0ms;
   --motion-hero: 0ms;

@@ -9,25 +9,32 @@
   content: '';
   position: absolute;
   inset: 0;
-  transform: translate3d(-100%, 0, 0);
+  transform: translateX(-100%);
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0.6) 50%,
     transparent 100%
   );
-  animation: shimmer 1.6s infinite var(--ease-standard);
+  animation: wexShimmer 1.4s linear infinite;
   will-change: transform;
 }
 
-@keyframes shimmer {
+@keyframes wexShimmer {
+  from {
+    transform: translateX(-100%);
+  }
   to {
-    transform: translate3d(100%, 0, 0);
+    transform: translateX(100%);
   }
 }
 
 :global(html[data-motion="reduced"]) .skeleton::after,
-:global(html[data-motion="lite"]) .skeleton::after {
+:global(html[data-motion="lite"]) .skeleton::after,
+:global(html[data-motion="reduced"]) .productImage::after,
+:global(html[data-motion="reduced"]) .productBar1::after,
+:global(html[data-motion="reduced"]) .productBar2::after,
+:global(html[data-motion="reduced"]) .productButton::after {
   animation: none !important;
   display: none !important;
 }
@@ -54,36 +61,69 @@
   border-radius: 50%;
 }
 
+/* Redesign Product Card Skeleton */
 .productCard {
-  background-color: var(--color-white);
-  border: 1px solid var(--color-slate-200);
-  border-radius: var(--radius-card);
-  padding: var(--space-3);
+  background: #fff;
+  border: 1px solid #D5E2F7;
+  border-radius: 22px;
+  padding: 8px 8px 12px;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: 8px;
+  box-sizing: border-box;
 }
 
 .productImage {
-  aspect-ratio: 4 / 3;
-  width: 100%;
-  border-radius: var(--radius-sm);
+  height: 112px;
+  border-radius: 16px;
+  background: #EAF3FF;
+  position: relative;
+  overflow: hidden;
 }
 
-.productTitle {
-  height: 18px;
-  width: 85%;
-}
-
-.productSpec {
+.productBar1 {
   height: 14px;
-  width: 50%;
+  border-radius: 7px;
+  background: #EAF3FF;
+  width: 80%;
+  position: relative;
+  overflow: hidden;
 }
 
-.productPrice {
-  height: 22px;
-  width: 40%;
-  margin-block-start: var(--space-2);
+.productBar2 {
+  height: 12px;
+  border-radius: 7px;
+  background: #EAF3FF;
+  width: 50%;
+  position: relative;
+  overflow: hidden;
+}
+
+.productButton {
+  height: 44px;
+  border-radius: 14px;
+  background: #EAF3FF;
+  margin-top: auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.productImage::after,
+.productBar1::after,
+.productBar2::after,
+.productButton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    transparent 100%
+  );
+  animation: wexShimmer 1.4s linear infinite;
+  will-change: transform;
 }
 
 .tableSkeleton {
@@ -98,13 +138,4 @@
   display: flex;
   gap: var(--space-4);
   align-items: center;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.4;
-  }
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, SlidersHorizontal, RotateCcw } from 'lucide-react';
 import { productsApi } from '../../api/products';
@@ -8,6 +8,8 @@ import Sheet from '../../components/common/Sheet';
 import Button from '../../components/common/Button';
 import Chip from '../../components/common/Chip';
 import Page from '../../components/common/Page';
+import AppBar from '../../components/common/AppBar';
+import { Stagger } from '../../motion';
 import { pluralAr } from '../../utils/pluralAr';
 import styles from './CatalogPage.module.css';
 
@@ -223,29 +225,45 @@ export default function CatalogPage({
 
   const totalResults = meta?.total !== undefined ? meta.total : products.length;
 
-  return (
-    <Page className={styles.container}>
-      {/* Title */}
-      <header className={styles.header}>
-        <h1 className={styles.title}>الأجهزة</h1>
-      </header>
+  // Sort unavailable items to the end (UI-only, if stock info is present)
+  const displayedProducts = useMemo(() => {
+    if (!products || products.length === 0) return [];
+    return [...products].sort((a, b) => {
+      const aOut = a.stock_status === 'out_of_stock' || (a.stock_quantity !== undefined && a.stock_quantity <= 0);
+      const bOut = b.stock_status === 'out_of_stock' || (b.stock_quantity !== undefined && b.stock_quantity <= 0);
+      if (aOut && !bOut) return 1;
+      if (!aOut && bOut) return -1;
+      return 0;
+    });
+  }, [products]);
 
-      {/* Search Field */}
-      <div className={styles.searchRow}>
-        <div className={styles.searchBox}>
-          <Search size={18} className={styles.searchIcon} aria-hidden="true" />
-          <input
-            type="search"
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setCurrentPage(1);
-            }}
-            placeholder="ابحث عن جهاز أو ماركة"
-            className={styles.searchInput}
-            aria-label="ابحث عن جهاز أو ماركة"
-          />
-        </div>
+  return (
+    <div className={styles.pageWrapper}>
+      <AppBar
+        tone="navy"
+        style={{ '--header-bottom': '62px' }}
+        title="الأجهزة"
+        showBack={true}
+        backTo="/"
+        showWishlist={true}
+        showCart={true}
+      />
+
+      <Page padded={false} className={styles.container}>
+        {/* Search Field */}
+      <div className={styles.searchContainer}>
+        <Search size={22} strokeWidth={2} className={styles.searchIcon} aria-hidden="true" />
+        <input
+          type="search"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setCurrentPage(1);
+          }}
+          placeholder="ابحث عن جهاز أو ماركة"
+          className={styles.searchInput}
+          aria-label="ابحث عن جهاز أو ماركة"
+        />
       </div>
 
       {/* Controls Bar: Type Chips Row + Filter Button */}
@@ -319,11 +337,11 @@ export default function CatalogPage({
           </Button>
         </div>
       ) : (
-        <div className={styles.grid}>
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
+        <Stagger className={styles.grid}>
+          {displayedProducts.map((product, idx) => (
+            <ProductCard key={product.id} product={product} index={idx} />
           ))}
-        </div>
+        </Stagger>
       )}
 
       {/* Pagination */}
@@ -437,13 +455,15 @@ export default function CatalogPage({
           <div className={styles.sheetActions}>
             <Button
               variant="primary"
+              size="lg"
               onClick={handleApplySheetFilters}
               className={styles.applyBtn}
             >
               تطبيق
             </Button>
             <Button
-              variant="secondary"
+              variant="outline"
+              size="lg"
               onClick={handleResetSheetDraft}
               className={styles.resetDraftBtn}
             >
@@ -453,5 +473,6 @@ export default function CatalogPage({
         </div>
       </Sheet>
     </Page>
+    </div>
   );
 }

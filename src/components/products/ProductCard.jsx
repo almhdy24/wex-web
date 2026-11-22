@@ -6,9 +6,9 @@ import { useCart } from '../../context/CartContext';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useToast } from '../../context/ToastContext';
 import { t } from '../../content/ar';
-import { ProductImage } from '../common';
+import { ProductImage, BrandRibbons } from '../common';
 import LatinText from '../common/LatinText';
-import SpecValue from '../../utils/formatSpecValue';
+import { triggerHaptic } from '../../utils/haptics';
 import styles from './ProductCard.module.css';
 
 /**
@@ -35,7 +35,7 @@ function getQuickSpecs(product) {
   return pills.slice(0, 3);
 }
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, index, style = {} }) {
   const navigate = useNavigate();
   const { addItem } = useCart();
   const { toggleFavorite, isFavorite } = useFavorites();
@@ -46,11 +46,13 @@ export default function ProductCard({ product }) {
 
   const fav = isFavorite(product.id);
   const condition = getConditionLabel(product.condition);
+  const isNew = String(product.condition || '').toLowerCase() === 'new' || (condition && condition.includes('جديد'));
   const isOutOfStock =
     product.stock_status === 'out_of_stock' ||
     (product.stock_quantity !== undefined && product.stock_quantity <= 0);
-  const imageUrl = getProductImageUrl(product.image?.thumb_path || product.image?.path);
+  const imageUrl = getProductImageUrl(product.image?.thumb_path || product.image?.path || product.primary_image_url);
   const quickSpecs = getQuickSpecs(product);
+  const descriptionText = product.short_description || (quickSpecs.length > 0 ? quickSpecs.join(' · ') : '');
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -58,6 +60,7 @@ export default function ProductCard({ product }) {
     if (isOutOfStock) return;
 
     addItem(product, 1);
+    triggerHaptic(10);
     setIsAdded(true);
 
     success({
@@ -76,68 +79,96 @@ export default function ProductCard({ product }) {
 
     setTimeout(() => {
       setIsAdded(false);
-    }, 1200);
+    }, 700);
   };
 
+  const itemIndex = typeof index === 'number' ? Math.min(index, 8) : 0;
+
   return (
-    <article className={styles.card}>
+    <article
+      className={styles.card}
+      style={{ '--i': itemIndex, ...style }}
+    >
       <Link to={`/products/${product.slug || product.id}`} className={styles.cardLink}>
-        {/* Favorite Button (Heart active = royal filled, no red) */}
-        <button
-          type="button"
-          className={`${styles.favBtn} ${fav ? styles.favBtnActive : ''}`}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleFavorite(product);
-          }}
-          aria-label={fav ? 'إزالة من المفضلة' : 'حفظ'}
-          title={fav ? 'إزالة من المفضلة' : 'حفظ'}
-        >
-          <Heart
-            size={18}
-            strokeWidth={1.75}
-            fill={fav ? 'var(--wex-royal)' : 'none'}
-            color="var(--wex-royal)"
-          />
-        </button>
-
-        {/* Condition Tag */}
-        {condition && <span className={styles.cardBadge}>{condition}</span>}
-
-        {/* Image Area */}
+        {/* Image Stage */}
         <div className={styles.imageContainer}>
-          <ProductImage
-            src={imageUrl}
-            alt={product.name}
-            type={product.type || 'laptop'}
-            className={styles.image}
-            fallbackClassName={styles.svgWrapper}
-          />
+          <BrandRibbons variant="tile" />
+
+          {/* Product Image / Placeholder */}
+          <div className={styles.imageInner}>
+            <ProductImage
+              src={imageUrl}
+              alt={product.name}
+              type={product.type || 'laptop'}
+              size={58}
+              stroke="#fff"
+              strokeWidth={1.3}
+              className={styles.image}
+              fallbackClassName={styles.svgWrapper}
+            />
+          </div>
+
+          {/* Condition Badge (Top Start Side) */}
+          {condition && (
+            <span className={`${styles.cardBadge} ${isNew ? styles.badgeNew : styles.badgeUsed}`}>
+              {condition}
+            </span>
+          )}
+
+          {/* Favorite Button (Top End Side) */}
+          <button
+            type="button"
+            className={`${styles.favBtn} ${fav ? styles.favBtnActive : ''}`}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              triggerHaptic(10);
+              toggleFavorite(product);
+            }}
+            aria-label={fav ? 'إزالة من المفضلة' : 'حفظ'}
+            title={fav ? 'إزالة من المفضلة' : 'حفظ'}
+          >
+            <Heart
+              size={16}
+              strokeWidth={2}
+              fill={fav ? '#fff' : 'none'}
+              color="#fff"
+            />
+          </button>
+
+          {/* Unavailable Overlay */}
+          {isOutOfStock && (
+            <div className={styles.unavailableOverlay}>
+              <span className={styles.unavailablePill}>{t('product.outOfStock', 'غير متوفر حاليًا')}</span>
+            </div>
+          )}
         </div>
 
-        {/* Product Info */}
+        {/* Text Area */}
         <div className={styles.info}>
-          <h3 className={styles.name} title={product.name}>
+          <h3 className={styles.name} title={product.name} dir="auto">
             <LatinText>{product.name}</LatinText>
           </h3>
 
-          {/* Spec Line: "i5 · 8GB · 256GB" */}
-          {quickSpecs.length > 0 && (
-            <div className={styles.specsLine}>
-              <SpecValue value={quickSpecs.join(' · ')} />
-            </div>
+          {descriptionText && (
+            <p className={styles.description} dir="auto">
+              {descriptionText}
+            </p>
           )}
 
-          {/* Price on one line */}
+          {/* Price Row: number tabular-nums + currency */}
           <div className={styles.pricing}>
-            <span className={styles.priceSdg}>{formatSdg(product.price_sdg)}</span>
+            <span className={styles.priceNum}>
+              {Number(product.price_sdg || 0).toLocaleString('en-US')}
+            </span>
+            <span className={styles.priceCurrency}>ج.س</span>
+            <span className={styles.srOnly}>{formatSdg(product.price_sdg)}</span>
           </div>
         </div>
       </Link>
 
-      {/* Button "أضف" with cart icon + label */}
-      {!isOutOfStock ? (
+      {/* Add Button (only when available) */}
+      {!isOutOfStock && (
         <button
           type="button"
           onClick={handleAddToCart}
@@ -147,18 +178,16 @@ export default function ProductCard({ product }) {
         >
           {isAdded ? (
             <>
-              <Check size={18} strokeWidth={1.75} />
+              <Check size={18} strokeWidth={2} />
               <span>{t('product.quickAdd', 'أضف')}</span>
             </>
           ) : (
             <>
-              <ShoppingCart size={18} strokeWidth={1.75} />
+              <ShoppingCart size={18} strokeWidth={2} />
               <span>{t('product.quickAdd', 'أضف')}</span>
             </>
           )}
         </button>
-      ) : (
-        <div className={styles.outOfStockBadge}>{t('product.outOfStock', 'غير متوفر حاليًا')}</div>
       )}
     </article>
   );

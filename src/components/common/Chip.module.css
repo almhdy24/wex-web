@@ -1,47 +1,49 @@
 .chip {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-2, 8px);
-  padding-block: 6px;
-  padding-inline: var(--space-4, 16px);
-  min-height: 36px;
-  font-size: var(--text-small, 14px);
-  font-weight: 400;
-  border-radius: var(--radius-chip, 999px);
-  border: 1px solid var(--wex-border);
-  background-color: var(--wex-white);
-  color: var(--wex-navy);
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid #D5E2F7;
+  color: #061A55;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
   user-select: none;
-  transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease;
+  box-sizing: border-box;
+  transition: transform 120ms ease-out, background-color 200ms ease, border-color 200ms ease, color 200ms ease;
 }
 
 .chip:active {
-  opacity: 0.85;
+  transform: scale(0.97);
 }
 
 .chip:hover {
-  border-color: var(--wex-royal);
+  border-color: #0B3FBF;
 }
 
 .icon {
   flex-shrink: 0;
 }
 
-/* Selected: solid royal + white text */
+/* Active / Selected: Brand Gradient */
 .selected,
 .active {
-  background-color: var(--wex-royal);
-  color: var(--wex-white);
-  border-color: var(--wex-royal);
-  font-weight: 700;
+  background: var(--grad-cta);
+  color: #fff;
+  border-color: transparent;
+  font-weight: 800;
+  box-shadow: 0 6px 14px rgba(30, 107, 255, 0.3);
 }
 
 .selected:hover,
 .active:hover {
-  background-color: var(--wex-royal);
-  border-color: var(--wex-royal);
+  background: var(--grad-cta);
+  border-color: transparent;
 }
 
 .removeBtn {
@@ -58,4 +60,13 @@
 
 .removeBtn:hover {
   opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip {
+    transition: none !important;
+  }
+  .chip:active {
+    transform: none !important;
+  }
 }

@@ -1,4 +1,11 @@
 /* Wex Mockup Notifications Screen (Screen 9 Parity) */
+.pageWrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--wex-ice, #EAF3FF);
+}
+
 .container {
   padding: 16px;
   display: flex;
@@ -15,14 +22,35 @@
 
 .title {
   font-size: 18px;
-  font-weight: 900;
+  font-weight: 800;
   color: var(--wex-navy, #061A55);
   margin: 0;
 }
 
+.counterBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 11px;
+}
+
+.unreadTag {
+  color: var(--wex-royal, #0B3FBF);
+  font-weight: 700;
+}
+
+.separator {
+  color: var(--wex-disabled, #C9D6F5);
+}
+
+.totalTag {
+  color: var(--wex-text-secondary, #4B5B85);
+}
+
 .subtitle {
   font-size: 12px;
-  color: var(--wex-gray-600, #5A6B85);
+  color: var(--wex-gray-600, #4B5B85);
   margin: 2px 0 0 0;
 }
 
@@ -70,11 +98,11 @@
 
 .card:hover {
   transform: translateY(-2px);
-  border-color: #CBE2FF;
+  border-color: #D5E2F7;
 }
 
 .cardUnread {
-  background: #F8FAFD;
+  background: #EAF3FF;
   border-inline-start: 4px solid var(--wex-vivid, #1E6BFF);
 }
 
@@ -108,7 +136,7 @@
 
 .timeLabel {
   font-size: 11px;
-  color: var(--wex-gray-400, #9AA8BC);
+  color: var(--wex-gray-400, #4B5B85);
 }
 
 .cardHeading {
@@ -121,7 +149,7 @@
 
 .cardBody {
   font-size: 12px;
-  color: var(--wex-gray-600, #5A6B85);
+  color: var(--wex-gray-600, #4B5B85);
   line-height: 1.5;
   margin: 0;
 }
@@ -137,7 +165,14 @@
 }
 
 @media (min-width: 1024px) {
-  .container {
+  .pageWrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--wex-ice, #EAF3FF);
+}
+
+.container {
     max-width: 800px;
     margin-inline: auto;
     padding: 32px 0;

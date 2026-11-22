@@ -1,0 +1,52 @@
+{
+  "name": "Wex Technology | ويكس تكنولوجي",
+  "short_name": "Wex",
+  "description": "متجر أجهزة لابتوب وهواتف ذكية وإلكترونيات في أم درمان، السودان",
+  "theme_color": "#061A55",
+  "background_color": "#EAF3FF",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "المتجر",
+      "short_name": "المتجر",
+      "description": "تصفح جميع الأجهزة",
+      "url": "/products",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "سلة المشتريات",
+      "short_name": "السلة",
+      "description": "عرض السلة وإتمام الطلب",
+      "url": "/cart",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "طلباتي",
+      "short_name": "الطلبات",
+      "description": "متابعة وتتبع الطلبات",
+      "url": "/orders",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

@@ -10,7 +10,6 @@ export function Skeleton({
 }) {
   const variantClass = styles[variant] || styles.text;
 
-  // Truly dynamic dimension styles when explicit custom string provided
   const dynamicStyle = (width || height || borderRadius) ? {
     ...(width ? { width } : {}),
     ...(height ? { height } : {}),
@@ -29,10 +28,10 @@ export function Skeleton({
 export function ProductCardSkeleton() {
   return (
     <div className={styles.productCard} aria-hidden="true">
-      <Skeleton variant="card" className={styles.productImage} />
-      <Skeleton variant="text" className={styles.productSpec} />
-      <Skeleton variant="title" className={styles.productTitle} />
-      <Skeleton variant="title" className={styles.productPrice} />
+      <div className={styles.productImage} />
+      <div className={styles.productBar1} />
+      <div className={styles.productBar2} />
+      <div className={styles.productButton} />
     </div>
   );
 }

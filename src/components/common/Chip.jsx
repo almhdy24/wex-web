@@ -11,16 +11,18 @@ import styles from './Chip.module.css';
 export default function Chip({
   children,
   active = false,
+  selected = false,
   onClick,
   onRemove,
   icon: Icon,
   className = '',
   ...rest
 }) {
+  const isSelected = active || selected;
   return (
     <button
       type="button"
-      className={`${styles.chip} ${active ? styles.selected : ''} ${className}`}
+      className={`${styles.chip} ${isSelected ? styles.selected : ''} ${className}`}
       onClick={onClick}
       {...rest}
     >

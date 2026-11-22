@@ -47,11 +47,11 @@ export default function VerifyOtpPage() {
   const handleVerify = useCallback(
     async (codeToVerify, currentName = name) => {
       if (!emailParam) {
-        setErrorMsg('البريد الإلكتروني مفقود. ارجع لصفحة الدخول واكتبه تاني.');
+        setErrorMsg('البريد الإلكتروني مفقود. يرجى العودة لصفحة تسجيل الدخول.');
         return;
       }
       if (codeToVerify.length !== 6) {
-        setErrorMsg('اكتب رمز التحقق المكون من 6 أرقام');
+        setErrorMsg('يرجى إدخال رمز التحقق المكون من 6 أرقام');
         return;
       }
 

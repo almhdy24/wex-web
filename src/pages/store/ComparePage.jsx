@@ -8,6 +8,7 @@ import { formatSdg, getProductImageUrl, getConditionLabel } from '../../utils/fo
 import { ProductImage } from '../../components/common';
 import LatinText from '../../components/common/LatinText';
 import Page from '../../components/common/Page';
+import AppBar from '../../components/common/AppBar';
 import { t } from '../../content/ar';
 import styles from './ComparePage.module.css';
 
@@ -19,21 +20,30 @@ export default function ComparePage() {
 
   if (compareItems.length === 0) {
     return (
-      <Page className={styles.container}>
-        <div className={styles.emptyBox}>
-          <div className={styles.emptyIconCircle}>
-            <GitCompare size={44} className={styles.emptyIcon} />
+      <div className={styles.pageWrapper}>
+        <AppBar
+          tone="navy"
+          style={{ '--header-bottom': '36px' }}
+          title={t('compare.title', 'مقارنة الأجهزة')}
+          showBack={true}
+          showCart={true}
+        />
+        <Page className={styles.container}>
+          <div className={styles.emptyBox}>
+            <div className={styles.emptyIconCircle}>
+              <GitCompare size={44} className={styles.emptyIcon} />
+            </div>
+            <h2 className={styles.emptyTitle}>{t('compare.emptyTitle', 'لا توجد أجهزة في المقارنة')}</h2>
+            <p className={styles.emptyDesc}>
+              {t('compare.emptyDesc', 'يمكنك اختيار حتى 3 أجهزة من المتجر لمقارنة مواصفاتها وأسعارها بدقة جنباً إلى جنب.')}
+            </p>
+            <Link to="/products" className={styles.browseBtn}>
+              <span>{t('compare.browseProducts', 'تصفّح الأجهزة')}</span>
+              <ArrowLeft size={16} />
+            </Link>
           </div>
-          <h2 className={styles.emptyTitle}>{t('compare.emptyTitle', 'لا توجد أجهزة في المقارنة')}</h2>
-          <p className={styles.emptyDesc}>
-            {t('compare.emptyDesc', 'يمكنك اختيار حتى 3 أجهزة من المتجر لمقارنة مواصفاتها وأسعارها بدقة جنباً إلى جنب.')}
-          </p>
-          <Link to="/products" className={styles.browseBtn}>
-            <span>{t('compare.browseProducts', 'تصفّح الأجهزة')}</span>
-            <ArrowLeft size={16} />
-          </Link>
-        </div>
-      </Page>
+        </Page>
+      </div>
     );
   }
 
@@ -126,7 +136,15 @@ export default function ComparePage() {
   };
 
   return (
-    <Page className={styles.container}>
+    <div className={styles.pageWrapper}>
+      <AppBar
+        tone="navy"
+        style={{ '--header-bottom': '36px' }}
+        title={t('compare.title', 'مقارنة الأجهزة')}
+        showBack={true}
+        showCart={true}
+      />
+      <Page className={styles.container}>
       {/* Header */}
       <header className={styles.pageHeader}>
         <div>
@@ -287,5 +305,6 @@ export default function ComparePage() {
         </table>
       </div>
     </Page>
+    </div>
   );
 }

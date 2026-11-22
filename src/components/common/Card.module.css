@@ -1,8 +1,8 @@
 .card {
-  background-color: var(--wex-white);
-  border: 1px solid var(--wex-border);
-  border-radius: var(--radius-card, 16px);
-  box-shadow: var(--shadow-sm);
+  background: #fff;
+  border: 1px solid #D5E2F7;
+  border-radius: var(--radius-panel-v2);
+  box-shadow: var(--shadow-card-v2);
   overflow: hidden;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
 }

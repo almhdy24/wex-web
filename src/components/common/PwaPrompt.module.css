@@ -84,7 +84,7 @@
 }
 
 .installBtn:hover {
-  background-color: #38C7FF;
+  background-color: #00B7FF;
 }
 
 .dismissBtn {
@@ -100,6 +100,42 @@
 
 .dismissBtn:hover {
   color: var(--color-white);
+}
+
+.updateCard {
+  position: fixed;
+  bottom: calc(var(--bottom-offset, 68px) + var(--space-3, 12px));
+  inset-inline: var(--space-4, 16px);
+  max-width: 440px;
+  margin-inline: auto;
+  background-color: var(--wex-navy);
+  color: #FFFFFF;
+  border-radius: var(--radius-card, 16px);
+  padding: var(--space-3, 12px) var(--space-4, 16px);
+  box-shadow: var(--shadow-toast);
+  z-index: 9995;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3, 12px);
+  border: 1px solid var(--wex-royal);
+  animation: slideUp 200ms ease;
+}
+
+.updateText {
+  font-size: var(--text-sm, 14px);
+  font-weight: 700;
+}
+
+.refreshBtn {
+  background: var(--wex-grad-brand);
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-sm, 8px);
+  padding: 6px 14px;
+  font-size: var(--text-xs, 12px);
+  font-weight: 700;
+  cursor: pointer;
 }
 
 @keyframes slideUp {

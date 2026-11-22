@@ -220,3 +220,11 @@ ul, ol {
     scroll-behavior: auto !important;
   }
 }
+
+/* UI redesign v2 Motion */
+@keyframes wexShimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+@keyframes wexBadgeBump { 0% { transform: scale(1); } 40% { transform: scale(1.25); } 100% { transform: scale(1); } }
+@keyframes wexRise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer::after, .badge-bump, .rise-in { animation: none !important; }
+}

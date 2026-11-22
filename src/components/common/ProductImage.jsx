@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import ProductTypeSvg from './ProductTypeSvg';
+import styles from './ProductImage.module.css';
 
 /**
- * Universal product image with clean neutral type-based SVG fallback.
+ * Universal product image with clean white line-art SVG fallback.
  * Strictly avoids brand logos. Handles missing photos and image load errors cleanly.
  */
 export default function ProductImage({
@@ -11,12 +12,20 @@ export default function ProductImage({
   type = 'laptop',
   className = '',
   fallbackClassName = '',
+  size,
+  stroke = '#fff',
+  strokeWidth = 1.4,
   loading = 'lazy',
   ...rest
 }) {
   const [hasError, setHasError] = useState(false);
 
-  if (src && !hasError) {
+  const isNoPhoto =
+    !src ||
+    hasError ||
+    (typeof src === 'string' && (src.includes('favicon.svg') || src.endsWith('/favicon.svg')));
+
+  if (!isNoPhoto) {
     return (
       <img
         src={src}
@@ -30,10 +39,15 @@ export default function ProductImage({
   }
 
   return (
-    <ProductTypeSvg
-      type={type}
-      className={fallbackClassName || className}
-      {...rest}
-    />
+    <div className={`${styles.placeholderWrapper} ${fallbackClassName || ''}`}>
+      <ProductTypeSvg
+        type={type}
+        size={size}
+        stroke={stroke}
+        strokeWidth={strokeWidth}
+        className={`${styles.placeholderSvg} ${className || ''}`}
+        {...rest}
+      />
+    </div>
   );
 }

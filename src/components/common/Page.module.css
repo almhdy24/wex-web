@@ -2,13 +2,14 @@
   width: 100%;
   min-height: 100vh;
   padding-top: var(--space-4, 16px);
-  padding-bottom: calc(var(--tab-bar-height, 64px) + 24px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: var(--tabbar-clearance-v2);
   box-sizing: border-box;
 }
 
 .padded {
-  padding-left: var(--space-4, 16px);
-  padding-right: var(--space-4, 16px);
+  padding-inline: var(--page-padding, 16px);
+  padding-left: var(--page-padding, 16px);
+  padding-right: var(--page-padding, 16px);
 }
 
 @media (min-width: 1024px) {

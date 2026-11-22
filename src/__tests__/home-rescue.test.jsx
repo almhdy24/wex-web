@@ -69,6 +69,15 @@ describe('HomePage Rescue Verification (Phase 2)', () => {
               <FavoritesContext.Provider value={dummyFavorites}>
                 <HomePage
                   initialLoading={false}
+                  initialProducts={[
+                    {
+                      id: 1,
+                      name: 'Dell Latitude 7490',
+                      price_sdg: 487500,
+                      condition: 'used_imported',
+                      type: 'laptop',
+                    },
+                  ]}
                   initialShopInfo={{
                     address: 'مول الواحة، الشهداء، أم درمان',
                     lock_hours: 4,
@@ -127,5 +136,15 @@ describe('HomePage Rescue Verification (Phase 2)', () => {
     expect(html).toContain('الجمعة: مغلق');
     expect(html).toContain('الموقع على الخريطة');
     expect(html).toContain('تواصل عبر واتساب');
+  });
+
+  it('renders single focused "أجهزة مختارة" section and eliminates duplicate sections (Option A)', () => {
+    const html = renderHome();
+    expect(html).toContain('أجهزة مختارة');
+    expect(html).toContain('كل الأجهزة');
+    // Ensure duplicate sections are completely removed
+    expect(html).not.toContain('وصل حديثًا');
+    expect(html).not.toContain('للدراسة');
+    expect(html).not.toContain('للعمل');
   });
 });

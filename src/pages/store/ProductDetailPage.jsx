@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ShoppingCart,
+  Check,
   Plus,
   Minus,
   Heart,
@@ -11,6 +12,7 @@ import {
   X,
   MapPin,
   Truck,
+  Info,
 } from 'lucide-react';
 import { productsApi } from '../../api/products';
 import { shopApi } from '../../api/shop';
@@ -20,9 +22,31 @@ import { useCompare } from '../../context/CompareContext';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useToast } from '../../context/ToastContext';
 import { ProductTypeSvg } from '../../components/common';
+import AppBar from '../../components/common/AppBar';
+import BrandRibbons from '../../components/common/BrandRibbons';
 import Button from '../../components/common/Button';
 import Page from '../../components/common/Page';
 import styles from './ProductDetailPage.module.css';
+
+function getSpecPath(label = '', key = '') {
+  const l = (label + ' ' + key).toLowerCase();
+  if (l.includes('معالج') || l.includes('processor') || l.includes('cpu')) {
+    return 'M8 8h8v8H8zM10 4v4M14 4v4M10 16v4M14 16v4M4 10h4M4 14h4M16 10h4M16 14h4';
+  }
+  if (l.includes('ذاكرة') || l.includes('ram')) {
+    return 'M3 8h18v8H3zM7 8v8M11 8v8M15 8v8M6 19v-3M18 19v-3';
+  }
+  if (l.includes('تخزين') || l.includes('storage') || l.includes('ssd') || l.includes('hdd')) {
+    return 'M4 6h16v5H4zM4 13h16v5H4zM7.5 8.5h.01M7.5 15.5h.01';
+  }
+  if (l.includes('شاشة') && (l.includes('كرت') || l.includes('gpu') || l.includes('graphics'))) {
+    return 'M3 7h18v9H3zM3 19h6M14 11.5a2.5 2.5 0 1 0 0 .01';
+  }
+  if (l.includes('شاشة') || l.includes('screen') || l.includes('display')) {
+    return 'M3 5h18v11H3zM8 20h8M12 16v4';
+  }
+  return 'M3 5h18v11H3zM8 20h8M12 16v4';
+}
 
 export default function ProductDetailPage({
   initialProduct = null,
@@ -48,6 +72,7 @@ export default function ProductDetailPage({
   const [error, setError] = useState(null);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('specs'); // 'specs' | 'delivery'
+  const [isAdded, setIsAdded] = useState(false);
 
   useEffect(() => {
     if (initialProduct !== null) return;
@@ -107,7 +132,9 @@ export default function ProductDetailPage({
   // Images
   const rawImages = product.images || [];
   const primaryImg = product.primary_image || (rawImages.length > 0 ? rawImages[0] : null);
-  const displayImage = !imageError && primaryImg ? getProductImageUrl(primaryImg) : null;
+  const rawImageUrl = primaryImg ? getProductImageUrl(primaryImg) : null;
+  const isRealPhoto = rawImageUrl && !rawImageUrl.includes('favicon.svg');
+  const displayImage = !imageError && isRealPhoto ? rawImageUrl : null;
 
   // Condition
   const conditionLabel = getConditionLabel(product.condition);
@@ -128,26 +155,32 @@ export default function ProductDetailPage({
 
   const specRows = [
     {
+      key: 'processor',
       label: 'المعالج',
       value: product.processor || product.cpu || specsMap.processor || specsMap.cpu || null,
     },
     {
+      key: 'ram',
       label: 'الذاكرة العشوائية',
       value: product.ram || specsMap.ram || null,
     },
     {
+      key: 'storage',
       label: 'التخزين',
       value: product.storage || specsMap.storage || null,
     },
     {
+      key: 'graphics',
       label: 'كرت الشاشة',
       value: product.gpu || product.graphics || specsMap.gpu || specsMap.graphics || null,
     },
     {
+      key: 'screen',
       label: 'الشاشة',
       value: product.screen || product.screen_size || specsMap.screen || specsMap.screen_size || null,
     },
     {
+      key: 'battery',
       label: 'البطارية',
       value: product.battery || specsMap.battery || null,
     },
@@ -156,6 +189,7 @@ export default function ProductDetailPage({
   // Warranty row: only if API provides text
   if (product.warranty_text && String(product.warranty_text).trim()) {
     specRows.push({
+      key: 'warranty',
       label: 'الاستلام والتسليم',
       value: String(product.warranty_text).trim(),
     });
@@ -172,6 +206,8 @@ export default function ProductDetailPage({
   const handleAddToCart = () => {
     if (isOutOfStock) return;
     addItem(product, quantity);
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 700);
     success('تمت إضافة الجهاز إلى السلة');
   };
 
@@ -212,19 +248,52 @@ export default function ProductDetailPage({
   };
 
   return (
-    <Page className={styles.container}>
-      {/* Product Image Card */}
-      <div className={styles.imageCard}>
-        <div className={styles.imageBox}>
+    <div className={styles.pageWrapper}>
+      <AppBar
+        tone="navy"
+        style={{ '--header-bottom': '84px' }}
+        title={product.name}
+        showBack={true}
+        backTo="/products"
+        showCart={true}
+      />
+
+      <Page className={styles.container}>
+        {/* Image stage */}
+        <div className={styles.imageStage}>
+          <BrandRibbons variant="panel" />
+
+          {/* Condition badge top inline-start 14px */}
+          {conditionLabel && (
+            <span className={styles.conditionBadge}>{conditionLabel}</span>
+          )}
+
+          {/* Favorite button top inline-end 12px */}
+          <button
+            type="button"
+            className={`${styles.glassFavBtn} ${isFav ? styles.glassFavBtnActive : ''}`}
+            onClick={() => toggleFavorite(product)}
+            aria-label={isFav ? 'إزالة من المحفوظات' : 'حفظ'}
+          >
+            <Heart
+              size={20}
+              strokeWidth={1.75}
+              fill={isFav ? '#00B7FF' : 'none'}
+              stroke={isFav ? '#00B7FF' : '#ffffff'}
+              aria-hidden="true"
+            />
+          </button>
+
+          {/* Image or White line-art icon */}
           {displayImage ? (
             <img
               src={displayImage}
               alt={product.name}
-              className={styles.mainImage}
+              className={styles.stageImage}
               onError={() => setImageError(true)}
             />
           ) : (
-            <div className={styles.placeholderBox}>
+            <div className={styles.stagePlaceholder}>
               <ProductTypeSvg type={product.type || 'laptop'} />
             </div>
           )}
@@ -239,22 +308,6 @@ export default function ProductDetailPage({
               <Maximize2 size={18} strokeWidth={1.75} aria-hidden="true" />
             </button>
           )}
-
-          {/* Favorite button at top corner */}
-          <button
-            type="button"
-            className={`${styles.favButton} ${isFav ? styles.favButtonActive : ''}`}
-            onClick={() => toggleFavorite(product)}
-            aria-label={isFav ? 'إزالة من المحفوظات' : 'حفظ'}
-          >
-            <Heart
-              size={20}
-              strokeWidth={1.75}
-              fill={isFav ? 'var(--wex-royal)' : 'none'}
-              stroke={isFav ? 'var(--wex-royal)' : 'var(--wex-navy)'}
-              aria-hidden="true"
-            />
-          </button>
         </div>
 
         {/* Gallery Thumbnails */}
@@ -280,33 +333,34 @@ export default function ProductDetailPage({
             ))}
           </div>
         )}
-      </div>
 
-      {/* Main Info Card */}
-      <div className={styles.infoCard}>
-        {/* Condition Tag */}
-        {conditionLabel && (
-          <span className={styles.conditionTag}>{conditionLabel}</span>
-        )}
+        {/* Title Block */}
+        <div className={styles.titleBlock}>
+          <h1 className={styles.title} dir="auto">{product.name}</h1>
 
-        {/* Title */}
-        <h1 className={styles.title}>{product.name}</h1>
-
-        {/* Price & Single Caption */}
-        <div className={styles.priceBlock}>
           <div className={styles.priceRow}>
-            <span className={styles.priceValue}>{formatSdg(product.price_sdg)}</span>
+            <span className={styles.priceNumber}>
+              {Number(product.price_sdg).toLocaleString('en-US')}
+            </span>
+            <span className={styles.priceCurrency}>ج.س</span>
+            <span className={styles.srOnly}>{formatSdg(product.price_sdg)}</span>
           </div>
-          <p className={styles.priceCaption}>
-            السعر قابل للتغيير حتى تأكيد الطلب.
-          </p>
+
+          <div className={styles.priceNoticeBox}>
+            <div className={styles.noticeIconBox}>
+              <Info size={18} strokeWidth={1.75} aria-hidden="true" />
+            </div>
+            <p className={styles.priceCaption}>
+              السعر قابل للتغيير حتى تأكيد الطلب.
+            </p>
+          </div>
         </div>
 
-        {/* Secondary Actions (Compare, Share) */}
-        <div className={styles.actionRow}>
+        {/* Compare / Share Buttons */}
+        <div className={styles.compareShareGrid}>
           <button
             type="button"
-            className={`${styles.actionBtn} ${inComp ? styles.actionBtnActive : ''}`}
+            className={`${styles.gridActionBtn} ${inComp ? styles.gridActionBtnActive : ''}`}
             onClick={handleToggleCompare}
           >
             <GitCompare size={18} strokeWidth={1.75} aria-hidden="true" />
@@ -314,18 +368,16 @@ export default function ProductDetailPage({
           </button>
           <button
             type="button"
-            className={styles.actionBtn}
+            className={styles.gridActionBtn}
             onClick={handleShare}
           >
             <Share2 size={18} strokeWidth={1.75} aria-hidden="true" />
             <span>مشاركة</span>
           </button>
         </div>
-      </div>
 
-      {/* Tabs Card */}
-      <div className={styles.tabsCard}>
-        <div className={styles.tabHeader} role="tablist">
+        {/* Tabs */}
+        <div className={styles.tabsContainer} role="tablist">
           <button
             type="button"
             role="tab"
@@ -346,113 +398,142 @@ export default function ProductDetailPage({
           </button>
         </div>
 
-        <div className={styles.tabContent}>
-          {activeTab === 'specs' ? (
-            <div className={styles.specsList}>
-              {specRows
-                .filter((row) => row.value)
-                .map((row, idx) => (
-                  <div key={idx} className={styles.specRow}>
-                    <span className={styles.specLabel}>{row.label}</span>
-                    <span className={styles.specValue}>{row.value}</span>
+        {/* Specs or Delivery Card */}
+        {activeTab === 'specs' ? (
+          <div className={styles.specsCard}>
+            {specRows
+              .filter((row) => row.value)
+              .map((row, idx) => (
+                <div key={idx} className={styles.specRow}>
+                  <div className={styles.specIconBox}>
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="22"
+                      height="22"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path d={getSpecPath(row.label, row.key)} />
+                    </svg>
                   </div>
-                ))}
-            </div>
-          ) : (
-            <div className={styles.deliveryContent}>
-              <div className={styles.deliverySection}>
-                <div className={styles.deliveryHeading}>
-                  <MapPin size={18} strokeWidth={1.75} className={styles.deliveryIcon} aria-hidden="true" />
-                  <strong>الاستلام من المحل</strong>
+                  <span className={styles.specLabel}>{row.label}</span>
+                  <span className={styles.specValue} dir="auto">{row.value}</span>
                 </div>
-                <p className={styles.deliveryText}>
-                  الاستلام من {shopAddress}. ساعات العمل: {shopHours}.
-                </p>
+              ))}
+          </div>
+        ) : (
+          <div className={styles.deliveryCard}>
+            <div className={styles.deliverySection}>
+              <div className={styles.deliveryHeading}>
+                <MapPin size={18} strokeWidth={1.75} className={styles.deliveryIcon} aria-hidden="true" />
+                <strong>الاستلام من المحل</strong>
               </div>
-
-              <div className={styles.deliverySection}>
-                <div className={styles.deliveryHeading}>
-                  <Truck size={18} strokeWidth={1.75} className={styles.deliveryIcon} aria-hidden="true" />
-                  <strong>التوصيل</strong>
-                </div>
-                <p className={styles.deliveryText}>
-                  التوصيل متاح إلى: {zonesText}. تُحتسب الرسوم حسب المنطقة عند تأكيد الطلب.
-                </p>
-              </div>
+              <p className={styles.deliveryText}>
+                الاستلام من {shopAddress}. ساعات العمل: {shopHours}.
+              </p>
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* Sticky Bottom Actions Bar */}
-      <div className={styles.stickyBar}>
-        <div className={styles.quantityStepper}>
-          <button
-            type="button"
-            className={styles.stepperBtn}
-            disabled={quantity <= 1 || isOutOfStock}
-            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            aria-label="تقليل"
-          >
-            <Minus size={16} strokeWidth={1.75} aria-hidden="true" />
-          </button>
-          <span className={styles.quantityNumber}>{quantity}</span>
-          <button
-            type="button"
-            className={styles.stepperBtn}
-            disabled={isOutOfStock}
-            onClick={() => setQuantity((q) => q + 1)}
-            aria-label="زيادة"
-          >
-            <Plus size={16} strokeWidth={1.75} aria-hidden="true" />
-          </button>
+            <div className={styles.deliverySection}>
+              <div className={styles.deliveryHeading}>
+                <Truck size={18} strokeWidth={1.75} className={styles.deliveryIcon} aria-hidden="true" />
+                <strong>التوصيل</strong>
+              </div>
+              <p className={styles.deliveryText}>
+                التوصيل متاح إلى: {zonesText}. تُحتسب الرسوم حسب المنطقة عند تأكيد الطلب.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Purchase Bar (Fixed) */}
+        <div className={styles.purchaseBar}>
+          <div className={styles.purchasePriceCol}>
+            <span className={styles.purchasePriceLabel}>السعر</span>
+            <span className={styles.purchasePriceValue}>
+              {Number(product.price_sdg).toLocaleString('en-US')} ج.س
+            </span>
+          </div>
+
+          <div className={styles.stepperBox}>
+            <button
+              type="button"
+              className={styles.stepperMinus}
+              disabled={quantity <= 1 || isOutOfStock}
+              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              aria-label="تقليل"
+            >
+              <Minus size={14} strokeWidth={2} aria-hidden="true" />
+            </button>
+            <span className={styles.stepperNum}>{quantity}</span>
+            <button
+              type="button"
+              className={styles.stepperPlus}
+              disabled={isOutOfStock}
+              onClick={() => setQuantity((q) => q + 1)}
+              aria-label="زيادة"
+            >
+              <Plus size={14} strokeWidth={2} aria-hidden="true" />
+            </button>
+          </div>
+
+          <div className={styles.purchaseButtonsRow}>
+            <button
+              type="button"
+              className={styles.cartIconButton}
+              disabled={isOutOfStock}
+              onClick={handleAddToCart}
+              aria-label="أضف إلى السلة"
+              title="أضف إلى السلة"
+            >
+              {isAdded ? (
+                <Check size={18} strokeWidth={2} aria-hidden="true" />
+              ) : (
+                <ShoppingCart size={18} strokeWidth={1.75} aria-hidden="true" />
+              )}
+              <span className={styles.srOnly}>أضف إلى السلة</span>
+            </button>
+
+            <button
+              type="button"
+              className={isOutOfStock ? styles.orderBtnUnavailable : styles.orderBtnPrimary}
+              disabled={isOutOfStock}
+              onClick={handleOrderNow}
+            >
+              {isOutOfStock ? 'غير متوفر حاليًا' : 'اطلب الآن'}
+            </button>
+          </div>
         </div>
 
-        <div className={styles.ctaButtons}>
-          <Button
-            variant="secondary"
-            onClick={handleAddToCart}
-            disabled={isOutOfStock}
-            className={styles.addToCartBtn}
-          >
-            <ShoppingCart size={18} strokeWidth={1.75} aria-hidden="true" />
-            <span>أضف إلى السلة</span>
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleOrderNow}
-            disabled={isOutOfStock}
-            className={styles.orderNowBtn}
-          >
-            اطلب الآن
-          </Button>
-        </div>
-      </div>
-
-      {/* Zoom Modal */}
-      {isZoomOpen && displayImage && (
-        <div
-          className={styles.zoomModal}
-          role="dialog"
-          aria-modal="true"
-          onClick={() => setIsZoomOpen(false)}
-        >
-          <button
-            type="button"
-            className={styles.zoomCloseBtn}
+        {/* Zoom Modal */}
+        {isZoomOpen && displayImage && (
+          <div
+            className={styles.zoomModal}
+            role="dialog"
+            aria-modal="true"
             onClick={() => setIsZoomOpen(false)}
-            aria-label="إغلاق"
           >
-            <X size={24} strokeWidth={1.75} aria-hidden="true" />
-          </button>
-          <img
-            src={displayImage}
-            alt={product.name}
-            className={styles.zoomImg}
-            onClick={(e) => e.stopPropagation()}
-          />
-        </div>
-      )}
-    </Page>
+            <button
+              type="button"
+              className={styles.zoomCloseBtn}
+              onClick={() => setIsZoomOpen(false)}
+              aria-label="إغلاق"
+            >
+              <X size={24} strokeWidth={1.75} aria-hidden="true" />
+            </button>
+            <img
+              src={displayImage}
+              alt={product.name}
+              className={styles.zoomImg}
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        )}
+      </Page>
+    </div>
   );
 }

@@ -1,9 +1,9 @@
 .reveal {
   opacity: 0;
-  transform: translateY(14px);
+  transform: translateY(8px);
   transition-property: opacity, transform;
-  transition-duration: var(--motion-base, 250ms);
-  transition-timing-function: var(--ease-standard, cubic-bezier(0.2, 0.8, 0.2, 1));
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
   will-change: opacity, transform;
 }
 
@@ -12,8 +12,17 @@
   transform: translateY(0);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
 :global(html[data-motion="reduced"]) .reveal,
 :global(html[data-motion="lite"]) .reveal {
-  transform: none;
-  transition-duration: var(--motion-fast, 150ms);
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
 }
