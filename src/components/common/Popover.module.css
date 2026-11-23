@@ -7,28 +7,28 @@
   border: 1px solid rgba(11, 63, 191, 0.1);
   box-shadow: 0 12px 32px rgba(6, 26, 85, 0.14), 0 2px 6px rgba(6, 26, 85, 0.04);
   padding: 12px;
-  z-index: 150;
+  z-index: var(--z-popover, 550);
   outline: none;
   overflow: hidden;
   will-change: transform, opacity;
   animation: popoverFadeIn var(--motion-fast, 150ms) var(--ease-standard) forwards;
 }
 
-/* In RTL:
-   alignStart = pinned to start of container (right: 0)
-   alignEnd   = pinned to end of container (left: 0)
+/* Logical alignment:
+   alignStart = pinned to start of container
+   alignEnd   = pinned to end of container
    alignCenter = centered horizontally
 */
 .alignStart {
-  right: 0;
-  left: auto;
-  transform-origin: top right;
+  inset-inline-start: 0;
+  inset-inline-end: auto;
+  transform-origin: top start;
 }
 
 .alignEnd {
-  left: 0;
-  right: auto;
-  transform-origin: top left;
+  inset-inline-end: 0;
+  inset-inline-start: auto;
+  transform-origin: top end;
 }
 
 .alignCenter {

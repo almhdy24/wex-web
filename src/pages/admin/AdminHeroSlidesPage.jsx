@@ -10,6 +10,7 @@ import {
 import { api } from '../../api/client';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
+import Modal from '../../components/common/Modal';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import Skeleton from '../../components/common/Skeleton';
 import ErrorState from '../../components/common/ErrorState';
@@ -268,96 +269,94 @@ export default function AdminHeroSlidesPage() {
       )}
 
       {/* Modal */}
-      {modalOpen && (
-        <div className={styles.modalBackdrop} role="dialog" aria-modal="true">
-          <div className={styles.modalCard}>
-            <h3 className={styles.modalTitle}>{editingSlide ? 'تعديل الشريحة' : 'إضافة شريحة جديدة'}</h3>
-
-            <form onSubmit={handleFormSubmit} className={styles.modalForm}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>عنوان الشريحة الرئيسي *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="عنوان الشريحة المعروض"
-                  className={styles.formInput}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>النص التوضيحي (الفرعي)</label>
-                <textarea
-                  rows={2}
-                  value={formData.subtitle}
-                  onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                  placeholder="تفاصيل العرض أو الميزة..."
-                  className={styles.formTextarea}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>رابط الصورة (اختياري)</label>
-                <input
-                  type="text"
-                  dir="ltr"
-                  value={formData.image}
-                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  placeholder="رابط الصورة أو مسار الملف"
-                  className={styles.formInput}
-                  style={{ textAlign: 'start' }}
-                />
-              </div>
-
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>نص الزر</label>
-                  <input
-                    type="text"
-                    value={formData.button_label}
-                    onChange={(e) => setFormData({ ...formData, button_label: e.target.value })}
-                    placeholder="مثال: استعرض الأجهزة"
-                    className={styles.formInput}
-                  />
-                </div>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>رابط الزر</label>
-                  <input
-                    type="text"
-                    dir="ltr"
-                    value={formData.link}
-                    onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-                    placeholder="رابط الوجهة أو الصفحة"
-                    className={styles.formInput}
-                    style={{ textAlign: 'start' }}
-                  />
-                </div>
-              </div>
-
-              <div className={styles.checkboxGroup}>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={formData.is_active}
-                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                  />
-                  <span>تفعيل الشريحة في المتجر</span>
-                </label>
-              </div>
-
-              <div className={styles.modalActions}>
-                <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>
-                  إلغاء
-                </Button>
-                <Button type="submit" variant="primary">
-                  حفظ الشريحة
-                </Button>
-              </div>
-            </form>
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editingSlide ? 'تعديل الشريحة' : 'إضافة شريحة جديدة'}
+      >
+        <form onSubmit={handleFormSubmit} className={styles.modalForm}>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>عنوان الشريحة الرئيسي *</label>
+            <input
+              type="text"
+              required
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              placeholder="عنوان الشريحة المعروض"
+              className={styles.formInput}
+            />
           </div>
-        </div>
-      )}
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>النص التوضيحي (الفرعي)</label>
+            <textarea
+              rows={2}
+              value={formData.subtitle}
+              onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
+              placeholder="تفاصيل العرض أو الميزة..."
+              className={styles.formTextarea}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>رابط الصورة (اختياري)</label>
+            <input
+              type="text"
+              dir="ltr"
+              value={formData.image}
+              onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+              placeholder="رابط الصورة أو مسار الملف"
+              className={styles.formInput}
+              style={{ textAlign: 'start' }}
+            />
+          </div>
+
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>نص الزر</label>
+              <input
+                type="text"
+                value={formData.button_label}
+                onChange={(e) => setFormData({ ...formData, button_label: e.target.value })}
+                placeholder="مثال: استعرض الأجهزة"
+                className={styles.formInput}
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>رابط الزر</label>
+              <input
+                type="text"
+                dir="ltr"
+                value={formData.link}
+                onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+                placeholder="رابط الوجهة أو الصفحة"
+                className={styles.formInput}
+                style={{ textAlign: 'start' }}
+              />
+            </div>
+          </div>
+
+          <div className={styles.checkboxGroup}>
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={formData.is_active}
+                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+              />
+              <span>تفعيل الشريحة في المتجر</span>
+            </label>
+          </div>
+
+          <div className={styles.modalActions}>
+            <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>
+              إلغاء
+            </Button>
+            <Button type="submit" variant="primary">
+              حفظ الشريحة
+            </Button>
+          </div>
+        </form>
+      </Modal>
 
       <ConfirmDialog
         isOpen={deleteDialogOpen}

@@ -9,7 +9,7 @@
   inset: 0;
   background-color: rgba(6, 26, 85, 0.45);
   backdrop-filter: blur(2px);
-  z-index: 998;
+  z-index: var(--z-sheet-backdrop, 400);
 }
 
 @media (min-width: 1024px) {
@@ -28,7 +28,7 @@
   top: 0;
   bottom: 0;
   inset-inline-end: 0;
-  z-index: 999;
+  z-index: var(--z-sheet, 450);
   transform: translateX(100%);
   transition: transform var(--transition-normal);
   border-inline-start: 1px solid rgba(255, 255, 255, 0.08);
@@ -214,7 +214,7 @@
   justify-content: space-between;
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: var(--z-topbar, 90);
 }
 
 @media (min-width: 1024px) {

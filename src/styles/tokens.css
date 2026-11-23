@@ -313,17 +313,34 @@
   --tabbar-gap-v2: 16px;
   --tabbar-clearance-v2: calc(var(--tabbar-height-v2) + var(--tabbar-gap-v2) + 24px + env(safe-area-inset-bottom, 0px));
 
-  /* Shared Z-Index Scale */
+  /* Shared Layering & Clearance Contract (Section 1) */
   --z-base: 0;
-  --z-sticky: 100;
-  --z-header: 200;
+  --z-sticky: 50;
+  --z-topbar: 90;
+  --z-header: 90;
+  --z-sidebar: 100;
   --z-tabbar: 300;
+  --z-sticky-action: 350;
   --z-sheet-backdrop: 400;
   --z-sheet: 450;
-  --z-modal-backdrop: 500;
-  --z-modal: 550;
+  --z-modal-backdrop: 490;
+  --z-modal: 500;
+  --z-popover: 550;
   --z-toast: 600;
   --z-tooltip: 700;
+
+  /* Admin Layout Heights & Clearances */
+  --admin-topbar-h: 56px;
+  --admin-tabbar-h: calc(56px + env(safe-area-inset-bottom, 0px));
+  --admin-sticky-action-h: 64px;
+  --admin-bottom-clearance: calc(var(--admin-tabbar-h) + var(--admin-sticky-action-h) + 16px);
+  --admin-tab-bar-height: var(--admin-tabbar-h);
+}
+
+@media (min-width: 768px) {
+  :root {
+    --admin-topbar-h: 64px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

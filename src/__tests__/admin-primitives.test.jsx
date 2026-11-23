@@ -112,7 +112,7 @@ describe('Admin Primitives Unit Tests', () => {
       expect(css).toMatch(/bottom:\s*calc\(var\(--admin-tab-bar-height/);
 
       // 3. Must have z-index > 100 to stay above admin tab bar (which has z-index 100)
-      const zIndexMatch = css.match(/\.stickyBottomBar[\s\S]*?z-index:\s*([0-9]+)/);
+      const zIndexMatch = css.match(/\.stickyBottomBar[\s\S]*?z-index:\s*(?:var\([^,]+,\s*)?([0-9]+)/);
       expect(Boolean(zIndexMatch)).toBe(true);
       const zIndex = parseInt(zIndexMatch[1], 10);
       expect(zIndex).toBeGreaterThan(100);

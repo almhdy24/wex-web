@@ -3,7 +3,7 @@
   inset: 0;
   background-color: rgba(6, 26, 85, 0.55);
   backdrop-filter: blur(4px);
-  z-index: 1000;
+  z-index: var(--z-modal-backdrop, 490);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -29,8 +29,36 @@
   border: 1px solid var(--wex-border);
   overflow: hidden;
   animation: scaleIn 150ms ease;
-  z-index: 1001;
+  z-index: var(--z-modal, 500);
   outline: none;
+}
+
+@media (max-width: 639px) {
+  .backdrop:not(.imageBackdrop) {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .dialog:not(.imageDialog) {
+    max-width: 100%;
+    width: 100%;
+    border-radius: var(--radius-panel, 14px) var(--radius-panel, 14px) 0 0;
+    max-height: calc(100dvh - 24px);
+    margin: 0;
+    border-bottom: none;
+  }
+
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+  }
 }
 
 .imageDialog {
@@ -71,7 +99,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 10;
+  z-index: 2;
   transition: background 150ms ease;
 }
 

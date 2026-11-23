@@ -8,7 +8,7 @@
   display: flex;
   align-items: center;
   position: relative;
-  z-index: 102;
+  z-index: var(--z-topbar, 90);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -91,7 +91,7 @@
   height: var(--desktop-header-height, 72px);
   background: #FFFFFF;
   border-bottom: 1px solid rgba(11, 63, 191, 0.08);
-  z-index: 100;
+  z-index: var(--z-topbar, 90);
   transition: box-shadow var(--motion-fast, 150ms) var(--ease-standard);
 }
 
@@ -224,20 +224,19 @@
 .searchBackdrop {
   position: fixed;
   inset: 0;
-  z-index: 105;
+  z-index: var(--z-sheet-backdrop, 400);
 }
 
 .suggestionsBox {
   position: absolute;
   top: calc(100% + 8px);
-  left: 0;
-  right: 0;
+  inset-inline: 0;
   background: #FFFFFF;
   border-radius: var(--radius-lg, 20px);
   border: 1px solid rgba(11, 63, 191, 0.12);
   box-shadow: 0 16px 40px rgba(6, 26, 85, 0.14);
   padding: 14px;
-  z-index: 110;
+  z-index: var(--z-popover, 550);
   max-height: 380px;
   overflow-y: auto;
   animation: dropdownFadeIn var(--motion-fast, 150ms) var(--ease-standard) forwards;

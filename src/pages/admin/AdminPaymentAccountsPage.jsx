@@ -16,6 +16,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { adminAr } from '../../content/admin.ar';
 import Button from '../../components/common/Button';
+import Modal from '../../components/common/Modal';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import PaymentAccountsDisplay from '../../components/store/PaymentAccountsDisplay';
 import Skeleton from '../../components/common/Skeleton';
@@ -419,95 +420,91 @@ export default function AdminPaymentAccountsPage() {
       </section>
 
       {/* Add / Edit Modal */}
-      {modalOpen && (
-        <div className={styles.modalBackdrop} role="dialog" aria-modal="true">
-          <div className={styles.modalCard}>
-            <h3 className={styles.modalTitle}>
-              {editingAccount ? adminAr.paymentAccounts.editAccount : adminAr.paymentAccounts.addNew}
-            </h3>
-
-            <form onSubmit={handleFormSubmit} className={styles.modalForm}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>{adminAr.paymentAccounts.bankName} *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.bank_name}
-                  onChange={(e) => setFormData({ ...formData, bank_name: e.target.value })}
-                  placeholder="مثال: بنك الخرطوم (تطبيق بنكك)"
-                  className={styles.formInput}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>{adminAr.paymentAccounts.accountName} *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.account_name}
-                  onChange={(e) => setFormData({ ...formData, account_name: e.target.value })}
-                  placeholder="الاسم الثلاثي أو اسم المنشأة"
-                  className={styles.formInput}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>{adminAr.paymentAccounts.accountNumber} *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.account_number}
-                  onChange={(e) => setFormData({ ...formData, account_number: e.target.value })}
-                  placeholder="رقم الحساب البنكي بدقة"
-                  className={styles.formInput}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>{adminAr.paymentAccounts.branch}</label>
-                <input
-                  type="text"
-                  value={formData.branch}
-                  onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
-                  placeholder="مثال: فرع الشهداء - أم درمان"
-                  className={styles.formInput}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>{adminAr.paymentAccounts.notes}</label>
-                <input
-                  type="text"
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  placeholder="مثال: يرجى كتابة رقم الطلب في خانة الغرض"
-                  className={styles.formInput}
-                />
-              </div>
-
-              <div className={styles.checkboxGroup}>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={formData.is_active}
-                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                  />
-                  <span>{adminAr.paymentAccounts.active}</span>
-                </label>
-              </div>
-
-              <div className={styles.modalActions}>
-                <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>
-                  إلغاء
-                </Button>
-                <Button type="submit" variant="primary">
-                  مراجعة وحفظ
-                </Button>
-              </div>
-            </form>
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editingAccount ? adminAr.paymentAccounts.editAccount : adminAr.paymentAccounts.addNew}
+      >
+        <form onSubmit={handleFormSubmit} className={styles.modalForm}>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>{adminAr.paymentAccounts.bankName} *</label>
+            <input
+              type="text"
+              required
+              value={formData.bank_name}
+              onChange={(e) => setFormData({ ...formData, bank_name: e.target.value })}
+              placeholder="مثال: بنك الخرطوم (تطبيق بنكك)"
+              className={styles.formInput}
+            />
           </div>
-        </div>
-      )}
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>{adminAr.paymentAccounts.accountName} *</label>
+            <input
+              type="text"
+              required
+              value={formData.account_name}
+              onChange={(e) => setFormData({ ...formData, account_name: e.target.value })}
+              placeholder="الاسم الثلاثي أو اسم المنشأة"
+              className={styles.formInput}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>{adminAr.paymentAccounts.accountNumber} *</label>
+            <input
+              type="text"
+              required
+              value={formData.account_number}
+              onChange={(e) => setFormData({ ...formData, account_number: e.target.value })}
+              placeholder="رقم الحساب البنكي بدقة"
+              className={styles.formInput}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>{adminAr.paymentAccounts.branch}</label>
+            <input
+              type="text"
+              value={formData.branch}
+              onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
+              placeholder="مثال: فرع الشهداء - أم درمان"
+              className={styles.formInput}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>{adminAr.paymentAccounts.notes}</label>
+            <input
+              type="text"
+              value={formData.notes}
+              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              placeholder="مثال: يرجى كتابة رقم الطلب في خانة الغرض"
+              className={styles.formInput}
+            />
+          </div>
+
+          <div className={styles.checkboxGroup}>
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={formData.is_active}
+                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+              />
+              <span>{adminAr.paymentAccounts.active}</span>
+            </label>
+          </div>
+
+          <div className={styles.modalActions}>
+            <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>
+              إلغاء
+            </Button>
+            <Button type="submit" variant="primary">
+              مراجعة وحفظ
+            </Button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Security Confirm Dialog (High-Risk Action Confirmation) */}
       <ConfirmDialog

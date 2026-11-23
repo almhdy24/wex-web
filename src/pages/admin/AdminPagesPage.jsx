@@ -9,6 +9,7 @@ import {
 import { api } from '../../api/client';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
+import Modal from '../../components/common/Modal';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import Skeleton from '../../components/common/Skeleton';
 import ErrorState from '../../components/common/ErrorState';
@@ -205,77 +206,73 @@ export default function AdminPagesPage() {
       )}
 
       {/* Modal */}
-      {modalOpen && (
-        <div className={styles.modalBackdrop} role="dialog" aria-modal="true">
-          <div className={styles.modalCard}>
-            <h3 className={styles.modalTitle}>
-              {editingPage ? 'تعديل الصفحة' : 'إنشاء صفحة جديدة'}
-            </h3>
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editingPage ? 'تعديل الصفحة' : 'إنشاء صفحة جديدة'}
+      >
+        <form onSubmit={handleFormSubmit} className={styles.modalForm}>
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>عنوان الصفحة *</label>
+              <input
+                type="text"
+                required
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                placeholder="مثال: سياسة الخصوصية"
+                className={styles.formInput}
+              />
+            </div>
 
-            <form onSubmit={handleFormSubmit} className={styles.modalForm}>
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>عنوان الصفحة *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="مثال: سياسة الخصوصية"
-                    className={styles.formInput}
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>معرف الرابط *</label>
-                  <input
-                    type="text"
-                    required
-                    dir="ltr"
-                    value={formData.slug}
-                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                    placeholder="معرف بالإنجليزية للرابط"
-                    className={styles.formInput}
-                    style={{ textAlign: 'start' }}
-                  />
-                </div>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>محتوى الصفحة (نص منسق بالفقرات) *</label>
-                <textarea
-                  required
-                  rows={8}
-                  value={formData.body}
-                  onChange={(e) => setFormData({ ...formData, body: e.target.value })}
-                  placeholder="اكتب نصوص وبنود الصفحة هنا..."
-                  className={styles.formTextarea}
-                />
-              </div>
-
-              <div className={styles.checkboxGroup}>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={formData.is_active}
-                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                  />
-                  <span>نشر الصفحة للعملاء</span>
-                </label>
-              </div>
-
-              <div className={styles.modalActions}>
-                <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>
-                  إلغاء
-                </Button>
-                <Button type="submit" variant="primary">
-                  حفظ الصفحة
-                </Button>
-              </div>
-            </form>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>معرف الرابط *</label>
+              <input
+                type="text"
+                required
+                dir="ltr"
+                value={formData.slug}
+                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                placeholder="معرف بالإنجليزية للرابط"
+                className={styles.formInput}
+                style={{ textAlign: 'start' }}
+              />
+            </div>
           </div>
-        </div>
-      )}
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>محتوى الصفحة (نص منسق بالفقرات) *</label>
+            <textarea
+              required
+              rows={8}
+              value={formData.body}
+              onChange={(e) => setFormData({ ...formData, body: e.target.value })}
+              placeholder="اكتب نصوص وبنود الصفحة هنا..."
+              className={styles.formTextarea}
+            />
+          </div>
+
+          <div className={styles.checkboxGroup}>
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={formData.is_active}
+                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+              />
+              <span>نشر الصفحة للعملاء</span>
+            </label>
+          </div>
+
+          <div className={styles.modalActions}>
+            <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>
+              إلغاء
+            </Button>
+            <Button type="submit" variant="primary">
+              حفظ الصفحة
+            </Button>
+          </div>
+        </form>
+      </Modal>
 
       <ConfirmDialog
         isOpen={deleteDialogOpen}

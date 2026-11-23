@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import styles from './Modal.module.css';
 
@@ -85,7 +86,7 @@ export default function Modal({
   const isImage = variant === 'image';
   const labelId = title ? 'modal-title' : undefined;
 
-  return (
+  const modalNode = (
     <div
       className={`${styles.backdrop} ${isImage ? styles.imageBackdrop : ''}`}
       onClick={onClose}
@@ -140,4 +141,10 @@ export default function Modal({
       </div>
     </div>
   );
+
+  if (typeof document !== 'undefined' && document.body) {
+    return createPortal(modalNode, document.body);
+  }
+
+  return modalNode;
 }

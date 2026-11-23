@@ -1,11 +1,11 @@
 .scrollBtn {
   position: fixed;
-  bottom: 32px;
-  left: 32px; /* in RTL, end side */
+  bottom: calc(var(--admin-tabbar-h, 56px) + 24px);
+  inset-inline-end: var(--space-6, 24px);
   width: 48px;
   height: 48px;
   border-radius: var(--radius-full, 9999px);
-  background: var(--wex-grad-brand, linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 50%, #00B7FF 100%));
+  background: var(--wex-grad-brand, #0B3FBF);
   color: #FFFFFF;
   border: none;
   cursor: pointer;
@@ -13,7 +13,7 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 8px 24px rgba(11, 63, 191, 0.35);
-  z-index: 95;
+  z-index: var(--z-sticky, 50);
   transition: transform var(--motion-fast, 150ms) var(--ease-standard),
               box-shadow var(--motion-fast, 150ms) var(--ease-standard);
   animation: scrollFadeIn var(--motion-base, 250ms) var(--ease-standard) forwards;
@@ -22,8 +22,8 @@
 
 @media (max-width: 640px) {
   .scrollBtn {
-    bottom: calc(76px + env(safe-area-inset-bottom, 0px));
-    left: 16px;
+    bottom: calc(var(--admin-tabbar-h, 56px) + 16px);
+    inset-inline-end: var(--space-4, 16px);
     width: 42px;
     height: 42px;
   }

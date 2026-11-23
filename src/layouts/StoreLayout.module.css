@@ -9,7 +9,7 @@
   font-size: 13px;
   font-weight: 800;
   text-decoration: none;
-  z-index: 9999;
+  z-index: var(--z-toast, 600);
   transition: top 150ms ease;
 }
 
@@ -160,7 +160,7 @@
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-top: 1px solid rgba(11, 63, 191, 0.08);
-  z-index: 85;
+  z-index: var(--z-sticky, 50);
   box-shadow: 0 -4px 16px rgba(6, 26, 85, 0.05);
 }
 

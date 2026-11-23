@@ -9,6 +9,7 @@ import {
 import { api } from '../../api/client';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
+import Modal from '../../components/common/Modal';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import Skeleton from '../../components/common/Skeleton';
 import ErrorState from '../../components/common/ErrorState';
@@ -237,104 +238,102 @@ export default function AdminHomeSectionsPage() {
       )}
 
       {/* Modal */}
-      {modalOpen && (
-        <div className={styles.modalBackdrop} role="dialog" aria-modal="true">
-          <div className={styles.modalCard}>
-            <h3 className={styles.modalTitle}>{editingSection ? 'تعديل القسم' : 'إضافة قسم رئيسي جديد'}</h3>
-
-            <form onSubmit={handleFormSubmit} className={styles.modalForm}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>عنوان القسم الظاهر للعميل *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="مثال: أحدث أجهزة اللابتوب"
-                  className={styles.formInput}
-                />
-              </div>
-
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>رمز القسم البرمجي *</label>
-                  <input
-                    type="text"
-                    required
-                    dir="ltr"
-                    value={formData.key}
-                    onChange={(e) => setFormData({ ...formData, key: e.target.value })}
-                    placeholder="رمز فريد بدون مسافات"
-                    className={styles.formInput}
-                    style={{ textAlign: 'start' }}
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>مصدر المنتجات</label>
-                  <select
-                    value={formData.source}
-                    onChange={(e) => setFormData({ ...formData, source: e.target.value })}
-                    className={styles.formSelect}
-                  >
-                    <option value="newest">الأحدث وصولاً</option>
-                    <option value="type">حسب نوع الجهاز</option>
-                    <option value="category">فئة محددة</option>
-                    <option value="featured">الأجهزة المختارة</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>قيمة المصدر (اختياري)</label>
-                  <input
-                    type="text"
-                    dir="ltr"
-                    value={formData.source_value}
-                    onChange={(e) => setFormData({ ...formData, source_value: e.target.value })}
-                    placeholder="نوع الجهاز أو معرف الفئة"
-                    className={styles.formInput}
-                    style={{ textAlign: 'start' }}
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>عدد الأجهزة المعروضة</label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="24"
-                    value={formData.limit}
-                    onChange={(e) => setFormData({ ...formData, limit: parseInt(e.target.value, 10) || 8 })}
-                    className={styles.formInput}
-                  />
-                </div>
-              </div>
-
-              <div className={styles.checkboxGroup}>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={formData.is_active}
-                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                  />
-                  <span>تفعيل القسم وعرضه في الصفحة الرئيسية</span>
-                </label>
-              </div>
-
-              <div className={styles.modalActions}>
-                <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>
-                  إلغاء
-                </Button>
-                <Button type="submit" variant="primary">
-                  حفظ القسم
-                </Button>
-              </div>
-            </form>
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editingSection ? 'تعديل القسم' : 'إضافة قسم رئيسي جديد'}
+      >
+        <form onSubmit={handleFormSubmit} className={styles.modalForm}>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>عنوان القسم الظاهر للعميل *</label>
+            <input
+              type="text"
+              required
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              placeholder="مثال: أحدث أجهزة اللابتوب"
+              className={styles.formInput}
+            />
           </div>
-        </div>
-      )}
+
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>رمز القسم البرمجي *</label>
+              <input
+                type="text"
+                required
+                dir="ltr"
+                value={formData.key}
+                onChange={(e) => setFormData({ ...formData, key: e.target.value })}
+                placeholder="رمز فريد بدون مسافات"
+                className={styles.formInput}
+                style={{ textAlign: 'start' }}
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>مصدر المنتجات</label>
+              <select
+                value={formData.source}
+                onChange={(e) => setFormData({ ...formData, source: e.target.value })}
+                className={styles.formSelect}
+              >
+                <option value="newest">الأحدث وصولاً</option>
+                <option value="type">حسب نوع الجهاز</option>
+                <option value="category">فئة محددة</option>
+                <option value="featured">الأجهزة المختارة</option>
+              </select>
+            </div>
+          </div>
+
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>قيمة المصدر (اختياري)</label>
+              <input
+                type="text"
+                dir="ltr"
+                value={formData.source_value}
+                onChange={(e) => setFormData({ ...formData, source_value: e.target.value })}
+                placeholder="نوع الجهاز أو معرف الفئة"
+                className={styles.formInput}
+                style={{ textAlign: 'start' }}
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>عدد الأجهزة المعروضة</label>
+              <input
+                type="number"
+                min="1"
+                max="24"
+                value={formData.limit}
+                onChange={(e) => setFormData({ ...formData, limit: parseInt(e.target.value, 10) || 8 })}
+                className={styles.formInput}
+              />
+            </div>
+          </div>
+
+          <div className={styles.checkboxGroup}>
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={formData.is_active}
+                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+              />
+              <span>تفعيل القسم وعرضه في الصفحة الرئيسية</span>
+            </label>
+          </div>
+
+          <div className={styles.modalActions}>
+            <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>
+              إلغاء
+            </Button>
+            <Button type="submit" variant="primary">
+              حفظ القسم
+            </Button>
+          </div>
+        </form>
+      </Modal>
 
       <ConfirmDialog
         isOpen={deleteDialogOpen}

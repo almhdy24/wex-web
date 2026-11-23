@@ -10,7 +10,7 @@
   border-bottom: 1px solid var(--wex-ice);
   position: sticky;
   top: 0;
-  z-index: 80;
+  z-index: var(--z-topbar, 90);
   user-select: none;
 }
 

@@ -10,6 +10,7 @@ import {
 import { api } from '../../api/client';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
+import Modal from '../../components/common/Modal';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import Skeleton from '../../components/common/Skeleton';
 import ErrorState from '../../components/common/ErrorState';
@@ -223,59 +224,57 @@ export default function AdminFaqPage() {
       )}
 
       {/* Modal */}
-      {modalOpen && (
-        <div className={styles.modalBackdrop} role="dialog" aria-modal="true">
-          <div className={styles.modalCard}>
-            <h3 className={styles.modalTitle}>{editingFaq ? 'تعديل السؤال' : 'إضافة سؤال جديد'}</h3>
-
-            <form onSubmit={handleFormSubmit} className={styles.modalForm}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>نص السؤال *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.question}
-                  onChange={(e) => setFormData({ ...formData, question: e.target.value })}
-                  placeholder="مثال: كيف يعمل نظام تثبيت السعر؟"
-                  className={styles.formInput}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>الإجابة المفصلة *</label>
-                <textarea
-                  required
-                  rows={4}
-                  value={formData.answer}
-                  onChange={(e) => setFormData({ ...formData, answer: e.target.value })}
-                  placeholder="نص الإجابة بوضوح وسلاسة..."
-                  className={styles.formTextarea}
-                />
-              </div>
-
-              <div className={styles.checkboxGroup}>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={formData.is_active}
-                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                  />
-                  <span>تفعيل السؤال في صفحة الأسئلة الشائعة</span>
-                </label>
-              </div>
-
-              <div className={styles.modalActions}>
-                <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>
-                  إلغاء
-                </Button>
-                <Button type="submit" variant="primary">
-                  حفظ
-                </Button>
-              </div>
-            </form>
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editingFaq ? 'تعديل السؤال' : 'إضافة سؤال جديد'}
+      >
+        <form onSubmit={handleFormSubmit} className={styles.modalForm}>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>نص السؤال *</label>
+            <input
+              type="text"
+              required
+              value={formData.question}
+              onChange={(e) => setFormData({ ...formData, question: e.target.value })}
+              placeholder="مثال: كيف يعمل نظام تثبيت السعر؟"
+              className={styles.formInput}
+            />
           </div>
-        </div>
-      )}
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>الإجابة المفصلة *</label>
+            <textarea
+              required
+              rows={4}
+              value={formData.answer}
+              onChange={(e) => setFormData({ ...formData, answer: e.target.value })}
+              placeholder="نص الإجابة بوضوح وسلاسة..."
+              className={styles.formTextarea}
+            />
+          </div>
+
+          <div className={styles.checkboxGroup}>
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={formData.is_active}
+                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+              />
+              <span>تفعيل السؤال في صفحة الأسئلة الشائعة</span>
+            </label>
+          </div>
+
+          <div className={styles.modalActions}>
+            <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>
+              إلغاء
+            </Button>
+            <Button type="submit" variant="primary">
+              حفظ
+            </Button>
+          </div>
+        </form>
+      </Modal>
 
       <ConfirmDialog
         isOpen={deleteDialogOpen}

@@ -9,6 +9,7 @@ import {
 import { api } from '../../api/client';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
+import Modal from '../../components/common/Modal';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import Skeleton from '../../components/common/Skeleton';
 import ErrorState from '../../components/common/ErrorState';
@@ -233,142 +234,138 @@ export default function AdminAnnouncementsPage() {
       )}
 
       {/* Modal */}
-      {modalOpen && (
-        <div className={styles.modalBackdrop} role="dialog" aria-modal="true">
-          <div className={styles.modalCard}>
-            <h3 className={styles.modalTitle}>
-              {editingItem ? 'تعديل الإعلان' : 'إنشاء إعلان جديد'}
-            </h3>
-
-            <form onSubmit={handleFormSubmit} className={styles.modalForm}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>عنوان الإعلان *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="عنوان الإعلان أو التنبيه"
-                  className={styles.formInput}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>نص الإعلان *</label>
-                <textarea
-                  required
-                  rows={3}
-                  value={formData.body}
-                  onChange={(e) => setFormData({ ...formData, body: e.target.value })}
-                  placeholder="نص الإعلان بالتفصيل..."
-                  className={styles.formTextarea}
-                />
-              </div>
-
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>النوع</label>
-                  <select
-                    value={formData.kind}
-                    onChange={(e) => setFormData({ ...formData, kind: e.target.value })}
-                    className={styles.formSelect}
-                  >
-                    <option value="info">معلومة (أزرق)</option>
-                    <option value="promo">ترويجي (أخضر)</option>
-                    <option value="warning">تحذير (برتقالي)</option>
-                  </select>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>مكان الظهور</label>
-                  <select
-                    value={formData.placement}
-                    onChange={(e) => setFormData({ ...formData, placement: e.target.value })}
-                    className={styles.formSelect}
-                  >
-                    <option value="banner">شريط علوي (تحت القائمة)</option>
-                    <option value="toast">إشعار منبثق (أسفل الشاشة)</option>
-                    <option value="home">بطاقة في الصفحة الرئيسية</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>تاريخ البدء (اختياري)</label>
-                  <input
-                    type="datetime-local"
-                    value={formData.starts_at}
-                    onChange={(e) => setFormData({ ...formData, starts_at: e.target.value })}
-                    className={styles.formInput}
-                  />
-                </div>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>تاريخ الانتهاء (اختياري)</label>
-                  <input
-                    type="datetime-local"
-                    value={formData.ends_at}
-                    onChange={(e) => setFormData({ ...formData, ends_at: e.target.value })}
-                    className={styles.formInput}
-                  />
-                </div>
-              </div>
-
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>نص الرابط (اختياري)</label>
-                  <input
-                    type="text"
-                    value={formData.link_label}
-                    onChange={(e) => setFormData({ ...formData, link_label: e.target.value })}
-                    placeholder="مثال: تسوق الآن"
-                    className={styles.formInput}
-                  />
-                </div>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>الرابط (اختياري)</label>
-                  <input
-                    type="text"
-                    dir="ltr"
-                    value={formData.link_url}
-                    onChange={(e) => setFormData({ ...formData, link_url: e.target.value })}
-                    placeholder="رابط الوجهة (اختياري)"
-                    className={styles.formInput}
-                  />
-                </div>
-              </div>
-
-              <div className={styles.checkboxGroup}>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={formData.is_active}
-                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                  />
-                  <span>تفعيل الإعلان فور الحفظ</span>
-                </label>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={formData.is_dismissible}
-                    onChange={(e) => setFormData({ ...formData, is_dismissible: e.target.checked })}
-                  />
-                  <span>قابل للإغلاق بواسطة العميل</span>
-                </label>
-              </div>
-
-              <div className={styles.modalActions}>
-                <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>
-                  إلغاء
-                </Button>
-                <Button type="submit" variant="primary">
-                  حفظ الإعلان
-                </Button>
-              </div>
-            </form>
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editingItem ? 'تعديل الإعلان' : 'إنشاء إعلان جديد'}
+      >
+        <form onSubmit={handleFormSubmit} className={styles.modalForm}>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>عنوان الإعلان *</label>
+            <input
+              type="text"
+              required
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              placeholder="عنوان الإعلان أو التنبيه"
+              className={styles.formInput}
+            />
           </div>
-        </div>
-      )}
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>نص الإعلان *</label>
+            <textarea
+              required
+              rows={3}
+              value={formData.body}
+              onChange={(e) => setFormData({ ...formData, body: e.target.value })}
+              placeholder="نص الإعلان بالتفصيل..."
+              className={styles.formTextarea}
+            />
+          </div>
+
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>النوع</label>
+              <select
+                value={formData.kind}
+                onChange={(e) => setFormData({ ...formData, kind: e.target.value })}
+                className={styles.formSelect}
+              >
+                <option value="info">معلومة (أزرق)</option>
+                <option value="promo">ترويجي (أخضر)</option>
+                <option value="warning">تحذير (برتقالي)</option>
+              </select>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>مكان الظهور</label>
+              <select
+                value={formData.placement}
+                onChange={(e) => setFormData({ ...formData, placement: e.target.value })}
+                className={styles.formSelect}
+              >
+                <option value="banner">شريط علوي (تحت القائمة)</option>
+                <option value="toast">إشعار منبثق (أسفل الشاشة)</option>
+                <option value="home">بطاقة في الصفحة الرئيسية</option>
+              </select>
+            </div>
+          </div>
+
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>تاريخ البدء (اختياري)</label>
+              <input
+                type="datetime-local"
+                value={formData.starts_at}
+                onChange={(e) => setFormData({ ...formData, starts_at: e.target.value })}
+                className={styles.formInput}
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>تاريخ الانتهاء (اختياري)</label>
+              <input
+                type="datetime-local"
+                value={formData.ends_at}
+                onChange={(e) => setFormData({ ...formData, ends_at: e.target.value })}
+                className={styles.formInput}
+              />
+            </div>
+          </div>
+
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>نص الرابط (اختياري)</label>
+              <input
+                type="text"
+                value={formData.link_label}
+                onChange={(e) => setFormData({ ...formData, link_label: e.target.value })}
+                placeholder="مثال: تسوق الآن"
+                className={styles.formInput}
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>الرابط (اختياري)</label>
+              <input
+                type="text"
+                dir="ltr"
+                value={formData.link_url}
+                onChange={(e) => setFormData({ ...formData, link_url: e.target.value })}
+                placeholder="رابط الوجهة (اختياري)"
+                className={styles.formInput}
+              />
+            </div>
+          </div>
+
+          <div className={styles.checkboxGroup}>
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={formData.is_active}
+                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+              />
+              <span>تفعيل الإعلان فور الحفظ</span>
+            </label>
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={formData.is_dismissible}
+                onChange={(e) => setFormData({ ...formData, is_dismissible: e.target.checked })}
+              />
+              <span>قابل للإغلاق بواسطة العميل</span>
+            </label>
+          </div>
+
+          <div className={styles.modalActions}>
+            <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>
+              إلغاء
+            </Button>
+            <Button type="submit" variant="primary">
+              حفظ الإعلان
+            </Button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Delete Dialog */}
       <ConfirmDialog

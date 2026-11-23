@@ -4,7 +4,7 @@
   background: rgba(6, 26, 85, 0.45);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  z-index: 200;
+  z-index: var(--z-sheet-backdrop, 400);
   display: flex;
   animation: fadeIn var(--motion-base, 250ms) var(--ease-standard) forwards;
   will-change: opacity;
@@ -29,14 +29,14 @@
   flex-direction: column;
   box-shadow: 0 16px 40px rgba(6, 26, 85, 0.22);
   outline: none;
-  z-index: 201;
+  z-index: var(--z-sheet, 450);
   will-change: transform;
 }
 
 /* End position: left side in RTL (start of drawer slide is -100%) */
 .drawerEnd {
-  left: 0;
-  right: auto;
+  inset-inline-end: 0;
+  inset-inline-start: auto;
   animation: slideInFromEnd var(--motion-base, 250ms) var(--ease-standard) forwards;
 }
 

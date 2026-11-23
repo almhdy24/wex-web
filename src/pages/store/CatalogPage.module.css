@@ -271,7 +271,7 @@
   background: var(--wex-white);
   position: sticky;
   bottom: 0;
-  z-index: 10;
+  z-index: 2;
 }
 
 .applyBtn {

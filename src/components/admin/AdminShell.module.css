@@ -1,6 +1,6 @@
 .layout {
   display: flex;
-  min-height: 100vh;
+  min-height: 100dvh;
   background-color: var(--color-ice);
   color: var(--color-navy);
 }
@@ -17,7 +17,7 @@
   top: 0;
   bottom: 0;
   inset-inline-start: 0;
-  z-index: 100;
+  z-index: var(--z-sidebar, 100);
   border-inline-end: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -252,12 +252,20 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding-bottom: 72px; /* Space for phone bottom tab bar */
+  padding-bottom: var(--admin-tabbar-h);
+}
+
+.hasStickyAction {
+  padding-bottom: var(--admin-bottom-clearance);
 }
 
 @media (min-width: 768px) {
   .mainContainer {
     margin-inline-start: 64px;
+    padding-bottom: 0;
+  }
+
+  .hasStickyAction {
     padding-bottom: 0;
   }
 }
@@ -267,19 +275,23 @@
     margin-inline-start: 240px;
     padding-bottom: 0;
   }
+
+  .hasStickyAction {
+    padding-bottom: 0;
+  }
 }
 
 .topBar {
   background-color: var(--color-white);
   border-bottom: 1px solid var(--color-border);
-  height: 60px;
+  height: var(--admin-topbar-h);
   padding-inline: var(--space-4);
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: sticky;
   top: 0;
-  z-index: 90;
+  z-index: var(--z-topbar, 90);
 }
 
 @media (min-width: 768px) {
@@ -386,7 +398,7 @@
   box-shadow: var(--shadow-lg);
   max-height: 360px;
   overflow-y: auto;
-  z-index: 110;
+  z-index: var(--z-popover, 550);
   padding: var(--space-2);
 }
 
@@ -527,11 +539,12 @@
   bottom: 0;
   inset-inline-start: 0;
   inset-inline-end: 0;
-  height: var(--admin-tab-bar-height, 56px);
+  height: var(--admin-tabbar-h, var(--admin-tab-bar-height, 56px));
   background-color: var(--color-white);
   border-top: 1px solid var(--color-border);
-  z-index: 100;
+  z-index: var(--z-tabbar, 300);
   padding-bottom: env(safe-area-inset-bottom, 0px);
+  box-sizing: border-box;
 }
 
 @media (min-width: 768px) {
