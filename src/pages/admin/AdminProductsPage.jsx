@@ -16,7 +16,7 @@ import { adminAr } from '../../content/admin.ar';
 import { formatAed, formatSdg, resolveImageUrl, formatCondition } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
-import Tag from '../../components/common/Tag';
+import StatusChip from '../../components/admin/StatusChip';
 import Select from '../../components/common/Select';
 import ErrorState from '../../components/common/ErrorState';
 import DataList from '../../components/admin/DataList';
@@ -413,11 +413,7 @@ export default function AdminProductsPage() {
             title={isActive ? 'إخفاء من المتجر' : 'تفعيل العرض في المتجر'}
             aria-label={isActive ? 'إخفاء من المتجر' : 'تفعيل العرض في المتجر'}
           >
-            {isActive ? (
-              <Tag variant="success">معروض</Tag>
-            ) : (
-              <Tag variant="neutral">مخفي</Tag>
-            )}
+            <StatusChip domain="visibility" status={isActive ? 'active' : 'inactive'} />
           </button>
         );
       },
@@ -425,18 +421,16 @@ export default function AdminProductsPage() {
     {
       key: 'actions',
       label: 'الإجراءات',
-      hideOnMobile: true,
+      isActions: true,
       render: (p) => (
         <div className={styles.rowActions}>
-          <Link to={`/admin/products/${p.id}/edit`}>
-            <button
-              type="button"
-              className={styles.actionIconBtn}
-              title="تعديل الجهاز"
-              aria-label="تعديل الجهاز"
-            >
-              <Edit size={14} />
-            </button>
+          <Link
+            to={`/admin/products/${p.id}/edit`}
+            className={styles.actionIconBtn}
+            title="تعديل الجهاز"
+            aria-label="تعديل الجهاز"
+          >
+            <Edit size={14} />
           </Link>
           <button
             type="button"
@@ -447,15 +441,15 @@ export default function AdminProductsPage() {
           >
             <Copy size={14} />
           </button>
-          <Link to={`/products/${p.slug}`} target="_blank" rel="noopener noreferrer">
-            <button
-              type="button"
-              className={styles.actionIconBtn}
-              title="معاينة في المتجر"
-              aria-label="معاينة في المتجر"
-            >
-              <ExternalLink size={14} />
-            </button>
+          <Link
+            to={`/products/${p.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.actionIconBtn}
+            title="معاينة في المتجر"
+            aria-label="معاينة في المتجر"
+          >
+            <ExternalLink size={14} />
           </Link>
           <button
             type="button"

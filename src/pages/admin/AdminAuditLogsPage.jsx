@@ -4,7 +4,7 @@ import { Eye, RefreshCw } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { formatDate } from '../../utils/formatters';
 import Modal from '../../components/common/Modal';
-import Tag from '../../components/common/Tag';
+import StatusChip from '../../components/admin/StatusChip';
 import Button from '../../components/common/Button';
 import Select from '../../components/common/Select';
 import DataList from '../../components/admin/DataList';
@@ -162,7 +162,7 @@ export default function AdminAuditLogsPage() {
     {
       key: 'action',
       label: 'الإجراء',
-      render: (log) => <Tag variant={getActionVariant(log.action)}>{log.action}</Tag>,
+      render: (log) => <StatusChip variant={getActionVariant(log.action)} label={log.action} />,
     },
     {
       key: 'entity',

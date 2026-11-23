@@ -1,8 +1,8 @@
 .container {
   position: relative;
   width: 100%;
-  height: 100%;
-  min-height: 380px;
+  height: min(70dvh, 560px);
+  min-height: 320px;
   background-color: var(--color-slate-900);
   border-radius: var(--radius-lg);
   overflow: hidden;
@@ -14,26 +14,86 @@
 .loadingBox {
   width: 100%;
   height: 100%;
-  min-height: 380px;
+  min-height: 320px;
 }
 
+.skeletonOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  color: var(--color-white);
+  text-align: center;
+  z-index: 2;
+}
+
+.errorIcon {
+  color: #F87171;
+}
+
+.errorTitle {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  margin: 0;
+  color: #FCA5A5;
+}
+
+.errorActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.externalLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-ice);
+  font-size: var(--text-xs);
+  text-decoration: underline;
+  padding: 6px 12px;
+}
+
+/* I6: Floating 44px Toolbar (bottom-end on phones, top-start on desktop) */
 .toolbar {
   position: absolute;
-  top: var(--space-3);
-  inset-inline-start: var(--space-3);
-  z-index: 2;
+  bottom: var(--space-3);
+  inset-inline-end: var(--space-3);
+  z-index: var(--z-sticky, 50);
   display: flex;
-  gap: var(--space-2);
-  background-color: rgba(6, 26, 85, 0.75);
+  gap: var(--space-1);
+  background-color: rgba(6, 26, 85, 0.85);
   backdrop-filter: blur(8px);
-  padding: 4px 8px;
+  padding: 4px;
   border-radius: var(--radius-full);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: var(--shadow-md);
+}
+
+@media (min-width: 768px) {
+  .toolbar {
+    top: var(--space-3);
+    bottom: auto;
+    inset-inline-start: var(--space-3);
+    inset-inline-end: auto;
+  }
 }
 
 .toolBtn {
-  width: 34px;
-  height: 34px;
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -50,8 +110,13 @@
   background-color: rgba(255, 255, 255, 0.2);
 }
 
+.toolBtn:active:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.35);
+  transform: scale(0.96);
+}
+
 .toolBtn:disabled {
-  opacity: 0.35;
+  opacity: 0.3;
   cursor: not-allowed;
 }
 
@@ -78,6 +143,11 @@
   max-width: 90%;
   max-height: 90%;
   object-fit: contain;
-  transition: transform 0.08s ease-out;
   pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.hiddenImage {
+  opacity: 0;
 }

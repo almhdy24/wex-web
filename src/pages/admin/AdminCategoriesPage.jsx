@@ -3,7 +3,7 @@ import { Plus, Edit, Trash2, Check, FolderTree } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { useToast } from '../../context/ToastContext';
 import Modal from '../../components/common/Modal';
-import Tag from '../../components/common/Tag';
+import StatusChip from '../../components/admin/StatusChip';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import { TableSkeleton } from '../../components/common/Skeleton';
@@ -191,11 +191,10 @@ export default function AdminCategoriesPage() {
                     </td>
                     <td>{c.sort_order}</td>
                     <td>
-                      {c.is_active ? (
-                        <Tag variant="success">نشط</Tag>
-                      ) : (
-                        <Tag variant="warning">معطل</Tag>
-                      )}
+                      <StatusChip
+                        domain="account"
+                        status={c.is_active ? 'active' : 'inactive'}
+                      />
                     </td>
                     <td style={{ textAlign: 'center' }}>
                       <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>

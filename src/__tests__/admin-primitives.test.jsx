@@ -5,6 +5,7 @@ import DataList from '../components/admin/DataList';
 import StatusChip from '../components/admin/StatusChip';
 import Stepper from '../components/admin/Stepper';
 import ConfirmDialog from '../components/admin/ConfirmDialog';
+import ImageViewer from '../components/admin/ImageViewer';
 import { adminAr } from '../content/admin.ar';
 
 describe('Admin Primitives Unit Tests', () => {
@@ -110,6 +111,16 @@ describe('Admin Primitives Unit Tests', () => {
     expect(html).toContain('زيادة');
   });
 
+  it('Stepper has dir="ltr" and role="group" with spinbutton semantics', () => {
+    const html = renderToStaticMarkup(<Stepper value={7} min={1} max={20} />);
+    expect(html).toContain('dir="ltr"');
+    expect(html).toContain('role="group"');
+    expect(html).toContain('role="spinbutton"');
+    expect(html).toContain('aria-valuenow="7"');
+    expect(html).toContain('aria-valuemin="1"');
+    expect(html).toContain('aria-valuemax="20"');
+  });
+
   it('ConfirmDialog renders title, description, and action buttons', () => {
     const html = renderToStaticMarkup(
       <ConfirmDialog
@@ -157,6 +168,15 @@ describe('Admin Primitives Unit Tests', () => {
       <StatusChip domain="visibility" status="active" />
     );
     expect(htmlActiveVis).toContain('معروض');
+  });
+
+  it('ImageViewer renders toolbar with accessible controls', () => {
+    const html = renderToStaticMarkup(<ImageViewer src="/test.jpg" alt="إشعار الدفع" />);
+    expect(html).toContain('role="toolbar"');
+    expect(html).toContain('تكبير');
+    expect(html).toContain('تصغير');
+    expect(html).toContain('تدوير');
+    expect(html).toContain('إعادة ضبط');
   });
 
   it('admin.ar.js contains zero forbidden marketing puffery words', () => {

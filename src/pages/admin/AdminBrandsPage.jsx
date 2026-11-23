@@ -3,7 +3,7 @@ import { Tag as TagIcon, Plus, Edit, Trash2, Check } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { useToast } from '../../context/ToastContext';
 import Modal from '../../components/common/Modal';
-import Tag from '../../components/common/Tag';
+import StatusChip from '../../components/admin/StatusChip';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import { TableSkeleton } from '../../components/common/Skeleton';
@@ -183,11 +183,11 @@ export default function AdminBrandsPage() {
                       <bdi>{b.slug}</bdi>
                     </td>
                     <td>
-                      {b.is_active ? (
-                        <Tag variant="success">نشطة</Tag>
-                      ) : (
-                        <Tag variant="warning">معطلة</Tag>
-                      )}
+                      <StatusChip
+                        domain="account"
+                        status={b.is_active ? 'active' : 'inactive'}
+                        label={b.is_active ? 'نشطة' : 'معطلة'}
+                      />
                     </td>
                     <td style={{ textAlign: 'center' }}>
                       <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>

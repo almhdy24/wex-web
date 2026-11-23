@@ -4,7 +4,7 @@ import { adminApi } from '../../api/admin';
 import { formatSdg } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
 import Modal from '../../components/common/Modal';
-import Tag from '../../components/common/Tag';
+import StatusChip from '../../components/admin/StatusChip';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import DataList from '../../components/admin/DataList';
@@ -166,14 +166,18 @@ export default function AdminShippingZonesPage() {
           style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
           title={z.is_active ? 'إيقاف المنطقة' : 'تفعيل المنطقة'}
         >
-          {z.is_active ? <Tag variant="success">مفعلة</Tag> : <Tag variant="neutral">معطلة</Tag>}
+          <StatusChip
+            domain="visibility"
+            status={z.is_active ? 'active' : 'inactive'}
+            label={z.is_active ? 'مفعلة' : 'معطلة'}
+          />
         </button>
       ),
     },
     {
       key: 'actions',
       label: 'الإجراءات',
-      hideOnMobile: true,
+      isActions: true,
       render: (z) => (
         <div className={styles.actionsCell}>
           <button

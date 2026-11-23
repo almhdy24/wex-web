@@ -24,7 +24,7 @@ import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import Select from '../../components/common/Select';
-import Tag from '../../components/common/Tag';
+import StatusChip from '../../components/admin/StatusChip';
 import Stepper from '../../components/admin/Stepper';
 import { Skeleton } from '../../components/common/Skeleton';
 import Page from '../../components/common/Page';
@@ -746,10 +746,7 @@ export default function AdminProductFormPage() {
                       />
                       <div className={styles.photoActions}>
                         {img.is_primary ? (
-                          <Tag variant="info">
-                            <Star size={10} />
-                            <span>رئيسية</span>
-                          </Tag>
+                          <StatusChip variant="info" label="رئيسية" icon={Star} size="sm" />
                         ) : (
                           <Button
                             type="button"

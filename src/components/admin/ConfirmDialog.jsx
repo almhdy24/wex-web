@@ -28,7 +28,33 @@ export default function ConfirmDialog({
   variant = 'danger',
   loading = false,
   isLoading = false,
+  ...rest
 }) {
+  if (process.env.NODE_ENV !== 'production') {
+    const knownProps = new Set([
+      'isOpen',
+      'onClose',
+      'onCancel',
+      'onConfirm',
+      'title',
+      'description',
+      'message',
+      'confirmLabel',
+      'confirmText',
+      'cancelLabel',
+      'cancelText',
+      'variant',
+      'loading',
+      'isLoading',
+      'children',
+    ]);
+    Object.keys(rest).forEach((prop) => {
+      if (!knownProps.has(prop)) {
+        console.error(`[ConfirmDialog] Unknown prop: "${prop}"`);
+      }
+    });
+  }
+
   const finalDescription = description ?? message ?? '';
   const finalConfirmLabel = confirmLabel ?? confirmText ?? 'تأكيد';
   const finalCancelLabel = cancelLabel ?? cancelText ?? 'إلغاء';
