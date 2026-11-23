@@ -4,6 +4,7 @@ import { ArrowRight, CheckCircle2, RefreshCw } from 'lucide-react';
 import { authApi } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { safeReturnTo } from '../../utils/url';
 import Page from '../../components/common/Page';
 import styles from './Auth.module.css';
 
@@ -18,15 +19,27 @@ export default function VerifyOtpPage() {
   const [resending, setResending] = useState(false);
   const [countdown, setCountdown] = useState(60);
   const [errorMsg, setErrorMsg] = useState('');
+  const [isShaking, setIsShaking] = useState(false);
 
   const inputRefs = useRef([]);
+  const nameInputRef = useRef(null);
   const { loginWithSession } = useAuth();
   const { success, error: toastError } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const searchReturnTo = new URLSearchParams(location.search).get('returnTo');
-  const from = location.state?.from?.pathname || location.state?.from || searchReturnTo || '/';
+  // A13: Open-redirect protection
+  const searchReturnTo = searchParams.get('returnTo');
+  const from = safeReturnTo(
+    location.state?.from?.pathname || location.state?.from || searchReturnTo
+  );
+
+  // A14: Redirect to /login immediately if email is missing
+  useEffect(() => {
+    if (!emailParam.trim()) {
+      navigate('/login', { replace: true });
+    }
+  }, [emailParam, navigate]);
 
   // 60-second countdown
   useEffect(() => {
@@ -43,6 +56,13 @@ export default function VerifyOtpPage() {
       inputRefs.current[0].focus();
     }
   }, []);
+
+  // A11: Move focus to name field when it appears
+  useEffect(() => {
+    if (needsName && nameInputRef.current) {
+      nameInputRef.current.focus();
+    }
+  }, [needsName]);
 
   const handleVerify = useCallback(
     async (codeToVerify, currentName = name) => {
@@ -68,21 +88,37 @@ export default function VerifyOtpPage() {
         const { user, access_token, refresh_token } = res.data;
         loginWithSession(user, access_token, refresh_token);
         success(`أهلاً بك يا ${user.name}`);
-        const customerTarget = (from && !from.startsWith('/login') && !from.startsWith('/auth')) ? from : '/';
-        const target = (user.role === 'admin' || user.role === 'staff')
-          ? (from !== '/' && from.startsWith('/admin') ? from : '/admin')
-          : customerTarget;
+
+        const customerTarget =
+          from && !from.startsWith('/login') && !from.startsWith('/auth') ? from : '/';
+        const target =
+          user.role === 'admin' || user.role === 'staff'
+            ? from !== '/' && from.startsWith('/admin')
+              ? from
+              : '/admin'
+            : customerTarget;
+
         navigate(target, { replace: true });
       } catch (err) {
         if (err.errors?.name) {
+          // A10 & A12: Ask for name with MSA message; no toast error on normal registration step
           setNeedsName(true);
-          setErrorMsg('حساب جديد. اكتب اسمك عشان نكمل تسجيلك.');
+          setErrorMsg('هذا حساب جديد. اكتب اسمك لإكمال التسجيل.');
         } else {
+          // A3: Clear boxes, focus first input, trigger shake
           const msg =
-            err.errors?.code || err.message || 'رمز التحقق غير صحيح أو انتهى وقته. حاول تاني.';
+            err.errors?.code || err.message || 'رمز التحقق غير صحيح أو انتهت صلاحيته. حاول مرة أخرى.';
           setErrorMsg(msg);
+          setDigits(['', '', '', '', '', '']);
+          setIsShaking(true);
+          setTimeout(() => setIsShaking(false), 500);
+          inputRefs.current[0]?.focus();
+
+          // A10: Network failure toast only
+          if (err.isNetworkError || !err.response) {
+            toastError('تعذر الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت.');
+          }
         }
-        toastError(err.message);
       } finally {
         setLoading(false);
       }
@@ -90,12 +126,31 @@ export default function VerifyOtpPage() {
     [emailParam, name, loginWithSession, success, navigate, from, toastError]
   );
 
+  // A2: Robust paste handler
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pastedText = e.clipboardData.getData('text');
+    const cleanDigits = pastedText.replace(/[^0-9]/g, '').slice(0, 6);
+    if (!cleanDigits) return;
+
+    const newDigits = cleanDigits.padEnd(6, '').split('').slice(0, 6);
+    setDigits(newDigits);
+
+    const focusIdx = Math.min(cleanDigits.length, 5);
+    inputRefs.current[focusIdx]?.focus();
+
+    if (cleanDigits.length === 6) {
+      handleVerify(cleanDigits);
+    }
+  };
+
+  // A2: Non-corrupting digit change
   const handleDigitChange = (index, value) => {
-    // Keep only Western digits 0-9
     const clean = value.replace(/[^0-9]/g, '');
     const newDigits = [...digits];
 
-    if (clean.length > 1) {
+    if (clean.length > 2) {
+      // Treat multi-character input as paste
       const pasted = clean.slice(0, 6).split('');
       pasted.forEach((ch, idx) => {
         newDigits[idx] = ch;
@@ -110,10 +165,12 @@ export default function VerifyOtpPage() {
       return;
     }
 
-    newDigits[index] = clean;
+    // Single character edit: take the last typed digit
+    const char = clean.slice(-1);
+    newDigits[index] = char;
     setDigits(newDigits);
 
-    if (clean && index < 5) {
+    if (char && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
 
@@ -123,9 +180,22 @@ export default function VerifyOtpPage() {
     }
   };
 
+  // A2: Keyboard navigation (LTR order) and backspace handling
   const handleKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !digits[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
+    if (e.key === 'Backspace') {
+      if (!digits[index] && index > 0) {
+        inputRefs.current[index - 1]?.focus();
+      }
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      if (index > 0) {
+        inputRefs.current[index - 1]?.focus();
+      }
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      if (index < 5) {
+        inputRefs.current[index + 1]?.focus();
+      }
     }
   };
 
@@ -141,7 +211,7 @@ export default function VerifyOtpPage() {
       setDigits(['', '', '', '', '', '']);
       inputRefs.current[0]?.focus();
     } catch (err) {
-      setErrorMsg(err.message || 'تعذر إعادة إرسال الرمز');
+      setErrorMsg(err.message || 'تعذر إعادة إرسال الرمز. حاول مرة أخرى.');
     } finally {
       setResending(false);
     }
@@ -154,9 +224,6 @@ export default function VerifyOtpPage() {
 
   return (
     <Page className={styles.container}>
-      <div className={styles.bgRibbon1} />
-      <div className={styles.bgRibbon2} />
-
       <div className={styles.authCard}>
         <div className={styles.cardHeader}>
           <div className={styles.logoBox}>
@@ -177,13 +244,23 @@ export default function VerifyOtpPage() {
           </p>
         </div>
 
-        {errorMsg && <div className={styles.errorAlert}>{errorMsg}</div>}
+        {/* A15: Accessible Error Alert */}
+        {errorMsg && (
+          <div className={styles.errorAlert} role="alert">
+            <div className={styles.errorAlertInner}>
+              <span>{errorMsg}</span>
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className={styles.form}>
           {needsName && (
             <div className={styles.inputGroup}>
-              <label className={styles.inputLabel} htmlFor="userName">الاسم الكامل:</label>
+              <label className={styles.inputLabel} htmlFor="userName">
+                الاسم الكامل:
+              </label>
               <input
+                ref={nameInputRef}
                 id="userName"
                 type="text"
                 placeholder="أحمد محمد"
@@ -195,8 +272,11 @@ export default function VerifyOtpPage() {
             </div>
           )}
 
-          {/* 6-box OTP digits */}
-          <div className={styles.otpBoxGroup}>
+          {/* A1 & A2 & A3: 6-box OTP digits */}
+          <div
+            className={`${styles.otpBoxGroup} ${isShaking ? styles.shakeAnimation : ''}`}
+            dir="ltr"
+          >
             {digits.map((digit, idx) => (
               <input
                 key={idx}
@@ -204,8 +284,10 @@ export default function VerifyOtpPage() {
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
-                maxLength={6}
+                maxLength={2}
                 value={digit}
+                onFocus={(e) => e.target.select()}
+                onPaste={handlePaste}
                 onChange={(e) => handleDigitChange(idx, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(idx, e)}
                 className={styles.otpInput}
@@ -215,10 +297,12 @@ export default function VerifyOtpPage() {
             ))}
           </div>
 
+          {/* A18: Centered resend timer */}
           <div className={styles.timerRow}>
             {countdown > 0 ? (
-              <span>
-                إعادة الإرسال بعد: <span className={styles.timerCount}>{countdown} ثانية</span>
+              <span aria-live="polite">
+                إعادة الإرسال بعد:{' '}
+                <span className={styles.timerCount}>{countdown} ثانية</span>
               </span>
             ) : (
               <button
@@ -227,7 +311,7 @@ export default function VerifyOtpPage() {
                 disabled={resending}
                 className={styles.resendBtn}
               >
-                <RefreshCw size={12} />
+                <RefreshCw size={14} />
                 <span>إعادة إرسال الرمز</span>
               </button>
             )}
@@ -238,16 +322,17 @@ export default function VerifyOtpPage() {
             disabled={loading || digits.join('').length !== 6}
             className={styles.submitBtn}
           >
-            <CheckCircle2 size={16} />
+            <CheckCircle2 size={18} />
             <span>{loading ? 'جاري التحقق...' : 'تأكيد ودخول'}</span>
           </button>
         </form>
 
+        {/* A15: Min 44px hit target back link */}
         <Link
           to={from && from !== '/' ? `/login?returnTo=${encodeURIComponent(from)}` : '/login'}
           className={styles.backLink}
         >
-          <ArrowRight size={14} />
+          <ArrowRight size={16} />
           <span>تغيير البريد الإلكتروني</span>
         </Link>
       </div>
