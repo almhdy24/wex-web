@@ -136,6 +136,16 @@ export default function AdminOrderDetailPage({ initialOrder = null, initialLoadi
   const [reviewAction, setReviewAction] = useState('approve');
   const [reviewNote, setReviewNote] = useState('');
   const [reviewingProof, setReviewingProof] = useState(false);
+  const [shopSettings, setShopSettings] = useState(null);
+
+  useEffect(() => {
+    adminApi
+      .getSettings()
+      .then((res) => {
+        if (res?.data) setShopSettings(res.data);
+      })
+      .catch(() => {});
+  }, []);
 
   const loadOrder = async (showLoading = true) => {
     if (showLoading) setLoading(true);
@@ -418,8 +428,16 @@ export default function AdminOrderDetailPage({ initialOrder = null, initialLoadi
       {/* Printable Order Slip (Visible only during window.print) */}
       <div className={styles.printOnlySlip} aria-hidden="true">
         <div className={styles.printHeader}>
-          <h1>متجر ويكس تكنولوجي — بطاقة طلب</h1>
-          <p>مول الواحة، الشهداء، أم درمان | هاتف: 0912345678</p>
+          <h1>{shopSettings?.shop_name || 'متجر ويكس تكنولوجي'} — بطاقة طلب</h1>
+          <p>
+            {shopSettings?.shop_address || 'مول الواحة، الشهداء، أم درمان'}
+            {shopSettings?.shop_phone && (
+              <>
+                {' '}| هاتف:{' '}
+                <bdi dir="ltr">{shopSettings.shop_phone}</bdi>
+              </>
+            )}
+          </p>
         </div>
         <hr />
         <div className={styles.printMeta}>

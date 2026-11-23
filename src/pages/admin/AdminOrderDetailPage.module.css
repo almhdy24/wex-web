@@ -153,15 +153,14 @@
 }
 
 .titleDivider {
-  height: 2px;
+  height: 1px;
   width: 100%;
-  background: linear-gradient(90deg, var(--color-royal-blue) 0%, var(--color-cyan) 100%);
-  border-radius: var(--radius-full);
+  background: var(--color-slate-200);
 }
 
 /* Primary Next-Step Action Banner */
 .nextStepBanner {
-  background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+  background-color: #EFF6FF;
   border: 1px solid rgba(29, 78, 216, 0.3);
   border-radius: var(--radius-lg);
   padding: var(--space-4) var(--space-5);

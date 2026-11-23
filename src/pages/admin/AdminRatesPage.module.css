@@ -62,9 +62,8 @@
 }
 
 .titleDivider {
-  height: 2px;
-  background: linear-gradient(90deg, var(--color-royal-blue) 0%, var(--color-cyan) 60%, transparent 100%);
-  border-radius: var(--radius-full);
+  height: 1px;
+  background: var(--color-slate-200);
   margin-top: calc(-1 * var(--space-2));
   margin-bottom: var(--space-2);
 }

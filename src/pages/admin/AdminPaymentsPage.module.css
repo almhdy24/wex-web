@@ -4,7 +4,7 @@
   gap: var(--space-4);
   max-width: 1400px;
   margin-inline: auto;
-  padding-bottom: 80px; /* Space for phone sticky action bar */
+  padding-bottom: var(--admin-bottom-clearance, 120px); /* Clearance for phone sticky action bar */
 }
 
 @media (min-width: 768px) {
@@ -68,10 +68,9 @@
 }
 
 .titleDivider {
-  height: 2px;
+  height: 1px;
   width: 100%;
-  background: linear-gradient(90deg, var(--color-royal-blue) 0%, var(--color-cyan) 100%);
-  border-radius: var(--radius-full);
+  background: var(--color-slate-200);
 }
 
 .emptyCard {

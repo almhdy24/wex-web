@@ -154,15 +154,6 @@ export default function AdminPaymentsPage() {
   }, [activeQueueItem, toastError]);
 
   // Handle decisions & queue advance
-  const advanceQueue = useCallback(() => {
-    if (currentIndex < queue.length - 1) {
-      setCurrentIndex((idx) => idx + 1);
-    } else {
-      // Re-fetch queue to see if more arrived, or show empty state
-      fetchQueue();
-    }
-  }, [currentIndex, queue.length, fetchQueue]);
-
   const handleApproveConfirm = async () => {
     if (!currentOrder || !currentProof) return;
     setApproving(true);
@@ -172,9 +163,12 @@ export default function AdminPaymentsPage() {
       });
       success(`تم اعتماد تحويل الطلب #${currentOrder.order_number} بنجاح`);
       setApproveModalOpen(false);
-      // Remove approved order from local queue
-      setQueue((prev) => prev.filter((o) => o.order_number !== currentOrder.order_number));
-      advanceQueue();
+      // Remove approved order from local queue and clamp current index
+      setQueue((prev) => {
+        const next = prev.filter((o) => o.order_number !== currentOrder.order_number);
+        setCurrentIndex((curr) => (next.length === 0 ? 0 : Math.min(curr, next.length - 1)));
+        return next;
+      });
     } catch (err) {
       toastError(err.message || 'فشل اعتماد الإشعار');
     } finally {
@@ -202,9 +196,12 @@ export default function AdminPaymentsPage() {
       setRejectModalOpen(false);
       setSelectedRejectReason('');
       setCustomRejectNote('');
-      // Remove rejected order from local queue
-      setQueue((prev) => prev.filter((o) => o.order_number !== currentOrder.order_number));
-      advanceQueue();
+      // Remove rejected order from local queue and clamp current index
+      setQueue((prev) => {
+        const next = prev.filter((o) => o.order_number !== currentOrder.order_number);
+        setCurrentIndex((curr) => (next.length === 0 ? 0 : Math.min(curr, next.length - 1)));
+        return next;
+      });
     } catch (err) {
       toastError(err.message || 'فشل رفض الإشعار');
     } finally {
@@ -218,8 +215,12 @@ export default function AdminPaymentsPage() {
     try {
       const res = await adminApi.resetOrphanOrder(currentOrder.order_number);
       success(res.message || 'تمت إعادة الطلب وإزالته من طابور المراجعة');
-      setQueue((prev) => prev.filter((o) => o.order_number !== currentOrder.order_number));
-      advanceQueue();
+      // Remove reset order from local queue and clamp current index
+      setQueue((prev) => {
+        const next = prev.filter((o) => o.order_number !== currentOrder.order_number);
+        setCurrentIndex((curr) => (next.length === 0 ? 0 : Math.min(curr, next.length - 1)));
+        return next;
+      });
     } catch (err) {
       toastError(err.message || 'فشلت معالجة الطلب');
     } finally {

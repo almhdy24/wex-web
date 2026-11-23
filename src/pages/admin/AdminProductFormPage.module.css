@@ -3,7 +3,13 @@
   flex-direction: column;
   gap: var(--space-4);
   width: 100%;
-  padding-bottom: 96px; /* space for sticky bottom bar */
+  padding-bottom: var(--admin-bottom-clearance, 120px); /* Clearance for sticky bottom bar */
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding-bottom: 0;
+  }
 }
 
 .header {
@@ -47,9 +53,8 @@
 }
 
 .titleDivider {
-  height: 2px;
-  background: linear-gradient(90deg, var(--color-royal-blue) 0%, var(--color-cyan) 60%, transparent 100%);
-  border-radius: var(--radius-full);
+  height: 1px;
+  background: var(--color-slate-200);
   margin-top: calc(-1 * var(--space-2));
   margin-bottom: var(--space-2);
 }

@@ -86,6 +86,8 @@ export default function AdminSettingsPage() {
           orders_enabled: res.data.orders_enabled === undefined || res.data.orders_enabled === null
             ? true
             : (res.data.orders_enabled === true || res.data.orders_enabled === 'true' || res.data.orders_enabled === 1 || res.data.orders_enabled === '1'),
+          inspection_note: res.data.inspection_note ?? res.data.policy_inspection ?? prev.inspection_note,
+          returns_note: res.data.returns_note ?? res.data.policy_return ?? prev.returns_note,
         }));
       }
     } catch (err) {

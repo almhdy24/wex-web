@@ -34,10 +34,9 @@
 }
 
 .titleDivider {
-  height: 2px;
+  height: 1px;
   width: 100%;
-  background: linear-gradient(90deg, var(--color-royal-blue) 0%, var(--color-cyan) 100%);
-  border-radius: var(--radius-full);
+  background: var(--color-slate-200);
 }
 
 /* Status Filter Chips Scroll */

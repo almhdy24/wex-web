@@ -47,15 +47,14 @@
 }
 
 .titleDivider {
-  height: 2px;
+  height: 1px;
   width: 100%;
-  background: linear-gradient(90deg, var(--color-royal-blue) 0%, var(--color-cyan) 100%);
-  border-radius: var(--radius-full);
+  background: var(--color-slate-200);
 }
 
 /* Danger Alert Banner (e.g. No active payment account) */
 .dangerAlertBanner {
-  background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
+  background-color: #FEF2F2;
   border: 1px solid rgba(220, 38, 38, 0.4);
   border-radius: var(--radius-lg);
   padding: var(--space-4) var(--space-5);
@@ -100,7 +99,7 @@
 
 /* Warning Banner (e.g. Orders Paused) */
 .warningBanner {
-  background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+  background-color: #FFFBEB;
   border: 1px solid rgba(217, 119, 6, 0.4);
   border-radius: var(--radius-lg);
   padding: var(--space-3) var(--space-4);
@@ -167,7 +166,7 @@
 }
 
 .urgentCard {
-  background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+  background-color: #FFFBEB;
   border: 1px solid rgba(245, 158, 11, 0.35);
   border-radius: var(--radius-lg);
   padding: var(--space-4) var(--space-5);
