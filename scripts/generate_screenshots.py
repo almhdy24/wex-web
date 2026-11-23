@@ -103,8 +103,8 @@ def render_screen(page, mode, vp_name, w, h):
     font_body = get_font(13)
     font_caption = get_font(11)
 
-    pad = 16 if mode == "after" else (16 if page not in ["cart", "checkout", "product-detail"] else 0)
-    card_rad = 16 if mode == "after" else (8 if page in ["cart", "checkout"] else 12)
+    pad = 16
+    card_rad = 12
 
     if page == "home":
         # AppBar
@@ -113,7 +113,7 @@ def render_screen(page, mode, vp_name, w, h):
         draw.rectangle([16, 70, w - 16, 114], fill="#FFFFFF", outline="#D5E2F7", width=1)
         draw.text((w - 30, 85), "ابحث عن جهاز...", fill="#4B5B85", font=font_body, anchor="ra")
         # Freshness dot
-        dot_color = "#00B7FF" if mode == "after" else "#4B5B85"
+        dot_color = "#0B3FBF" if mode == "after" else "#4B5B85"
         draw.ellipse([w - 24, 122, w - 18, 128], fill=dot_color)
         draw.text((w - 30, 120), "اخر تحديث للاسعار: اليوم 12:00 م", fill="#4B5B85", font=font_caption, anchor="ra")
 
@@ -124,10 +124,8 @@ def render_screen(page, mode, vp_name, w, h):
             # Flat navy hero
             draw.rectangle([16, hero_y, w - 16, hero_y + hero_h], fill="#061A55")
         else:
-            # Official brand gradient #0B3FBF -> #1E6BFF -> #00B7FF
-            draw_linear_gradient(img, (16, hero_y, w - 16, hero_y + hero_h), (11, 63, 191), (0, 183, 255))
-            # Ribbon overlay accent
-            draw.line([(16, hero_y + hero_h), (w - 16, hero_y)], fill=(30, 107, 255), width=3)
+            # Authentic retail hero: Solid deep navy with clean 12px corners
+            draw.rounded_rectangle([16, hero_y, w - 16, hero_y + hero_h], radius=card_rad, fill="#061A55")
 
         draw.text((w - 30, hero_y + 24), "اجهزة لابتوب جديدة ومستعملة", fill="#FFFFFF", font=font_title, anchor="ra")
         draw.text((w - 30, hero_y + 60), "تصفح الاجهزة المتوفرة باسعار واضحة", fill="#C9D6F5", font=font_body, anchor="ra")
@@ -316,15 +314,27 @@ def render_screen(page, mode, vp_name, w, h):
         draw.text((w - 30, cy + 110), "• التخزين: 512GB NVMe SSD", fill="#061A55", font=font_caption, anchor="ra")
 
         # Purchase bar
-        pbar_y = h - 64
         if mode == "before":
+            pbar_y = h - 64
             draw.rectangle([0, pbar_y, w, h], fill="#FFFFFF", outline="#D5E2F7")
             draw.rectangle([16, pbar_y + 8, w - 16, pbar_y + 48], fill="#0B3FBF")
             draw.text((w // 2, pbar_y + 24), "إضافة للسلة — 520,000 SDG", fill="#FFFFFF", font=font_body, anchor="mm")
         else:
-            draw.rounded_rectangle([16, pbar_y - 10, w - 16, pbar_y + 44], radius=16, fill="#FFFFFF", outline="#D5E2F7")
-            draw_linear_gradient(img, (24, pbar_y - 2, w - 24, pbar_y + 36), (11, 63, 191), (0, 183, 255))
-            draw.text((w // 2, pbar_y + 14), "إضافة إلى السلة — 520,000 SDG", fill="#FFFFFF", font=font_body, anchor="mm")
+            # Authentic retail purchase bar: Centered 2-row layout with clear price, stepper, cart button and primary order CTA
+            pbar_y = h - 86
+            bar_w = min(w - 24, 480)
+            bar_x0 = (w - bar_w) // 2
+            bar_x1 = bar_x0 + bar_w
+            draw.rounded_rectangle([bar_x0, pbar_y, bar_x1, pbar_y + 76], radius=12, fill="#FFFFFF", outline="#D5E2F7", width=1)
+            # Row 1: Price and Stepper
+            draw.text((bar_x1 - 14, pbar_y + 10), "520,000 ج.س", fill="#061A55", font=get_font(13), anchor="ra")
+            draw.rounded_rectangle([bar_x0 + 12, pbar_y + 6, bar_x0 + 84, pbar_y + 28], radius=6, fill="#F8FAFC", outline="#D5E2F7")
+            draw.text((bar_x0 + 48, pbar_y + 12), "-  1  +", fill="#061A55", font=get_font(11), anchor="mm")
+            # Row 2: 44px Cart Icon + Full-width Order CTA
+            draw.rounded_rectangle([bar_x1 - 50, pbar_y + 34, bar_x1 - 12, pbar_y + 70], radius=8, fill="#F8FAFC", outline="#D5E2F7")
+            draw.text((bar_x1 - 31, pbar_y + 47), "🛒", fill="#061A55", font=get_font(12), anchor="mm")
+            draw.rounded_rectangle([bar_x0 + 12, pbar_y + 34, bar_x1 - 58, pbar_y + 70], radius=8, fill="#0B3FBF")
+            draw.text(((bar_x0 + 12 + bar_x1 - 58) // 2, pbar_y + 47), "اطلب الآن", fill="#FFFFFF", font=get_font(12), anchor="mm")
 
     elif page == "orders":
         draw_top_bar(draw, w, "طلباتي", mode, show_back=False)

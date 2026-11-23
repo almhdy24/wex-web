@@ -264,9 +264,14 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 12px;
-  padding-top: 16px;
+  margin-top: 16px;
+  padding-top: 14px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--wex-border);
+  background: var(--wex-white);
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
 }
 
 .applyBtn {

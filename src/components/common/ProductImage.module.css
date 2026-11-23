@@ -5,16 +5,7 @@
   justify-content: center;
   width: 100%;
   height: 100%;
-}
-
-.placeholderWrapper::before {
-  content: "";
-  position: absolute;
-  width: 120%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(0, 183, 255, 0.28), transparent 65%);
-  pointer-events: none;
+  color: var(--wex-gray-400, #94a3b8);
 }
 
 .placeholderSvg {

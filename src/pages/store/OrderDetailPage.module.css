@@ -667,19 +667,10 @@
 
 /* Sticky Bottom Upload Button */
 .stickyBar {
-  position: fixed;
-  inset-inline: 12px;
-  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-  z-index: 50;
-  max-width: 480px;
-  margin: 0 auto;
-  box-sizing: border-box;
-}
-
-@media (min-width: 768px) {
-  .stickyBar {
-    max-width: 600px;
-  }
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .stickyUploadBtn {

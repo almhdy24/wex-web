@@ -11,19 +11,56 @@ const outDir = resolve(rootDir, 'screenshots');
 const BASE_URL = process.env.BASE_URL || 'http://127.0.0.1:4173';
 
 const VIEWPORTS = [
-  { name: 'android-360x800', width: 360, height: 800 },
-  { name: 'iphone-390x844', width: 390, height: 844 },
-  { name: 'ipad-768x1024', width: 768, height: 1024 },
-  { name: 'laptop-1280x800', width: 1280, height: 800 },
+  {
+    name: 'android-360x800-dpr3-font1.3',
+    width: 360,
+    height: 800,
+    deviceScaleFactor: 3,
+    isMobile: true,
+    hasTouch: true,
+    fontScale: 1.3,
+  },
+  {
+    name: 'iphone-390x844-dpr3',
+    width: 390,
+    height: 844,
+    deviceScaleFactor: 3,
+    isMobile: true,
+    hasTouch: true,
+    fontScale: 1.0,
+  },
+  {
+    name: 'ipad-768x1024',
+    width: 768,
+    height: 1024,
+    deviceScaleFactor: 2,
+    isMobile: true,
+    hasTouch: true,
+    fontScale: 1.0,
+  },
+  {
+    name: 'laptop-1280x800',
+    width: 1280,
+    height: 800,
+    deviceScaleFactor: 1,
+    isMobile: false,
+    hasTouch: false,
+    fontScale: 1.0,
+  },
 ];
 
 const ROUTES = [
-  // Storefront
+  // Storefront Seven Core Pages
   { path: '/', name: 'store-home' },
   { path: '/catalog', name: 'store-catalog' },
+  { path: '/products/lenovo-thinkpad-t480', name: 'store-product-detail' },
   { path: '/cart', name: 'store-cart' },
   { path: '/checkout', name: 'store-checkout' },
   { path: '/orders', name: 'store-orders' },
+  { path: '/orders/WEX-101', name: 'store-order-detail' },
+  { path: '/account', name: 'store-account' },
+
+  // Auxiliary Storefront Pages
   { path: '/favorites', name: 'store-favorites' },
   { path: '/compare', name: 'store-compare' },
   { path: '/faq', name: 'store-faq' },
@@ -31,9 +68,8 @@ const ROUTES = [
   { path: '/privacy-policy', name: 'store-privacy' },
   { path: '/terms', name: 'store-terms' },
   { path: '/login', name: 'store-login' },
-  { path: '/account', name: 'store-account' },
 
-  // Admin
+  // Admin Shell
   { path: '/admin', name: 'admin-dashboard' },
   { path: '/admin/orders', name: 'admin-orders' },
   { path: '/admin/payments', name: 'admin-payments' },
@@ -89,23 +125,28 @@ async function main() {
       mkdirSync(vpDir, { recursive: true });
     }
 
-    console.log(`\n--- Testing Viewport: ${vp.name} (${vp.width}x${vp.height}) ---`);
+    console.log(`\n--- Testing Viewport: ${vp.name} (${vp.width}x${vp.height}, DPR: ${vp.deviceScaleFactor}, Touch: ${vp.hasTouch}) ---`);
 
     const context = await browser.newContext({
       viewport: { width: vp.width, height: vp.height },
-      deviceScaleFactor: 2,
+      deviceScaleFactor: vp.deviceScaleFactor || 1,
+      isMobile: vp.isMobile ?? false,
+      hasTouch: vp.hasTouch ?? false,
     });
 
-    // Seed mock admin authentication tokens in localStorage
+    // Seed mock admin and customer authentication tokens in localStorage
     await context.addInitScript(() => {
       try {
         localStorage.setItem('auth_token', 'mock_ci_admin_token');
-        localStorage.setItem('auth_user', JSON.stringify({
-          id: 1,
-          name: 'مدير النظام (CI)',
-          email: 'admin@wextechnology.com',
-          role: 'admin',
-        }));
+        localStorage.setItem(
+          'auth_user',
+          JSON.stringify({
+            id: 1,
+            name: 'مدير النظام (CI)',
+            email: 'admin@wextechnology.com',
+            role: 'admin',
+          })
+        );
       } catch {
         // ignore
       }
@@ -129,6 +170,14 @@ async function main() {
 
       try {
         await page.goto(url, { waitUntil: 'networkidle', timeout: 15000 });
+
+        // Apply Android font scale 1.3 when specified
+        if (vp.fontScale && vp.fontScale !== 1.0) {
+          await page.addStyleTag({
+            content: `html { font-size: ${Math.round(vp.fontScale * 100)}% !important; }`,
+          });
+        }
+
         await page.waitForTimeout(500);
 
         // Check for console errors
@@ -140,20 +189,201 @@ async function main() {
           totalErrors++;
         }
 
-        // Check for horizontal overflow (no horizontal scrollbar on body)
+        // 1. Check for horizontal overflow (document scrollWidth must equal clientWidth on every page)
         const overflow = await page.evaluate(() => {
           const docWidth = document.documentElement.scrollWidth;
+          const clientWidth = document.documentElement.clientWidth;
           const winWidth = window.innerWidth;
+          const hasOverflow = docWidth > clientWidth + 1 || docWidth > winWidth + 1;
+
+          // Find offending elements where getBoundingClientRect().right > innerWidth
+          const offending = [];
+          document.querySelectorAll('*').forEach((el) => {
+            const rect = el.getBoundingClientRect();
+            if (rect.right > winWidth + 1.5) {
+              offending.push({
+                tag: el.tagName,
+                className: el.className ? String(el.className).slice(0, 50) : '',
+                right: Math.round(rect.right),
+                winWidth,
+              });
+            }
+          });
+
           return {
-            hasOverflow: docWidth > winWidth + 1, // allow 1px rounding margin
+            hasOverflow,
             docWidth,
+            clientWidth,
             winWidth,
+            offending: offending.slice(0, 5),
           };
         });
 
         if (overflow.hasOverflow) {
-          console.error(`  ❌ [${vp.name}] ${route.path}: Horizontal overflow detected! (scrollWidth: ${overflow.docWidth}px, innerWidth: ${overflow.winWidth}px)`);
+          console.error(
+            `  ❌ [${vp.name}] ${route.path}: Horizontal overflow detected! (scrollWidth: ${overflow.docWidth}px, clientWidth: ${overflow.clientWidth}px, innerWidth: ${overflow.winWidth}px)`
+          );
+          if (overflow.offending.length > 0) {
+            console.error(`     Offending element(s):`, JSON.stringify(overflow.offending));
+          }
           totalErrors++;
+        }
+
+        // 2. Fixed bars check (StickyBar, BottomTabBar, AppBar)
+        const barCheck = await page.evaluate(() => {
+          const winWidth = window.innerWidth;
+          const issues = [];
+          const fixedElements = Array.from(document.querySelectorAll('*')).filter((el) => {
+            const style = window.getComputedStyle(el);
+            return (
+              style.position === 'fixed' &&
+              style.display !== 'none' &&
+              style.visibility !== 'hidden' &&
+              parseFloat(style.opacity || '1') > 0
+            );
+          });
+
+          for (const bar of fixedElements) {
+            const rect = bar.getBoundingClientRect();
+            // Bar must be fully inside viewport horizontally
+            if (rect.left < -1.5 || rect.right > winWidth + 1.5) {
+              issues.push({
+                type: 'bar_escapes_viewport',
+                className: String(bar.className).slice(0, 50),
+                rect: { left: Math.round(rect.left), right: Math.round(rect.right) },
+                winWidth,
+              });
+            }
+
+            // Verify StickyBar on mobile is centered, inset 12px, and NOT ~half width
+            const cls = String(bar.className);
+            if (cls.includes('stickyBar') || cls.includes('purchaseBar')) {
+              if (winWidth <= 480) {
+                const expectedWidth = winWidth - 24; // inset 12px on both sides
+                if (rect.width < expectedWidth * 0.8) {
+                  issues.push({
+                    type: 'bar_too_narrow_or_offset',
+                    actualWidth: Math.round(rect.width),
+                    expectedWidth,
+                    className: cls.slice(0, 50),
+                  });
+                }
+              }
+            }
+          }
+          return issues;
+        });
+
+        if (barCheck.length > 0) {
+          console.error(`  ❌ [${vp.name}] ${route.path}: Fixed bar positioning issues:`, JSON.stringify(barCheck));
+          totalErrors++;
+        }
+
+        // 3. Primary buttons visible and tappable check
+        const buttonCheck = await page.evaluate(() => {
+          const issues = [];
+          const primaryButtons = Array.from(
+            document.querySelectorAll(
+              'button[class*="primary"], button[class*="orderBtn"], button[class*="cartIcon"], button[class*="stickyUploadBtn"]'
+            )
+          ).filter((btn) => {
+            const style = window.getComputedStyle(btn);
+            return (
+              style.display !== 'none' &&
+              style.visibility !== 'hidden' &&
+              parseFloat(style.opacity || '1') > 0
+            );
+          });
+
+          for (const btn of primaryButtons) {
+            const rect = btn.getBoundingClientRect();
+            if (rect.width === 0 || rect.height === 0) continue;
+
+            // Only test buttons currently within viewport bounds
+            if (
+              rect.top >= 0 &&
+              rect.bottom <= window.innerHeight &&
+              rect.left >= 0 &&
+              rect.right <= window.innerWidth
+            ) {
+              const centerX = rect.left + rect.width / 2;
+              const centerY = rect.top + rect.height / 2;
+              const elAtPoint = document.elementFromPoint(centerX, centerY);
+              if (elAtPoint && !btn.contains(elAtPoint) && !elAtPoint.contains(btn)) {
+                issues.push({
+                  btnText: btn.textContent?.trim().slice(0, 30),
+                  btnClass: String(btn.className).slice(0, 50),
+                  obstructedBy: `${elAtPoint.tagName}.${String(elAtPoint.className).slice(0, 40)}`,
+                });
+              }
+            }
+          }
+          return issues;
+        });
+
+        if (buttonCheck.length > 0) {
+          console.error(
+            `  ❌ [${vp.name}] ${route.path}: Primary button(s) obstructed:`,
+            JSON.stringify(buttonCheck)
+          );
+          totalErrors++;
+        }
+
+        // 4. Special check on /catalog: open filter Sheet and verify BottomTabBar doesn't overlap Apply/Reset buttons
+        if (route.path === '/catalog') {
+          try {
+            const filterTrigger = await page.$(
+              'button[aria-label*="تصفية"], button:has-text("تصفية"), button[class*="filterBtn"]'
+            );
+            if (filterTrigger) {
+              await filterTrigger.click();
+              await page.waitForTimeout(300);
+
+              const sheetOverlapCheck = await page.evaluate(() => {
+                const sheet = document.querySelector('[role="dialog"]');
+                const tabbar = document.querySelector('nav[class*="bottomNav"], [class*="bottomNav"]');
+                const applyBtn = document.querySelector('button[class*="applyBtn"]');
+                const resetBtn = document.querySelector('button[class*="resetDraftBtn"]');
+
+                if (!sheet || !applyBtn) return { hasIssue: false, note: 'Sheet or apply button not found' };
+
+                let overlapped = false;
+                const bRect = applyBtn.getBoundingClientRect();
+                const topEl = document.elementFromPoint(
+                  bRect.left + bRect.width / 2,
+                  bRect.top + bRect.height / 2
+                );
+
+                if (topEl && tabbar && (tabbar.contains(topEl) || topEl.closest('[class*="bottomNav"]'))) {
+                  overlapped = true;
+                }
+
+                return {
+                  hasIssue: overlapped,
+                  applyBtnVisible: bRect.width > 0 && bRect.height > 0,
+                  resetBtnVisible: Boolean(resetBtn),
+                };
+              });
+
+              if (sheetOverlapCheck.hasIssue) {
+                console.error(
+                  `  ❌ [${vp.name}] /catalog filter sheet: BottomTabBar overlaps the sheet Apply/Reset buttons!`
+                );
+                totalErrors++;
+              }
+
+              // Close sheet
+              const closeBtn = await page.$(
+                '[role="dialog"] button[aria-label*="إغلاق"], button[class*="closeBtn"]'
+              );
+              if (closeBtn) {
+                await closeBtn.click();
+                await page.waitForTimeout(200);
+              }
+            }
+          } catch {
+            // Ignore filter sheet test errors if button not present
+          }
         }
 
         // Capture screenshot
@@ -180,7 +410,9 @@ async function main() {
     console.error('❌ FAIL: Visual and layout checks detected errors or horizontal overflow.');
     process.exit(1);
   } else {
-    console.log('✅ PASS: All viewports captured cleanly with zero console errors and zero horizontal overflow.');
+    console.log(
+      '✅ PASS: All viewports captured cleanly with zero console errors, zero horizontal overflow, and fully reachable action controls.'
+    );
     process.exit(0);
   }
 }

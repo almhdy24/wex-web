@@ -1,24 +1,30 @@
 .stickyBar {
   position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  inset-inline: 12px;
+  margin-inline: auto;
+  width: calc(100% - 24px);
   max-width: var(--app-shell-max-width, 480px);
   background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid rgba(11, 63, 191, 0.08);
+  border: 1px solid rgba(11, 63, 191, 0.08);
+  border-radius: var(--radius-panel, 28px);
   box-shadow: var(--shadow-sticky, 0 -4px 16px rgba(6, 26, 85, 0.08));
-  z-index: 100;
-  padding: 12px var(--space-4, 16px);
-  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  z-index: var(--z-sticky, 100);
+  padding: 12px 14px;
   box-sizing: border-box;
   transition: transform var(--motion-fast) var(--ease-standard), opacity var(--motion-fast) var(--ease-standard);
 }
 
+@media (min-width: 768px) {
+  .stickyBar {
+    max-width: 600px;
+  }
+}
+
 .inputFocused {
-  transform: translate(-50%, 100%);
+  transform: translateY(120%);
   opacity: 0;
   pointer-events: none;
 }

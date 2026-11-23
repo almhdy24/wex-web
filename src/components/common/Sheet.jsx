@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { ar } from '../../content/ar';
 import styles from './Sheet.module.css';
@@ -60,7 +61,7 @@ export default function Sheet({
 
   const sheetStyle = dragOffset > 0 ? { transform: `translate3d(0, ${dragOffset}px, 0)` } : undefined;
 
-  return (
+  const content = (
     <div
       className={styles.backdrop}
       onClick={onClose}
@@ -114,4 +115,9 @@ export default function Sheet({
       </div>
     </div>
   );
+
+  if (typeof document !== 'undefined' && document.body) {
+    return createPortal(content, document.body);
+  }
+  return content;
 }

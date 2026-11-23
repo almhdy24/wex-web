@@ -9,7 +9,7 @@ import React from 'react';
 export default function ProductTypeSvg({
   type = 'laptop',
   size,
-  stroke = '#fff',
+  stroke = 'currentColor',
   strokeWidth = 1.4,
   className = '',
   width,

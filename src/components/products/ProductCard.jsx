@@ -101,7 +101,7 @@ export default function ProductCard({ product, index, style = {} }) {
               alt={product.name}
               type={product.type || 'laptop'}
               size={58}
-              stroke="#fff"
+              stroke="var(--wex-gray-400)"
               strokeWidth={1.3}
               className={styles.image}
               fallbackClassName={styles.svgWrapper}
@@ -131,8 +131,8 @@ export default function ProductCard({ product, index, style = {} }) {
             <Heart
               size={16}
               strokeWidth={2}
-              fill={fav ? '#fff' : 'none'}
-              color="#fff"
+              fill={fav ? '#dc2626' : 'none'}
+              color={fav ? '#dc2626' : 'var(--wex-navy)'}
             />
           </button>
 

@@ -14,7 +14,7 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: center;
   box-sizing: border-box;
-  z-index: 50;
+  z-index: var(--z-tabbar, 300);
   user-select: none;
 }
 

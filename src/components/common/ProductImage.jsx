@@ -13,7 +13,7 @@ export default function ProductImage({
   className = '',
   fallbackClassName = '',
   size,
-  stroke = '#fff',
+  stroke = 'currentColor',
   strokeWidth = 1.4,
   loading = 'lazy',
   ...rest

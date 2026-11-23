@@ -2,7 +2,7 @@
   position: fixed;
   inset: 0;
   background-color: rgba(6, 26, 85, 0.4);
-  z-index: 1000;
+  z-index: var(--z-sheet-backdrop, 400);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -31,7 +31,7 @@
   box-shadow: var(--shadow-sheet);
   overflow: hidden;
   animation: slideUp var(--motion-base, 250ms) var(--ease-standard);
-  z-index: 1001;
+  z-index: var(--z-sheet, 450);
   touch-action: pan-y;
   will-change: transform;
 }
@@ -94,6 +94,7 @@
 
 .content {
   padding: var(--space-4, 16px);
+  padding-bottom: calc(var(--space-4, 16px) + env(safe-area-inset-bottom, 0px));
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
@@ -102,6 +103,7 @@
 
 .footer {
   padding: var(--space-4, 16px);
+  padding-bottom: calc(var(--space-4, 16px) + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--wex-border);
   background-color: var(--wex-white);
   display: flex;

@@ -64,6 +64,7 @@ export default function ProductDetailPage({
   initialShopInfo = null,
   initialShippingZones = null,
   initialLoading = null,
+  initialTab = 'specs',
 } = {}) {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -87,7 +88,7 @@ export default function ProductDetailPage({
   );
   const [error, setError] = useState(null);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('specs'); // 'specs' | 'delivery'
+  const [activeTab, setActiveTab] = useState(initialTab); // 'specs' | 'delivery'
   const [isAdded, setIsAdded] = useState(false);
 
   useEffect(() => {
@@ -337,8 +338,8 @@ export default function ProductDetailPage({
             <Heart
               size={20}
               strokeWidth={1.75}
-              fill={isFav ? 'var(--wex-cyan)' : 'none'}
-              stroke={isFav ? 'var(--wex-cyan)' : 'var(--wex-white)'}
+              fill={isFav ? 'var(--wex-danger, #ef4444)' : 'none'}
+              stroke={isFav ? 'var(--wex-danger, #ef4444)' : 'currentColor'}
               aria-hidden="true"
             />
           </button>
@@ -505,7 +506,7 @@ export default function ProductDetailPage({
         )}
 
         {/* Purchase Bar (Fixed) */}
-        <StickyBar className={styles.purchaseBar}>
+        <StickyBar className={styles.purchaseBar} innerClassName={styles.purchaseBarInner}>
           <div className={styles.purchasePriceCol}>
             <span className={styles.purchasePriceLabel}>السعر</span>
             <Price value={product.price_sdg} size="title" />

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import AppBar from '../components/common/AppBar';
 import BottomTabBar from '../components/common/BottomTabBar';
 import SplashScreen from '../components/common/SplashScreen';
 import PwaPrompt from '../components/common/PwaPrompt';
@@ -12,7 +11,6 @@ import CompareTray from '../components/compare/CompareTray';
 import {
   AnnouncementBanner,
   AnnouncementToast,
-  RecentPurchasesToast,
   OrdersDisabledBanner,
   StoreFooter,
 } from '../components/store';
@@ -128,7 +126,6 @@ export default function StoreLayout() {
   };
 
   const routeInfo = getRouteInfo(location.pathname);
-  const activeTitle = customTitle || routeInfo.title;
 
   // Arabic-first Document Title: "ويكس تكنولوجي | {اسم الصفحة}"
   useEffect(() => {
@@ -263,7 +260,6 @@ export default function StoreLayout() {
         />
 
         <AnnouncementToast announcements={announcements} />
-        <RecentPurchasesToast tickerEnabled={shopInfo?.ticker_enabled !== false} />
         <CompareTray />
 
         <ScrollToTop />
@@ -324,7 +320,6 @@ export default function StoreLayout() {
 
         <CompareTray />
         <AnnouncementToast announcements={announcements} />
-        <RecentPurchasesToast tickerEnabled={shopInfo?.ticker_enabled !== false} />
 
         <CartDrawer
           isOpen={isCartDrawerOpen}
