@@ -36,6 +36,54 @@ describe('Admin Primitives Unit Tests', () => {
     expect(html).toContain('لا توجد طلبات');
   });
 
+  it('DataList handles standardized pagination contract and legacy currentPage', () => {
+    const columns = [{ key: 'id', label: 'الرقم' }];
+    const data = [{ id: 1 }, { id: 2 }];
+
+    // Standard contract: { page: 2, totalPages: 5, totalItems: 10 }
+    const htmlStandard = renderToStaticMarkup(
+      <DataList
+        columns={columns}
+        data={data}
+        pagination={{ page: 2, totalPages: 5, totalItems: 10, onPageChange: () => {} }}
+      />
+    );
+    expect(htmlStandard).toContain('صفحة 2 من 5');
+    expect(htmlStandard).toContain('(10 عنصر)');
+
+    // Legacy alias: { currentPage: 3, totalPages: 5 }
+    const htmlLegacy = renderToStaticMarkup(
+      <DataList
+        columns={columns}
+        data={data}
+        pagination={{ currentPage: 3, totalPages: 5, onPageChange: () => {} }}
+      />
+    );
+    expect(htmlLegacy).toContain('صفحة 3 من 5');
+  });
+
+  it('DataList renders mobile cards with isActions slot in card footer', () => {
+    const columns = [
+      { key: 'name', label: 'الاسم', isPrimary: true },
+      { key: 'phone', label: 'الهاتف' },
+      {
+        key: 'actions',
+        label: 'الإجراءات',
+        isActions: true,
+        render: () => <button type="button">تعديل الصلاحيات</button>,
+      },
+    ];
+    const data = [{ id: 1, name: 'سارة', phone: '0912345678' }];
+
+    const htmlCards = renderToStaticMarkup(
+      <DataList columns={columns} data={data} forceView="cards" />
+    );
+    expect(htmlCards).toContain('role="list"');
+    expect(htmlCards).toContain('role="listitem"');
+    expect(htmlCards).toContain('سارة');
+    expect(htmlCards).toContain('تعديل الصلاحيات');
+  });
+
   it('StatusChip renders icon and text for order statuses', () => {
     const htmlPending = renderToStaticMarkup(<StatusChip status="pending_payment" />);
     expect(htmlPending).toContain('بانتظار التحويل');
@@ -76,6 +124,39 @@ describe('Admin Primitives Unit Tests', () => {
     expect(html).toContain('تأكيد الحذف');
     expect(html).toContain('سيتم حذف هذا العنصر نهائياً');
     expect(html).toContain('نعم، احذف');
+  });
+
+  it('ConfirmDialog accepts legacy message and confirmText aliases', () => {
+    const htmlLegacy = renderToStaticMarkup(
+      <ConfirmDialog
+        isOpen={true}
+        onClose={() => {}}
+        onConfirm={() => {}}
+        title="تأكيد التنشيط"
+        message="هل تريد إعادة التنشيط؟"
+        confirmText="تنشيط الحساب"
+      />
+    );
+    expect(htmlLegacy).toContain('تأكيد التنشيط');
+    expect(htmlLegacy).toContain('هل تريد إعادة التنشيط؟');
+    expect(htmlLegacy).toContain('تنشيط الحساب');
+  });
+
+  it('StatusChip supports account and visibility domains', () => {
+    const htmlActiveAccount = renderToStaticMarkup(
+      <StatusChip domain="account" status="active" />
+    );
+    expect(htmlActiveAccount).toContain('نشط');
+
+    const htmlInactiveAccount = renderToStaticMarkup(
+      <StatusChip domain="account" status="inactive" />
+    );
+    expect(htmlInactiveAccount).toContain('معطل');
+
+    const htmlActiveVis = renderToStaticMarkup(
+      <StatusChip domain="visibility" status="active" />
+    );
+    expect(htmlActiveVis).toContain('معروض');
   });
 
   it('admin.ar.js contains zero forbidden marketing puffery words', () => {

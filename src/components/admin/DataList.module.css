@@ -3,6 +3,44 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  position: relative;
+  transition: opacity var(--transition-normal);
+}
+
+.loadingState {
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.progressBarWrapper {
+  position: absolute;
+  top: 0;
+  inset-inline: 0;
+  height: 3px;
+  background-color: var(--color-ice);
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  z-index: var(--z-sticky, 50);
+}
+
+.progressBar {
+  height: 100%;
+  width: 40%;
+  background-color: var(--color-royal-blue);
+  border-radius: var(--radius-full);
+  animation: progressPulse 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes progressPulse {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(120%);
+  }
+  100% {
+    transform: translateX(250%);
+  }
 }
 
 .loadingWrapper,
@@ -19,10 +57,8 @@
   gap: var(--space-3);
 }
 
-@media (min-width: 768px) {
-  .cardsList {
-    display: none;
-  }
+.cardItemWrapper {
+  width: 100%;
 }
 
 .cardItem {
@@ -34,15 +70,10 @@
   flex-direction: column;
   gap: var(--space-3);
   box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-fast), border-color var(--transition-fast);
 }
 
 .clickable {
   cursor: pointer;
-}
-
-.clickable:active {
-  transform: scale(0.99);
 }
 
 .cardHeader {
@@ -59,17 +90,38 @@
   flex: 1;
 }
 
+.cardTitleBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: var(--color-navy);
+  text-align: start;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+}
+
+.cardTitleBtn:hover,
+.cardTitleBtn:focus-visible {
+  color: var(--color-royal-blue);
+  text-decoration: underline;
+}
+
 .cardStatus {
   flex-shrink: 0;
 }
 
+/* D10: Card body auto-fit responsive grid */
 .cardBody {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-2);
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-2) var(--space-3);
   padding-top: var(--space-2);
   border-top: 1px solid var(--color-border-subtle);
   font-size: var(--text-xs);
+  overflow-wrap: anywhere;
 }
 
 .cardField {
@@ -87,24 +139,38 @@
   color: var(--color-slate-800);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+/* D2: Card footer for actions on mobile */
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-subtle);
+  flex-wrap: wrap;
+}
+
+.cardFooter button,
+.cardFooter a {
+  min-height: 44px;
+  min-width: 44px;
 }
 
 /* ==========================================================================
    Desktop / Tablet Table View (>= 768px)
    ========================================================================== */
-.tableWrapper {
-  display: none;
+.tableScrollWrapper {
+  width: 100%;
   background-color: var(--color-white);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   box-shadow: var(--shadow-sm);
-}
-
-@media (min-width: 768px) {
-  .tableWrapper {
-    display: block;
-  }
+  position: relative;
 }
 
 .table {
@@ -112,6 +178,7 @@
   border-collapse: collapse;
   text-align: start;
   font-size: var(--text-sm);
+  min-width: 600px;
 }
 
 .th {
@@ -189,7 +256,7 @@
 }
 
 /* ==========================================================================
-   Pagination Bar
+   D8: Responsive Pagination Bar
    ========================================================================== */
 .paginationBar {
   display: flex;
@@ -201,13 +268,20 @@
   border-radius: var(--radius-lg);
   font-size: var(--text-xs);
   color: var(--color-slate-600);
+  gap: var(--space-3);
 }
 
-.paginationInfo {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-variant-numeric: tabular-nums;
+.paginationInfoDesktop {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .paginationInfoDesktop {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-variant-numeric: tabular-nums;
+  }
 }
 
 .paginationTotal {
@@ -217,5 +291,41 @@
 .paginationControls {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  width: 100%;
   gap: var(--space-2);
+}
+
+@media (min-width: 768px) {
+  .paginationControls {
+    width: auto;
+    justify-content: flex-end;
+  }
+}
+
+.paginationBtn {
+  min-height: 44px;
+  min-width: 44px;
+  font-size: var(--text-sm);
+  padding: 0 var(--space-3);
+}
+
+.paginationInfoMobile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+@media (min-width: 768px) {
+  .paginationInfoMobile {
+    display: none;
+  }
+}
+
+.mobilePageCounter {
+  font-weight: 700;
+  font-size: var(--text-sm);
+  color: var(--color-navy);
+  font-variant-numeric: tabular-nums;
 }

@@ -619,8 +619,9 @@ export default function AdminProductsPage() {
           pagination={
             meta.total_pages > 1
               ? {
-                  currentPage: meta.page,
+                  page: meta.page,
                   totalPages: meta.total_pages,
+                  totalItems: meta.total,
                   onPageChange: (newPage) => updateParam('page', newPage),
                 }
               : null

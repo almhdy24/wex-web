@@ -54,3 +54,15 @@
 .actions button {
   flex: 1;
 }
+
+@media (max-width: 400px) {
+  .actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .actions button {
+    width: 100%;
+    min-height: 48px;
+  }
+}

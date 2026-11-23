@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ShieldCheck, UserCheck, UserX } from 'lucide-react';
 import { adminApi } from '../../api/admin';
@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { formatDate } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
 import Modal from '../../components/common/Modal';
-import Tag from '../../components/common/Tag';
+import StatusChip from '../../components/admin/StatusChip';
 import Button from '../../components/common/Button';
 import Select from '../../components/common/Select';
 import DataList from '../../components/admin/DataList';
@@ -15,6 +15,12 @@ import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import ErrorState from '../../components/common/ErrorState';
 import Page from '../../components/common/Page';
 import styles from './AdminUsersPage.module.css';
+
+const ROLE_DESCRIPTIONS = {
+  customer: 'عميل المتجر: شراء وتصفح الأجهزة ومتابعة طلباته الشخصية فقط.',
+  staff: 'موظف متجر: مراجعة الطلبات، فحص إشعارات التحويل البنكي، وتحديث حالات الشحن.',
+  admin: 'مدير عام: صلاحيات كاملة للتحكم في كافة أقسام النظام والمنتجات والإعدادات والمستخدمين.',
+};
 
 export default function AdminUsersPage() {
   const { user: currentAdmin, isAdmin } = useAuth();
@@ -32,6 +38,12 @@ export default function AdminUsersPage() {
   const activeFilter = searchParams.get('is_active') || '';
   const currentPage = Number(searchParams.get('page')) || 1;
 
+  // Active admins count to prevent locking out the system (U4)
+  const activeAdminCount = useMemo(
+    () => users.filter((u) => u.role === 'admin' && u.is_active).length,
+    [users]
+  );
+
   // Role Change Modal
   const [roleModal, setRoleModal] = useState({
     open: false,
@@ -47,7 +59,15 @@ export default function AdminUsersPage() {
     loading: false,
   });
 
+  const abortControllerRef = useRef(null);
+
   const fetchUsers = useCallback(async () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     try {
       setLoading(true);
       setError(null);
@@ -60,21 +80,38 @@ export default function AdminUsersPage() {
       if (activeFilter !== '') params.is_active = activeFilter;
 
       const res = await adminApi.getUsers(params);
-      setUsers(res.data || []);
+      if (controller.signal.aborted) return;
+
+      // U5: Normalize is_active as boolean once on fetch
+      const normalizedUsers = (res.data || []).map((u) => ({
+        ...u,
+        is_active: Number(u.is_active) === 1,
+      }));
+
+      setUsers(normalizedUsers);
       if (res.meta) {
         setMeta(res.meta);
       }
     } catch (err) {
+      if (err.name === 'AbortError' || err.code === 'ERR_CANCELED') return;
       setError(err.message || 'فشل في تحميل قائمة المستخدمين');
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) {
+        setLoading(false);
+      }
     }
   }, [searchQuery, roleFilter, activeFilter, currentPage]);
 
   useEffect(() => {
     fetchUsers();
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, [fetchUsers]);
 
+  // U6: Update URL params with replace: true
   const updateParam = (key, val) => {
     const next = new URLSearchParams(searchParams);
     if (val !== undefined && val !== null && val !== '') {
@@ -83,12 +120,21 @@ export default function AdminUsersPage() {
       next.delete(key);
     }
     if (key !== 'page') next.delete('page');
-    setSearchParams(next);
+    setSearchParams(next, { replace: true });
   };
 
+  // U4: Block self role change and last admin change
   const handleOpenRoleModal = (u) => {
     if (!isAdmin) {
       toastError('تعديل الصلاحيات متاح فقط للمدير العام');
+      return;
+    }
+    if (u.id === currentAdmin?.id) {
+      toastError('لا يمكنك تعديل صلاحيات حسابك الحالي');
+      return;
+    }
+    if (u.role === 'admin' && u.is_active && activeAdminCount <= 1) {
+      toastError('لا يمكن تغيير دور المدير العام الوحيد في النظام');
       return;
     }
     setRoleModal({
@@ -116,6 +162,7 @@ export default function AdminUsersPage() {
     }
   };
 
+  // U4: Block self disable and disabling last admin
   const handleToggleStatus = (u) => {
     if (!isAdmin) {
       toastError('تعديل حالة الحساب متاح فقط للمدير العام');
@@ -125,17 +172,21 @@ export default function AdminUsersPage() {
       toastError('لا يمكنك تعطيل حسابك الحالي');
       return;
     }
+    if (u.is_active && u.role === 'admin' && activeAdminCount <= 1) {
+      toastError('لا يمكن تعطيل المدير العام الوحيد في النظام');
+      return;
+    }
     setStatusConfirm({ open: true, user: u, loading: false });
   };
 
   const handleConfirmStatusChange = async () => {
     const targetUser = statusConfirm.user;
     if (!targetUser) return;
-    const nextActive = targetUser.is_active ? 0 : 1;
+    const nextActive = !targetUser.is_active;
     try {
       setStatusConfirm((prev) => ({ ...prev, loading: true }));
-      await adminApi.updateUserStatus(targetUser.id, nextActive);
-      success(nextActive === 1 ? 'تم تنشيط الحساب بنجاح' : 'تم تعطيل الحساب');
+      await adminApi.updateUserStatus(targetUser.id, nextActive ? 1 : 0);
+      success(nextActive ? 'تم تنشيط الحساب بنجاح' : 'تم تعطيل الحساب');
       setUsers((prev) =>
         prev.map((u) => (u.id === targetUser.id ? { ...u, is_active: nextActive } : u))
       );
@@ -153,6 +204,28 @@ export default function AdminUsersPage() {
     return count;
   }, [roleFilter, activeFilter]);
 
+  // U10: Removable active filter chips
+  const activeChips = useMemo(() => {
+    const chips = [];
+    if (roleFilter) {
+      const roleLabel =
+        roleFilter === 'admin' ? 'مدير عام' : roleFilter === 'staff' ? 'موظف متجر' : 'عميل';
+      chips.push({
+        id: 'role',
+        label: `الدور: ${roleLabel}`,
+        onRemove: () => updateParam('role', ''),
+      });
+    }
+    if (activeFilter !== '') {
+      chips.push({
+        id: 'is_active',
+        label: activeFilter === '1' ? 'حساب نشط' : 'حساب معطل',
+        onRemove: () => updateParam('is_active', ''),
+      });
+    }
+    return chips;
+  }, [roleFilter, activeFilter]);
+
   const columns = [
     {
       key: 'name',
@@ -161,7 +234,9 @@ export default function AdminUsersPage() {
       render: (u) => (
         <div className={styles.userPrimary}>
           <span className={styles.userName}>{u.name || 'بدون اسم'}</span>
-          <span className={styles.userEmail} dir="ltr">{u.email}</span>
+          <span className={styles.userEmail} dir="ltr">
+            {u.email}
+          </span>
         </div>
       ),
     },
@@ -177,30 +252,15 @@ export default function AdminUsersPage() {
     {
       key: 'role',
       label: 'الدور',
-      render: (u) => {
-        if (u.role === 'admin') return <Tag variant="warning">مدير عام</Tag>;
-        if (u.role === 'staff') return <Tag variant="info">موظف متجر</Tag>;
-        return <Tag variant="neutral">عميل</Tag>;
-      },
+      render: (u) => <StatusChip domain="role" status={u.role} />,
     },
     {
       key: 'is_active',
       label: 'الحالة',
       isStatus: true,
-      render: (u) => {
-        const isActive = Number(u.is_active) === 1;
-        return (
-          <button
-            type="button"
-            onClick={() => handleToggleStatus(u)}
-            disabled={!isAdmin || u.id === currentAdmin?.id}
-            style={{ background: 'none', border: 'none', cursor: isAdmin ? 'pointer' : 'default', padding: 0 }}
-            title={isAdmin ? (isActive ? 'تعطيل الحساب' : 'تفعيل الحساب') : undefined}
-          >
-            {isActive ? <Tag variant="success">نشط</Tag> : <Tag variant="danger">معطل</Tag>}
-          </button>
-        );
-      },
+      render: (u) => (
+        <StatusChip domain="account" status={u.is_active ? 'active' : 'inactive'} />
+      ),
     },
     {
       key: 'created_at',
@@ -215,31 +275,60 @@ export default function AdminUsersPage() {
     {
       key: 'actions',
       label: 'الإجراءات',
-      hideOnMobile: true,
-      render: (u) => (
-        <div className={styles.actionsCell}>
-          <button
-            type="button"
-            className={`${styles.actionBtn} ${!isAdmin ? styles.actionBtnDisabled : ''}`}
-            onClick={() => handleOpenRoleModal(u)}
-            disabled={!isAdmin}
-            title={isAdmin ? 'تغيير الدور والصلاحيات' : 'متاح للمدير العام فقط'}
-            aria-label="تغيير الدور والصلاحيات"
-          >
-            <ShieldCheck size={14} />
-          </button>
-          <button
-            type="button"
-            className={`${styles.actionBtn} ${!isAdmin || u.id === currentAdmin?.id ? styles.actionBtnDisabled : ''}`}
-            onClick={() => handleToggleStatus(u)}
-            disabled={!isAdmin || u.id === currentAdmin?.id}
-            title={isAdmin ? (u.is_active ? 'تعطيل الحساب' : 'تنشيط الحساب') : 'متاح للمدير العام فقط'}
-            aria-label={u.is_active ? 'تعطيل الحساب' : 'تنشيط الحساب'}
-          >
-            {u.is_active ? <UserX size={14} /> : <UserCheck size={14} />}
-          </button>
-        </div>
-      ),
+      isActions: true, // D2 & U3: renders in card footer on mobile with >=44px buttons
+      render: (u) => {
+        const isSelf = u.id === currentAdmin?.id;
+        const isLastAdmin = u.is_active && u.role === 'admin' && activeAdminCount <= 1;
+        const roleDisabled = !isAdmin || isSelf || isLastAdmin;
+        const statusDisabled = !isAdmin || isSelf || isLastAdmin;
+
+        return (
+          <div className={styles.actionsCell}>
+            <button
+              type="button"
+              className={`${styles.actionBtn} ${roleDisabled ? styles.actionBtnDisabled : ''}`}
+              onClick={() => handleOpenRoleModal(u)}
+              disabled={roleDisabled}
+              title={
+                isSelf
+                  ? 'لا يمكنك تعديل صلاحيات حسابك الحالي'
+                  : isLastAdmin
+                  ? 'لا يمكن تغيير دور المدير الوحيد'
+                  : !isAdmin
+                  ? 'متاح للمدير العام فقط'
+                  : 'تغيير الدور والصلاحيات'
+              }
+              aria-label="تغيير الدور والصلاحيات"
+            >
+              <ShieldCheck size={16} />
+              <span className={styles.mobileActionLabel}>تغيير الدور</span>
+            </button>
+            <button
+              type="button"
+              className={`${styles.actionBtn} ${statusDisabled ? styles.actionBtnDisabled : ''}`}
+              onClick={() => handleToggleStatus(u)}
+              disabled={statusDisabled}
+              title={
+                isSelf
+                  ? 'لا يمكنك تعطيل حسابك الحالي'
+                  : isLastAdmin
+                  ? 'لا يمكن تعطيل المدير الوحيد'
+                  : !isAdmin
+                  ? 'متاح للمدير العام فقط'
+                  : u.is_active
+                  ? 'تعطيل الحساب'
+                  : 'تنشيط الحساب'
+              }
+              aria-label={u.is_active ? 'تعطيل الحساب' : 'تنشيط الحساب'}
+            >
+              {u.is_active ? <UserX size={16} /> : <UserCheck size={16} />}
+              <span className={styles.mobileActionLabel}>
+                {u.is_active ? 'تعطيل' : 'تنشيط'}
+              </span>
+            </button>
+          </div>
+        );
+      },
     },
   ];
 
@@ -253,7 +342,7 @@ export default function AdminUsersPage() {
         </p>
       </header>
 
-      {/* Decorative Ribbon */}
+      {/* Decorative Divider */}
       <div className={styles.titleDivider} aria-hidden="true" />
 
       {/* Filter and Search Bar */}
@@ -262,20 +351,25 @@ export default function AdminUsersPage() {
         onSearchChange={(val) => updateParam('q', val)}
         searchPlaceholder="ابحث بالاسم أو البريد أو الهاتف..."
         filterCount={activeFiltersCount}
-        onClearFilters={() => setSearchParams(new URLSearchParams())}
+        activeChips={activeChips}
+        onClearFilters={() => setSearchParams(new URLSearchParams(), { replace: true })}
       >
         <Select
+          id="userRoleFilter"
+          name="role"
           label="الدور"
           value={roleFilter}
           onChange={(e) => updateParam('role', e.target.value)}
           options={[
             { value: '', label: 'كافة الأدوار' },
-            { value: 'admin', label: 'مدير عام (Admin)' },
-            { value: 'staff', label: 'موظف متجر (Staff)' },
-            { value: 'customer', label: 'عميل (Customer)' },
+            { value: 'admin', label: 'مدير عام' },
+            { value: 'staff', label: 'موظف متجر' },
+            { value: 'customer', label: 'عميل' },
           ]}
         />
         <Select
+          id="userActiveFilter"
+          name="is_active"
           label="الحالة"
           value={activeFilter}
           onChange={(e) => updateParam('is_active', e.target.value)}
@@ -296,11 +390,20 @@ export default function AdminUsersPage() {
           data={users}
           loading={loading}
           emptyMessage="لم يتم العثور على مستخدمين يطابقون معايير البحث"
+          emptyAction={
+            activeFiltersCount > 0
+              ? {
+                  label: 'مسح الفلاتر',
+                  onClick: () => setSearchParams(new URLSearchParams(), { replace: true }),
+                }
+              : undefined
+          }
           pagination={
             meta.total_pages > 1
               ? {
-                  currentPage: meta.page,
+                  page: meta.page,
                   totalPages: meta.total_pages,
+                  totalItems: meta.total,
                   onPageChange: (newPage) => updateParam('page', newPage),
                 }
               : null
@@ -308,7 +411,7 @@ export default function AdminUsersPage() {
         />
       )}
 
-      {/* Change Role Modal */}
+      {/* U8 & U9: Change Role Modal with short labels and dynamic description */}
       <Modal
         isOpen={roleModal.open}
         onClose={() => setRoleModal((prev) => ({ ...prev, open: false }))}
@@ -323,44 +426,53 @@ export default function AdminUsersPage() {
             </Button>
             <Button
               variant="primary"
+              type="submit"
+              form="roleChangeForm"
               loading={roleModal.submitting}
-              onClick={handleRoleSubmit}
             >
               تأكيد تغيير الدور
             </Button>
           </>
         }
       >
-        <form onSubmit={handleRoleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-slate-600)', margin: 0, lineHeight: 1.6 }}>
-            حدد الصلاحيات المناسبة للمستخدم. الموظف يمتلك حق مراجعة المدفوعات والطلبات فقط، بينما يمتلك المدير كافة الصلاحيات.
-          </p>
-
+        <form
+          id="roleChangeForm"
+          onSubmit={handleRoleSubmit}
+          className={styles.modalForm}
+        >
           <Select
+            id="userNewRoleSelect"
+            name="newRole"
             label="الدور الجديد"
             value={roleModal.newRole}
             onChange={(e) => setRoleModal((prev) => ({ ...prev, newRole: e.target.value }))}
             options={[
-              { value: 'customer', label: 'عميل (شراء ومتابعة الطلبات الشخصية)' },
-              { value: 'staff', label: 'موظف متجر (الطلبات وإشعارات بنكك فقط)' },
-              { value: 'admin', label: 'مدير عام (صلاحيات كاملة لكافة أقسام النظام)' },
+              { value: 'customer', label: 'عميل' },
+              { value: 'staff', label: 'موظف متجر' },
+              { value: 'admin', label: 'مدير عام' },
             ]}
           />
+          <div className={styles.roleHelpBox}>
+            <p className={styles.roleHelpText}>
+              {ROLE_DESCRIPTIONS[roleModal.newRole] || ''}
+            </p>
+          </div>
         </form>
       </Modal>
 
-      {/* Status Toggle Confirm Dialog */}
+      {/* U1: Status Toggle Confirm Dialog with normalized props */}
       <ConfirmDialog
         isOpen={statusConfirm.open}
         onClose={() => setStatusConfirm({ open: false, user: null, loading: false })}
         onConfirm={handleConfirmStatusChange}
         title={statusConfirm.user?.is_active ? 'تأكيد تعطيل الحساب' : 'تأكيد تنشيط الحساب'}
-        message={
+        description={
           statusConfirm.user?.is_active
             ? `هل أنت متأكد من تعطيل حساب "${statusConfirm.user?.name}"؟ لن يتمكن من تسجيل الدخول إلى المتجر أو لوحة التحكم.`
             : `هل أنت متأكد من إعادة تنشيط حساب "${statusConfirm.user?.name}"؟`
         }
-        confirmText={statusConfirm.user?.is_active ? 'تعطيل الحساب' : 'تنشيط الحساب'}
+        confirmLabel={statusConfirm.user?.is_active ? 'تعطيل الحساب' : 'تنشيط الحساب'}
+        cancelLabel="إلغاء"
         variant={statusConfirm.user?.is_active ? 'danger' : 'primary'}
         loading={statusConfirm.loading}
       />

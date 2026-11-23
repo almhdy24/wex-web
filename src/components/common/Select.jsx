@@ -1,5 +1,6 @@
 import React from 'react';
 import { ChevronDown } from 'lucide-react';
+import { useFilterDraft } from '../admin/FilterDraftContext';
 import styles from './Select.module.css';
 
 export default function Select({
@@ -18,7 +19,26 @@ export default function Select({
   children,
   ...rest
 }) {
+  const draftCtx = useFilterDraft();
   const selectId = id || name;
+  const draftKey = selectId || label;
+
+  const effectiveValue =
+    draftCtx && draftKey && draftCtx.values[draftKey] !== undefined
+      ? draftCtx.values[draftKey]
+      : value;
+
+  const handleChange = (e) => {
+    if (draftCtx && draftKey) {
+      const targetVal = e.target.value;
+      const syntheticEvent = {
+        target: { value: targetVal, name, id: selectId },
+      };
+      draftCtx.setValue(draftKey, targetVal, () => onChange?.(syntheticEvent));
+    } else {
+      onChange?.(e);
+    }
+  };
 
   const selectClasses = [
     styles.select,
@@ -41,8 +61,8 @@ export default function Select({
         <select
           id={selectId}
           name={name}
-          value={value}
-          onChange={onChange}
+          value={effectiveValue}
+          onChange={handleChange}
           required={required}
           disabled={disabled}
           aria-invalid={Boolean(error)}
