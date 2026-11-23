@@ -30,7 +30,9 @@ export default function LoginPage() {
   const location = useLocation();
 
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-  const searchReturnTo = new URLSearchParams(location.search).get('returnTo');
+  const searchParams = new URLSearchParams(location.search);
+  const searchReturnTo = searchParams.get('returnTo');
+  const isIdle = searchParams.get('reason') === 'idle';
   const from = location.state?.from?.pathname || location.state?.from || searchReturnTo || '/';
   const isBackToCheckout = typeof from === 'string' && from.startsWith('/checkout');
 
@@ -217,6 +219,16 @@ export default function LoginPage() {
             >
               <X size={14} />
             </button>
+          </div>
+        )}
+
+        {/* S8: Idle Session Expiration Alert */}
+        {isIdle && (
+          <div className={styles.infoAlert} role="status">
+            <div className={styles.infoAlertInner}>
+              <AlertCircle size={16} className={styles.infoIcon} />
+              <span>انتهت الجلسة بسبب عدم النشاط. سجّل الدخول من جديد.</span>
+            </div>
           </div>
         )}
 
