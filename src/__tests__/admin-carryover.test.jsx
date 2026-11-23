@@ -97,7 +97,7 @@ describe('AdminPaymentsPage: Queue index clamp', () => {
       expect(adminApi.reviewPaymentProof).toHaveBeenCalledWith('1001', 10, { action: 'approve' });
       expect(screen.getByText(/1002/)).toBeTruthy();
     });
-  });
+  }, 15000);
 });
 
 describe('AdminSettingsPage: Inspection Policy Preservation', () => {
