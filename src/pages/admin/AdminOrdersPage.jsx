@@ -130,6 +130,7 @@ export default function AdminOrdersPage() {
   const columns = [
     {
       key: 'select',
+      isSelect: true,
       label: (
         <span
           role="button"
@@ -246,7 +247,8 @@ export default function AdminOrdersPage() {
     },
     {
       key: 'actions',
-      label: '',
+      label: 'الإجراءات',
+      isActions: true,
       align: 'end',
       hideOnMobile: true,
       render: (row) => (

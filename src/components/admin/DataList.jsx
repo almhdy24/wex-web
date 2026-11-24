@@ -66,11 +66,20 @@ export default function DataList({
   }
 
   // Column taxonomy for mobile card representation
-  const primaryCol = columns.find((c) => c.isPrimary) || columns[0];
-  const statusCol = columns.find((c) => c.isStatus);
-  const actionsCol = columns.find((c) => c.isActions);
+  const selectCol = columns.find((c) => c.isSelect || c.key === 'select');
+  const primaryCol = columns.find((c) => c.isPrimary) || columns.find((c) => c !== selectCol) || columns[0];
+  const statusCol = columns.find((c) => c.isStatus || c.key === 'status');
+  const actionsCol = columns.find((c) => c.isActions || c.key === 'actions');
   const bodyCols = columns.filter(
-    (c) => c !== primaryCol && c !== statusCol && c !== actionsCol && !c.hideOnMobile
+    (c) =>
+      c !== primaryCol &&
+      c !== statusCol &&
+      c !== actionsCol &&
+      c !== selectCol &&
+      !c.hideOnMobile &&
+      !c.mobileHidden &&
+      Boolean(c.label) &&
+      (typeof c.label === 'string' ? Boolean(c.label.trim()) : true)
   );
 
   return (
@@ -106,20 +115,30 @@ export default function DataList({
             return (
               <div key={rowKey} role="listitem" className={styles.cardItemWrapper}>
                 <article className={styles.cardItem}>
-                  {/* Card Header: Primary info (clickable row title) + Status Badge */}
+                  {/* Card Header: Select Checkbox + Primary info + Status Badge */}
                   <header className={styles.cardHeader}>
-                    <div className={styles.cardPrimary}>
-                      {onRowClick ? (
-                        <button
-                          type="button"
-                          className={styles.cardTitleBtn}
-                          onClick={() => onRowClick(row)}
+                    <div className={styles.cardHeaderStart}>
+                      {selectCol && (
+                        <div
+                          className={styles.cardSelect}
+                          onClick={(e) => e.stopPropagation()}
                         >
-                          {primaryCol?.render ? primaryCol.render(row) : row[primaryCol?.key]}
-                        </button>
-                      ) : (
-                        primaryCol?.render ? primaryCol.render(row) : row[primaryCol?.key]
+                          {selectCol.render ? selectCol.render(row) : row[selectCol.key]}
+                        </div>
                       )}
+                      <div className={styles.cardPrimary}>
+                        {onRowClick ? (
+                          <button
+                            type="button"
+                            className={styles.cardTitleBtn}
+                            onClick={() => onRowClick(row)}
+                          >
+                            {primaryCol?.render ? primaryCol.render(row) : row[primaryCol?.key]}
+                          </button>
+                        ) : (
+                          primaryCol?.render ? primaryCol.render(row) : row[primaryCol?.key]
+                        )}
+                      </div>
                     </div>
                     {statusCol && (
                       <div className={styles.cardStatus}>
@@ -131,14 +150,20 @@ export default function DataList({
                   {/* Card Body: Secondary fields (auto-fit responsive grid) */}
                   {bodyCols.length > 0 && (
                     <div className={styles.cardBody}>
-                      {bodyCols.map((col) => (
-                        <div key={col.key} className={styles.cardField}>
-                          <span className={styles.cardFieldLabel}>{col.label}:</span>
-                          <span className={styles.cardFieldValue}>
-                            <bdi>{col.render ? col.render(row) : row[col.key]}</bdi>
-                          </span>
-                        </div>
-                      ))}
+                      {bodyCols.map((col) => {
+                        const label = col.label;
+                        if (!label || (typeof label === 'string' && !label.trim())) {
+                          return null;
+                        }
+                        return (
+                          <div key={col.key} className={styles.cardField}>
+                            <span className={styles.cardFieldLabel}>{label}:</span>
+                            <span className={styles.cardFieldValue}>
+                              <bdi>{col.render ? col.render(row) : row[col.key]}</bdi>
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
 

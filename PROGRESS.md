@@ -54,6 +54,17 @@
     - `wex-api` `tests/feature/CatalogTest.php` numeric ID fallback test PASS.
     - Needs on-device check: Product Detail `/products/:slug` and `/products/12`.
 
+- [x] **Bug 3: Stray Checkboxes & Lone ":" in DataList Admin Order Cards**
+  - **Root Cause:** `DataList` card mode placed the `select` column inside `bodyCols` because it was not identified as a specialized column (`isSelect`). In `bodyCols`, `col.label` (which held the select-all button JSX) rendered as the field label followed by `:`, and `col.render` rendered the row checkbox as field value. Empty-label columns also emitted `<span class="cardFieldLabel">:</span>`.
+  - **Fix:**
+    - Updated `DataList.jsx`: introduced `selectCol` taxonomy (`c.isSelect || c.key === 'select'`) placed strictly in `cardHeader` next to primary column with `e.stopPropagation()`.
+    - Filtered out `selectCol`, `actionsCol`, `hideOnMobile`, `mobileHidden`, and any column where `label` is empty/falsy from `bodyCols`.
+    - Guarded `cardBody` field mapping to return `null` if `label` is empty or whitespace, preventing any lone `:` output.
+    - Marked `select` column in `AdminOrdersPage.jsx` with `isSelect: true`, accessible aria-labels, and `actions` with `isActions: true`.
+  - **Verification:**
+    - `src/__tests__/datalist-cards-bug3.test.jsx` (2/2 tests PASS).
+    - Needs on-device check: Admin Orders `/admin/orders` on mobile screen (~360px).
+
 - [x] **Phase 4 & 5: Anti-AI Polish & Purposeful Motion**
   - **Anti-AI Polish:** Removed artificial letter-spacing on Arabic cursive titles and badges in `SplashScreen.module.css` and `Auth.module.css`. Verified 1.7 body line-height, zero italics across all project files, and tabular numbers on SDG prices (`0 ج.س`).
   - **Purposeful Motion:**
