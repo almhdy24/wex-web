@@ -37,6 +37,11 @@
     - Updated `ProductCard.jsx`, `CartPage.jsx`, and `ComparePage.jsx` to support `thumb_url` consistently.
     - Added `src/__tests__/image-manager.test.jsx` (7/7 tests PASS).
 
+- [x] **Bug 1: Modal/Sheet Input Focus Loss on Keystroke**
+  - **Root Cause:** Focus-trap effect in `Modal.jsx`, `Sheet.jsx`, `Drawer.jsx`, and `Popover.jsx` depended on `[isOpen, onClose]`. Parent re-renders triggered by `onChange` passed a new inline `onClose` function reference, causing the effect cleanup to run and re-execute `focusable[0].focus()`, stealing focus to the close (X) button after every single character.
+  - **Fix:** Switched `onClose` to `onCloseRef.current = onClose;`. Initial focus effect strictly depends on `[isOpen]`, only focuses initial element when opening and when `document.activeElement` is not already inside the container, and restores focus to `triggerRef.current` only when closing.
+  - **Contract & Tests:** Added focus-trap unstable dependency rule in `scripts/check-layout-contract.js`. Created `src/__tests__/focus-trap-bug1.test.jsx` reproducing the focus loss and verifying 10-character typing across `Modal`, `Sheet`, and `Drawer`, Tab wrapping, Escape close, and trigger focus restoration (6/6 tests PASS).
+
 - [x] **Phase 4 & 5: Anti-AI Polish & Purposeful Motion**
   - **Anti-AI Polish:** Removed artificial letter-spacing on Arabic cursive titles and badges in `SplashScreen.module.css` and `Auth.module.css`. Verified 1.7 body line-height, zero italics across all project files, and tabular numbers on SDG prices (`0 ج.س`).
   - **Purposeful Motion:**

@@ -110,6 +110,25 @@ walkFiles(SRC_DIR, ['.jsx'], (filePath) => {
       errors.push(`[Greeting Leak Risk] ${relPath}: must strictly guard storefront greeting for customer role only.`);
     }
   }
+
+  // 4. Focus Trap Unstable Dependencies Check
+  // Flags useEffect blocks calling .focus() whose dependency array contains children, functions, or objects
+  const effectRegex = /useEffect\s*\(\s*\(\)\s*=>\s*\{([\s\S]*?)\}\s*,\s*\[([\s\S]*?)\]\s*\)/g;
+  let match;
+  while ((match = effectRegex.exec(content)) !== null) {
+    const effectBody = match[1];
+    const depsString = match[2];
+    if (effectBody.includes('.focus(')) {
+      const deps = depsString.split(',').map((d) => d.trim()).filter(Boolean);
+      for (const dep of deps) {
+        if (/^(children|props|on[A-Z].*|handle[A-Z].*)$/.test(dep)) {
+          errors.push(
+            `[Focus Trap Violation] ${relPath}: useEffect calling .focus() has unstable dependency "${dep}". Use a ref or depend only on open/mode.`
+          );
+        }
+      }
+    }
+  }
 });
 
 if (errors.length > 0) {

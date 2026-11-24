@@ -16,18 +16,26 @@ export default function Drawer({
 }) {
   const drawerRef = useRef(null);
   const triggerRef = useRef(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   // Esc key, focus trap & body overflow lock
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      if (triggerRef.current && typeof triggerRef.current.focus === 'function') {
+        triggerRef.current.focus();
+        triggerRef.current = null;
+      }
+      return;
+    }
 
     triggerRef.current = document.activeElement;
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
-    // Focus initial element
+    // Focus initial element ONLY when opening and activeElement is not already inside
     const drawerEl = drawerRef.current;
-    if (drawerEl) {
+    if (drawerEl && !drawerEl.contains(document.activeElement)) {
       const focusable = drawerEl.querySelectorAll(FOCUSABLE_SELECTOR);
       if (focusable.length > 0) {
         focusable[0].focus();
@@ -39,7 +47,7 @@ export default function Drawer({
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         e.preventDefault();
-        onClose?.();
+        onCloseRef.current?.();
         return;
       }
 
@@ -75,9 +83,10 @@ export default function Drawer({
       document.body.style.overflow = originalOverflow;
       if (triggerRef.current && typeof triggerRef.current.focus === 'function') {
         triggerRef.current.focus();
+        triggerRef.current = null;
       }
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

@@ -13,6 +13,8 @@ export default function Popover({
   ariaLabel,
 }) {
   const popoverRef = useRef(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -23,13 +25,13 @@ export default function Popover({
         !popoverRef.current.contains(event.target) &&
         (!anchorRef?.current || !anchorRef.current.contains(event.target))
       ) {
-        onClose?.();
+        onCloseRef.current?.();
       }
     };
 
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
-        onClose?.();
+        onCloseRef.current?.();
         anchorRef?.current?.focus();
       }
     };
@@ -43,7 +45,7 @@ export default function Popover({
       document.removeEventListener('touchstart', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, onClose, anchorRef]);
+  }, [isOpen, anchorRef]);
 
   if (!isOpen) return null;
 
