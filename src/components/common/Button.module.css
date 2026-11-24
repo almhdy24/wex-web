@@ -48,6 +48,21 @@
   padding-inline: var(--space-3, 12px);
   font-size: var(--text-small, 14px);
   border-radius: var(--radius-control, 12px);
+  position: relative;
+}
+
+@media (pointer: coarse) {
+  .sm::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 44px;
+    min-height: 44px;
+    width: 100%;
+    height: 100%;
+  }
 }
 
 .md {
@@ -72,7 +87,7 @@
 /* Primary Button: Brand Gradient, white text, 48px high, radius 14 */
 .primary {
   background: var(--grad-cta);
-  color: #fff;
+  color: var(--wex-white);
   font-weight: 800;
   border: 0;
   border-radius: 14px;
@@ -92,8 +107,8 @@
 }
 
 .primary:disabled {
-  background: #EAF3FF;
-  color: #4B5B85;
+  background: var(--wex-ice-light);
+  color: var(--wex-text-secondary);
   box-shadow: none;
   opacity: 1;
 }
@@ -101,7 +116,7 @@
 /* Vivid (brand gradient action) */
 .vivid {
   background: var(--grad-cta);
-  color: #fff;
+  color: var(--wex-white);
   font-weight: 800;
   border: 0;
   border-radius: 14px;
@@ -114,17 +129,17 @@
 }
 
 .vivid:disabled {
-  background: #EAF3FF;
-  color: #4B5B85;
+  background: var(--wex-ice-light);
+  color: var(--wex-text-secondary);
   box-shadow: none;
   opacity: 1;
 }
 
 /* Secondary Button: White, 1.5px royal border, royal text */
 .secondary {
-  background-color: #fff;
-  color: #0B3FBF;
-  border: 1.5px solid #0B3FBF;
+  background-color: var(--wex-white);
+  color: var(--wex-royal);
+  border: 1.5px solid var(--wex-royal);
   font-weight: 800;
   box-shadow: none;
 }
@@ -134,8 +149,8 @@
 }
 
 .secondary:disabled {
-  background-color: #EAF3FF;
-  color: #4B5B85;
+  background-color: var(--wex-ice-light);
+  color: var(--wex-text-secondary);
   border-color: transparent;
   box-shadow: none;
   opacity: 1;
@@ -143,9 +158,9 @@
 
 /* Outline (maps to secondary) */
 .outline {
-  background-color: #fff;
-  color: #0B3FBF;
-  border: 1.5px solid #0B3FBF;
+  background-color: var(--wex-white);
+  color: var(--wex-royal);
+  border: 1.5px solid var(--wex-royal);
   font-weight: 800;
   box-shadow: none;
 }
@@ -155,8 +170,8 @@
 }
 
 .outline:disabled {
-  background-color: #EAF3FF;
-  color: #4B5B85;
+  background-color: var(--wex-ice-light);
+  color: var(--wex-text-secondary);
   border-color: transparent;
   box-shadow: none;
   opacity: 1;

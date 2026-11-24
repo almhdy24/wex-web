@@ -47,25 +47,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  background-color: var(--wex-gray-100, #F1F5F9);
+  background-color: var(--wex-ice-light);
   position: relative;
   overflow-x: hidden;
   padding: 0;
 }
 
-@media (min-width: 520px) {
-  .desktopViewport {
-    min-height: 100vh;
-    min-height: 100dvh;
-    justify-content: center;
-    padding: 20px 16px;
-  }
-}
-
-/* App Shell: Mobile App Layout (Max 480px on phone, max 768px on tablet) */
+/* App Shell: Mobile & Tablet Layout (Max 480px on phone, max 768px on tablet) */
 .appShell {
   width: 100%;
   max-width: var(--app-shell-max-width, 480px);
+  min-height: 100dvh;
   height: 100dvh;
   max-height: 100dvh;
   background-color: var(--wex-ice-light);
@@ -79,17 +71,6 @@
 @media (min-width: 640px) and (max-width: 1023px) {
   .appShell {
     max-width: var(--tablet-max-width, 768px);
-  }
-}
-
-@media (min-width: 520px) {
-  .appShell {
-    height: 94vh;
-    height: 94dvh;
-    max-height: 94dvh;
-    border-radius: var(--radius-xl);
-    border: 1px solid rgba(6, 26, 85, 0.1);
-    box-shadow: 0 25px 60px -15px rgba(6, 26, 85, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.4) inset;
   }
 }
 

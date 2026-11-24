@@ -130,4 +130,21 @@ describe('Layout Tiers & Overlay Primitives Tests', () => {
       expect(html).toContain('محتوى اللوحة');
     });
   });
+
+  describe('Responsive Architecture & Viewport Shell Integrity', () => {
+    it('StoreLayout.module.css uses 100dvh without 94dvh floating tablet traps', async () => {
+      const fs = await import('node:fs');
+      const path = await import('node:path');
+      const cssPath = path.resolve(process.cwd(), 'src/layouts/StoreLayout.module.css');
+      const cssContent = fs.readFileSync(cssPath, 'utf8');
+
+      // Assert 94dvh / 94vh floating trap has been eradicated
+      expect(cssContent).not.toContain('94dvh');
+      expect(cssContent).not.toContain('94vh');
+
+      // Assert full height app shell
+      expect(cssContent).toContain('height: 100dvh');
+      expect(cssContent).toContain('max-height: 100dvh');
+    });
+  });
 });

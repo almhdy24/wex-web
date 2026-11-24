@@ -4,9 +4,9 @@ import { adminApi } from '../../api/admin';
 import { useToast } from '../../context/ToastContext';
 import Modal from '../../components/common/Modal';
 import StatusChip from '../../components/admin/StatusChip';
+import DataList from '../../components/admin/DataList';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
-import { TableSkeleton } from '../../components/common/Skeleton';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import Page from '../../components/common/Page';
@@ -125,6 +125,79 @@ export default function AdminBrandsPage() {
     }
   };
 
+  const columns = [
+    {
+      key: 'id',
+      label: 'المعرف',
+      render: (b) => (
+        <span style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)' }}>
+          #{b.id}
+        </span>
+      ),
+    },
+    {
+      key: 'name',
+      label: 'اسم الماركة',
+      isPrimary: true,
+      render: (b) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+          <TagIcon size={16} style={{ color: 'var(--color-royal-blue)' }} />
+          <strong>{b.name}</strong>
+        </div>
+      ),
+    },
+    {
+      key: 'slug',
+      label: 'الرابط المباشر',
+      render: (b) => (
+        <span dir="ltr" style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)', textAlign: 'start' }}>
+          <bdi>{b.slug}</bdi>
+        </span>
+      ),
+    },
+    {
+      key: 'is_active',
+      label: 'الحالة',
+      isStatus: true,
+      render: (b) => (
+        <StatusChip
+          domain="account"
+          status={b.is_active ? 'active' : 'inactive'}
+          label={b.is_active ? 'نشطة' : 'معطلة'}
+        />
+      ),
+    },
+    {
+      key: 'actions',
+      label: 'الإجراءات',
+      isActions: true,
+      render: (b) => (
+        <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => openEditModal(b)}
+            aria-label="تعديل الماركة"
+            title="تعديل الماركة"
+            style={{ minHeight: '44px', minWidth: '44px' }}
+          >
+            <Edit size={16} />
+          </Button>
+          <Button
+            variant="danger"
+            size="sm"
+            onClick={() => setDeleteModal({ open: true, brand: b, loading: false })}
+            aria-label="حذف الماركة"
+            title="حذف الماركة"
+            style={{ minHeight: '44px', minWidth: '44px' }}
+          >
+            <Trash2 size={16} />
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <Page className={styles.container}>
       <header className={styles.header}>
@@ -143,11 +216,9 @@ export default function AdminBrandsPage() {
       {/* Brand graphic divider */}
       <div className={styles.titleDivider} aria-hidden="true" />
 
-      {loading ? (
-        <TableSkeleton rows={5} cols={5} />
-      ) : error ? (
+      {error && !loading ? (
         <ErrorState message={error} onRetry={fetchBrands} />
-      ) : brands.length === 0 ? (
+      ) : brands.length === 0 && !loading ? (
         <EmptyState
           title="لا توجد ماركات مسجلة"
           description="أضف الماركات لتسهيل التصفية والبحث في المتجر."
@@ -155,62 +226,12 @@ export default function AdminBrandsPage() {
           onAction={openAddModal}
         />
       ) : (
-        <div className={styles.card}>
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th style={{ width: '80px' }}>المعرف</th>
-                  <th>اسم الماركة</th>
-                  <th>الرابط المباشر</th>
-                  <th>الحالة</th>
-                  <th style={{ width: '130px', textAlign: 'center' }}>الإجراءات</th>
-                </tr>
-              </thead>
-              <tbody>
-                {brands.map((b) => (
-                  <tr key={b.id}>
-                    <td style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)' }}>
-                      #{b.id}
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                        <TagIcon size={16} style={{ color: 'var(--color-royal-blue)' }} />
-                        <strong>{b.name}</strong>
-                      </div>
-                    </td>
-                    <td dir="ltr" style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)', textAlign: 'start' }}>
-                      <bdi>{b.slug}</bdi>
-                    </td>
-                    <td>
-                      <StatusChip
-                        domain="account"
-                        status={b.is_active ? 'active' : 'inactive'}
-                        label={b.is_active ? 'نشطة' : 'معطلة'}
-                      />
-                    </td>
-                    <td style={{ textAlign: 'center' }}>
-                      <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
-                        <Button variant="ghost" size="sm" onClick={() => openEditModal(b)} aria-label="تعديل الماركة" title="تعديل الماركة">
-                          <Edit size={14} />
-                        </Button>
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          onClick={() => setDeleteModal({ open: true, brand: b, loading: false })}
-                          aria-label="حذف الماركة"
-                          title="حذف الماركة"
-                        >
-                          <Trash2 size={14} />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <DataList
+          columns={columns}
+          data={brands}
+          loading={loading}
+          emptyMessage="لا توجد ماركات مسجلة حالياً."
+        />
       )}
 
       {/* Add / Edit Modal */}

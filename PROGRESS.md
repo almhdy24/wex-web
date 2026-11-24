@@ -1028,20 +1028,22 @@ Hotfix of critical storefront issues identified during phone testing:
     - Updated `CheckoutPage.jsx` to pipe phone input through `toAsciiDigits` and use `normalizeSudanPhone`.
     - Added tests in `src/__tests__/formatters.test.js` covering Arabic-Indic digits conversion and phone normalization (7/7 PASS).
 
-- [x] **Audit Stabilization Phase 2: Functional Disconnects — Complete**
-  - **RecentPurchasesToast Connected (`src/layouts/StoreLayout.jsx`, `RecentPurchasesToast.jsx`, `RecentPurchasesToast.module.css`):**
-    - Mounted `RecentPurchasesToast` in both desktop and mobile viewports in `StoreLayout.jsx`, wired to `shopInfo?.ticker_enabled !== false`.
-    - Integrated with `isCartDrawerOpen` to suppress toasts while cart drawer is open.
-    - Adjusted z-index to `var(--z-tabbar, 300)` with safe-area clearance (`calc(var(--bottom-bar-height, 64px) + var(--space-3) + env(safe-area-inset-bottom, 0px))`).
-    - Verified with `src/__tests__/layering-contract.test.jsx` (5/5 PASS) and `src/__tests__/storefront-features.test.jsx` (5/5 PASS).
-  - **Shop Settings Harmonization (`src/utils/shopSettings.js`, `HomePage.jsx`, `ProductDetailPage.jsx`, `AccountPage.jsx`, `StoreFooter.jsx`):**
-    - Implemented `normalizeShopInfo(raw)` unifying `shop_address`/`address`, `shop_whatsapp`/`whatsapp`/`whatsapp_number`, `working_hours`/`business_hours`, and `shop_name`/`name`.
-    - Implemented `buildWhatsAppLink(phone, message)` with Sudan prefix normalization and digit cleaning.
-    - Integrated across `HomePage`, `ProductDetailPage`, `AccountPage`, `StoreFooter`, and `StoreLayout`.
-    - Added unit tests in `src/__tests__/shop-settings.test.js` (4/4 PASS).
-  - **Orders Page CTA Realignment (`src/pages/store/OrdersPage.jsx`):**
-    - Replaced misleading "ادفع الآن" CTA with dynamic `uiState.primaryAction` ("رفع إشعار التحويل" / "رفع إشعار جديد") aligned with order payment state.
-    - Updated `src/__tests__/storefront-flow.test.jsx` to verify the new label (8/8 PASS).
+- [x] **Audit Stabilization Phase 3: Copy and Visual Correctness — Complete**
+  - **Dialect Cleanup & Modern Standard Arabic (Fusha) Enforcement:**
+    - Cleaned `OfflinePage.jsx` ("مافي اتصال" -> "لا يوجد اتصال بالشبكة", "المتجر محتاج" -> "تعذّر الاتصال", "حاول تاني" -> "إعادة المحاولة").
+    - Cleaned `NotFoundPage.jsx` ("الرابط غلط" -> "لم يتم العثور على الصفحة المطلوبة").
+    - Cleaned `AdminCategoriesPage.jsx` and `AdminBrandsPage.jsx` ("الاتصال ضعيف. حاول تاني." -> "تعذر الاتصال بالخادم. يرجى إعادة المحاولة.").
+    - Sanitized `AdminSettingsPage.jsx` policy section title ("المعاينة وفحص الأجهزة" -> "المعاينة والاستلام" per `GLOSSARY-AR.md`).
+    - Extended `src/__tests__/i18n-integrity.test.jsx` with dialect blocklist ("مافي", "محتاج", "حاول تاني", "شنو", "كدا", "عشان", "هسع", "هسا", "الرابط غلط", "ادفع الآن", "ذكية", "حجز السعر") and English UI jargon blocklist ("Hero Slides", "CTA"), verifying zero violations (9/9 PASS).
+  - **Missing CSS Classes Resolution & Static Checker Script:**
+    - Added missing `.confirmBtn` and `.cancelBtn` with minimum 44px touch height and semantic danger/warning tokens in `ConfirmDialog.module.css`.
+    - Added missing `.tabLabel` in `Tabs.module.css`.
+    - Added missing `.stickyContent` container styling in `CheckoutPage.module.css`.
+    - Built `scripts/check-css-classes.js` (static AST/regex scanner over all JSX files and CSS modules) and added `"check:css"` to `package.json` scripts (`check:css` PASS on 94 files).
+  - **Brand Gradients Restoration (`src/styles/tokens.css`):**
+    - Restored official multi-stop brand gradients from `BRAND-RULES.md`: `--wex-grad-brand: linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 50%, #00B7FF 100%)`, `--wex-grad-ribbon`, `--wex-grad-navy`, `--wex-grad-surface`, `--gradient-brand-cta`.
+    - Maintained WCAG AA compliant text contrast across all surfaces (`node scripts/check-contrast.mjs` 11/11 PASS).
+
 
 
   - **Cart Page (`src/pages/store/CartPage.jsx` & `CartPage.module.css`):**

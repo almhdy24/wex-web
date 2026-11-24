@@ -4,9 +4,9 @@ import { adminApi } from '../../api/admin';
 import { useToast } from '../../context/ToastContext';
 import Modal from '../../components/common/Modal';
 import StatusChip from '../../components/admin/StatusChip';
+import DataList from '../../components/admin/DataList';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
-import { TableSkeleton } from '../../components/common/Skeleton';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import Page from '../../components/common/Page';
@@ -133,6 +133,79 @@ export default function AdminCategoriesPage() {
     }
   };
 
+  const columns = [
+    {
+      key: 'name_ar',
+      label: 'اسم الفئة (عربي)',
+      isPrimary: true,
+      render: (c) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+          <FolderTree size={16} style={{ color: 'var(--color-royal-blue)' }} />
+          <strong>{c.name_ar}</strong>
+        </div>
+      ),
+    },
+    {
+      key: 'name_en',
+      label: 'الاسم بالإنجليزية',
+      render: (c) => <span dir="ltr">{c.name_en || '—'}</span>,
+    },
+    {
+      key: 'slug',
+      label: 'معرّف الرابط',
+      render: (c) => (
+        <span dir="ltr" style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)', textAlign: 'start' }}>
+          <bdi>{c.slug}</bdi>
+        </span>
+      ),
+    },
+    {
+      key: 'sort_order',
+      label: 'ترتيب العرض',
+      render: (c) => c.sort_order,
+    },
+    {
+      key: 'is_active',
+      label: 'الحالة',
+      isStatus: true,
+      render: (c) => (
+        <StatusChip
+          domain="account"
+          status={c.is_active ? 'active' : 'inactive'}
+        />
+      ),
+    },
+    {
+      key: 'actions',
+      label: 'الإجراءات',
+      isActions: true,
+      render: (c) => (
+        <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => openEditModal(c)}
+            aria-label="تعديل التصنيف"
+            title="تعديل التصنيف"
+            style={{ minHeight: '44px', minWidth: '44px' }}
+          >
+            <Edit size={16} />
+          </Button>
+          <Button
+            variant="danger"
+            size="sm"
+            onClick={() => setDeleteModal({ open: true, category: c, loading: false })}
+            aria-label="حذف التصنيف"
+            title="حذف التصنيف"
+            style={{ minHeight: '44px', minWidth: '44px' }}
+          >
+            <Trash2 size={16} />
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <Page className={styles.container}>
       <header className={styles.header}>
@@ -151,11 +224,9 @@ export default function AdminCategoriesPage() {
       {/* Brand graphic divider */}
       <div className={styles.titleDivider} aria-hidden="true" />
 
-      {loading ? (
-        <TableSkeleton rows={5} cols={5} />
-      ) : error ? (
+      {error && !loading ? (
         <ErrorState message={error} onRetry={fetchCategories} />
-      ) : categories.length === 0 ? (
+      ) : categories.length === 0 && !loading ? (
         <EmptyState
           title="لا توجد فئات مسجلة"
           description="أضف تصنيفات الأجهزة لعرضها في شريط التصفح والكتالوج."
@@ -163,61 +234,12 @@ export default function AdminCategoriesPage() {
           onAction={openAddModal}
         />
       ) : (
-        <div className={styles.card}>
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>اسم الفئة (عربي)</th>
-                  <th>الاسم بالإنجليزية</th>
-                  <th>معرّف الرابط</th>
-                  <th>ترتيب العرض</th>
-                  <th>الحالة</th>
-                  <th style={{ width: '130px', textAlign: 'center' }}>الإجراءات</th>
-                </tr>
-              </thead>
-              <tbody>
-                {categories.map((c) => (
-                  <tr key={c.id}>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                        <FolderTree size={16} style={{ color: 'var(--color-royal-blue)' }} />
-                        <strong>{c.name_ar}</strong>
-                      </div>
-                    </td>
-                    <td dir="ltr">{c.name_en || '—'}</td>
-                    <td dir="ltr" style={{ color: 'var(--color-slate-500)', fontSize: 'var(--text-xs)', textAlign: 'start' }}>
-                      <bdi>{c.slug}</bdi>
-                    </td>
-                    <td>{c.sort_order}</td>
-                    <td>
-                      <StatusChip
-                        domain="account"
-                        status={c.is_active ? 'active' : 'inactive'}
-                      />
-                    </td>
-                    <td style={{ textAlign: 'center' }}>
-                      <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
-                        <Button variant="ghost" size="sm" onClick={() => openEditModal(c)} aria-label="تعديل التصنيف" title="تعديل التصنيف">
-                          <Edit size={14} />
-                        </Button>
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          onClick={() => setDeleteModal({ open: true, category: c, loading: false })}
-                          aria-label="حذف التصنيف"
-                          title="حذف التصنيف"
-                        >
-                          <Trash2 size={14} />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <DataList
+          columns={columns}
+          data={categories}
+          loading={loading}
+          emptyMessage="لا توجد فئات مسجلة حالياً."
+        />
       )}
 
       {/* Add / Edit Modal */}
