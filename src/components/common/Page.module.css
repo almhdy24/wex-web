@@ -8,8 +8,6 @@
 
 .padded {
   padding-inline: var(--page-padding, 16px);
-  padding-left: var(--page-padding, 16px);
-  padding-right: var(--page-padding, 16px);
 }
 
 @media (min-width: 1024px) {

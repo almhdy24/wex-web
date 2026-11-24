@@ -98,17 +98,17 @@
   border-radius: var(--radius-full, 9999px);
   border: none;
   cursor: pointer;
-  margin-right: auto;
+  margin-inline-start: auto;
 }
 
 .toggleActive {
-  background: #DCFCE7;
-  color: #15803D;
+  background: var(--wex-success-bg);
+  color: var(--wex-success);
 }
 
 .toggleInactive {
-  background: #F3F4F6;
-  color: #6B7280;
+  background: var(--wex-ice-light);
+  color: var(--wex-text-secondary);
 }
 
 .faqActions {

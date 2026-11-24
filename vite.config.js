@@ -7,11 +7,11 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'robots.txt', 'icons/apple-touch-icon.png'],
+      includeAssets: ['favicon.svg', 'favicon.png', 'robots.txt', 'icons/apple-touch-icon.png'],
       manifest: {
         name: 'Wex Technology | ويكس تكنولوجي',
         short_name: 'Wex',
-        description: 'متجر أجهزة لابتوب وهواتف ذكية وإلكترونيات في أم درمان، السودان',
+        description: 'متجر أجهزة لابتوب وهواتف محمولة وإلكترونيات في أم درمان، السودان',
         theme_color: '#061A55',
         background_color: '#EAF3FF',
         display: 'standalone',
@@ -138,6 +138,16 @@ export default defineConfig({
       '/uploads': {
         target: 'http://localhost:8080',
         changeOrigin: true,
+      },
+    },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-icons': ['lucide-react'],
+        },
       },
     },
   },

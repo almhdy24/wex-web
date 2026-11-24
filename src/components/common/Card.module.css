@@ -1,6 +1,6 @@
 .card {
-  background: #fff;
-  border: 1px solid #D5E2F7;
+  background: var(--wex-white, #fff);
+  border: 1px solid var(--wex-border, #D5E2F7);
   border-radius: var(--radius-panel-v2);
   box-shadow: var(--shadow-card-v2);
   overflow: hidden;

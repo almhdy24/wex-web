@@ -131,8 +131,8 @@ export default function ProductCard({ product, index, style = {} }) {
             <Heart
               size={16}
               strokeWidth={2}
-              fill={fav ? '#dc2626' : 'none'}
-              color={fav ? '#dc2626' : 'var(--wex-navy)'}
+              fill={fav ? 'var(--color-danger, #dc2626)' : 'none'}
+              color={fav ? 'var(--color-danger, #dc2626)' : 'var(--wex-navy)'}
             />
           </button>
 

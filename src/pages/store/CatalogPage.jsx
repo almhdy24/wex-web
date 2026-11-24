@@ -119,7 +119,9 @@ export default function CatalogPage({
 
   // Scroll to top of grid when page changes
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const prefersReduced = typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+    window.scrollTo({ top: 0, behavior: prefersReduced ? 'auto' : 'smooth' });
   }, [urlPage]);
 
   // Fetch brands once

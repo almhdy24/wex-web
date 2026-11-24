@@ -38,7 +38,7 @@
   position: relative;
   height: 112px;
   border-radius: var(--radius-control, 10px);
-  background: #F8FAFC;
+  background: var(--wex-ice-light, #F8FAFC);
   border: 1px solid var(--wex-border, #E2E8F0);
   overflow: hidden;
   display: flex;
@@ -99,7 +99,7 @@
 
 .badgeNew {
   background: var(--wex-royal, #0B3FBF);
-  color: #ffffff;
+  color: var(--wex-white, #ffffff);
 }
 
 .badgeUsed {
@@ -134,9 +134,9 @@
 }
 
 .favBtnActive {
-  background: #fef2f2;
-  border-color: #fecaca;
-  color: #dc2626;
+  background: var(--color-danger-surface, #fef2f2);
+  border-color: var(--color-danger-border, #fecaca);
+  color: var(--color-danger, #dc2626);
 }
 
 /* Unavailable Overlay */
@@ -152,8 +152,8 @@
 }
 
 .unavailablePill {
-  background: #fff;
-  color: #061A55;
+  background: var(--wex-white, #fff);
+  color: var(--wex-navy, #061A55);
   font-size: 12px;
   font-weight: 700;
   padding: 4px 12px;
@@ -175,7 +175,7 @@
   font-size: 15px;
   font-weight: 800;
   line-height: 1.35;
-  color: #061A55;
+  color: var(--wex-navy, #061A55);
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -188,7 +188,7 @@
 .description {
   font-size: 12.5px;
   line-height: 1.5;
-  color: #4B5B85;
+  color: var(--wex-text-secondary, #4B5B85);
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -209,14 +209,14 @@
 .priceNum {
   font-size: 19px;
   font-weight: 800;
-  color: #061A55;
+  color: var(--wex-navy, #061A55);
   font-variant-numeric: tabular-nums;
 }
 
 .priceCurrency {
   font-size: 12px;
   font-weight: 700;
-  color: #4B5B85;
+  color: var(--wex-text-secondary, #4B5B85);
 }
 
 .srOnly {
@@ -237,7 +237,7 @@
   height: 44px;
   border-radius: var(--radius-control, 10px);
   background: var(--wex-royal);
-  color: #fff;
+  color: var(--wex-white, #fff);
   font-size: 15px;
   font-weight: 700;
   display: flex;

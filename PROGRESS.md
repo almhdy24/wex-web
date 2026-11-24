@@ -1044,6 +1044,45 @@ Hotfix of critical storefront issues identified during phone testing:
     - Restored official multi-stop brand gradients from `BRAND-RULES.md`: `--wex-grad-brand: linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 50%, #00B7FF 100%)`, `--wex-grad-ribbon`, `--wex-grad-navy`, `--wex-grad-surface`, `--gradient-brand-cta`.
     - Maintained WCAG AA compliant text contrast across all surfaces (`node scripts/check-contrast.mjs` 11/11 PASS).
 
+- [x] **Audit Stabilization Phase 4: Responsive and Layout — Complete**
+  - **Admin Tables Modernization (`AdminCategoriesPage.jsx`, `AdminBrandsPage.jsx`):**
+    - Replaced raw `<table>` elements with `<DataList>` featuring automatic touch-card transformation below 768px (`mobileCardRender` column taxonomy) and responsive desktop sticky table.
+    - Updated action buttons with explicit minimum 44px touch targets on mobile touch devices (`.sm::after` hit-area expansion in `Button.module.css`).
+    - Cleaned unused component imports (`TableSkeleton`).
+  - **Tablet Viewport Trap Eradication (`src/layouts/StoreLayout.module.css`):**
+    - Removed `height: 94dvh` floating phone mockup constraints and outer `padding: 20px 16px` on screens between 520px and 1023px.
+    - Tablets and phones now run on the full-viewport app shell using 100dvh with single page scroll and zero nested scrollbars.
+    - Replaced hardcoded hex background `#F1F5F9` with semantic token `var(--wex-ice-light)`.
+    - Updated `src/__tests__/viewport.test.jsx` to test and guard against 94dvh floating frame regressions (11/11 PASS).
+
+- [x] **Audit Stabilization Phase 5: Accessibility, RTL/BiDi, PWA/iOS, and Persistent Auth — Complete**
+  - **Focus Management & Accessible Overlays (`Sheet.jsx`, `Drawer.jsx`):**
+    - Added comprehensive Tab key focus trapping (`FOCUSABLE_SELECTOR`) within active sheets and drawers.
+    - Added trigger focus return on close (`triggerRef.current.focus()`) maintaining screen reader context.
+  - **BiDi & Arabic/Latin Typography (`ProductDetailPage.jsx`, `formatSpecValue.js`):**
+    - Wrapped technical specification row values in `<SpecValue value={row.value} />` (`<bdi dir="ltr">` with non-breaking spaces `\u00A0` before units), preventing punctuation flipping in RTL.
+    - Verified with `src/__tests__/spec-value-bidi.test.jsx` (6/6 PASS).
+  - **Logical CSS Properties Migration:**
+    - Replaced physical `padding-left/right` with `padding-inline` in `Page.module.css`.
+    - Replaced physical `left`, `right`, `margin-left`, `border-left` with `inset-inline-start`, `inset-inline-end`, `margin-inline-end`, `border-inline-start` in `DesktopHeader.module.css`.
+    - Replaced physical badge insets with logical insets in `AppBar.module.css`.
+    - Replaced physical margins with logical `margin-inline-start: auto` in `AdminFaqPage.module.css`.
+    - Replaced hardcoded hex colors with tokens in `AppBar.module.css`, `BottomTabBar.module.css`, `Chip.module.css`, `Card.module.css`, and `ProductCard.module.css`.
+  - **Navigation & Mobile App Shell:**
+    - Enhanced `AppBar.jsx` back handler: safely invokes `navigate(-1)` if history stack exists (`window.history.length > 1`) before falling back to home.
+    - Enhanced `BottomTabBar.jsx`: deselects tabs (`activeIndex = -1`) when navigated to sub-routes (e.g. `/product/123`), labeled with `aria-label="التنقل الرئيسي"`.
+    - Enhanced `CatalogPage.jsx`: smooth scrolls to grid top on page change, respecting `prefers-reduced-motion`.
+  - **PWA & iOS Enhancements (`vite.config.js`, `PwaPrompt.jsx`, `PwaPrompt.module.css`):**
+    - Removed non-existent `favicon.ico` from `includeAssets`.
+    - Configured manual vendor chunking in `vite.config.js` (`vendor-react`, `vendor-icons`).
+    - Added iOS Safari detection in `PwaPrompt.jsx` (`/iPhone|iPad|iPod/i.test(navigator.userAgent) && !window.navigator.standalone`).
+    - Implemented dedicated iOS installation guide banner: directs user to tap Share and select "إضافة إلى الشاشة الرئيسية" (Add to Home Screen).
+  - **Meta Description & Manifest Copy:**
+    - Replaced "وهواتف ذكية" with "وهواتف محمولة" and "حجز السعر" with "تثبيت السعر" in `index.html`, `public/manifest.webmanifest`, and `vite.config.js`.
+  - **30-Day Persistent Login Verification:**
+    - Verified single-flight token refresh, navigator.locks multi-tab coordination, network offline survival, proactive refresh, and session recovery in `src/__tests__/persistent-auth.test.jsx` (9/9 PASS).
+
+
 
 
   - **Cart Page (`src/pages/store/CartPage.jsx` & `CartPage.module.css`):**

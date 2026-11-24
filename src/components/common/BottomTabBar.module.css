@@ -7,8 +7,8 @@
   height: var(--tabbar-height-v2);
   padding: 6px;
   border-radius: 26px;
-  background: #fff;
-  border: 1px solid #D5E2F7;
+  background: var(--wex-white);
+  border: 1px solid var(--wex-border);
   box-shadow: var(--shadow-float-v2);
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -32,7 +32,7 @@
   align-items: center;
   justify-content: center;
   gap: 3px;
-  color: #4B5B85;
+  color: var(--wex-text-secondary);
   height: 56px;
   border-radius: 20px;
   text-decoration: none;
@@ -59,8 +59,8 @@
 }
 
 .navItem.active {
-  background: #EAF3FF;
-  color: #0B3FBF;
+  background: var(--wex-ice-light);
+  color: var(--wex-royal);
 }
 
 .navItem.active span {
@@ -68,7 +68,7 @@
 }
 
 .navItem.active .navIcon {
-  stroke: #0B3FBF;
+  stroke: var(--wex-royal);
   stroke-width: 1.9;
 }
 

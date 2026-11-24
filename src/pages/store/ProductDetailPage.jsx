@@ -32,6 +32,7 @@ import StickyBar from '../../components/common/StickyBar';
 import Skeleton from '../../components/common/Skeleton';
 import { swrCache } from '../../utils/swrCache';
 import { normalizeShopInfo } from '../../utils/shopSettings';
+import SpecValue from '../../utils/formatSpecValue';
 import styles from './ProductDetailPage.module.css';
 
 function getSpecPath(label = '', key = '') {
@@ -481,7 +482,7 @@ export default function ProductDetailPage({
                     </svg>
                   </div>
                   <span className={styles.specLabel}>{row.label}</span>
-                  <span className={styles.specValue} dir="auto">{row.value}</span>
+                  <SpecValue value={row.value} className={styles.specValue} />
                 </div>
               ))}
           </div>

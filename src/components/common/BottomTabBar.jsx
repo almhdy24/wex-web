@@ -8,8 +8,9 @@ export default function BottomTabBar({ activeOrderCount = 0, unreadCount = 0 }) 
   const location = useLocation();
   const path = location.pathname;
 
-  let activeIndex = 0;
-  if (path.startsWith('/products')) activeIndex = 1;
+  let activeIndex = -1;
+  if (path === '/') activeIndex = 0;
+  else if (path.startsWith('/products')) activeIndex = 1;
   else if (path.startsWith('/orders')) activeIndex = 2;
   else if (path.startsWith('/account')) activeIndex = 3;
 
@@ -65,7 +66,7 @@ export default function BottomTabBar({ activeOrderCount = 0, unreadCount = 0 }) 
   ];
 
   return (
-    <nav className={styles.bottomNav} aria-label={ar.navigation.home}>
+    <nav className={styles.bottomNav} aria-label="التنقل الرئيسي">
       <div className={styles.navTrack}>
         <span
           className={styles.activePill}

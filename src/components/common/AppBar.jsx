@@ -32,10 +32,10 @@ export default function AppBar({
   const favoriteCount = fav?.favoriteCount ?? 0;
 
   const handleBack = () => {
-    if (backTo) {
-      navigate(backTo);
-    } else if (window.history.length > 1) {
+    if (window.history && window.history.length > 1) {
       navigate(-1);
+    } else if (backTo) {
+      navigate(backTo);
     } else {
       navigate('/');
     }
