@@ -1095,6 +1095,18 @@ Hotfix of critical storefront issues identified during phone testing:
     - `npm run check:all`: PASS (11 contrast pairs WCAG AA, 0 forbidden claims, 0 missing i18n keys, layout integrity, single message living rule, and 0 missing CSS classes).
     - Vitest targeted suites: 100% PASS across persistent auth (9/9), spec-value bidi (6/6), viewport shell (11/11), i18n integrity (9/9), formatters (7/7), and journeys (4/4).
 
+## Mobile UI Bugfixes Sprint (Branch: stabilize) — Active
+
+- [x] **Phase A: Global Button Icon Layout — Complete (Needs on-device check)**
+  - **Symptom:** In buttons with icons, the icon was stacked above the label because `img, svg { display: block; max-width: 100%; }` in `global.css` forced SVG icons into block display, and `.label` lacked inline-flex row layout.
+  - **Fix:**
+    - In `src/styles/global.css`: added explicit rule ensuring SVGs inside `button`, `.btn`, `a`, and `[role="button"]` retain `display: inline-block; vertical-align: middle; max-width: none`.
+    - In `src/components/common/Button.module.css`: configured `.button` and `.label` to strictly use `display: inline-flex; flex-direction: row; align-items: center; justify-content: center; gap: var(--space-2, 8px); white-space: nowrap;`.
+    - Set `.icon, .button svg, .label svg` to `display: inline-block; flex-shrink: 0; vertical-align: middle;`.
+    - Enforced consistent heights across all sizes (`.sm`: `height: 44px; min-height: 44px;`, `.md`: `height: 48px; min-height: 48px;`, `.lg`: `height: 56px; min-height: 56px;`).
+    - Added CSS contract test `src/__tests__/button-contract.test.jsx` (3/3 PASS) enforcing inline-flex row, verifying no button rule uses flex-direction column, and testing inline DOM order.
+  - **Verification:** `node node_modules/vitest/vitest.mjs run src/__tests__/button-contract.test.jsx` (3/3 PASS). *Needs on-device check:* Buttons across all admin and storefront screens.
+
 
 
 

@@ -116,6 +116,16 @@ img, svg {
   max-width: 100%;
 }
 
+/* Ensure buttons, links, and inline interactive elements keep SVGs inline */
+button svg,
+.btn svg,
+a svg,
+[role="button"] svg {
+  display: inline-block;
+  vertical-align: middle;
+  max-width: none;
+}
+
 ul, ol {
   list-style: none;
 }
