@@ -1082,6 +1082,19 @@ Hotfix of critical storefront issues identified during phone testing:
   - **30-Day Persistent Login Verification:**
     - Verified single-flight token refresh, navigator.locks multi-tab coordination, network offline survival, proactive refresh, and session recovery in `src/__tests__/persistent-auth.test.jsx` (9/9 PASS).
 
+- [x] **Audit Stabilization Phase 6: Polish, Display Typography, Bulk Admin Actions & Full Audit Resolution — Complete**
+  - **Display Typography (`src/styles/tokens.css`):**
+    - Declared `--font-display-latin: 'Playfair Display', Georgia, serif;` under Typography per `docs/BRAND-RULES.md` section 7.
+  - **Admin Orders Bulk Actions (`AdminOrdersPage.jsx`, `AdminOrdersPage.module.css`):**
+    - Added multi-row checkbox selection (`selectedOrderNumbers`), select all/none toggle in table header, and bulk export toolbar (`handleBulkExport` to CSV).
+    - Fixed dialect error message on connection failure to Modern Standard Arabic: "تعذر الاتصال بالخادم. يرجى إعادة المحاولة."
+    - Converted badge colors to semantic tokens (`var(--wex-ice-light)`, `var(--wex-royal)`, `var(--wex-gray-100)`, `var(--wex-text-secondary)`).
+  - **Comprehensive Audit Resolution Matrix (`docs/UIUX_AUDIT.md`):**
+    - Updated `docs/UIUX_AUDIT.md` Section 6 mapping 100% of all 30 findings (F-01 through F-30) as Fixed with commit hashes and automated verification proofs.
+  - **Automated Verification:**
+    - `npm run check:all`: PASS (11 contrast pairs WCAG AA, 0 forbidden claims, 0 missing i18n keys, layout integrity, single message living rule, and 0 missing CSS classes).
+    - Vitest targeted suites: 100% PASS across persistent auth (9/9), spec-value bidi (6/6), viewport shell (11/11), i18n integrity (9/9), formatters (7/7), and journeys (4/4).
+
 
 
 

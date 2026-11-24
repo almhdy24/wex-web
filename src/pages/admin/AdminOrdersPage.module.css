@@ -157,11 +157,40 @@
 }
 
 .deliveryBadge {
-  background-color: #EFF6FF;
-  color: #1D4ED8;
+  background-color: var(--wex-ice-light, #EFF6FF);
+  color: var(--wex-royal, #1D4ED8);
 }
 
 .pickupBadge {
-  background-color: #F3F4F6;
-  color: #4B5563;
+  background-color: var(--wex-gray-100, #F3F4F6);
+  color: var(--wex-text-secondary, #4B5563);
+}
+
+.bulkBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-white);
+  border: 1px solid var(--wex-royal);
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px rgba(11, 63, 191, 0.08);
+}
+
+.bulkInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--wex-royal);
+}
+
+.bulkActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
 }

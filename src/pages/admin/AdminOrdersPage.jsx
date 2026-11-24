@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { RefreshCw, Truck, Store, ExternalLink } from 'lucide-react';
+import { RefreshCw, Truck, Store, ExternalLink, CheckSquare, Square, Download } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { adminAr } from '../../content/admin.ar';
 import { formatSdg, formatRelativeTime, formatDate } from '../../utils/formatters';
@@ -33,6 +33,7 @@ export default function AdminOrdersPage() {
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedOrderNumbers, setSelectedOrderNumbers] = useState([]);
 
   // Filter States synced with URL
   const [status, setStatus] = useState(searchParams.get('status') || '');
@@ -72,7 +73,7 @@ export default function AdminOrdersPage() {
       if (page > 1) nextParams.page = String(page);
       setSearchParams(nextParams, { replace: true });
     } catch (err) {
-      setError(err.message || 'الاتصال ضعيف. حاول مجدداً.');
+      setError(err.message || 'تعذر الاتصال بالخادم. يرجى إعادة المحاولة.');
     } finally {
       setLoading(false);
     }
@@ -97,8 +98,95 @@ export default function AdminOrdersPage() {
 
   const activeFiltersCount = (status ? 1 : 0) + (deliveryType ? 1 : 0) + (search ? 1 : 0);
 
+  const allSelected = orders.length > 0 && selectedOrderNumbers.length === orders.length;
+
+  const handleBulkExport = () => {
+    if (selectedOrderNumbers.length === 0) return;
+    const selectedOrders = orders.filter((o) => selectedOrderNumbers.includes(o.order_number));
+    const headers = ['رقم الطلب', 'العميل', 'الهاتف', 'الإجمالي', 'طريقة الاستلام', 'الحالة', 'التاريخ'];
+    const rows = selectedOrders.map((o) => [
+      o.order_number,
+      o.customer_name || 'عميل',
+      o.customer_phone || '-',
+      o.total || o.final_amount || 0,
+      o.delivery_type === 'pickup' ? 'استلام من المحل' : 'توصيل',
+      o.status || '',
+      o.created_at || '',
+    ]);
+    const csvContent = '\uFEFF' + [headers, ...rows].map((e) => e.map((val) => `"${String(val).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `wex-orders-${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   // Columns definition for DataList
   const columns = [
+    {
+      key: 'select',
+      label: (
+        <span
+          role="button"
+          tabIndex={0}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (allSelected) {
+              setSelectedOrderNumbers([]);
+            } else {
+              setSelectedOrderNumbers(orders.map((o) => o.order_number));
+            }
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              e.stopPropagation();
+              if (allSelected) {
+                setSelectedOrderNumbers([]);
+              } else {
+                setSelectedOrderNumbers(orders.map((o) => o.order_number));
+              }
+            }
+          }}
+          style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+          aria-label={allSelected ? 'إلغاء تحديد الكل' : 'تحديد الكل'}
+        >
+          {allSelected ? <CheckSquare size={16} /> : <Square size={16} />}
+        </span>
+      ),
+      render: (row) => {
+        const isSelected = selectedOrderNumbers.includes(row.order_number);
+        return (
+          <span
+            role="button"
+            tabIndex={0}
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedOrderNumbers((prev) =>
+                isSelected ? prev.filter((id) => id !== row.order_number) : [...prev, row.order_number]
+              );
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                e.stopPropagation();
+                setSelectedOrderNumbers((prev) =>
+                  isSelected ? prev.filter((id) => id !== row.order_number) : [...prev, row.order_number]
+                );
+              }
+            }}
+            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+            aria-label={isSelected ? `إلغاء تحديد الطلب ${row.order_number}` : `تحديد الطلب ${row.order_number}`}
+          >
+            {isSelected ? <CheckSquare size={16} /> : <Square size={16} />}
+          </span>
+        );
+      },
+    },
     {
       key: 'order_number',
       label: adminAr.orders.orderNumber,
@@ -248,6 +336,32 @@ export default function AdminOrdersPage() {
           />
         </div>
       </FilterBar>
+
+      {/* Bulk Actions Toolbar (Visible when 1 or more orders selected) */}
+      {selectedOrderNumbers.length > 0 && (
+        <div className={styles.bulkBar} role="region" aria-label="الإجراءات الجماعية للطلبات">
+          <div className={styles.bulkInfo}>
+            <span>تم تحديد {selectedOrderNumbers.length} طلب</span>
+          </div>
+          <div className={styles.bulkActions}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleBulkExport}
+            >
+              <Download size={14} />
+              <span>تصدير المحدد (CSV)</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedOrderNumbers([])}
+            >
+              إلغاء التحديد
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* DataList Table / Cards View */}
       <DataList
