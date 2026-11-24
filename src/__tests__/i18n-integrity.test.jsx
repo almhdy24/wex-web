@@ -2,7 +2,8 @@ import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
-import { t } from '../content/ar';
+import { t, ar } from '../content/ar';
+import { adminAr } from '../content/admin.ar';
 import { AuthContext } from '../context/AuthContext';
 import { ToastContext } from '../context/ToastContext';
 import { CartContext } from '../context/CartContext';
@@ -145,5 +146,77 @@ describe('Translation Integrity and Runtime Safety', () => {
     expect(sampleHtml).not.toContain('product.addToCart');
     expect(sampleHtml).not.toContain('cart.addedItemSuccess');
     expect(sampleHtml).not.toContain('product.outOfStockBadge');
+  });
+
+  it('fails on a dialect and forbidden phrasing blocklist across all translation dictionaries', () => {
+    const dialectBlocklist = [
+      'مافي',
+      'محتاج',
+      'حاول تاني',
+      'شنو',
+      'كدا',
+      'عشان',
+      'هسع',
+      'هسا',
+      'الرابط غلط',
+      'ادفع الآن',
+      'ذكية',
+      'حجز السعر',
+    ];
+
+    function extractAllStrings(obj, res = []) {
+      for (const val of Object.values(obj)) {
+        if (typeof val === 'string') {
+          res.push(val);
+        } else if (val && typeof val === 'object') {
+          extractAllStrings(val, res);
+        }
+      }
+      return res;
+    }
+
+    const allStrings = [...extractAllStrings(ar), ...extractAllStrings(adminAr)];
+    const violations = [];
+
+    for (const text of allStrings) {
+      for (const word of dialectBlocklist) {
+        if (text.includes(word)) {
+          violations.push(`"${word}" found in: "${text}"`);
+        }
+      }
+    }
+
+    expect(violations).toEqual([]);
+  });
+
+  it('fails on English UI jargon (CTA, Hero Slides) in Arabic translation dictionaries', () => {
+    const forbiddenEnglishJargon = [
+      'Hero Slides',
+      'CTA',
+    ];
+
+    function extractAllStrings(obj, res = []) {
+      for (const val of Object.values(obj)) {
+        if (typeof val === 'string') {
+          res.push(val);
+        } else if (val && typeof val === 'object') {
+          extractAllStrings(val, res);
+        }
+      }
+      return res;
+    }
+
+    const allStrings = [...extractAllStrings(ar), ...extractAllStrings(adminAr)];
+    const violations = [];
+
+    for (const text of allStrings) {
+      for (const term of forbiddenEnglishJargon) {
+        if (text.includes(term)) {
+          violations.push(`Forbidden English "${term}" found in: "${text}"`);
+        }
+      }
+    }
+
+    expect(violations).toEqual([]);
   });
 });

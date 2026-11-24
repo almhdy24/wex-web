@@ -30,13 +30,13 @@
   /* =========================================================================
      2. Official Brand Palette & Surfaces (Grounded Authentic Retail)
      ========================================================================= */
-  --wex-grad-brand: var(--wex-royal);
-  --wex-grad-ribbon: transparent;
-  --wex-grad-navy: var(--wex-navy);
-  --wex-grad-royal-navy: var(--wex-navy);
-  --wex-grad-surface: var(--wex-white);
-  --wex-grad-urgent: var(--wex-danger);
-  --gradient-brand-cta: var(--wex-royal);
+  --wex-grad-brand: linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 50%, #00B7FF 100%);
+  --wex-grad-ribbon: linear-gradient(115deg, rgba(11, 63, 191, 0.95) 0%, rgba(30, 107, 255, 0.90) 60%, rgba(0, 183, 255, 0.85) 100%);
+  --wex-grad-navy: linear-gradient(135deg, #061A55 0%, #0B3FBF 100%);
+  --wex-grad-royal-navy: linear-gradient(135deg, #061A55 0%, #0B3FBF 100%);
+  --wex-grad-surface: linear-gradient(180deg, #FFFFFF 0%, #EAF3FF 100%);
+  --wex-grad-urgent: linear-gradient(135deg, #B42318 0%, #D92D20 100%);
+  --gradient-brand-cta: linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 100%);
 
   /* Focus ring tokens (WCAG 2.2 AA >= 3:1 on all surfaces) */
   --focus-ring: 2px solid var(--wex-vivid);

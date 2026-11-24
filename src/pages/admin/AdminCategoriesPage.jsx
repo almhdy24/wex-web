@@ -43,7 +43,7 @@ export default function AdminCategoriesPage() {
       const res = await adminApi.getCategories();
       setCategories(res.data || []);
     } catch (err) {
-      setError(err.message || 'الاتصال ضعيف. حاول تاني.');
+      setError(err.message || 'تعذر الاتصال بالخادم. يرجى إعادة المحاولة.');
     } finally {
       setLoading(false);
     }

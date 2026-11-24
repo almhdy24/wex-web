@@ -365,7 +365,7 @@ export const ar = {
     statusRow: 'الحالة: {status}',
     totalRow: 'الإجمالي: {total}',
     timeRow: 'الوقت: {time}',
-    payNowBtn: 'ادفع الآن',
+    payNowBtn: 'رفع إشعار التحويل',
     viewDetails: 'عرض التفاصيل',
   },
 

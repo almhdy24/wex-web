@@ -41,7 +41,7 @@ export default function AdminBrandsPage() {
       const res = await adminApi.getBrands();
       setBrands(res.data || []);
     } catch (err) {
-      setError(err.message || 'الاتصال ضعيف. حاول تاني.');
+      setError(err.message || 'تعذر الاتصال بالخادم. يرجى إعادة المحاولة.');
     } finally {
       setLoading(false);
     }

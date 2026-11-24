@@ -43,6 +43,12 @@
   flex-shrink: 0;
 }
 
+.tabLabel {
+  font-size: inherit;
+  font-weight: inherit;
+  white-space: nowrap;
+}
+
 .tabCount {
   display: inline-flex;
   align-items: center;

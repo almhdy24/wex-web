@@ -9,7 +9,7 @@ export default function NotFoundPage() {
       <div className={styles.code}>404</div>
       <h1 className={styles.title}>الصفحة غير موجودة</h1>
       <p className={styles.message}>
-        الرابط غلط أو تم نقل الصفحة. تقدر ترجع للرئيسية أو تتصفح كتالوج الأجهزة.
+        لم يتم العثور على الصفحة المطلوبة. يمكنك العودة إلى الرئيسية أو تصفح الأجهزة.
       </p>
       <div className={styles.actions}>
         <Link to="/">

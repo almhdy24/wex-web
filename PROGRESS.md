@@ -1028,6 +1028,22 @@ Hotfix of critical storefront issues identified during phone testing:
     - Updated `CheckoutPage.jsx` to pipe phone input through `toAsciiDigits` and use `normalizeSudanPhone`.
     - Added tests in `src/__tests__/formatters.test.js` covering Arabic-Indic digits conversion and phone normalization (7/7 PASS).
 
+- [x] **Audit Stabilization Phase 2: Functional Disconnects — Complete**
+  - **RecentPurchasesToast Connected (`src/layouts/StoreLayout.jsx`, `RecentPurchasesToast.jsx`, `RecentPurchasesToast.module.css`):**
+    - Mounted `RecentPurchasesToast` in both desktop and mobile viewports in `StoreLayout.jsx`, wired to `shopInfo?.ticker_enabled !== false`.
+    - Integrated with `isCartDrawerOpen` to suppress toasts while cart drawer is open.
+    - Adjusted z-index to `var(--z-tabbar, 300)` with safe-area clearance (`calc(var(--bottom-bar-height, 64px) + var(--space-3) + env(safe-area-inset-bottom, 0px))`).
+    - Verified with `src/__tests__/layering-contract.test.jsx` (5/5 PASS) and `src/__tests__/storefront-features.test.jsx` (5/5 PASS).
+  - **Shop Settings Harmonization (`src/utils/shopSettings.js`, `HomePage.jsx`, `ProductDetailPage.jsx`, `AccountPage.jsx`, `StoreFooter.jsx`):**
+    - Implemented `normalizeShopInfo(raw)` unifying `shop_address`/`address`, `shop_whatsapp`/`whatsapp`/`whatsapp_number`, `working_hours`/`business_hours`, and `shop_name`/`name`.
+    - Implemented `buildWhatsAppLink(phone, message)` with Sudan prefix normalization and digit cleaning.
+    - Integrated across `HomePage`, `ProductDetailPage`, `AccountPage`, `StoreFooter`, and `StoreLayout`.
+    - Added unit tests in `src/__tests__/shop-settings.test.js` (4/4 PASS).
+  - **Orders Page CTA Realignment (`src/pages/store/OrdersPage.jsx`):**
+    - Replaced misleading "ادفع الآن" CTA with dynamic `uiState.primaryAction` ("رفع إشعار التحويل" / "رفع إشعار جديد") aligned with order payment state.
+    - Updated `src/__tests__/storefront-flow.test.jsx` to verify the new label (8/8 PASS).
+
+
   - **Cart Page (`src/pages/store/CartPage.jsx` & `CartPage.module.css`):**
     - Item deletion with undo action toast via `useToast`: "تم حذف الجهاز من السلة" with "تراجع" button restoring item and quantity.
     - Upgraded quantity steppers to 38px/40px touch targets with smooth hover and active feedback.

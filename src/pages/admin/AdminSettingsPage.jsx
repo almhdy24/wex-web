@@ -37,7 +37,7 @@ export default function AdminSettingsPage() {
     orders_disabled_message: 'نعتذر، استقبال الطلبات متوقف مؤقتاً وسنعود لاستقبال طلباتكم قريباً.',
 
     // Store policies (Inspection, Hand-off & Warranty clarification)
-    policy_inspection_title: 'المعاينة وفحص الأجهزة',
+    policy_inspection_title: 'المعاينة والاستلام',
     policy_inspection: 'أجهزة مستوردة؛ يعاين العميل الجهاز بنفسه عند الاستلام في المتجر.',
     policy_pickup: 'يمكنك استلام الجهاز من مقرنا في مول الواحة، الشهداء، أم درمان.',
     policy_return: 'نظراً لطبيعة الأجهزة المستوردة، يتم الاستلام بعد المعاينة المباشرة.',

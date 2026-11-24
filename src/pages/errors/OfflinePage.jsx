@@ -13,12 +13,12 @@ export default function OfflinePage() {
       <div className={styles.iconBox} aria-hidden="true">
         <WifiOff size={32} strokeWidth={1.75} />
       </div>
-      <h1 className={styles.title}>مافي اتصال بالإنترنت</h1>
+      <h1 className={styles.title}>لا يوجد اتصال بالشبكة</h1>
       <p className={styles.message}>
-        أنت غير متصل بالشبكة حالياً. المتجر محتاج اتصال لتحديث أسعار الأجهزة وحجزها ورفع إشعارات التحويل.
+        تعذّر الاتصال. يلزم الاتصال بالشبكة لعرض الأجهزة وتحديث الأسعار ومتابعة الطلبات.
       </p>
       <Button variant="primary" icon={RotateCcw} onClick={handleReload}>
-        حاول تاني
+        إعادة المحاولة
       </Button>
     </div>
   );
