@@ -11,6 +11,8 @@ import { useToast } from '../../context/ToastContext';
 import Skeleton from '../../components/common/Skeleton';
 import ErrorState from '../../components/common/ErrorState';
 import Page from '../../components/common/Page';
+import OrderNumber from '../../components/common/OrderNumber';
+import OrderDate from '../../components/common/OrderDate';
 import styles from './AdminRecentPurchasesPage.module.css';
 
 export default function AdminRecentPurchasesPage() {
@@ -156,14 +158,14 @@ export default function AdminRecentPurchasesPage() {
                 className={`${styles.orderRow} ${ord.ticker_hidden ? styles.hiddenRow : ''}`}
               >
                 <div className={styles.orderLeft}>
-                  <strong className={styles.orderNumber}>#{ord.order_number}</strong>
+                  <strong className={styles.orderNumber}>
+                    <OrderNumber value={ord.order_number} withHash />
+                  </strong>
                   <span className={styles.productName}>{ord.product_name}</span>
                 </div>
 
                 <div className={styles.orderRight}>
-                  <span className={styles.orderDate}>
-                    {ord.completed_at ? new Date(ord.completed_at).toLocaleDateString('ar-SD') : ''}
-                  </span>
+                  <OrderDate date={ord.completed_at} label="" showRelative={false} className={styles.orderDate} />
 
                   <button
                     type="button"

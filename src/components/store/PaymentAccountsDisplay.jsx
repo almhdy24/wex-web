@@ -3,6 +3,7 @@ import { Copy, Check, Building2, Info } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 import { ar } from '../../content/ar';
 import LatinText from '../common/LatinText';
+import OrderNumber from '../common/OrderNumber';
 import styles from './PaymentAccountsDisplay.module.css';
 
 export default function PaymentAccountsDisplay({
@@ -62,7 +63,7 @@ export default function PaymentAccountsDisplay({
         <div className={styles.orderNumberCard}>
           <div className={styles.orderNumberMeta}>
             <span className={styles.orderNumberLabel}>{ar.paymentAccounts.copyOrderNumber}</span>
-            <span className={styles.orderNumberVal}>#{orderNumber}</span>
+            <OrderNumber value={orderNumber} withHash className={styles.orderNumberVal} />
           </div>
 
           <button

@@ -1168,6 +1168,20 @@ Hotfix of critical storefront issues identified during phone testing:
     - `node node_modules/eslint/bin/eslint.js` on changed files (0 errors, 0 warnings).
     - *Needs on-device check:* Admin Order Detail page bottom clearance and toast popups on mobile.
 
+- [x] **Phase F: Sweep & Static Contract Linter — Complete (Needs on-device check)**
+  - **Symptoms:**
+    - Risk of regressions: buttons stacking vertically, chips positioned absolute in cards, admin clearance traps, or raw BiDi-scrambled `#` order numbers.
+    - Remaining bare `#` order strings in `PaymentAccountsDisplay.jsx`, `AdminPaymentsPage.jsx`, and `AdminRecentPurchasesPage.jsx`.
+  - **Fix:**
+    - Created `scripts/check-layout-contract.js`: statically enforces button inline-flex row rules, bans `position: absolute` on chips inside card modules, enforces `AdminShell.module.css` clearance and multi-layer padding prevention, and catches raw unisolated `#` order numbers in JSX.
+    - Wired `check:layout` into `npm run check:all`, `prebuild`, `test`, and `lint` in `package.json`.
+    - Replaced remaining bare `#` order numbers with `<OrderNumber>` in `PaymentAccountsDisplay.jsx`, `AdminPaymentsPage.jsx`, and `AdminRecentPurchasesPage.jsx`.
+    - Replaced raw date display in `AdminRecentPurchasesPage.jsx` with `<OrderDate>`.
+    - Added `.timerSnippet` class to `PendingOrderBanner.module.css`.
+  - **Verification:**
+    - `npm run check:all`: PASS (11 contrast pairs, claims, i18n, layout, duplicate messages, css classes, layout contract).
+    - Vitest single-file runs: all unit tests PASS (Button Contract, Order State Machine, OrderNumber/Date, Stepper, Toast System).
+
 
 
 

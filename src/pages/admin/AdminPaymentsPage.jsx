@@ -22,6 +22,7 @@ import ErrorState from '../../components/common/ErrorState';
 import { Skeleton } from '../../components/common/Skeleton';
 import ImageViewer from '../../components/admin/ImageViewer';
 import Page from '../../components/common/Page';
+import OrderNumber from '../../components/common/OrderNumber';
 import styles from './AdminPaymentsPage.module.css';
 
 export default function AdminPaymentsPage() {
@@ -401,7 +402,9 @@ export default function AdminPaymentsPage() {
               <div className={styles.cardHeader}>
                 <div>
                   <span className={styles.orderNumberLabel}>طلب رقم</span>
-                  <h2 className={styles.orderNumber}>#{currentOrder.order_number}</h2>
+                  <h2 className={styles.orderNumber}>
+                    <OrderNumber value={currentOrder.order_number} withHash />
+                  </h2>
                 </div>
                 <div className={styles.expectedAmountBox}>
                   <span className={styles.amountLabel}>{adminAr.payments.expectedAmount}</span>
