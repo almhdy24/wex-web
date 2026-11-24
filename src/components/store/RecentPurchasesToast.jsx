@@ -57,7 +57,11 @@ function incrementSessionCount() {
   }
 }
 
-export default function RecentPurchasesToast({ purchases: propPurchases, tickerEnabled = true }) {
+export default function RecentPurchasesToast({
+  purchases: propPurchases,
+  tickerEnabled = true,
+  isCartDrawerOpen = false,
+}) {
   const location = useLocation();
   const [items, setItems] = useState(propPurchases || []);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -65,8 +69,9 @@ export default function RecentPurchasesToast({ purchases: propPurchases, tickerE
   const [sessionCount, setSessionCount] = useState(getSessionCount);
   const timerRef = useRef(null);
 
-  // Strictly block on checkout / payment screens
+  // Strictly block on checkout / payment screens, or when cart drawer is active
   const isExcludedScreen =
+    Boolean(isCartDrawerOpen) ||
     location.pathname.startsWith('/checkout') ||
     location.pathname.startsWith('/orders/') ||
     location.pathname === '/orders';
@@ -188,7 +193,7 @@ export default function RecentPurchasesToast({ purchases: propPurchases, tickerE
             <span>تم شراء </span>
             <strong className={styles.highlightProduct}>{currentItem.product_name}</strong>
             <span> قبل </span>
-            <span>{timeAgo}</span>
+            <span className={styles.timeTag}>{timeAgo}</span>
           </div>
         </div>
 

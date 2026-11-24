@@ -23,6 +23,7 @@ import Page from '../../components/common/Page';
 import BrandRibbons from '../../components/common/BrandRibbons';
 import { Reveal, Stagger } from '../../motion';
 import { formatPriceUpdateCaption } from '../../utils/formatters';
+import { normalizeShopInfo, buildWhatsAppLink } from '../../utils/shopSettings';
 import styles from './HomePage.module.css';
 
 export default function HomePage({
@@ -35,7 +36,7 @@ export default function HomePage({
   const { totalItems } = useCart();
   const { favoriteCount } = useFavorites();
 
-  const [shopInfo, setShopInfo] = useState(initialShopInfo);
+  const [shopInfo, setShopInfo] = useState(() => (initialShopInfo ? normalizeShopInfo(initialShopInfo) : null));
   const [products, setProducts] = useState(initialProducts);
   const [loading, setLoading] = useState(initialLoading);
   const [error, setError] = useState(null);
@@ -52,7 +53,7 @@ export default function HomePage({
           productsApi.getProducts({ per_page: 24 }).catch(() => ({ data: [] })),
         ]);
         if (isMounted) {
-          setShopInfo(shopRes?.data || null);
+          setShopInfo(shopRes?.data ? normalizeShopInfo(shopRes.data) : null);
           setProducts(prodsRes?.data || []);
         }
       } catch (err) {
@@ -139,8 +140,7 @@ export default function HomePage({
   );
   const featuredProducts = distinctProducts.slice(0, 6);
 
-  const whatsappPhone = shopInfo?.whatsapp || '249912345678';
-  const whatsappUrl = `https://wa.me/${whatsappPhone}`;
+  const whatsappUrl = buildWhatsAppLink(shopInfo?.whatsapp, 'مرحباً، أود الاستفسار عن متجر ويكس تكنولوجي');
 
   return (
     <div className={styles.pageWrapper}>
@@ -349,7 +349,7 @@ export default function HomePage({
           <div className={styles.storeTopBand}>
             <BrandRibbons variant="header" />
             <div className={styles.storeTopBandContent}>
-              <h2 className={styles.storeName}>ويكس تكنولوجي</h2>
+              <h2 className={styles.storeName}>{shopInfo?.name || 'ويكس تكنولوجي'}</h2>
               <p className={styles.storeTagline}>فريق ويكس في خدمتكم في المتجر بأم درمان</p>
             </div>
           </div>
@@ -359,8 +359,7 @@ export default function HomePage({
               {shopInfo?.address || 'مول الواحة، الشهداء، أم درمان'}
             </p>
             <div className={styles.storeHours}>
-              <p>السبت - الخميس: 9:00 ص - 9:00 م</p>
-              <p>الجمعة: مغلق</p>
+              <p>{shopInfo?.workingHours || 'السبت - الخميس: 9:00 ص - 9:00 م'}</p>
             </div>
 
             <div className={styles.storeButtons}>

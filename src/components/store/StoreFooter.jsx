@@ -2,18 +2,20 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Phone, MessageCircle, MapPin, Mail, Clock, HelpCircle, ShieldCheck } from 'lucide-react';
 import { ar } from '../../content/ar';
+import { normalizeShopInfo, buildWhatsAppLink } from '../../utils/shopSettings';
 import styles from './StoreFooter.module.css';
 
 export default function StoreFooter({ shopInfo = null }) {
   const currentYear = new Date().getFullYear();
+  const info = normalizeShopInfo(shopInfo);
 
-  const shopAddress = shopInfo?.shop_address || ar.desktop.locationShort;
-  const workingHours = shopInfo?.working_hours || ar.desktop.shopHoursShort;
-  const shopPhone = shopInfo?.shop_phone || ar.desktop.phone;
-  const shopWhatsapp = shopInfo?.shop_whatsapp || '249912345678';
-  const cleanWhatsapp = shopWhatsapp.replace(/\+/g, '').replace(/\s+/g, '');
-  const footerText = shopInfo?.footer_text || ar.desktop.footer.aboutShop;
-  const shopMapLink = shopInfo?.shop_map_link || 'https://maps.google.com/?q=Al-Waha+Mall+Omdurman';
+  const shopAddress = info.address || ar.desktop.locationShort;
+  const workingHours = info.workingHours || ar.desktop.shopHoursShort;
+  const shopPhone = info.phone || ar.desktop.phone;
+  const whatsappUrl = buildWhatsAppLink(info.whatsapp);
+  const footerText = info.footer_text || ar.desktop.footer.aboutShop;
+  const shopMapLink = info.shop_map_link || 'https://maps.google.com/?q=Al-Waha+Mall+Omdurman';
+  const shopName = info.name || ar.common.appName;
 
   return (
     <footer className={styles.footer} role="contentinfo" aria-label="تذييل الصفحة">
@@ -24,7 +26,7 @@ export default function StoreFooter({ shopInfo = null }) {
           {/* Column 1: The Shop */}
           <div className={styles.column}>
             <div className={styles.brandTitleBox}>
-              <h3 className={styles.brandTitle}>{shopInfo?.shop_name || ar.common.appName}</h3>
+              <h3 className={styles.brandTitle}>{shopName}</h3>
               <span className={styles.brandSubtitle}>{ar.common.appSubtitle}</span>
             </div>
             <p className={styles.shopDescription}>{footerText}</p>
@@ -71,7 +73,7 @@ export default function StoreFooter({ shopInfo = null }) {
             <ul className={styles.linksList}>
               <li>
                 <a
-                  href={`https://wa.me/${cleanWhatsapp}`}
+                  href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={styles.footerLink}

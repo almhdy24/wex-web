@@ -1014,7 +1014,20 @@ Hotfix of critical storefront issues identified during phone testing:
     - Vitest: 42 test files, 295/295 tests PASS (100% green).
     - `npm run build`: built cleanly in 3.64s.
 
-- [x] **Full Redesign Phase 3: Cart, Checkout, Payment & Orders**
+- [x] **Audit Stabilization Phase 1: Blockers (Receipt Auto-Scroll & Arabic-Indic Digits) — Complete**
+  - **Receipt Upload Auto-Scroll (`src/pages/store/OrderDetailPage.jsx` & `OrderDetailPage.module.css`):**
+    - Resolved post-checkout stranded scroll bug where `justCreated` effect executed on mount while `loading` was true. Added `loading` and `order` dependencies guarded with `hasScrolledRef`.
+    - Added target card brief highlight (`.uploadCardHighlight` with 2s timeout and reduced-motion override).
+    - Reduced motion check ensures instant scroll (`behavior: 'auto'`) when user prefers reduced motion.
+    - Verified with Journey (a) test in `tests/journeys.test.jsx`.
+  - **Arabic-Indic Numerals Normalization (`src/utils/formatters.js`, `VerifyOtpPage.jsx`, `AuthSheet.jsx`, `CheckoutPage.jsx`):**
+    - Implemented shared utility `toAsciiDigits(str)` converting Eastern Arabic (`٠-٩`) and Persian (`۰-۹`) numerals to standard Western ASCII digits.
+    - Updated `normalizeSudanPhone` to pipe input through `toAsciiDigits` before stripping non-digits.
+    - Updated `VerifyOtpPage.jsx` and `AuthSheet.jsx` to normalize pasted text and per-box digit changes with `toAsciiDigits`.
+    - Configured OTP inputs with `inputMode="numeric"` and `autoComplete={idx === 0 ? 'one-time-code' : 'off'}`.
+    - Updated `CheckoutPage.jsx` to pipe phone input through `toAsciiDigits` and use `normalizeSudanPhone`.
+    - Added tests in `src/__tests__/formatters.test.js` covering Arabic-Indic digits conversion and phone normalization (7/7 PASS).
+
   - **Cart Page (`src/pages/store/CartPage.jsx` & `CartPage.module.css`):**
     - Item deletion with undo action toast via `useToast`: "تم حذف الجهاز من السلة" with "تراجع" button restoring item and quantity.
     - Upgraded quantity steppers to 38px/40px touch targets with smooth hover and active feedback.

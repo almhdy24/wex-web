@@ -35,6 +35,7 @@ import { notificationsApi } from '../../api/notifications';
 import { productsApi } from '../../api/products';
 import { shopApi } from '../../api/shop';
 import { normalizeSudanPhone, isValidSudanPhone } from '../../utils/formatters';
+import { normalizeShopInfo, buildWhatsAppLink } from '../../utils/shopSettings';
 import { ar } from '../../content/ar';
 import styles from './AccountPage.module.css';
 
@@ -148,7 +149,7 @@ export default function AccountPage() {
       .getShop()
       .then((res) => {
         if (isMounted && res?.data) {
-          setShopInfo(res.data);
+          setShopInfo(normalizeShopInfo(res.data));
         }
       })
       .catch(() => {});
@@ -856,7 +857,7 @@ export default function AccountPage() {
 
               {/* Direct WhatsApp Support */}
               <a
-                href={`https://wa.me/${(shopInfo?.whatsapp_number || shopInfo?.contact_phone || '249912345678').replace(/\D/g, '')}?text=${encodeURIComponent('مرحباً، أريد الاستفسار عن متجر ويكس')}`}
+                href={buildWhatsAppLink(shopInfo?.whatsapp, 'مرحباً، أريد الاستفسار عن متجر ويكس')}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.menuRow}

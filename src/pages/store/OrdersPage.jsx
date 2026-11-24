@@ -180,7 +180,7 @@ export default function OrdersPage({
                         </div>
                       )}
 
-                      {/* Footer Row: الإجمالي، و زر ادفع الآن إن كان بانتظار الدفع */}
+                      {/* Footer Row: الإجمالي، و زر رفع الإشعار إن كان بانتظار التحويل */}
                       <div className={styles.cardFooter}>
                         <div className={styles.priceCol}>
                           <span className={styles.priceLabel}>الإجمالي:</span>
@@ -197,7 +197,7 @@ export default function OrdersPage({
                             }}
                             className={`${styles.payNowBtn} ${styles.raisedAction}`}
                           >
-                            ادفع الآن
+                            {uiState.primaryAction || 'رفع إشعار التحويل'}
                           </Button>
                         ) : (
                           <div className={styles.viewLink}>

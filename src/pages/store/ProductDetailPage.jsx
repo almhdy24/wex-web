@@ -31,6 +31,7 @@ import Tabs from '../../components/common/Tabs';
 import StickyBar from '../../components/common/StickyBar';
 import Skeleton from '../../components/common/Skeleton';
 import { swrCache } from '../../utils/swrCache';
+import { normalizeShopInfo } from '../../utils/shopSettings';
 import styles from './ProductDetailPage.module.css';
 
 function getSpecPath(label = '', key = '') {
@@ -78,7 +79,10 @@ export default function ProductDetailPage({
   const cached = cacheKey ? swrCache.get(cacheKey) : null;
 
   const [product, setProduct] = useState(() => initialProduct || cached?.data?.product || null);
-  const [shopInfo, setShopInfo] = useState(() => initialShopInfo || cached?.data?.shopInfo || null);
+  const [shopInfo, setShopInfo] = useState(() => {
+    const raw = initialShopInfo || cached?.data?.shopInfo;
+    return raw ? normalizeShopInfo(raw) : null;
+  });
   const [shippingZones, setShippingZones] = useState(() => initialShippingZones || cached?.data?.shippingZones || []);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [imageError, setImageError] = useState(false);
@@ -108,7 +112,7 @@ export default function ProductDetailPage({
       .then(([prodRes, shopRes, zonesRes]) => {
         if (!isMounted) return;
         const freshProduct = prodRes?.data || null;
-        const freshShop = shopRes?.data || null;
+        const freshShop = shopRes?.data ? normalizeShopInfo(shopRes.data) : null;
         const freshZones = zonesRes?.data || [];
         setProduct(freshProduct);
         setShopInfo(freshShop);

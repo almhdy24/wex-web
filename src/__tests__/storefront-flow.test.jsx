@@ -128,14 +128,14 @@ describe('Phase 5: Payment Screen, Orders List & Flow Tests', () => {
   });
 
   describe('Orders List (OrdersPage)', () => {
-    it('renders simple rows with number, date, status, total, and "ادفع الآن" button for pending orders', () => {
+    it('renders simple rows with number, date, status, total, and "ارفع إشعار التحويل" button for pending orders', () => {
       const html = renderOrders([samplePendingOrder]);
 
       expect(html).toContain('طلباتي');
       expect(html).toContain('#WEX-261121-ABCD1');
-      expect(html).toContain('بانتظار الدفع');
+      expect(html).toContain('بانتظار التحويل');
       expect(html).toContain('487,500 ج.س');
-      expect(html).toContain('ادفع الآن');
+      expect(html).toContain('ارفع إشعار التحويل');
     });
 
     it('renders empty orders state when customer has no orders', () => {

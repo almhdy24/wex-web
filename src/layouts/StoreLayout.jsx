@@ -12,8 +12,10 @@ import {
   AnnouncementBanner,
   AnnouncementToast,
   OrdersDisabledBanner,
+  RecentPurchasesToast,
   StoreFooter,
 } from '../components/store';
+import { normalizeShopInfo } from '../utils/shopSettings';
 import { ordersApi } from '../api/orders';
 import { productsApi } from '../api/products';
 import { api } from '../api/client';
@@ -55,7 +57,7 @@ export default function StoreLayout() {
   const [shopInfo, setShopInfo] = useState(null);
   const [announcements, setAnnouncements] = useState([]);
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
-  const [customTitle, setCustomTitle] = useState(null);
+  const [, setCustomTitle] = useState(null);
   const viewportRef = useRef(null);
   const scrollPositions = useRef({});
   const prevPathRef = useRef(location.pathname);
@@ -176,7 +178,7 @@ export default function StoreLayout() {
     productsApi.getShopInfo()
       .then((res) => {
         if (isMounted && res?.data) {
-          setShopInfo(res.data);
+          setShopInfo(normalizeShopInfo(res.data));
         }
       })
       .catch(() => {})
@@ -260,6 +262,10 @@ export default function StoreLayout() {
         />
 
         <AnnouncementToast announcements={announcements} />
+        <RecentPurchasesToast
+          tickerEnabled={shopInfo?.ticker_enabled !== false}
+          isCartDrawerOpen={isCartDrawerOpen}
+        />
         <CompareTray />
 
         <ScrollToTop />
@@ -320,6 +326,10 @@ export default function StoreLayout() {
 
         <CompareTray />
         <AnnouncementToast announcements={announcements} />
+        <RecentPurchasesToast
+          tickerEnabled={shopInfo?.ticker_enabled !== false}
+          isCartDrawerOpen={isCartDrawerOpen}
+        />
 
         <CartDrawer
           isOpen={isCartDrawerOpen}
