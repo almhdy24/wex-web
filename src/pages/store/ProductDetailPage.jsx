@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ShoppingCart,
@@ -11,6 +11,8 @@ import {
   Maximize2,
   MapPin,
   Truck,
+  Package,
+  AlertCircle,
 } from 'lucide-react';
 import { productsApi } from '../../api/products';
 import { shopApi } from '../../api/shop';
@@ -92,17 +94,18 @@ export default function ProductDetailPage({
     initialLoading ?? (initialProduct === null && !cached?.data?.product)
   );
   const [error, setError] = useState(null);
+  const [errorStatus, setErrorStatus] = useState(null);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(initialTab); // 'specs' | 'delivery'
   const [isAdded, setIsAdded] = useState(false);
 
-  useEffect(() => {
+  const loadData = useCallback(() => {
     if (initialProduct !== null) return;
-    let isMounted = true;
     if (!cached?.data?.product) {
       setLoading(true);
     }
     setError(null);
+    setErrorStatus(null);
     const controller = new AbortController();
 
     Promise.all([
@@ -111,7 +114,6 @@ export default function ProductDetailPage({
       productsApi.getShippingZones({ signal: controller.signal }).catch(() => ({ data: [] })),
     ])
       .then(([prodRes, shopRes, zonesRes]) => {
-        if (!isMounted) return;
         const freshProduct = prodRes?.data || null;
         const freshShop = shopRes?.data ? normalizeShopInfo(shopRes.data) : null;
         const freshZones = zonesRes?.data || [];
@@ -127,20 +129,28 @@ export default function ProductDetailPage({
         }
       })
       .catch((err) => {
-        if (!isMounted || err?.name === 'AbortError') return;
+        if (err?.name === 'AbortError') return;
+        const status = err?.status || err?.response?.status;
+        setErrorStatus(status);
         if (!cached?.data?.product) {
           setError(err.message || 'تعذر تحميل بيانات الجهاز');
         }
       })
       .finally(() => {
-        if (isMounted) setLoading(false);
+        setLoading(false);
       });
 
     return () => {
-      isMounted = false;
       controller.abort();
     };
-  }, [slug, initialProduct]);
+  }, [slug, initialProduct, cacheKey, cached?.data?.product]);
+
+  useEffect(() => {
+    const cleanup = loadData();
+    return () => {
+      cleanup?.();
+    };
+  }, [loadData]);
 
   if (loading) {
     return (
@@ -152,13 +162,41 @@ export default function ProductDetailPage({
     );
   }
 
+  // 1. Dedicated Product Not Found State (404 from API or product missing)
+  if (errorStatus === 404 || (!product && !error)) {
+    return (
+      <Page className={styles.errorContainer}>
+        <div className={styles.notFoundCard}>
+          <Package className={styles.notFoundIcon} size={48} />
+          <h1 className={styles.notFoundTitle}>المنتج غير متوفر</h1>
+          <p className={styles.notFoundDesc}>
+            الجهاز أو المنتج الذي تبحث عنه قد تم بيعه أو نقله أو الرابط غير صحيح.
+          </p>
+          <Button variant="primary" onClick={() => navigate('/products')}>
+            تصفّح الأجهزة
+          </Button>
+        </div>
+      </Page>
+    );
+  }
+
+  // 2. Network / Server Error Retry State
   if (error || !product) {
     return (
       <Page className={styles.errorContainer}>
-        <p className={styles.errorText}>{error || 'الجهاز غير موجود'}</p>
-        <Button variant="secondary" onClick={() => navigate('/products')}>
-          تصفّح الأجهزة
-        </Button>
+        <div className={styles.notFoundCard}>
+          <AlertCircle className={styles.notFoundIcon} size={48} />
+          <h1 className={styles.notFoundTitle}>تعذر الاتصال بالمتجر</h1>
+          <p className={styles.notFoundDesc}>{error || 'حدث خطأ أثناء تحميل بيانات الجهاز'}</p>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <Button variant="primary" onClick={loadData}>
+              إعادة المحاولة
+            </Button>
+            <Button variant="secondary" onClick={() => navigate('/products')}>
+              تصفّح الأجهزة
+            </Button>
+          </div>
+        </div>
       </Page>
     );
   }

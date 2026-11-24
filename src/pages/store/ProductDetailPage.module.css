@@ -67,6 +67,34 @@
   text-align: center;
 }
 
+.notFoundCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  max-width: 360px;
+}
+
+.notFoundIcon {
+  color: var(--color-slate-400, #94A3B8);
+  margin-bottom: 4px;
+}
+
+.notFoundTitle {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-navy, #061A55);
+  margin: 0;
+}
+
+.notFoundDesc {
+  font-size: 14px;
+  color: var(--wex-text-secondary, #4B5B85);
+  line-height: 1.6;
+  margin: 0 0 12px 0;
+}
+
 .errorText {
   color: var(--wex-text-secondary);
   font-size: 16px;

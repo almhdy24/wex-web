@@ -4,6 +4,7 @@ import { Plus, Minus, Trash2, ArrowLeft } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
 import { formatSdg, getProductImageUrl } from '../../utils/formatters';
+import { getProductUrl } from '../../utils/productUrl';
 import { pluralAr } from '../../utils/pluralAr';
 import { useCountUp } from '../../motion';
 import { ProductTypeSvg } from '../../components/common';
@@ -139,7 +140,7 @@ export default function CartPage() {
                 {/* Right Column */}
                 <div className={styles.itemRightCol}>
                   <div className={styles.itemTopRow}>
-                    <Link to={`/products/${item.slug || item.id}`} className={styles.itemName} dir="auto">
+                    <Link to={getProductUrl(item)} className={styles.itemName} dir="auto">
                       {item.name}
                     </Link>
                     <button

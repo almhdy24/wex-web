@@ -15,6 +15,7 @@ import {
 import { adminApi } from '../../api/admin';
 import { adminAr } from '../../content/admin.ar';
 import { formatAed, formatSdg } from '../../utils/formatters';
+import { getProductUrl } from '../../utils/productUrl';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
@@ -788,9 +789,9 @@ export default function AdminProductFormPage() {
                 </Button>
               </Link>
 
-              {isEditMode && productSlug && (
+              {isEditMode && (
                 <Link
-                  to={`/products/${productSlug}`}
+                  to={getProductUrl(productSlug || id)}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

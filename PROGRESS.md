@@ -42,6 +42,18 @@
   - **Fix:** Switched `onClose` to `onCloseRef.current = onClose;`. Initial focus effect strictly depends on `[isOpen]`, only focuses initial element when opening and when `document.activeElement` is not already inside the container, and restores focus to `triggerRef.current` only when closing.
   - **Contract & Tests:** Added focus-trap unstable dependency rule in `scripts/check-layout-contract.js`. Created `src/__tests__/focus-trap-bug1.test.jsx` reproducing the focus loss and verifying 10-character typing across `Modal`, `Sheet`, and `Drawer`, Tab wrapping, Escape close, and trigger focus restoration (6/6 tests PASS).
 
+- [x] **Bug 2: Product Route, Canonical Links & 404/Error State Handling**
+  - **Root Cause:** Inconsistent link generation pointing to IDs or missing slugs, missing SPA host rewrites (`_redirects`) leading to 404 on direct deep-links, API `ProductService::getPublicProductDetail` strictly requiring string slug with no ID fallback, and generic error view rather than dedicated "المنتج غير متوفر" with action button.
+  - **Fix:**
+    - Created `src/utils/productUrl.js` (`getProductUrl`) enforcing canonical `/products/:slug` routing across `ProductCard`, `DesktopHeader`, `CartPage`, `ComparePage`, `FavoritesPage`, `AdminProductsPage`, and `AdminProductFormPage`.
+    - Created `public/_redirects` (`/* /index.html 200`) for SPA routing on static hosts.
+    - Updated `ProductDetailPage.jsx`: dedicated "المنتج غير متوفر" state with "تصفّح الأجهزة" catalog button when 404 is received, and dedicated retry state when network fails.
+    - Updated `wex-api` `ProductService.php`: added numeric ID fallback in `getPublicProductDetail(string $slug)`.
+  - **Verification:**
+    - `src/__tests__/product-routes-bug2.test.jsx` (4/4 tests PASS).
+    - `wex-api` `tests/feature/CatalogTest.php` numeric ID fallback test PASS.
+    - Needs on-device check: Product Detail `/products/:slug` and `/products/12`.
+
 - [x] **Phase 4 & 5: Anti-AI Polish & Purposeful Motion**
   - **Anti-AI Polish:** Removed artificial letter-spacing on Arabic cursive titles and badges in `SplashScreen.module.css` and `Auth.module.css`. Verified 1.7 body line-height, zero italics across all project files, and tabular numbers on SDG prices (`0 ج.س`).
   - **Purposeful Motion:**

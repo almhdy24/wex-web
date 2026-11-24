@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Check, Heart } from 'lucide-react';
 import { getProductImageUrl, getConditionLabel } from '../../utils/formatters';
+import { getProductUrl } from '../../utils/productUrl';
 import { useCart } from '../../context/CartContext';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useToast } from '../../context/ToastContext';
@@ -95,7 +96,7 @@ export default function ProductCard({ product, index, style = {} }) {
       className={styles.card}
       style={{ '--i': itemIndex, ...style }}
     >
-      <Link to={`/products/${product.slug || product.id}`} className={styles.cardLink}>
+      <Link to={getProductUrl(product)} className={styles.cardLink}>
         {/* Image Stage */}
         <div className={styles.imageContainer}>
           <BrandRibbons variant="tile" />

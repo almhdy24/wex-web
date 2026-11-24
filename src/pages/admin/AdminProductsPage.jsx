@@ -14,6 +14,7 @@ import {
 import { adminApi } from '../../api/admin';
 import { adminAr } from '../../content/admin.ar';
 import { formatAed, formatSdg, resolveImageUrl, formatCondition } from '../../utils/formatters';
+import { getProductUrl } from '../../utils/productUrl';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
 import StatusChip from '../../components/admin/StatusChip';
@@ -458,7 +459,7 @@ export default function AdminProductsPage() {
             <Copy size={14} />
           </button>
           <Link
-            to={`/products/${p.slug}`}
+            to={getProductUrl(p)}
             target="_blank"
             rel="noopener noreferrer"
             className={styles.actionIconBtn}
@@ -603,7 +604,7 @@ export default function AdminProductsPage() {
             <span>نسخ</span>
           </button>
           <Link
-            to={`/products/${p.slug}`}
+            to={getProductUrl(p)}
             target="_blank"
             rel="noopener noreferrer"
             className={styles.mobileActionBtn}

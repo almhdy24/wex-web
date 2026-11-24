@@ -5,6 +5,7 @@ import { useCompare } from '../../context/CompareContext';
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
 import { formatSdg, getProductImageUrl, getConditionLabel } from '../../utils/formatters';
+import { getProductUrl } from '../../utils/productUrl';
 import { ProductImage } from '../../components/common';
 import LatinText from '../../components/common/LatinText';
 import Page from '../../components/common/Page';
@@ -233,7 +234,7 @@ export default function ComparePage() {
                       </span>
 
                       <h3 className={styles.productName}>
-                        <Link to={`/products/${item.slug || item.id}`} className={styles.productLink}>
+                        <Link to={getProductUrl(item)} className={styles.productLink}>
                           <LatinText>{item.name}</LatinText>
                         </Link>
                       </h3>

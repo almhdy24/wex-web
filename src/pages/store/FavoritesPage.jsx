@@ -12,6 +12,7 @@ import { useFavorites } from '../../context/FavoritesContext';
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
 import { formatSdg, getProductImageUrl, getConditionLabel } from '../../utils/formatters';
+import { getProductUrl } from '../../utils/productUrl';
 import { ProductImage } from '../../components/common';
 import LatinText from '../../components/common/LatinText';
 import SpecValue from '../../utils/formatSpecValue';
@@ -182,7 +183,7 @@ export default function FavoritesPage() {
 
                 {/* Product Image Link */}
                 <Link
-                  to={`/products/${product.slug || product.id}`}
+                  to={getProductUrl(product)}
                   className={styles.imageLink}
                   aria-label={product.name}
                 >
@@ -226,7 +227,7 @@ export default function FavoritesPage() {
 
                   {/* Title */}
                   <Link
-                    to={`/products/${product.slug || product.id}`}
+                    to={getProductUrl(product)}
                     className={styles.nameLink}
                   >
                     <h2 className={styles.productName}>

@@ -23,6 +23,7 @@ import { useFavorites } from '../../context/FavoritesContext';
 import { productsApi } from '../../api/products';
 import { notificationsApi } from '../../api/notifications';
 import { formatSdg, formatDate } from '../../utils/formatters';
+import { getProductUrl } from '../../utils/productUrl';
 import { prefetchRoute } from '../../utils/prefetch';
 import { ar } from '../../content/ar';
 import styles from './DesktopHeader.module.css';
@@ -169,7 +170,7 @@ export default function DesktopHeader({ onOpenCart }) {
     saveRecentSearch(product.name);
     setIsSearchFocused(false);
     setSearchQuery('');
-    navigate(`/products/${product.slug || product.id}`);
+    navigate(getProductUrl(product));
   };
 
   const handleSelectRecent = (term) => {
