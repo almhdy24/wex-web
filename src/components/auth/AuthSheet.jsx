@@ -5,6 +5,7 @@ import Button from '../common/Button';
 import { authApi } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { toAsciiDigits } from '../../utils/formatters';
 import styles from './AuthSheet.module.css';
 
 export default function AuthSheet({ isOpen, onClose, onSuccess }) {
@@ -149,9 +150,10 @@ export default function AuthSheet({ isOpen, onClose, onSuccess }) {
     }
   };
 
-  // Digit input handling
+  // Digit input handling (supports Western, Eastern Arabic, and Persian numerals)
   const handleDigitChange = (index, value) => {
-    const char = value.replace(/[^0-9]/g, '').slice(-1);
+    const clean = toAsciiDigits(value).replace(/[^0-9]/g, '');
+    const char = clean.slice(-1);
     const newDigits = [...digits];
     newDigits[index] = char;
     setDigits(newDigits);
@@ -174,7 +176,7 @@ export default function AuthSheet({ isOpen, onClose, onSuccess }) {
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const pasted = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
+    const pasted = toAsciiDigits(e.clipboardData.getData('text')).replace(/[^0-9]/g, '').slice(0, 6);
     if (!pasted) return;
 
     const newDigits = [...digits];
@@ -320,6 +322,7 @@ export default function AuthSheet({ isOpen, onClose, onSuccess }) {
                   onChange={(e) => handleDigitChange(idx, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(idx, e)}
                   className={styles.digitBox}
+                  autoComplete={idx === 0 ? 'one-time-code' : 'off'}
                   aria-label={`الرقم ${idx + 1}`}
                 />
               ))}

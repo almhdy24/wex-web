@@ -215,10 +215,12 @@ export default function OrderDetailPage({
   const [fullPreviewUrl, setFullPreviewUrl] = useState(null);
   const [copiedKey, setCopiedKey] = useState(null);
   const [reordering, setReordering] = useState(false);
+  const [isCardHighlighted, setIsCardHighlighted] = useState(false);
 
   const cameraInputRef = useRef(null);
   const galleryInputRef = useRef(null);
   const uploadCardRef = useRef(null);
+  const hasScrolledRef = useRef(false);
 
   const totalAmount = order?.total_sdg ?? order?.total_amount_sdg ?? 0;
 
@@ -259,12 +261,31 @@ export default function OrderDetailPage({
 
   // Auto-scroll to upload card if navigated right after creation
   useEffect(() => {
-    if (location.state?.justCreated && uploadCardRef.current) {
-      setTimeout(() => {
-        uploadCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 300);
+    if (
+      !loading &&
+      order &&
+      location.state?.justCreated &&
+      !hasScrolledRef.current &&
+      uploadCardRef.current
+    ) {
+      hasScrolledRef.current = true;
+      const isReducedMotion =
+        typeof window !== 'undefined' &&
+        (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ||
+          document.documentElement?.getAttribute('data-motion') === 'reduced');
+
+      uploadCardRef.current.scrollIntoView({
+        behavior: isReducedMotion ? 'auto' : 'smooth',
+        block: 'center',
+      });
+
+      setIsCardHighlighted(true);
+      const timer = setTimeout(() => {
+        setIsCardHighlighted(false);
+      }, 2000);
+      return () => clearTimeout(timer);
     }
-  }, [location.state?.justCreated]);
+  }, [loading, order, location.state?.justCreated]);
 
   // Copy helper with robust fallback
   const handleCopy = async (text, key, msg = 'تم النسخ') => {
@@ -618,7 +639,7 @@ export default function OrderDetailPage({
           <section
             id="upload-proof-card"
             ref={uploadCardRef}
-            className={styles.uploadCard}
+            className={`${styles.uploadCard} ${isCardHighlighted ? styles.uploadCardHighlight : ''}`}
             aria-label={isRejected ? 'إشعار التحويل البديل' : 'إشعار التحويل'}
           >
             <h2 className={styles.sectionTitle}>

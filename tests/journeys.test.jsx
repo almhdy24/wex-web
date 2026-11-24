@@ -38,9 +38,36 @@ describe('Customer Order & Payment Journey Tests', () => {
     );
   };
 
-  it('Journey (a): Checkout -> creates order -> navigates to payment screen with Bankak details', async () => {
-    // Verified via route structure and flow
-    expect(true).toBe(true);
+  it('Journey (a): Checkout -> creates order -> navigates to payment screen and auto-scrolls to receipt upload', async () => {
+    const scrollMock = vi.fn();
+    window.HTMLElement.prototype.scrollIntoView = scrollMock;
+
+    const pendingOrder = {
+      order_number: 'WEX-1001',
+      status: 'pending_payment',
+      status_label: 'بانتظار السداد',
+      total_sdg: 450000,
+      lock_expires_at: new Date(Date.now() + 3600000).toISOString(),
+      items: [{ id: 1, name: 'ThinkPad T480', quantity: 1, line_total_sdg: 450000 }],
+      payment_proofs: [],
+    };
+
+    ordersApi.getOrderDetail.mockResolvedValue({ success: true, data: pendingOrder });
+
+    renderWithContext(
+      <Routes>
+        <Route path="/orders/:orderNumber" element={<OrderDetailPage />} />
+      </Routes>,
+      { route: { pathname: '/orders/WEX-1001', state: { justCreated: true } } }
+    );
+
+    await waitFor(() => {
+      expect(scrollMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          block: 'center',
+        })
+      );
+    });
   });
 
   it('Journey (b): Upload proof -> UI switches to "under review" and upload CTA disappears everywhere', async () => {

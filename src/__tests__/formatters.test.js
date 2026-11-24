@@ -7,6 +7,7 @@ import {
   getProductImageUrl,
   normalizeSudanPhone,
   isValidSudanPhone,
+  toAsciiDigits,
 } from '../utils/formatters';
 
 describe('Formatters & Business Logic Unit Tests', () => {
@@ -43,11 +44,25 @@ describe('Formatters & Business Logic Unit Tests', () => {
     expect(normalizeSudanPhone('+249912345678')).toBe('0912345678');
     expect(normalizeSudanPhone('249123456789')).toBe('0123456789');
     expect(normalizeSudanPhone('09 123 45678')).toBe('0912345678');
+    expect(normalizeSudanPhone('٠٩١٢٣٤٥٦٧٨')).toBe('0912345678');
+    expect(normalizeSudanPhone('+٢٤٩٩١٢٣٤٥٦٧٨')).toBe('0912345678');
+    expect(normalizeSudanPhone('۰۹۱۲۳۴۵۶۷۸')).toBe('0912345678');
 
     expect(isValidSudanPhone('0912345678')).toBe(true);
     expect(isValidSudanPhone('+249912345678')).toBe(true);
     expect(isValidSudanPhone('0123456789')).toBe(true);
+    expect(isValidSudanPhone('٠٩١٢٣٤٥٦٧٨')).toBe(true);
+    expect(isValidSudanPhone('+٢٤٩٩١٢٣٤٥٦٧٨')).toBe(true);
     expect(isValidSudanPhone('123456')).toBe(false);
     expect(isValidSudanPhone('0712345678')).toBe(false);
+  });
+
+  it('converts Eastern Arabic and Persian numerals to ASCII digits', () => {
+    expect(toAsciiDigits('٠١٢٣٤٥٦٧٨٩')).toBe('0123456789');
+    expect(toAsciiDigits('۰۱۲۳۴۵۶۷۸۹')).toBe('0123456789');
+    expect(toAsciiDigits('رمز ٤٩٢٠')).toBe('رمز 4920');
+    expect(toAsciiDigits(null)).toBe('');
+    expect(toAsciiDigits(undefined)).toBe('');
+    expect(toAsciiDigits('123')).toBe('123');
   });
 });

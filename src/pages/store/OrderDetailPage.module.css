@@ -387,6 +387,18 @@
   box-shadow: var(--shadow-card-v2);
 }
 
+.uploadCardHighlight {
+  outline: 2px solid var(--wex-royal);
+  box-shadow: 0 0 0 4px var(--wex-ice-light), var(--shadow-card-v2);
+  transition: outline-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uploadCardHighlight {
+    transition: none;
+  }
+}
+
 .proofUploadedStatus {
   display: flex;
   flex-direction: column;

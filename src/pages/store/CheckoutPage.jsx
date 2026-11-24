@@ -7,7 +7,7 @@ import { useToast } from '../../context/ToastContext';
 import { productsApi } from '../../api/products';
 import { shopApi } from '../../api/shop';
 import { api } from '../../api/client';
-import { formatSdg, isValidSudanPhone } from '../../utils/formatters';
+import { formatSdg, isValidSudanPhone, normalizeSudanPhone, toAsciiDigits } from '../../utils/formatters';
 import AppBar from '../../components/common/AppBar';
 import Button from '../../components/common/Button';
 import Page from '../../components/common/Page';
@@ -151,8 +151,8 @@ export default function CheckoutPage({
 
   // Validate phone on blur
   const handlePhoneBlur = () => {
-    const cleanPhone = contactPhone.trim().replace(/[\s-]/g, '');
-    if (!cleanPhone) {
+    const cleanPhone = normalizeSudanPhone(contactPhone);
+    if (!contactPhone.trim()) {
       setErrors((prev) => ({ ...prev, contactPhone: 'يرجى إدخال رقم الهاتف' }));
     } else if (!isValidSudanPhone(cleanPhone)) {
       setErrors((prev) => ({
@@ -171,9 +171,9 @@ export default function CheckoutPage({
   // Validate fields
   const validateForm = () => {
     const errs = {};
-    const cleanPhone = contactPhone.trim().replace(/[\s-]/g, '');
+    const cleanPhone = normalizeSudanPhone(contactPhone);
 
-    if (!cleanPhone) {
+    if (!contactPhone.trim()) {
       errs.contactPhone = 'يرجى إدخال رقم الهاتف';
     } else if (!isValidSudanPhone(cleanPhone)) {
       errs.contactPhone = 'يرجى إدخال رقم هاتف سوداني صحيح يبدأ بـ 09 أو 01 أو 012';
@@ -195,7 +195,7 @@ export default function CheckoutPage({
   // Execute order submission
   const executeOrderCreation = async () => {
     setSubmitting(true);
-    const cleanPhone = contactPhone.trim().replace(/[\s-]/g, '');
+    const cleanPhone = normalizeSudanPhone(contactPhone);
 
     try {
       if (typeof localStorage !== 'undefined') {
@@ -381,7 +381,7 @@ export default function CheckoutPage({
             inputMode="tel"
             autoComplete="tel"
             value={contactPhone}
-            onChange={(e) => setContactPhone(e.target.value)}
+            onChange={(e) => setContactPhone(toAsciiDigits(e.target.value))}
             onBlur={handlePhoneBlur}
             aria-invalid={Boolean(errors.contactPhone)}
             aria-describedby={errors.contactPhone ? "checkout-phone-error checkout-phone-helper" : "checkout-phone-helper"}

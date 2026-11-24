@@ -5,6 +5,7 @@ import { authApi } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { safeReturnTo } from '../../utils/url';
+import { toAsciiDigits } from '../../utils/formatters';
 import Page from '../../components/common/Page';
 import styles from './Auth.module.css';
 
@@ -126,11 +127,11 @@ export default function VerifyOtpPage() {
     [emailParam, name, loginWithSession, success, navigate, from, toastError]
   );
 
-  // A2: Robust paste handler
+  // A2: Robust paste handler (supports ASCII and Eastern Arabic/Persian numerals)
   const handlePaste = (e) => {
     e.preventDefault();
     const pastedText = e.clipboardData.getData('text');
-    const cleanDigits = pastedText.replace(/[^0-9]/g, '').slice(0, 6);
+    const cleanDigits = toAsciiDigits(pastedText).replace(/[^0-9]/g, '').slice(0, 6);
     if (!cleanDigits) return;
 
     const newDigits = cleanDigits.padEnd(6, '').split('').slice(0, 6);
@@ -144,9 +145,9 @@ export default function VerifyOtpPage() {
     }
   };
 
-  // A2: Non-corrupting digit change
+  // A2: Non-corrupting digit change (supports ASCII and Eastern Arabic/Persian numerals)
   const handleDigitChange = (index, value) => {
-    const clean = value.replace(/[^0-9]/g, '');
+    const clean = toAsciiDigits(value).replace(/[^0-9]/g, '');
     const newDigits = [...digits];
 
     if (clean.length > 2) {

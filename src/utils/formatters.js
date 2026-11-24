@@ -250,13 +250,25 @@ export function formatCountdown(hours, minutes, seconds, expired = false) {
 }
 
 /**
+ * Convert Eastern Arabic (٠-٩) and Persian (۰-۹) numerals to standard Western ASCII digits (0-9).
+ * Returns empty string for null/undefined, and leaves non-numeric characters untouched.
+ */
+export function toAsciiDigits(input) {
+  if (input === null || input === undefined) return '';
+  return String(input)
+    .replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+    .replace(/[\u06F0-\u06F9]/g, (d) => String(d.charCodeAt(0) - 0x06F0));
+}
+
+/**
  * Normalize and clean Sudanese mobile numbers
- * Accepts: 0912345678, +249912345678, 249912345678, 0123456789
+ * Accepts: 0912345678, +249912345678, 249912345678, 0123456789 (in Western or Arabic digits)
  * Returns normalized 10-digit format (e.g. 0912345678)
  */
 export function normalizeSudanPhone(input) {
   if (!input) return '';
-  let cleaned = String(input).replace(/[^\d+]/g, '');
+  const ascii = toAsciiDigits(input);
+  let cleaned = ascii.replace(/[^\d+]/g, '');
   if (cleaned.startsWith('+249')) {
     cleaned = '0' + cleaned.substring(4);
   } else if (cleaned.startsWith('249')) {
