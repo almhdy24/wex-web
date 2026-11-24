@@ -1,0 +1,29 @@
+{
+  "success": true,
+  "data": {
+    "id": 3,
+    "order_number": "WEX-EXPIRED-001",
+    "status": "expired",
+    "customer_name": "سارة علي",
+    "customer_phone": "0911223344",
+    "delivery_type": "pickup",
+    "delivery_address": "الاستلام من المتجر",
+    "total_sdg": 490000,
+    "created_at": "2026-11-20T10:00:00Z",
+    "lock_expires_at": "2026-11-20T14:00:00Z",
+    "seconds_remaining": 0,
+    "payment": {
+      "state": "expired",
+      "latest_proof": null
+    },
+    "items": [
+      {
+        "id": 3,
+        "product_name": "HP EliteBook 840 G5",
+        "quantity": 1,
+        "price_sdg": 490000,
+        "total_sdg": 490000
+      }
+    ]
+  }
+}

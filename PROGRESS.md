@@ -1182,6 +1182,10 @@ Hotfix of critical storefront issues identified during phone testing:
     - `npm run check:all`: PASS (11 contrast pairs, claims, i18n, layout, duplicate messages, css classes, layout contract).
     - Vitest single-file runs: all unit tests PASS (Button Contract, Order State Machine, OrderNumber/Date, Stepper, Toast System).
 
+- [x] **Phase 0: Make Testing Trustworthy — Complete (Needs on-device check)**
+  - **Stale build & Service Worker:** Disabled devOptions in `vite.config.js` (`devOptions: { enabled: false }`) so dev never serves a service worker; added dev self-unregister snippet in `src/main.jsx` to clear stale registrations and cache keys; added dynamic `cacheId` and `cleanupOutdatedCaches: true` in production workbox configuration.
+  - **Remote Visual CI Workflow:** Added `.github/workflows/ui-snapshots.yml` running on push to `stabilize`. Uses an isolated Playwright runner in `scripts/ci/package.json` (no bloat on phone) to capture full-page screenshots at 360x800 and 1280x800 across 15 critical customer and admin routes with API route interception via `scripts/ci/fixtures/`. Workflow verifies 0 console errors and 0 horizontal scroll overflow, uploading screenshots as the `ui-snapshots` artifact. Documented artifact download instructions in `README.md`.
+
 
 
 

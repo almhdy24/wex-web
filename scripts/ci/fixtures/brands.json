@@ -1,0 +1,9 @@
+{
+  "success": true,
+  "data": [
+    { "id": 1, "name": "Lenovo", "slug": "lenovo" },
+    { "id": 2, "name": "Dell", "slug": "dell" },
+    { "id": 3, "name": "HP", "slug": "hp" },
+    { "id": 4, "name": "Apple", "slug": "apple" }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "success": true,
+  "data": [
+    { "id": 1, "name": "Laptops", "name_ar": "حواسيب محمولة", "slug": "laptops", "icon": "laptop" },
+    { "id": 2, "name": "Phones", "name_ar": "هواتف ذكية", "slug": "phones", "icon": "smartphone" },
+    { "id": 3, "name": "Accessories", "name_ar": "ملحقات", "slug": "accessories", "icon": "headphones" }
+  ]
+}

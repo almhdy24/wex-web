@@ -1,0 +1,19 @@
+{
+  "success": true,
+  "data": {
+    "total_revenue_sdg": 18500000,
+    "total_orders": 38,
+    "pending_orders": 3,
+    "low_stock_count": 2,
+    "recent_orders": [
+      {
+        "id": 1,
+        "order_number": "WEX-261123-3353B",
+        "customer_name": "أحمد إبراهيم",
+        "total_sdg": 680000,
+        "status": "confirmed",
+        "created_at": "2026-11-23T14:30:00Z"
+      }
+    ]
+  }
+}

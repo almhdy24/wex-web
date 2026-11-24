@@ -1,0 +1,58 @@
+name: UI Visual Snapshots & Regression Check
+
+on:
+  push:
+    branches: [ stabilize, main ]
+  pull_request:
+    branches: [ stabilize, main ]
+  workflow_dispatch:
+
+concurrency:
+  group: ui-snapshots-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ui-snapshots:
+    name: Full-Page Playwright Snapshots (360x800 & 1280x800)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout wex-web
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Frontend Dependencies
+        run: npm ci
+
+      - name: Run Static Quality Checks
+        run: npm run check:all
+
+      - name: Build Production Frontend
+        run: npm run build
+
+      - name: Start Vite Preview Server
+        run: |
+          npx vite preview --port 4173 --host 127.0.0.1 &
+          npx wait-on http://127.0.0.1:4173 --timeout 30000
+
+      - name: Install CI Playwright Runner (Isolated in scripts/ci)
+        working-directory: scripts/ci
+        run: |
+          npm install
+          npx playwright install --with-deps chromium
+
+      - name: Capture Full-Page Screenshots & Check Overflows / Console Errors
+        run: node scripts/ci/capture-snapshots.mjs
+
+      - name: Upload UI Snapshot Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-snapshots
+          path: scripts/ci/screenshots
+          retention-days: 14

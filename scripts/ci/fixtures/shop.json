@@ -1,0 +1,26 @@
+{
+  "success": true,
+  "data": {
+    "name": "متجر ويكس تكنولوجي",
+    "name_ar": "متجر ويكس تكنولوجي",
+    "description": "متجر أجهزة لابتوب وهواتف محمولة في أم درمان",
+    "phone": "+249912345678",
+    "whatsapp": "+249912345678",
+    "address": "أم درمان - الشهداء - شارع الدكاترة",
+    "working_hours": "السبت - الخميس: 9:00 ص - 9:00 م",
+    "currency": "SDG",
+    "exchange_rate": 850,
+    "lock_hours": 4,
+    "announcement": "",
+    "bank_accounts": [
+      {
+        "id": 1,
+        "bank_name": "بنك الخرطوم (بنكك)",
+        "account_name": "متجر ويكس للتقنية",
+        "account_number": "1234567",
+        "branch_name": "أم درمان",
+        "is_active": true
+      }
+    ]
+  }
+}

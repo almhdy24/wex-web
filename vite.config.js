@@ -7,6 +7,9 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      devOptions: {
+        enabled: false,
+      },
       includeAssets: ['favicon.svg', 'favicon.png', 'robots.txt', 'icons/apple-touch-icon.png'],
       manifest: {
         name: 'Wex Technology | ويكس تكنولوجي',
@@ -61,6 +64,8 @@ export default defineConfig({
         ]
       },
       workbox: {
+        cacheId: `wex-pwa-${Date.now()}`,
+        cleanupOutdatedCaches: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api\//, /^\/admin/],

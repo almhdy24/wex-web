@@ -1,0 +1,33 @@
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "order_number": "WEX-261123-3353B",
+    "status": "confirmed",
+    "customer_name": "أحمد إبراهيم",
+    "customer_phone": "0912345678",
+    "delivery_type": "pickup",
+    "delivery_address": "الاستلام من متجر أم درمان",
+    "total_sdg": 680000,
+    "created_at": "2026-11-23T14:30:00Z",
+    "lock_expires_at": "2026-11-23T18:30:00Z",
+    "payment": {
+      "state": "approved",
+      "latest_proof": {
+        "id": 5,
+        "status": "approved",
+        "sender_name": "أحمد إبراهيم",
+        "created_at": "2026-11-23T15:10:00Z"
+      }
+    },
+    "items": [
+      {
+        "id": 1,
+        "product_name": "ThinkPad T480s i7 16GB 512GB",
+        "quantity": 1,
+        "price_sdg": 680000,
+        "total_sdg": 680000
+      }
+    ]
+  }
+}
