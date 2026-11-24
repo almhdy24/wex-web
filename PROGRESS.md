@@ -1107,6 +1107,28 @@ Hotfix of critical storefront issues identified during phone testing:
     - Added CSS contract test `src/__tests__/button-contract.test.jsx` (3/3 PASS) enforcing inline-flex row, verifying no button rule uses flex-direction column, and testing inline DOM order.
   - **Verification:** `node node_modules/vitest/vitest.mjs run src/__tests__/button-contract.test.jsx` (3/3 PASS). *Needs on-device check:* Buttons across all admin and storefront screens.
 
+- [x] **Phase B & C: Order Detail BiDi, Actions Layout & Order Status Transition Bug — Complete (Needs on-device check)**
+  - **Symptoms:**
+    - Order numbers like `#WEX-261123-3353B` inverted `#` to the left or scrambled in RTL context.
+    - Dates showed distorted parentheses and scrambled timestamps in Arabic text.
+    - Duplicate back navigation on Admin Order Detail ("العودة لكافة الطلبات" + AppBar back button).
+    - Status actions scattered; primary button not prominent; cancel button mixed with secondary actions.
+    - Real bug: clicking "بدء التجهيز" on `confirmed` order failed with backend error `حالة الطلب المحددة غير صحيحة`.
+  - **Fix:**
+    - Built `<OrderNumber>` and `formatOrderNumber` in `src/components/common/OrderNumber.jsx`: isolates code in `<bdi dir="ltr">` with `#` logically placed at start in RTL. Applied across admin order detail, admin orders list, storefront order detail, storefront orders list, search results, and pending order banner.
+    - Built `<OrderDate>` and `formatOrderDateLine` in `src/components/common/OrderDate.jsx`: formats date/time in `<bdi dir="ltr">` with clean dot-separated relative time and zero broken parentheses.
+    - Unified order state machine in `src/utils/orderState.js` matching `wex-api`: eliminated non-existent `'processing'` status, dynamically yielding `ready_for_pickup` (for pickup) or `out_for_delivery` (for delivery).
+    - Added defensive status alias in `OrderAdminController.php` normalizing `delivered` to `completed`.
+    - Cleaned `AdminOrderDetailPage.jsx`: removed duplicate back link, styled primary next-step as full-width mobile CTA, arranged secondary actions into 2-column equal-width grid, and isolated cancellation in dedicated bottom danger zone card (`.dangerZone`). Removed trailing colons from headings.
+  - **Verification:**
+    - `node node_modules/vitest/vitest.mjs run src/__tests__/order-state-machine.test.js` (5/5 PASS).
+    - `node node_modules/vitest/vitest.mjs run src/__tests__/order-number-date.test.jsx` (4/4 PASS).
+    - `node node_modules/eslint/bin/eslint.js` on changed files (0 errors, 0 warnings).
+    - *Needs on-device check:*
+      1. Admin Order Detail in `confirmed` status (`/admin/orders/:id`).
+      2. Admin Orders List (`/admin/orders`).
+      3. Storefront Order Detail (`/orders/:id`).
+
 
 
 

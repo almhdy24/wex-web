@@ -1,24 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import {
-  ArrowRight,
   Phone,
   MessageCircle,
   Printer,
   Copy,
   Clock,
   CheckCircle2,
-  Package,
   Truck,
   Store,
   Eye,
-  Check,
   Ban,
   AlertTriangle,
 } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { adminAr } from '../../content/admin.ar';
-import { formatSdg, formatDate, formatRelativeTime, resolveImageUrl } from '../../utils/formatters';
+import { formatSdg, formatRelativeTime, resolveImageUrl } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
@@ -29,6 +26,9 @@ import StatusChip from '../../components/admin/StatusChip';
 import ImageViewer from '../../components/admin/ImageViewer';
 import Page from '../../components/common/Page';
 import ProductImage from '../../components/common/ProductImage';
+import OrderNumber, { formatOrderNumber } from '../../components/common/OrderNumber';
+import OrderDate from '../../components/common/OrderDate';
+import { getNextOrderAction, ORDER_STATUS_LABELS } from '../../utils/orderState';
 import styles from './AdminOrderDetailPage.module.css';
 
 function ProofThumbnailItem({ proof, orderNumber, onOpen }) {
@@ -181,10 +181,12 @@ export default function AdminOrderDetailPage({ initialOrder = null, initialLoadi
         status: nextStatus,
         ...payload,
       });
-      success(`تم تحديث حالة الطلب إلى "${nextStatus}"`);
+      const label = ORDER_STATUS_LABELS[nextStatus] || nextStatus;
+      success(`تم تحديث حالة الطلب بنجاح: ${label}`);
       loadOrder(false);
     } catch (err) {
-      toastError(err.message || 'فشل تحديث حالة الطلب');
+      const errorMsg = err.response?.data?.message || err.message || 'فشل تحديث حالة الطلب';
+      toastError(errorMsg);
     } finally {
       setUpdating(false);
     }
@@ -207,35 +209,24 @@ export default function AdminOrderDetailPage({ initialOrder = null, initialLoadi
   // Primary Next-Step Action Logic
   const handlePrimaryNextStep = () => {
     if (!order) return;
-    const isDelivery = order.delivery_type === 'delivery';
+    const action = getNextOrderAction(order);
+    if (!action) return;
 
-    switch (order.status) {
-      case 'payment_review':
-      case 'pending_payment': {
-        const proofs = order.proofs || order.payment_proofs || [];
-        const pendingProof = proofs.find((p) => p.status === 'pending') || order.payment?.latest_proof || proofs[0];
-        if (pendingProof) {
-          openProofReview(pendingProof, 'approve');
-        }
-        break;
+    if (order.status === 'payment_review' || order.status === 'pending_payment') {
+      const proofs = order.proofs || order.payment_proofs || [];
+      const pendingProof = proofs.find((p) => p.status === 'pending') || order.payment?.latest_proof || proofs[0];
+      if (pendingProof) {
+        openProofReview(pendingProof, 'approve');
+        return;
       }
-      case 'confirmed':
-        handleStatusUpdate('processing');
-        break;
-      case 'processing':
-        if (isDelivery) {
-          setCourierModalOpen(true);
-        } else {
-          handleStatusUpdate('ready_for_pickup');
-        }
-        break;
-      case 'ready_for_pickup':
-      case 'out_for_delivery':
-        handleStatusUpdate('delivered');
-        break;
-      default:
-        break;
     }
+
+    if (action.needsCourierModal) {
+      setCourierModalOpen(true);
+      return;
+    }
+
+    handleStatusUpdate(action.targetStatus);
   };
 
   // Courier Dispatch Submit
@@ -351,7 +342,8 @@ export default function AdminOrderDetailPage({ initialOrder = null, initialLoadi
 
   const handleCopySummary = () => {
     if (!order) return;
-    const summary = `طلب رقم #${order.order_number}\nالعميل: ${order.customer_name} (${order.customer_phone})\nالمبلغ الإجمالي: ${formatSdg(order.total_sdg)}\nالحالة: ${order.status}\nالاستلام: ${order.delivery_type === 'delivery' ? 'توصيل' : 'استلام بالمحل'}`;
+    const orderNum = formatOrderNumber(order.order_number);
+    const summary = `طلب رقم ${orderNum}\nالعميل: ${order.customer_name || '—'} (${order.customer_phone || '—'})\nالمبلغ الإجمالي: ${formatSdg(order.total_sdg)}\nالحالة: ${ORDER_STATUS_LABELS[order.status] || order.status}\nطريقة الاستلام: ${order.delivery_type === 'delivery' ? 'توصيل' : 'استلام من المحل'}`;
     navigator.clipboard.writeText(summary);
     success('تم نسخ ملخص الطلب إلى الحافظة');
   };
@@ -406,21 +398,20 @@ export default function AdminOrderDetailPage({ initialOrder = null, initialLoadi
       isNextStepDisabled = true;
     }
   } else if (order.status === 'confirmed') {
-    nextStepAction = 'بدء التجهيز';
-    nextStepHint = 'تجهيز أجهزة الطلب وملحقاتها من المخزن';
-    NextStepIcon = Package;
-  } else if (order.status === 'processing') {
     nextStepAction = isDelivery ? 'تسليم للمندوب' : 'جاهز للاستلام';
-    nextStepHint = isDelivery ? 'تسليم الطرد لمندوب شركة التوصيل وتحديث الحالة' : 'إشعار العميل بجاهزية الطلب للاستلام من المحل';
+    nextStepHint = isDelivery ? 'تجهيز الطرد وتسليمه لمندوب شركة التوصيل وتحديث الحالة' : 'إشعار العميل بجاهزية الطلب للاستلام من المحل';
     NextStepIcon = isDelivery ? Truck : Store;
-  } else if (order.status === 'ready_for_pickup' || order.status === 'out_for_delivery') {
+  } else if (order.status === 'ready_for_pickup') {
+    nextStepAction = 'إكمال الاستلام';
+    nextStepHint = 'تأكيد حضور العميل واستلام الطلب بنجاح';
+    NextStepIcon = CheckCircle2;
+  } else if (order.status === 'out_for_delivery') {
     nextStepAction = 'تأكيد التسليم';
-    nextStepHint = 'تأكيد استلام العميل للطلب بنجاح وإغلاقه';
-    NextStepIcon = Check;
-  } else if (order.status === 'delivered') {
-    nextStepAction = 'الطلب مكتمل وتم التسليم';
-    nextStepHint = 'تم إغلاق دورة حياة الطلب بنجاح';
-    isNextStepDisabled = true;
+    nextStepHint = 'تأكيد تسليم المندوب الشحنة للعميل بنجاح';
+    NextStepIcon = CheckCircle2;
+  } else if (order.status === 'completed' || order.status === 'delivered') {
+    nextStepAction = null;
+    nextStepHint = null;
   }
 
   return (
@@ -441,8 +432,8 @@ export default function AdminOrderDetailPage({ initialOrder = null, initialLoadi
         </div>
         <hr />
         <div className={styles.printMeta}>
-          <div><strong>رقم الطلب:</strong> #{order.order_number}</div>
-          <div><strong>التاريخ:</strong> {formatDate(order.created_at)}</div>
+          <div><strong>رقم الطلب:</strong> <OrderNumber value={order.order_number} withHash /></div>
+          <div><strong>التاريخ:</strong> <OrderDate date={order.created_at} showRelative={false} /></div>
           <div><strong>العميل:</strong> {order.customer?.name || order.customer_name || (order.customer?.email ? order.customer.email.split('@')[0] : (order.customer?.phone || order.customer_phone || order.delivery_phone || '—'))} ({order.customer?.phone || order.customer_phone || order.delivery_phone || '—'})</div>
           <div><strong>طريقة الاستلام:</strong> {isDelivery ? 'توصيل' : 'استلام من المحل'}</div>
         </div>
@@ -473,26 +464,19 @@ export default function AdminOrderDetailPage({ initialOrder = null, initialLoadi
 
       {/* Screen View */}
       <div className={styles.screenView}>
-        {/* Back Link & Header */}
-        <div className={styles.navBack}>
-          <Link to="/admin/orders" className={styles.backLink}>
-            <ArrowRight size={16} />
-            <span>العودة لكافة الطلبات</span>
-          </Link>
-        </div>
-
         <header className={styles.header}>
           <div className={styles.titleGroup}>
             <div className={styles.titleRow}>
-              <h1 className={styles.orderTitle}>طلب #{order.order_number}</h1>
+              <h1 className={styles.orderTitle}>
+                <span>طلب </span>
+                <OrderNumber value={order.order_number} withHash />
+              </h1>
               <StatusChip status={order.status} size="md" />
             </div>
-            <span className={styles.orderDate}>
-              تم الإنشاء: {formatDate(order.created_at)} ({formatRelativeTime(order.created_at)})
-            </span>
+            <OrderDate date={order.created_at} label="تم الإنشاء:" showRelative />
           </div>
 
-          {/* Secondary Actions Bar */}
+          {/* Secondary Actions Bar (2-column equal-width row on mobile) */}
           <div className={styles.secondaryActions}>
             <Button variant="outline" size="sm" onClick={handlePrintSlip} title={adminAr.orders.printSlip}>
               <Printer size={14} />
@@ -508,12 +492,6 @@ export default function AdminOrderDetailPage({ initialOrder = null, initialLoadi
                 <span>تمديد المهلة</span>
               </Button>
             )}
-            {order.status !== 'cancelled' && order.status !== 'delivered' && (
-              <Button variant="outline" size="sm" onClick={() => setCancelModalOpen(true)} className={styles.cancelBtn}>
-                <Ban size={14} />
-                <span>إلغاء الطلب</span>
-              </Button>
-            )}
           </div>
         </header>
 
@@ -524,13 +502,14 @@ export default function AdminOrderDetailPage({ initialOrder = null, initialLoadi
         {nextStepAction && (
           <aside className={styles.nextStepBanner} aria-label="الإجراء التالي المطلوب">
             <div className={styles.nextStepInfo}>
-              <span className={styles.nextStepBadge}>الخطوة التالية في مسار الطلب:</span>
+              <span className={styles.nextStepBadge}>الخطوة التالية في مسار الطلب</span>
               <span className={styles.nextStepHint}>{nextStepHint}</span>
             </div>
 
             <Button
               variant="primary"
               size="lg"
+              fullWidth
               disabled={isNextStepDisabled || updating}
               loading={updating}
               onClick={handlePrimaryNextStep}
@@ -748,6 +727,27 @@ export default function AdminOrderDetailPage({ initialOrder = null, initialLoadi
             </section>
           </div>
         </div>
+
+        {/* Separate Danger Area for Order Cancellation */}
+        {order.status !== 'cancelled' && order.status !== 'completed' && order.status !== 'delivered' && (
+          <section className={styles.dangerZone} aria-label="منطقة العمليات الحساسة">
+            <div className={styles.dangerZoneHeader}>
+              <span className={styles.dangerZoneTitle}>إلغاء الطلب</span>
+              <span className={styles.dangerZoneDesc}>
+                إلغاء الطلب نهائياً وتحرير الأجهزة المحجوزة وإرجاعها للمخزن.
+              </span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCancelModalOpen(true)}
+              className={styles.cancelBtn}
+            >
+              <Ban size={14} />
+              <span>إلغاء هذا الطلب</span>
+            </Button>
+          </section>
+        )}
       </div>
 
       {/* Courier Modal */}

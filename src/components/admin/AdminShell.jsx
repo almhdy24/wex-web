@@ -35,6 +35,7 @@ import { adminAr } from '../../content/admin.ar';
 import { useIdleTimer } from '../../hooks/useIdleTimer';
 import Sheet from '../common/Sheet';
 import ConfirmDialog from './ConfirmDialog';
+import OrderNumber from '../common/OrderNumber';
 import styles from './AdminShell.module.css';
 
 // S1: Top-level routes where back arrow should NOT be shown
@@ -754,7 +755,7 @@ export default function AdminShell({ children }) {
                               }}
                             >
                               <span className={styles.searchItemPrimary}>
-                                <bdi dir="ltr">#{ord.order_number}</bdi>
+                                <OrderNumber value={ord.order_number} withHash />
                               </span>
                               <span className={styles.searchItemSecondary}>
                                 {ord.customer_name}{' '}
@@ -922,7 +923,7 @@ export default function AdminShell({ children }) {
                           }}
                         >
                           <span className={styles.searchItemPrimary}>
-                            <bdi dir="ltr">#{ord.order_number}</bdi>
+                            <OrderNumber value={ord.order_number} withHash />
                           </span>
                           <span className={styles.searchItemSecondary}>
                             {ord.customer_name}{' '}

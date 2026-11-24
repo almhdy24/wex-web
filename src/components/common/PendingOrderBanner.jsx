@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { ordersApi } from '../../api/orders';
 import { deriveOrderUiState, formatCountdownTime } from '../../utils/orderState';
 import { getServerTimeOffset } from '../../api/client';
+import OrderNumber from './OrderNumber';
 import styles from './PendingOrderBanner.module.css';
 
 export default function PendingOrderBanner() {
@@ -116,7 +117,8 @@ export default function PendingOrderBanner() {
           </div>
           <div className={styles.textWrap}>
             <span className={styles.title}>
-              طلب #{activeOrder.order_number} ({formattedTimer})
+              <OrderNumber value={activeOrder.order_number} prefix="طلب" withHash />
+              <span className={styles.timerSnippet}> ({formattedTimer})</span>
             </span>
           </div>
         </div>

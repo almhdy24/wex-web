@@ -1,0 +1,27 @@
+.container {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  direction: rtl;
+  unicode-bidi: isolate;
+  white-space: nowrap;
+}
+
+.prefix {
+  color: inherit;
+  font-weight: inherit;
+}
+
+.hash {
+  color: inherit;
+  font-weight: 700;
+  opacity: 0.85;
+  user-select: none;
+}
+
+.code {
+  font-family: inherit;
+  font-weight: inherit;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
+}

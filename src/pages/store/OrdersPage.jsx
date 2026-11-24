@@ -2,8 +2,10 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { ordersApi } from '../../api/orders';
-import { formatDate, getOrderStatusInfo } from '../../utils/formatters';
+import { getOrderStatusInfo } from '../../utils/formatters';
 import { deriveOrderUiState } from '../../utils/orderState';
+import OrderNumber, { formatOrderNumber } from '../../components/common/OrderNumber';
+import OrderDate from '../../components/common/OrderDate';
 import AppBar from '../../components/common/AppBar';
 import Button from '../../components/common/Button';
 import Page from '../../components/common/Page';
@@ -147,23 +149,28 @@ export default function OrdersPage({
                       <Link
                         to={`/orders/${order.order_number || order.id}`}
                         className={styles.cardOverlayLink}
-                        aria-label={`طلب #${order.order_number}`}
+                        aria-label={`طلب ${formatOrderNumber(order.order_number)}`}
                       />
 
                       {/* Header Row: رقم، الوقت، الحالة */}
                       <div className={styles.cardHeader}>
                         <div className={styles.orderTopLine}>
-                          <span className={styles.orderNumber} dir="ltr">
-                            #{order.order_number}
-                          </span>
+                          <OrderNumber
+                            value={order.order_number}
+                            withHash
+                            className={styles.orderNumber}
+                          />
                           <span className={`${styles.statusChip} ${chipClass}`}>
                             {statusLabel}
                           </span>
                         </div>
 
-                        <span className={styles.orderDate} dir="auto">
-                          {formatDate(order.created_at)}
-                        </span>
+                        <OrderDate
+                          date={order.created_at}
+                          showRelative
+                          label=""
+                          className={styles.orderDate}
+                        />
                       </div>
 
                       {/* Items Snippet (if items array exists) */}

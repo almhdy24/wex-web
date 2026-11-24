@@ -84,47 +84,40 @@
   gap: var(--space-4);
 }
 
-.navBack {
-  display: flex;
-}
 
-.backLink {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--color-slate-500);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  text-decoration: none;
-  transition: color var(--transition-fast);
-}
-
-.backLink:hover {
-  color: var(--color-royal-blue);
-}
 
 .header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: var(--space-3);
+  flex-direction: column;
+  gap: var(--space-3, 12px);
+}
+
+@media (min-width: 768px) {
+  .header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
 }
 
 .titleGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-1, 4px);
 }
 
 .titleRow {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  flex-wrap: wrap;
+  gap: var(--space-2, 8px);
 }
 
 .orderTitle {
-  font-size: var(--text-2xl);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1, 4px);
+  font-size: var(--text-xl, 20px);
   font-weight: 800;
   color: var(--color-navy);
   margin: 0;
@@ -137,15 +130,24 @@
 }
 
 .secondaryActions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2, 8px);
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .secondaryActions {
+    display: flex;
+    align-items: center;
+    width: auto;
+  }
 }
 
 .cancelBtn {
-  color: #DC2626 !important;
+  color: var(--wex-danger, #DC2626) !important;
   border-color: rgba(220, 38, 38, 0.3) !important;
+  background-color: var(--wex-white, #fff) !important;
 }
 
 .cancelBtn:hover {
@@ -160,16 +162,23 @@
 
 /* Primary Next-Step Action Banner */
 .nextStepBanner {
-  background-color: #EFF6FF;
-  border: 1px solid rgba(29, 78, 216, 0.3);
-  border-radius: var(--radius-lg);
-  padding: var(--space-4) var(--space-5);
+  background-color: var(--wex-ice-light, #EFF6FF);
+  border: 1px solid rgba(29, 78, 216, 0.25);
+  border-radius: var(--radius-lg, 16px);
+  padding: var(--space-3, 12px) var(--space-4, 16px);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-4);
+  flex-direction: column;
+  gap: var(--space-3, 12px);
   box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 768px) {
+  .nextStepBanner {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-4, 16px) var(--space-5, 20px);
+  }
 }
 
 .nextStepInfo {
@@ -184,8 +193,59 @@
   color: var(--color-royal-blue);
 }
 
+.nextStepHint {
+  font-size: var(--text-sm, 14px);
+  color: var(--color-navy);
+  font-weight: 600;
+}
+
 .nextStepCTA {
-  min-width: 220px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .nextStepCTA {
+    width: auto;
+    min-width: 200px;
+  }
+}
+
+/* Danger Zone for Destructive Actions */
+.dangerZone {
+  margin-top: var(--space-5, 20px);
+  padding: var(--space-3, 12px) var(--space-4, 16px);
+  background-color: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: var(--radius-lg, 16px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 12px);
+}
+
+@media (min-width: 768px) {
+  .dangerZone {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.dangerZoneHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dangerZoneTitle {
+  font-size: var(--text-sm, 14px);
+  font-weight: 700;
+  color: #DC2626;
+}
+
+.dangerZoneDesc {
+  font-size: var(--text-xs, 12px);
+  color: #7F1D1D;
+  line-height: 1.4;
 }
 
 /* Two-Column Grid */

@@ -267,3 +267,128 @@ export function formatCountdownTime(seconds) {
   const s = seconds % 60;
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
+
+/**
+ * Canonical Order Statuses matching wex-api (Config/Wex.php).
+ */
+export const ORDER_STATUSES = {
+  PENDING_PAYMENT: 'pending_payment',
+  PAYMENT_REVIEW: 'payment_review',
+  CONFIRMED: 'confirmed',
+  READY_FOR_PICKUP: 'ready_for_pickup',
+  OUT_FOR_DELIVERY: 'out_for_delivery',
+  COMPLETED: 'completed',
+  CANCELLED: 'cancelled',
+  EXPIRED: 'expired',
+};
+
+/**
+ * Valid transitions matrix per backend OrderStateMachine.php:
+ * fromStatus => [toStatuses]
+ */
+export const ALLOWED_TRANSITIONS = {
+  pending_payment: ['payment_review', 'cancelled', 'expired'],
+  payment_review: ['confirmed', 'pending_payment', 'expired', 'cancelled'],
+  confirmed: ['ready_for_pickup', 'out_for_delivery', 'completed', 'cancelled'],
+  ready_for_pickup: ['completed', 'cancelled'],
+  out_for_delivery: ['completed', 'cancelled'],
+  completed: [],
+  cancelled: [],
+  expired: [],
+};
+
+/**
+ * Arabic status labels for UI and error messages.
+ */
+export const ORDER_STATUS_LABELS = {
+  pending_payment: 'بانتظار التحويل',
+  payment_review: 'مراجعة الإشعار',
+  confirmed: 'تم التأكيد وجاري التجهيز',
+  ready_for_pickup: 'جاهز للاستلام بالمحل',
+  out_for_delivery: 'خرج مع المندوب للتوصيل',
+  completed: 'مكتمل ومستلم',
+  cancelled: 'ملغي',
+  expired: 'منتهي الصلاحية',
+};
+
+/**
+ * Checks if a transition from fromStatus to toStatus is permitted.
+ */
+export function canTransitionOrder(fromStatus, toStatus) {
+  // Normalize legacy aliases
+  const normalizedTo = toStatus === 'delivered' ? 'completed' : toStatus;
+  const allowed = ALLOWED_TRANSITIONS[fromStatus] || [];
+  return allowed.includes(normalizedTo);
+}
+
+/**
+ * Returns specific error message for invalid transitions.
+ */
+export function getTransitionErrorMessage(fromStatus, toStatus) {
+  const fromName = ORDER_STATUS_LABELS[fromStatus] || fromStatus;
+  const toName = ORDER_STATUS_LABELS[toStatus] || toStatus;
+  return `لا يمكن نقل الطلب من [${fromName}] إلى [${toName}].`;
+}
+
+/**
+ * Returns the primary next action for an order based on delivery type and status.
+ */
+export function getNextOrderAction(order) {
+  if (!order || !order.status) return null;
+  const status = order.status;
+  const isDelivery = order.delivery_type === 'delivery';
+
+  switch (status) {
+    case 'pending_payment':
+      return {
+        targetStatus: 'payment_review',
+        actionLabel: 'مراجعة الإشعار',
+        hint: 'في انتظار رفع إشعار التحويل البنكي من العميل',
+        iconName: 'Eye',
+        needsCourierModal: false,
+      };
+    case 'payment_review':
+      return {
+        targetStatus: 'confirmed',
+        actionLabel: 'تأكيد الدفع',
+        hint: 'مراجعة وتأكيد صحة إشعار التحويل البنكي',
+        iconName: 'CheckCircle2',
+        needsCourierModal: false,
+      };
+    case 'confirmed':
+      if (isDelivery) {
+        return {
+          targetStatus: 'out_for_delivery',
+          actionLabel: 'تسليم للمندوب',
+          hint: 'تسليم الطرد لمندوب شركة التوصيل وتحديث الحالة',
+          iconName: 'Truck',
+          needsCourierModal: true,
+        };
+      }
+      return {
+        targetStatus: 'ready_for_pickup',
+        actionLabel: 'جاهز للاستلام',
+        hint: 'إشعار العميل بجاهزية الطلب للاستلام من المحل',
+        iconName: 'Store',
+        needsCourierModal: false,
+      };
+    case 'ready_for_pickup':
+      return {
+        targetStatus: 'completed',
+        actionLabel: 'إكمال الاستلام',
+        hint: 'تأكيد حضور العميل واستلام الطلب بنجاح',
+        iconName: 'CheckCircle2',
+        needsCourierModal: false,
+      };
+    case 'out_for_delivery':
+      return {
+        targetStatus: 'completed',
+        actionLabel: 'تأكيد التسليم',
+        hint: 'تأكيد تسليم المندوب الشحنة للعميل بنجاح',
+        iconName: 'CheckCircle2',
+        needsCourierModal: false,
+      };
+    default:
+      return null;
+  }
+}

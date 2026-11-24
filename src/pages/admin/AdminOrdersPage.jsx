@@ -3,13 +3,15 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { RefreshCw, Truck, Store, ExternalLink, CheckSquare, Square, Download } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { adminAr } from '../../content/admin.ar';
-import { formatSdg, formatRelativeTime, formatDate } from '../../utils/formatters';
+import { formatSdg } from '../../utils/formatters';
 import Button from '../../components/common/Button';
 import Select from '../../components/common/Select';
 import DataList from '../../components/admin/DataList';
 import FilterBar from '../../components/admin/FilterBar';
 import StatusChip from '../../components/admin/StatusChip';
 import Page from '../../components/common/Page';
+import OrderNumber from '../../components/common/OrderNumber';
+import OrderDate from '../../components/common/OrderDate';
 import styles from './AdminOrdersPage.module.css';
 
 const STATUS_FILTERS = [
@@ -17,10 +19,9 @@ const STATUS_FILTERS = [
   { key: 'pending_payment', label: 'بانتظار التحويل' },
   { key: 'payment_review', label: 'مراجعة الإشعار' },
   { key: 'confirmed', label: 'تم التأكيد' },
-  { key: 'processing', label: 'قيد التجهيز' },
   { key: 'ready_for_pickup', label: 'جاهز للاستلام' },
   { key: 'out_for_delivery', label: 'مع المندوب' },
-  { key: 'delivered', label: 'تم التسليم' },
+  { key: 'completed', label: 'مكتمل ومستلم' },
   { key: 'cancelled', label: 'ملغي' },
   { key: 'expired', label: 'منتهي' },
 ];
@@ -193,10 +194,8 @@ export default function AdminOrdersPage() {
       isPrimary: true,
       render: (row) => (
         <div className={styles.orderNumberCol}>
-          <span className={styles.orderNumberText}>#{row.order_number}</span>
-          <span className={styles.orderDateSub} title={formatDate(row.created_at)}>
-            {formatRelativeTime(row.created_at)}
-          </span>
+          <OrderNumber value={row.order_number} withHash className={styles.orderNumberText} />
+          <OrderDate date={row.created_at} showRelative label="" className={styles.orderDateSub} />
         </div>
       ),
     },

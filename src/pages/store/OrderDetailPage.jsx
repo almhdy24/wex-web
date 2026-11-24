@@ -24,6 +24,8 @@ import ErrorState from '../../components/common/ErrorState';
 import StickyBar from '../../components/common/StickyBar';
 import NoticeLine from '../../components/common/NoticeLine';
 import Skeleton from '../../components/common/Skeleton';
+import OrderNumber from '../../components/common/OrderNumber';
+import OrderDate from '../../components/common/OrderDate';
 import { triggerHaptic } from '../../utils/haptics';
 import { deriveOrderUiState, formatCountdownTime } from '../../utils/orderState';
 import { getServerTimeOffset } from '../../api/client';
@@ -455,8 +457,8 @@ export default function OrderDetailPage({
       <AppBar
         tone="navy"
         overlap={36}
-        title={`طلب #${order.order_number}`}
-        subtitle={formatDate(order.created_at)}
+        title={<OrderNumber value={order.order_number} prefix="طلب" withHash />}
+        subtitle={<OrderDate date={order.created_at} label="تاريخ الطلب:" />}
         showBack={true}
         backTo="/orders"
         showCart={false}
