@@ -1,6 +1,6 @@
 .container {
   position: fixed;
-  bottom: calc(var(--bottom-offset, 68px) + 12px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(var(--bottom-offset, var(--tabbar-h, 56px)) + 12px + env(safe-area-inset-bottom, 0px));
   left: 50%;
   transform: translateX(-50%);
   z-index: var(--z-toast, 600);
@@ -150,27 +150,30 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   background: none;
   border: none;
   color: var(--wex-text-secondary);
   border-radius: var(--radius-control, 12px);
   cursor: pointer;
-  transition: color 200ms ease;
+  transition: color 200ms ease, background-color 200ms ease;
 }
 
 .closeBtn:hover {
   color: var(--wex-navy);
+  background-color: var(--color-ice, rgba(11, 63, 191, 0.08));
 }
 
 .progressBar,
 .progressBarContainer {
   position: absolute;
   bottom: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
+  height: 3px;
   background-color: var(--wex-border);
 }
 

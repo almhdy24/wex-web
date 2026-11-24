@@ -1153,6 +1153,21 @@ Hotfix of critical storefront issues identified during phone testing:
     - `node node_modules/eslint/bin/eslint.js` on changed files (0 errors, 0 warnings).
     - *Needs on-device check:* Admin products list (`/admin/products`) on mobile (~360px viewport).
 
+- [x] **Phase E: Layout Shell & Toasts — Complete (Needs on-device check)**
+  - **Symptoms:**
+    - ~190px blank strip observed under the tab bar on mobile admin order detail page. Root cause: `<Page>` applied `min-height: 100vh` and `padding-bottom: var(--tabbar-clearance-v2)` (~100px) inside `.pageContent`, while `AdminShell`'s `.mainContainer` also applied `padding-bottom: var(--admin-tabbar-h)` (~56px + safe-area) and `.pageContent` applied `padding: 16px`, multiplying bottom clearances.
+    - Floating toasts previously allowed up to 2 visible toasts crowding narrow screens, and close button hit target was only 32px.
+  - **Fix:**
+    - In `AdminShell.module.css`: eliminated duplicated clearance and viewport trap by setting `.pageContent :global([data-page-container="true"]) { min-height: auto; padding-top: 0; padding-bottom: 0; }`. Single source of truth for admin bottom clearance is `.mainContainer` (`padding-bottom: var(--admin-tabbar-h)` on mobile, `0` on desktop).
+    - In `Toast.module.css`: positioned toasts strictly above the bottom tab bar with consistent offset (`calc(var(--bottom-offset, var(--tabbar-h, 56px)) + 12px + env(safe-area-inset-bottom, 0px))`).
+    - Upgraded `.closeBtn` in `Toast.module.css` to 44px min-width/height (`width: 44px; height: 44px; min-width: 44px; min-height: 44px;`) with hover/active states.
+    - In `ToastContext.jsx`: updated `MAX_VISIBLE = 1`, ensuring at most one floating toast is shown at any time on mobile.
+    - Synchronized progress bar: ensured smooth duration countdown with pause-on-hover/touch and logical inline-start anchor.
+  - **Verification:**
+    - `node node_modules/vitest/vitest.mjs run src/__tests__/toast-system.test.jsx` (6/6 PASS).
+    - `node node_modules/eslint/bin/eslint.js` on changed files (0 errors, 0 warnings).
+    - *Needs on-device check:* Admin Order Detail page bottom clearance and toast popups on mobile.
+
 
 
 

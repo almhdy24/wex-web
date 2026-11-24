@@ -3,7 +3,6 @@
   flex-direction: column;
   gap: var(--space-4);
   width: 100%;
-  padding-bottom: calc(var(--admin-tabbar-h, 56px) + var(--space-4) + env(safe-area-inset-bottom, 0px));
 }
 
 .header {

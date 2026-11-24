@@ -670,6 +670,13 @@
   margin-inline: auto;
 }
 
+/* Eliminate duplicate bottom clearance and 100vh traps inside AdminShell */
+.pageContent :global([data-page-container="true"]) {
+  min-height: auto;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
 @media (min-width: 768px) {
   .pageContent {
     padding: var(--space-6);

@@ -4,7 +4,7 @@ import { ToastContainer } from '../components/common/Toast';
 export const ToastContext = createContext(null);
 
 const DEDUPE_WINDOW_MS = 2000;
-const MAX_VISIBLE = 2;
+const MAX_VISIBLE = 1;
 const DEFAULT_DURATION_MS = 4000;
 const ACTION_DURATION_MS = 6000;
 const ERROR_DURATION_MS = 8000;
@@ -90,8 +90,8 @@ export function ToastProvider({ children }) {
     };
 
     setToasts((prev) => {
-      // Max 2 visible: keep newest, drop oldest
-      const queue = prev.length >= MAX_VISIBLE ? prev.slice(-(MAX_VISIBLE - 1)) : prev;
+      // Max 1 visible: keep newest
+      const queue = MAX_VISIBLE > 1 ? prev.slice(-(MAX_VISIBLE - 1)) : [];
       return [...queue, newToast];
     });
 
