@@ -1,7 +1,7 @@
 import { toAsciiDigits } from './formatters';
 
 export const DEFAULT_SHOP_SETTINGS = {
-  shop_name: 'ويكس تكنولوجي - Wex Technology',
+  shop_name: 'ويكس تكنولوجي',
   shop_address: 'مول الواحة، الشهداء، أم درمان، السودان',
   shop_phone: '0912300000',
   shop_whatsapp: '+249912300000',

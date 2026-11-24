@@ -9,7 +9,7 @@
   width: 100%;
   max-width: var(--desktop-max-width, 1240px);
   margin: 0 auto;
-  padding: 16px 14px 60px;
+  padding: 16px 14px var(--tabbar-clearance-v2);
 }
 
 .pageHeader {

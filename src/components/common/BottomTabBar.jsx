@@ -55,7 +55,7 @@ export default function BottomTabBar({ activeOrderCount = 0, unreadCount = 0 }) 
       id: 'account',
       to: '/account',
       label: ar.navigation.account,
-      badge: unreadCount > 0 ? (unreadCount > 9 ? '9+' : unreadCount) : null,
+      badge: null,
       icon: (
         <svg className={styles.navIcon} viewBox="0 0 24 24" aria-hidden="true">
           <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
@@ -84,8 +84,10 @@ export default function BottomTabBar({ activeOrderCount = 0, unreadCount = 0 }) 
               `${styles.navItem} ${isActive ? styles.active : ''}`
             }
           >
-            {tab.icon}
-            {tab.badge && <span className={styles.navBadge}>{tab.badge}</span>}
+            <div className={styles.iconWrap}>
+              {tab.icon}
+              {tab.badge && <span className={styles.navBadge}>{tab.badge}</span>}
+            </div>
             <span>{tab.label}</span>
           </NavLink>
         ))}

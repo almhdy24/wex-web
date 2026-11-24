@@ -1,5 +1,27 @@
 # Wex Technology Web - Project Progress Tracker
 
+## End-to-End Production & UI/UX Stabilization Sprint (Branch: stabilize) — Active
+
+- [x] **Phase 0: Make Testing Trustworthy**
+  - Configured `vite.config.js`: `devOptions: { enabled: false }` for `vite-plugin-pwa` so service worker never intercepts dev server. Added dev SW self-unregister snippet in `src/main.jsx`.
+  - Bumped production SW cache ID dynamically (`wex-pwa-${Date.now()}`) and enabled `cleanupOutdatedCaches: true`.
+  - Added remote Playwright visual CI workflow (`.github/workflows/ui-snapshots.yml`) with isolated dependencies in `scripts/ci/package.json` capturing 15 routes at 360x800 and 1280x800 with zero console errors and zero horizontal overflow.
+  - Documented artifact download steps in `README.md`.
+
+- [x] **Phase 1 & 2: Storefront & Order Detail UI/UX Bug Fixes**
+  - **Header Action Buttons:** Replaced solid white background on `.navy .headerBtn` and hero buttons with translucent glass (`rgba(255, 255, 255, 0.14)` with `1px solid rgba(255, 255, 255, 0.22)`), ensuring white icons remain crisp and visible (needs on-device check: Home `/`). Replaced raw inline SVGs with standard Lucide components (`ArrowRight`, `Bell`, `Heart`, `ShoppingCart`). Unified 44px min touch target.
+  - **Bottom Tab Bar:** Wrapped tab icons in `.iconWrap` and anchored badges strictly to top-start corner of the 24px icon. Removed meaningless unread badge from Account tab. Added `--tabbar-clearance-v2` to all storefront pages (`AccountPage`, `NotificationsPage`, `ComparePage`, `FaqPage`) so no content is obscured behind the tab bar (needs on-device check: Home, Account, Notifications).
+  - **Greeting Sanitization:** Storefront greeting now displays customer first name for customers, or neutral "مرحبًا بك" when logged out or if logged in as admin/staff. Admin/staff roles and names are never leaked to the storefront.
+  - **Hero & Search Tightening:** Reduced hero bottom padding from 84px to 40px and search top margin from -30px to -20px, eliminating the dead space gap before search (needs on-device check: Home).
+  - **Category Quick-Action Tiles:** Sized icon well to 50x50px with high-contrast royal background and 13.5px bold navy labels, ensuring cards are completely visible above the fold on 360px viewports (needs on-device check: Home).
+  - **Order Detail Header BiDi & Layout:** Rebuilt order detail header using `headerContent` with dedicated rows: Row 1 = Title `طلب #WEX-...` + aligned status chip; Row 2 = Order date. Zero collision or overlapping at 320px width (needs on-device check: `/orders/:id`).
+  - **Order Number BiDi:** Placed `#` directly inside `<bdi dir="ltr">#{clean}</bdi>` in `OrderNumber.jsx`, preventing bidi flipping in RTL contexts.
+  - **Date Formatter:** Updated `formatDate` in `src/utils/formatters.js` to return date only (`YYYY/MM/DD`), eliminating double-time strings ("5:29 ص 5:29").
+  - **Price-Lock State Isolation:** Price-lock dark card and countdown are displayed strictly when `stage === 'pending_payment'` and lock is active. On confirmed/completed orders, countdown is hidden and replaced with a dedicated "تم تأكيد استلام الدفع" card (needs on-device check: Order detail confirmed state). On review orders, dedicated "إشعار التحويل قيد المراجعة" card is displayed.
+  - **Bank Account Card & Seeder:** Sanitized seeder and SQLite database `account_name` from `'Wex Technology - متجر التقنية'` to `'متجر التقنية'`. Wrapped account number in `<bdi dir="ltr">` and unified copy button with inline icon + label.
+  - Detailed file-by-file log maintained in `docs/REVIEW_LOG.md`.
+
+
 ## Stabilization Sprint (Branch: stabilize) — Active
 
 System stabilization, defect fixes, behavioral tests, and raw evidence log (`docs/STABILIZE-LOG.md`).

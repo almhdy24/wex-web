@@ -40,11 +40,21 @@ export function formatAed(amount) {
 }
 
 /**
- * Format ISO 8601 UTC timestamp to readable Arabic date with Western digits in Africa/Khartoum timezone
+ * Format ISO 8601 UTC timestamp to readable Arabic date with Western digits in Africa/Khartoum timezone (YYYY/MM/DD)
  */
 export function formatDate(isoString) {
   if (!isoString) return '';
-  return formatDateSafe(isoString, typeof isoString === 'string' ? isoString : '', true);
+  return formatDateSafe(isoString, typeof isoString === 'string' ? isoString : '', false);
+}
+
+/**
+ * Format ISO 8601 UTC timestamp to readable date and 12-hour time (YYYY/MM/DD H:MM ص/م)
+ */
+export function formatDateTime(isoString) {
+  if (!isoString) return '';
+  const dateStr = formatDate(isoString);
+  const timeStr = format12hTime(isoString);
+  return `${dateStr} ${timeStr}`.trim();
 }
 
 /**

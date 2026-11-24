@@ -190,9 +190,11 @@ export default function HomePage({
           </div>
         </div>
 
-        {/* Greeting */}
+        {/* Greeting: Never show admin/staff names to storefront */}
         <p className={styles.greeting}>
-          {user?.name ? `مرحبًا، ${user.name}` : 'مرحبًا بك'}
+          {(user && user.role !== 'admin' && user.role !== 'staff' && user.role !== 'super_admin' && user.name)
+            ? `مرحبًا، ${user.name.trim().split(/\s+/)[0]}`
+            : 'مرحبًا بك'}
         </p>
 
         {/* Slide Title */}
@@ -360,6 +362,7 @@ export default function HomePage({
             </p>
             <div className={styles.storeHours}>
               <p>{shopInfo?.workingHours || 'السبت - الخميس: 9:00 ص - 9:00 م'}</p>
+              <p>{shopInfo?.fridayHours || 'الجمعة: مغلق'}</p>
             </div>
 
             <div className={styles.storeButtons}>

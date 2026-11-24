@@ -8,6 +8,7 @@ import {
   Upload,
   Clock,
   AlertCircle,
+  CheckCircle2,
   Loader2,
   ZoomIn,
 } from 'lucide-react';
@@ -453,64 +454,109 @@ export default function OrderDetailPage({
 
   return (
     <div className={styles.pageWrapper}>
-      {/* AppBar tone="navy", header-bottom: 36px, order number in title, subtitle, status chip on end side */}
+      {/* Rebuilt Header: Dedicated rows for title, date, and status chip so no overlap occurs at 320px width */}
       <AppBar
         tone="navy"
         overlap={36}
-        title={<OrderNumber value={order.order_number} prefix="طلب" withHash />}
-        subtitle={<OrderDate date={order.created_at} label="تاريخ الطلب:" />}
         showBack={true}
         backTo="/orders"
         showCart={false}
-        customAction={
-          <span className={styles.headerStatusChip}>{uiState.label}</span>
+        headerContent={
+          <div className={styles.orderHeaderContent}>
+            <div className={styles.orderHeaderTitleRow}>
+              <h1 className={styles.orderHeaderTitle}>
+                <span>طلب </span>
+                <OrderNumber value={order.order_number} withHash />
+              </h1>
+              <span className={styles.headerStatusChip}>{uiState.label}</span>
+            </div>
+            <div className={styles.orderHeaderDateRow}>
+              <OrderDate date={order.created_at} label="تاريخ الطلب:" />
+            </div>
+          </div>
         }
       />
 
       <Page className={styles.container}>
-        {/* 1. Price-Lock Dark Card */}
-        <div className={styles.priceLockCard}>
-          <BrandRibbons variant="panel" />
-
-          <div className={styles.darkCardInner}>
-            <div className={styles.countdownSection}>
-              <span className={styles.countdownLabel}>
-                السعر مثبت لمدة
-                <span className={styles.srOnly}>المتبقي لتثبيت السعر</span>
-              </span>
-              <div className={styles.countdownClock}>
-                <Clock size={18} strokeWidth={1.75} className={styles.clockIcon} aria-hidden="true" />
-                <OrderCountdown
-                  lockExpiresAt={order.lock_expires_at}
-                  secondsRemaining={order.seconds_remaining}
-                  isExpired={isExpired}
-                  onExpire={() => loadOrder(false)}
-                />
+        {/* Payment Confirmed State Card (shown when confirmed or completed) */}
+        {(isConfirmed || isCompleted) && (
+          <div className={styles.confirmedCard}>
+            <CheckCircle2 size={26} className={styles.confirmedIcon} aria-hidden="true" />
+            <div className={styles.confirmedInfo}>
+              <h2 className={styles.confirmedTitle}>تم تأكيد استلام الدفع</h2>
+              <p className={styles.confirmedSubtitle}>
+                تمت مراجعة إشعار التحويل وتأكيد المبلغ بنجاح. طلبك قيد التجهيز الآن.
+              </p>
+              <div className={styles.confirmedAmountRow}>
+                <span className={styles.confirmedAmountLabel}>المبلغ المدفوع:</span>
+                <Price value={totalAmount} size="lg" tone="navy" />
               </div>
             </div>
+          </div>
+        )}
 
-            <div className={styles.darkCardDivider} />
+        {/* Payment Review State Card (shown when receipt uploaded and awaiting verification) */}
+        {isReview && (
+          <div className={styles.reviewCard}>
+            <Clock size={24} className={styles.reviewIcon} aria-hidden="true" />
+            <div className={styles.reviewInfo}>
+              <h2 className={styles.reviewTitle}>إشعار التحويل قيد المراجعة</h2>
+              <p className={styles.reviewSubtitle}>
+                تم استلام إشعار التحويل بنجاح، ويقوم فريق المتجر بمطابقة العملية وتأكيد الطلب.
+              </p>
+              <div className={styles.confirmedAmountRow}>
+                <span className={styles.confirmedAmountLabel}>المبلغ المطلوب:</span>
+                <Price value={totalAmount} size="md" tone="navy" />
+              </div>
+            </div>
+          </div>
+        )}
 
-            <div className={styles.amountSection}>
-              <div className={styles.amountTextCol}>
-                <span className={styles.amountLabel}>المبلغ المطلوب</span>
-                <div className={styles.amountValueRow}>
-                  <Price value={totalAmount} size="hero" tone="onDark" />
+        {/* 1. Price-Lock Dark Card (Shown ONLY while awaiting payment and lock active) */}
+        {isPending && !isExpired && (
+          <div className={styles.priceLockCard}>
+            <BrandRibbons variant="panel" />
+
+            <div className={styles.darkCardInner}>
+              <div className={styles.countdownSection}>
+                <span className={styles.countdownLabel}>
+                  السعر مثبت لمدة
+                  <span className={styles.srOnly}>المتبقي لتثبيت السعر</span>
+                </span>
+                <div className={styles.countdownClock}>
+                  <Clock size={18} strokeWidth={1.75} className={styles.clockIcon} aria-hidden="true" />
+                  <OrderCountdown
+                    lockExpiresAt={order.lock_expires_at}
+                    secondsRemaining={order.seconds_remaining}
+                    isExpired={isExpired}
+                    onExpire={() => loadOrder(false)}
+                  />
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={() => handleCopy(totalAmount, 'amount', 'تم نسخ المبلغ')}
-                className={styles.copyAmountBtn}
-                title="نسخ المبلغ"
-              >
-                {copiedKey === 'amount' ? <Check size={18} /> : <Copy size={18} />}
-                <span>نسخ</span>
-              </button>
+              <div className={styles.darkCardDivider} />
+
+              <div className={styles.amountSection}>
+                <div className={styles.amountTextCol}>
+                  <span className={styles.amountLabel}>المبلغ المطلوب</span>
+                  <div className={styles.amountValueRow}>
+                    <Price value={totalAmount} size="hero" tone="onDark" />
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleCopy(totalAmount, 'amount', 'تم نسخ المبلغ')}
+                  className={styles.copyAmountBtn}
+                  title="نسخ المبلغ"
+                >
+                  {copiedKey === 'amount' ? <Check size={18} /> : <Copy size={18} />}
+                  <span>نسخ</span>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Expired State Notice */}
         {isExpired && (
@@ -566,9 +612,9 @@ export default function OrderDetailPage({
                   </div>
 
                   <div className={styles.accountNumberRow}>
-                    <span className={styles.accountNumber} dir="ltr">
+                    <bdi dir="ltr" className={styles.accountNumber}>
                       {acc.account_number}
-                    </span>
+                    </bdi>
                     <button
                       type="button"
                       onClick={() => handleCopy(acc.account_number, `acc-${acc.id || idx}`, 'تم نسخ رقم الحساب')}

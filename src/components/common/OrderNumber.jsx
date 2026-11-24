@@ -26,11 +26,10 @@ export default function OrderNumber({
   const clean = String(value).replace(/^#/, '');
 
   return (
-    <span className={`${styles.container} ${className}`.trim()} dir="rtl">
+    <span className={`${styles.container} ${className}`.trim()}>
       {prefix && <span className={styles.prefix}>{prefix} </span>}
-      {withHash && <span className={styles.hash} aria-hidden="true">#</span>}
       <bdi dir="ltr" className={styles.code}>
-        {clean}
+        {withHash ? `#${clean}` : clean}
       </bdi>
     </span>
   );

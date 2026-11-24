@@ -35,15 +35,140 @@
   border: 0;
 }
 
+/* Rebuilt Header Layout */
+.orderHeaderContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.orderHeaderTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.orderHeaderTitle {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.3;
+}
+
+.orderHeaderDateRow {
+  display: flex;
+  align-items: center;
+}
+
 /* Header Status Chip */
 .headerStatusChip {
   background: var(--wex-white);
   color: var(--wex-royal);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
-  padding: 5px 14px;
+  padding: 4px 12px;
   border-radius: var(--radius-pill);
   white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Confirmed & Review State Cards */
+.confirmedCard {
+  margin: 16px 16px 0;
+  background: #F0FDF4;
+  border: 1px solid #86EFAC;
+  border-radius: var(--radius-card);
+  padding: 18px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  box-shadow: var(--shadow-card-v2);
+}
+
+.confirmedIcon {
+  color: var(--wex-success, #12805C);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.confirmedInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.confirmedTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: #14532D;
+  margin: 0;
+}
+
+.confirmedSubtitle {
+  font-size: 13.5px;
+  color: #166534;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.confirmedAmountRow {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.confirmedAmountLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--wex-text-secondary);
+}
+
+.reviewCard {
+  margin: 16px 16px 0;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  border-radius: var(--radius-card);
+  padding: 18px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  box-shadow: var(--shadow-card-v2);
+}
+
+.reviewIcon {
+  color: var(--wex-royal, #0B3FBF);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.reviewInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.reviewTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--wex-navy);
+  margin: 0;
+}
+
+.reviewSubtitle {
+  font-size: 13.5px;
+  color: var(--wex-text-secondary);
+  margin: 0;
+  line-height: 1.5;
 }
 
 /* Loading Skeleton */

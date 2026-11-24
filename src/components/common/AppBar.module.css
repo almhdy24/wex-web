@@ -69,11 +69,13 @@
 }
 
 .headerBtn {
-  width: 38px;
-  height: 38px;
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-full);
   background-color: var(--wex-ice);
-  border: none;
+  border: 1px solid var(--wex-border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -82,17 +84,18 @@
   transition: transform var(--motion-fast) var(--ease-standard), background-color var(--motion-fast) var(--ease-standard);
   position: relative;
   text-decoration: none;
+  box-sizing: border-box;
 }
 
 .headerBtn:active {
-  background-color: #EAF3FF;
+  background-color: #D9E6F6;
   transform: scale(0.95);
 }
 
 .btnBadge {
   position: absolute;
-  top: 5px;
-  inset-inline-start: 5px;
+  top: 6px;
+  inset-inline-start: 6px;
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -109,11 +112,11 @@
 
 .cartCountBadge {
   position: absolute;
-  top: -3px;
-  inset-inline-start: -3px;
+  top: -4px;
+  inset-inline-start: -4px;
   background: var(--wex-vivid);
   color: #FFFFFF;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   min-width: 18px;
   height: 18px;
@@ -125,6 +128,7 @@
   padding: 0 4px;
   font-variant-numeric: tabular-nums;
   box-shadow: 0 2px 6px rgba(30, 107, 255, 0.35);
+  box-sizing: border-box;
   animation: badgeBump var(--motion-base) var(--ease-emphasized);
 }
 
@@ -200,12 +204,14 @@
 }
 
 .navy .headerBtn {
+  min-width: 44px;
+  min-height: 44px;
   width: 44px;
   height: 44px;
-  border-radius: 15px;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  color: #fff;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -213,29 +219,37 @@
 }
 
 .navy .headerBtn:active {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.24);
+  transform: scale(0.95);
 }
 
 .navy .cartCountBadge {
   position: absolute;
-  top: -6px;
-  inset-inline-end: -6px;
-  inset-inline-start: auto;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 5px;
-  border-radius: 10px;
+  top: -4px;
+  inset-inline-start: -4px;
+  inset-inline-end: auto;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: var(--radius-full);
   background: var(--wex-cyan);
   color: var(--wex-navy);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  border: none;
+  border: 2px solid var(--wex-navy);
   box-shadow: none;
   animation: wexBadgeBump 300ms ease;
+}
+
+.headerContent {
+  width: 100%;
+  position: relative;
+  z-index: 2;
+  margin-top: 14px;
 }
 
 @media (prefers-reduced-motion: reduce) {
