@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Minus } from 'lucide-react';
+import { toAsciiDigits } from '../../utils/formatters';
 import styles from './Stepper.module.css';
 
 /**
@@ -61,7 +62,8 @@ export default function Stepper({
 
   const handleBlur = () => {
     setIsEditing(false);
-    const parsed = parseInt(inputValue, 10);
+    const ascii = toAsciiDigits(inputValue);
+    const parsed = parseInt(ascii, 10);
     if (isNaN(parsed)) {
       setInputValue(String(value));
     } else {

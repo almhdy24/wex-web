@@ -173,6 +173,21 @@ export default function AdminProductsPage() {
     }
   };
 
+  // Toggle Featured
+  const handleToggleFeatured = async (product) => {
+    const nextFeatured = Number(product.is_featured) === 1 ? 0 : 1;
+    try {
+      setProducts((prev) =>
+        prev.map((p) => (p.id === product.id ? { ...p, is_featured: nextFeatured } : p))
+      );
+      await adminApi.updateProduct(product.id, { is_featured: nextFeatured });
+      success(nextFeatured === 1 ? 'تم تمييز الجهاز بالواجهة الرئيسية' : 'تم إلغاء تمييز الجهاز من الواجهة');
+    } catch (err) {
+      toastError(err.message || 'تعذر تعديل حالة التمييز');
+      fetchProducts();
+    }
+  };
+
   // Duplicate Product ("تكرار المنتج")
   const handleDuplicateProduct = async (product) => {
     try {
@@ -300,6 +315,7 @@ export default function AdminProductsPage() {
   const columns = [
     {
       key: 'select',
+      hideOnMobile: true,
       label: (
         <span
           role="button"
@@ -465,6 +481,153 @@ export default function AdminProductsPage() {
     },
   ];
 
+  const renderProductMobileCard = (p) => {
+    const thumb = resolveImageUrl(
+      p.primary_image || p.image_path || (p.images && p.images[0]?.thumb_path)
+    );
+    const isActive = Number(p.is_active) === 1;
+    const isFeatured = Number(p.is_featured) === 1;
+    const isSelected = selectedIds.includes(p.id);
+
+    return (
+      <div className={styles.mobileCard}>
+        {/* Header row: Checkbox, Thumbnail, Title/Meta, Status Chip */}
+        <div className={styles.mobileCardHeader}>
+          <label className={styles.mobileSelectTouch} aria-label={`تحديد ${p.name}`}>
+            <input
+              type="checkbox"
+              className={styles.checkboxInput}
+              checked={isSelected}
+              onChange={() => handleToggleSelectOne(p.id)}
+            />
+          </label>
+
+          <ProductImage
+            src={thumb}
+            alt={p.name}
+            type={p.type || 'laptop'}
+            className={styles.mobileThumb}
+          />
+
+          <div className={styles.mobileInfo}>
+            <Link to={`/admin/products/${p.id}/edit`} className={styles.mobileTitle}>
+              {p.name}
+            </Link>
+            <div className={styles.mobileMeta}>
+              <span>{p.brand_name || p.brand?.name || 'ماركة غير محددة'}</span>
+              <span aria-hidden="true">·</span>
+              <span>{formatCondition(p.condition)}</span>
+            </div>
+          </div>
+
+          <div className={styles.mobileStatusChip}>
+            <StatusChip domain="visibility" status={isActive ? 'active' : 'inactive'} size="sm" />
+          </div>
+        </div>
+
+        {/* Key-Value Rows: Price SDG, Price AED, Stock with Stepper */}
+        <div className={styles.mobileKeyValues}>
+          <div className={styles.mobileKvRow}>
+            <span className={styles.mobileKvLabel}>السعر بالجنيه:</span>
+            <span className={styles.mobileKvValueSdg}>{p.price_sdg ? formatSdg(p.price_sdg) : '—'}</span>
+          </div>
+
+          <div className={styles.mobileKvRow}>
+            <span className={styles.mobileKvLabel}>
+              السعر بالدرهم <span className={styles.adminOnlyTag}>(للإدارة)</span>:
+            </span>
+            <span className={styles.mobileKvValueAed}>{formatAed(p.price_aed)}</span>
+          </div>
+
+          <div className={styles.mobileKvRow}>
+            <span className={styles.mobileKvLabel}>المخزون المتوفر:</span>
+            <div className={styles.mobileStockWrapper}>
+              <Stepper
+                value={p.stock_quantity}
+                min={0}
+                size="sm"
+                onChange={(newVal) => handleStockChange(p.id, newVal)}
+                ariaLabel={`تعديل مخزون ${p.name}`}
+              />
+              {p.stock_quantity <= 0 ? (
+                <span className={styles.outOfStockAlert}>نفد</span>
+              ) : p.stock_quantity <= 2 ? (
+                <span className={styles.lowStockAlert}>منخفض</span>
+              ) : null}
+            </div>
+          </div>
+        </div>
+
+        {/* Two Labeled Toggle Rows: Store active, Homepage featured */}
+        <div className={styles.mobileTogglesGroup}>
+          <label className={styles.mobileToggleRow}>
+            <input
+              type="checkbox"
+              className={styles.checkboxInput}
+              checked={isActive}
+              onChange={() => handleToggleActive(p)}
+            />
+            <span className={styles.toggleLabelText}>معروض للبيع في المتجر (نشط)</span>
+          </label>
+
+          <label className={styles.mobileToggleRow}>
+            <input
+              type="checkbox"
+              className={styles.checkboxInput}
+              checked={isFeatured}
+              onChange={() => handleToggleFeatured(p)}
+            />
+            <span className={styles.toggleLabelText}>معروض بالواجهة الرئيسية (مميز)</span>
+          </label>
+        </div>
+
+        {/* Actions Row */}
+        <div className={styles.mobileActionsRow}>
+          <Link
+            to={`/admin/products/${p.id}/edit`}
+            className={styles.mobileActionBtn}
+            title="تعديل الجهاز"
+            aria-label="تعديل الجهاز"
+          >
+            <Edit size={16} />
+            <span>تعديل</span>
+          </Link>
+          <button
+            type="button"
+            className={styles.mobileActionBtn}
+            onClick={() => handleDuplicateProduct(p)}
+            title="نسخ الجهاز"
+            aria-label="نسخ الجهاز"
+          >
+            <Copy size={16} />
+            <span>نسخ</span>
+          </button>
+          <Link
+            to={`/products/${p.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.mobileActionBtn}
+            title="معاينة في المتجر"
+            aria-label="معاينة في المتجر"
+          >
+            <ExternalLink size={16} />
+            <span>معاينة</span>
+          </Link>
+          <button
+            type="button"
+            className={`${styles.mobileActionBtn} ${styles.mobileActionBtnDanger}`}
+            onClick={() => setDeleteDialog({ open: true, product: p, loading: false })}
+            title="حذف الجهاز"
+            aria-label="حذف الجهاز"
+          >
+            <Trash2 size={16} />
+            <span>حذف</span>
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <Page className={styles.container}>
       {/* Header */}
@@ -473,12 +636,14 @@ export default function AdminProductsPage() {
           <h1 className={styles.title}>{adminAr.products.title}</h1>
           <p className={styles.subtitle}>{adminAr.products.subtitle}</p>
         </div>
-        <Link to="/admin/products/new">
-          <Button variant="primary" size="md">
-            <Plus size={16} />
-            <span>{adminAr.products.addNew}</span>
-          </Button>
-        </Link>
+        <div className={styles.addNewBtnWrapper}>
+          <Link to="/admin/products/new">
+            <Button variant="primary" size="md" fullWidth>
+              <Plus size={16} />
+              <span>{adminAr.products.addNew}</span>
+            </Button>
+          </Link>
+        </div>
       </header>
 
       {/* Decorative Ribbon */}
@@ -609,6 +774,7 @@ export default function AdminProductsPage() {
           columns={columns}
           data={products}
           loading={loading}
+          mobileCardRender={renderProductMobileCard}
           emptyMessage="لم يتم العثور على أجهزة مطابقة لمعايير البحث"
           pagination={
             meta.total_pages > 1

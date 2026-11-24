@@ -1129,6 +1129,30 @@ Hotfix of critical storefront issues identified during phone testing:
       2. Admin Orders List (`/admin/orders`).
       3. Storefront Order Detail (`/orders/:id`).
 
+- [x] **Phase D: Admin Products List & Mobile Card Layout — Complete (Needs on-device check)**
+  - **Symptoms:**
+    - Status chip in product card was poorly aligned or colliding.
+    - Product titles overflowed or truncated with generic single-line ellipsis instead of clamping.
+    - Two unlabeled checkboxes appeared on mobile card (one showing a bare `:` colon from `DataList` column headers).
+    - Stepper inputs did not parse Arabic-Indic digits.
+    - Action chips at card bottom were partially hidden behind the admin bottom tab bar.
+    - Title/h1 duplicated between AppBar and page header on mobile.
+    - "+ إضافة منتج جديد" was a small button rather than a comfortable full-width mobile CTA.
+  - **Fix:**
+    - Created dedicated `mobileCardRender` for `AdminProductsPage`'s `DataList`:
+      - Card header flex row places thumbnail, 2-line clamped title, metadata, and status chip in one neat logical row (zero `position: absolute`).
+      - Title wrapped with `-webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; text-overflow: ellipsis; word-break: break-word;`.
+      - Replaced raw `:` with two clear Arabic labeled toggle rows: `<label className={styles.mobileToggleRow}>` for "معروض للبيع في المتجر (نشط)" and "معروض بالواجهة الرئيسية (مميز)", both with `>= 44px` hit targets.
+      - Compact key-value rows formatted for Price in SDG (`formatSdg`), Price in AED (`formatAed` with `(للإدارة)`), and Stock.
+      - Fixed `Stepper`: buttons upgraded to `>= 44px`, and `toAsciiDigits` used on numeric blur input so Arabic-Indic digits (`٠-٩`) parse correctly.
+      - Bottom clearance: added `padding-bottom: calc(var(--admin-tabbar-h, 56px) + var(--space-4) + env(safe-area-inset-bottom, 0px))` so action chips are completely clear of the admin tab bar.
+      - Page header: hid duplicate h1 title on mobile viewports (`< 768px`) where AppBar displays the screen title; made "+ إضافة منتج جديد" full-width on mobile.
+      - Added `hideOnMobile: true` to the table `select` column to prevent fallback field colon leaks.
+  - **Verification:**
+    - `node node_modules/vitest/vitest.mjs run src/__tests__/stepper.test.jsx` (3/3 PASS).
+    - `node node_modules/eslint/bin/eslint.js` on changed files (0 errors, 0 warnings).
+    - *Needs on-device check:* Admin products list (`/admin/products`) on mobile (~360px viewport).
+
 
 
 

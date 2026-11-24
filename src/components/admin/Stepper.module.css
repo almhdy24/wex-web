@@ -10,15 +10,18 @@
 }
 
 .sm {
-  height: 40px;
+  height: 44px;
+  min-height: 44px;
 }
 
 .md {
   height: 48px;
+  min-height: 48px;
 }
 
 .stepBtn {
   min-width: 44px;
+  min-height: 44px;
   height: 100%;
   display: flex;
   align-items: center;
