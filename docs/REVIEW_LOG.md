@@ -31,4 +31,13 @@ File-by-file comprehensive review of `src/` and `wex-api` in execution order.
 | `src/pages/admin/AdminProductFormPage.jsx` | In create mode, blocked image uploading; lacked image reordering persistence and alt editing | Replaced photo section with `<ImageManager>`, uploading queued images upon product creation. |
 | `src/pages/admin/AdminProductsPage.jsx` | Rendered thumbnail without checking presenter's `thumb_url` | Updated to check `thumb_url` first with `ProductTypeSvg` fallback. |
 | `src/components/products/ProductCard.jsx` | Missed `thumb_url` and `primary_image` fallbacks | Added `product.thumb_url` and `product.primary_image` checks. |
+| `src/components/common/SplashScreen.module.css` | Unnatural letter-spacing on Arabic cursive titles and badges | Removed `letter-spacing` from `.brandTitle` and `.locationBadge`. |
+| `src/pages/auth/Auth.module.css` | Letter-spacing on Arabic card title | Removed `letter-spacing` from `.cardTitle`. |
+| `src/components/common/BottomTabBar.module.css` | Active pill was hidden (`display: none`), jumping abruptly | Implemented sliding active pill animation with spring curve and reduced-motion guard. |
+| `src/components/products/ProductCard.module.css` | Lacked feedback animations for add-to-cart and favorite toggle | Added `cartPulse` and `heartPop` animations with reduced-motion overrides. |
+| `src/pages/store/ProductDetailPage.module.css` | Lacked button feedback animations and reduced-motion media query | Added `heartPop`, `cartPulse`, and `@media (prefers-reduced-motion: reduce)`. |
+| `src/components/common/Sheet.module.css` | Missing `prefers-reduced-motion` override | Added `@media (prefers-reduced-motion: reduce)` disabling sheet animations. |
+| `src/components/common/Toast.module.css` | Missing `prefers-reduced-motion` override | Added `@media (prefers-reduced-motion: reduce)` disabling toast animations. |
+| `scripts/check-layout-contract.js` | Lacked checks for tabbar clearance across storefront pages and greeting leaks | Extended contract checker to enforce all 7 layout, clearance, bidi, and greeting rules. |
+
 

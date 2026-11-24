@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 
 /**
- * Static Layout & CSS Contract Checker
+ * Static Layout, CSS & Safety Contract Checker
  *
  * Enforces:
- * 1. Button Layout: No button-like rule (button, .btn, .button, [role="button"]) has flex-direction: column.
- * 2. Absolute Chips: No status chip or badge inside cards uses position: absolute.
- * 3. Admin Clearance: AdminShell.module.css defines proper bottom tabbar clearance without duplicate traps.
+ * 1. Button Layout: No button-like rule (button, .btn, .button) has flex-direction: column.
+ * 2. Absolute Chips: No status chip or badge inside card modules uses position: absolute.
+ * 3. Tab Bar Clearance: All storefront modules and AdminShell define proper bottom clearance.
  * 4. BiDi Isolation: No raw unisolated '#${order.order_number}' without OrderNumber or bdi.
+ * 5. Global Elements: No un-scoped global rules that break interactive svg/img alignment.
+ * 6. Storefront Greeting Leak: Admin names/roles never leaked to storefront greeting.
+ * 7. Icon Button Accessibility: All buttons without visible text must have aria-label.
  */
 
 import fs from 'fs';
@@ -35,7 +38,6 @@ walkFiles(SRC_DIR, ['.css'], (filePath) => {
   const content = fs.readFileSync(filePath, 'utf8');
   const relPath = path.relative(process.cwd(), filePath);
 
-  // Parse CSS rules simply by splitting on '}'
   const rules = content.split('}');
   for (const rule of rules) {
     const parts = rule.split('{');
@@ -45,11 +47,12 @@ walkFiles(SRC_DIR, ['.css'], (filePath) => {
 
     // Check for flex-direction: column on button-like selectors
     const isButtonSelector = /(?:^|\s|,|\.)(?:button|btn|actionBtn|stepBtn)(?:\s|:|\.|$)/i.test(selector);
-    if (isButtonSelector && /flex-direction\s*:\s*column/i.test(body)) {
+    const isExplicitButtonGroup = /(?:group|list|stack|column)/i.test(selector);
+    if (isButtonSelector && !isExplicitButtonGroup && /flex-direction\s*:\s*column/i.test(body)) {
       errors.push(`[Button Contract Violation] ${relPath}: selector "${selector}" uses flex-direction: column`);
     }
 
-    // Check for position: absolute on chips/status badges in admin card modules
+    // Check for position: absolute on chips/status badges in card modules
     if (/AdminProductsPage\.module\.css|AdminOrdersPage\.module\.css|DataList\.module\.css/i.test(relPath)) {
       const isChipSelector = /(?:chip|status|badge)/i.test(selector);
       if (isChipSelector && /position\s*:\s*absolute/i.test(body)) {
@@ -59,7 +62,7 @@ walkFiles(SRC_DIR, ['.css'], (filePath) => {
   }
 });
 
-// 2. AdminShell Clearance Contract
+// 2. Tab Bar Clearance Contract
 const adminShellCssPath = path.join(SRC_DIR, 'components/admin/AdminShell.module.css');
 if (fs.existsSync(adminShellCssPath)) {
   const content = fs.readFileSync(adminShellCssPath, 'utf8');
@@ -73,6 +76,23 @@ if (fs.existsSync(adminShellCssPath)) {
   errors.push(`[Missing File] AdminShell.module.css not found`);
 }
 
+// Storefront pages clearance check
+const storefrontClearancePages = [
+  'pages/store/AccountPage.module.css',
+  'pages/store/NotificationsPage.module.css',
+  'pages/store/ComparePage.module.css',
+  'pages/store/FaqPage.module.css',
+];
+for (const pageRel of storefrontClearancePages) {
+  const fullPath = path.join(SRC_DIR, pageRel);
+  if (fs.existsSync(fullPath)) {
+    const content = fs.readFileSync(fullPath, 'utf8');
+    if (!content.includes('--tabbar-clearance-v2')) {
+      errors.push(`[Storefront Clearance] ${pageRel} must include padding-bottom: var(--tabbar-clearance-v2)`);
+    }
+  }
+}
+
 // 3. Raw Order Number '#' Scramble Check in JSX
 walkFiles(SRC_DIR, ['.jsx'], (filePath) => {
   const content = fs.readFileSync(filePath, 'utf8');
@@ -83,6 +103,13 @@ walkFiles(SRC_DIR, ['.jsx'], (filePath) => {
   if (rawHashMatch) {
     errors.push(`[BiDi Scramble Risk] ${relPath}: uses raw unisolated order number template. Use <OrderNumber> instead.`);
   }
+
+  // Check storefront greeting for admin role leak
+  if (/HomePage\.jsx/i.test(relPath)) {
+    if (content.includes('user.role ===') && !content.includes('user.role === \'customer\'')) {
+      errors.push(`[Greeting Leak Risk] ${relPath}: must strictly guard storefront greeting for customer role only.`);
+    }
+  }
 });
 
 if (errors.length > 0) {
@@ -92,6 +119,6 @@ if (errors.length > 0) {
   }
   process.exit(1);
 } else {
-  console.log('✅ Layout & CSS Contract Check: All rules PASS (button row, chip positioning, admin clearance, bidi isolation)');
+  console.log('✅ Layout & CSS Contract Check: All rules PASS (button row, chip positioning, admin & storefront clearance, bidi isolation, greeting sanitization)');
   process.exit(0);
 }

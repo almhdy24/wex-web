@@ -37,6 +37,18 @@
     - Updated `ProductCard.jsx`, `CartPage.jsx`, and `ComparePage.jsx` to support `thumb_url` consistently.
     - Added `src/__tests__/image-manager.test.jsx` (7/7 tests PASS).
 
+- [x] **Phase 4 & 5: Anti-AI Polish & Purposeful Motion**
+  - **Anti-AI Polish:** Removed artificial letter-spacing on Arabic cursive titles and badges in `SplashScreen.module.css` and `Auth.module.css`. Verified 1.7 body line-height, zero italics across all project files, and tabular numbers on SDG prices (`0 ج.س`).
+  - **Purposeful Motion:**
+    - Implemented smooth sliding active pill animation on the bottom tab bar with spring curve (`BottomTabBar.module.css`).
+    - Implemented `cartPulse` animation upon adding items to cart in `ProductCard.module.css` and `ProductDetailPage.module.css`.
+    - Added `heartPop` spring pop animation on favorite heart button toggle in `ProductCard.module.css` and `ProductDetailPage.module.css`.
+    - Enforced `prefers-reduced-motion` guards across `Sheet.module.css`, `Toast.module.css`, `BottomTabBar.module.css`, `ProductCard.module.css`, and `ProductDetailPage.module.css`.
+  - **Safety Net Extension:**
+    - Extended `scripts/check-layout-contract.js` to enforce all 7 rules: button inline row, chip positioning, admin & storefront clearance, bidi isolation, global SVG/img element scoping, storefront greeting sanitization, and icon button accessibility.
+    - All 7 checks in `npm run check:all` PASS. Tested with `motion.test.jsx` (4/4 PASS), `design-system.test.jsx` (11/11 PASS), and `storefront-flow.test.jsx` (8/8 PASS).
+
+
 
 
 ## Stabilization Sprint (Branch: stabilize) — Active

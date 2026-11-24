@@ -615,7 +615,7 @@ export default function ProductDetailPage({
           <div className={styles.purchaseButtonsRow}>
             <button
               type="button"
-              className={styles.cartIconButton}
+              className={`${styles.cartIconButton} ${isAdded ? styles.cartIconButtonAdded : ''}`}
               disabled={isOutOfStock}
               onClick={handleAddToCart}
               aria-label="أضف إلى السلة"

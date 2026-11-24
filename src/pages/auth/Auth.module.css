@@ -84,7 +84,6 @@
   font-weight: 800;
   color: var(--color-navy, #061A55);
   margin: 0 0 6px 0;
-  letter-spacing: -0.2px;
 }
 
 .cardSubtitle {

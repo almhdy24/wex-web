@@ -100,7 +100,6 @@
   color: #FFFFFF;
   margin: 0;
   line-height: 1.25;
-  letter-spacing: -0.2px;
 }
 
 .brandSubtitle {
@@ -126,7 +125,6 @@
   font-weight: 600;
   color: var(--wex-gray-200, #E2E8F0);
   margin-bottom: 28px;
-  letter-spacing: 0.2px;
 }
 
 .locationDot {

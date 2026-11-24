@@ -127,3 +127,11 @@
     transform: translate3d(0, 0, 0);
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .sheet {
+    animation: none !important;
+    transition: none !important;
+  }
+}

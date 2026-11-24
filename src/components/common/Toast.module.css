@@ -184,3 +184,10 @@
   background-color: var(--wex-royal);
   transition: width 50ms linear;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -133,10 +133,20 @@
   transform: scale(0.92);
 }
 
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
 .favBtnActive {
   background: var(--color-danger-surface, #fef2f2);
   border-color: var(--color-danger-border, #fecaca);
   color: var(--color-danger, #dc2626);
+}
+
+.favBtnActive svg {
+  animation: heartPop 300ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 /* Unavailable Overlay */
@@ -261,16 +271,27 @@
   transform: scale(0.98);
 }
 
+@keyframes cartPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
 .addedBtn {
-  background: var(--wex-royal);
+  background: var(--wex-success, #16a34a);
+  animation: cartPulse 250ms ease-out;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card {
+  .card,
+  .addedBtn,
+  .favBtnActive svg {
     animation: none !important;
     transition: none !important;
   }
-  .card:active {
+  .card:active,
+  .favBtn:active,
+  .addCartBtn:active {
     transform: none !important;
   }
 }
