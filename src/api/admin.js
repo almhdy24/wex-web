@@ -97,6 +97,10 @@ export const adminApi = {
     return api.patch(`/admin/products/${id}/images/${imageId}`, payload);
   },
 
+  reorderProductImages(id, order) {
+    return api.put(`/admin/products/${id}/images/order`, { order });
+  },
+
   deleteProductImage(id, imageId) {
     return api.delete(`/admin/products/${id}/images/${imageId}`);
   },

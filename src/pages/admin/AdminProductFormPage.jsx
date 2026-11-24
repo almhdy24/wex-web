@@ -1,15 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowRight,
   Plus,
   Trash2,
   Check,
-  Upload,
-  Star,
   ExternalLink,
-  MoveUp,
-  MoveDown,
   Layers,
   DollarSign,
   Image as ImageIcon,
@@ -18,14 +14,13 @@ import {
 } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { adminAr } from '../../content/admin.ar';
-import { resolveImageUrl, formatAed, formatSdg } from '../../utils/formatters';
-import { compressImage } from '../../utils/imageCompressor';
+import { formatAed, formatSdg } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import Select from '../../components/common/Select';
-import StatusChip from '../../components/admin/StatusChip';
 import Stepper from '../../components/admin/Stepper';
+import ImageManager from '../../components/admin/ImageManager';
 import { Skeleton } from '../../components/common/Skeleton';
 import Page from '../../components/common/Page';
 import styles from './AdminProductFormPage.module.css';
@@ -34,7 +29,7 @@ export default function AdminProductFormPage() {
   const { id } = useParams();
   const isEditMode = Boolean(id);
   const navigate = useNavigate();
-  const { success, error: toastError, info } = useToast();
+  const { success, error: toastError } = useToast();
 
   const [loading, setLoading] = useState(isEditMode);
   const [submitting, setSubmitting] = useState(false);
@@ -71,10 +66,9 @@ export default function AdminProductFormPage() {
     { key: 'البطارية', value: '' },
   ]);
 
-  // Images for Edit Mode
+  // Images state
   const [images, setImages] = useState([]);
-  const [uploadingImages, setUploadingImages] = useState(false);
-  const fileInputRef = useRef(null);
+  const [queuedFiles, setQueuedFiles] = useState([]);
 
   // Accessories for Edit Mode
   const [accessories, setAccessories] = useState([]);
@@ -305,9 +299,23 @@ export default function AdminProductFormPage() {
       } else {
         const createRes = await adminApi.createProduct(payload);
         setIsDirty(false);
-        success('تم إضافة الجهاز بنجاح. يمكنك الآن رفع الصور وربط الملحقات.');
-        if (createRes.data?.id) {
-          navigate(`/admin/products/${createRes.data.id}/edit`);
+        const newId = createRes.data?.id;
+
+        if (newId && queuedFiles.length > 0) {
+          try {
+            const fd = new FormData();
+            queuedFiles.forEach((item) => {
+              fd.append('images[]', item.file);
+            });
+            await adminApi.uploadProductImages(newId, fd);
+          } catch {
+            // Non-blocking upload error; user can manage in edit mode
+          }
+        }
+
+        success('تم إضافة الجهاز بنجاح.');
+        if (newId) {
+          navigate(`/admin/products/${newId}/edit`);
           return;
         }
         navigate('/admin/products');
@@ -319,89 +327,6 @@ export default function AdminProductFormPage() {
     }
   };
 
-  // Image Upload with Client-Side Auto-Compression (< 800 KB, max 1600px, 0.8 quality)
-  const handleImageFiles = async (fileList) => {
-    if (!fileList || fileList.length === 0) return;
-    if (!isEditMode) {
-      toastError('يرجى حفظ بيانات الجهاز أولاً قبل رفع الصور');
-      return;
-    }
-
-    try {
-      setUploadingImages(true);
-      const compressedFiles = await Promise.all(
-        Array.from(fileList).map((f) => compressImage(f, 1600, 0.8))
-      );
-
-      const fd = new FormData();
-      compressedFiles.forEach((file) => {
-        fd.append('images[]', file);
-      });
-
-      await adminApi.uploadProductImages(id, fd);
-      success('تم رفع الصور وضغطها بنجاح');
-      const prodRes = await adminApi.getProduct(id);
-      setImages(prodRes.data?.images || []);
-    } catch (err) {
-      toastError(err.message || 'فشل رفع الصور');
-    } finally {
-      setUploadingImages(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
-
-  const handleFileInputChange = (e) => {
-    handleImageFiles(e.target.files);
-  };
-
-  const handleDropImages = (e) => {
-    e.preventDefault();
-    if (e.dataTransfer?.files) {
-      handleImageFiles(e.dataTransfer.files);
-    }
-  };
-
-  // Set Primary Image
-  const handleSetPrimaryImage = async (imageId) => {
-    try {
-      await adminApi.updateProductImage(id, imageId, { is_primary: 1 });
-      success('تم تعيين الصورة كصورة رئيسية');
-      const prodRes = await adminApi.getProduct(id);
-      setImages(prodRes.data?.images || []);
-    } catch (err) {
-      toastError(err.message || 'فشل في تعيين الصورة الرئيسية');
-    }
-  };
-
-  // Delete Image with Undo Toast
-  const handleDeleteImage = async (imageId) => {
-    const targetImage = images.find((img) => img.id === imageId);
-    if (!targetImage) return;
-
-    try {
-      // Optimistically remove from state
-      setImages((prev) => prev.filter((img) => img.id !== imageId));
-      await adminApi.deleteProductImage(id, imageId);
-      info(adminAr.products.photoDeleted);
-    } catch (err) {
-      toastError(err.message || 'فشل حذف الصورة');
-      const prodRes = await adminApi.getProduct(id);
-      setImages(prodRes.data?.images || []);
-    }
-  };
-
-  // Reorder Photos locally (Move up/down)
-  const handleMoveImage = (index, direction) => {
-    const newIndex = index + direction;
-    if (newIndex < 0 || newIndex >= images.length) return;
-    setImages((prev) => {
-      const copy = [...prev];
-      const temp = copy[index];
-      copy[index] = copy[newIndex];
-      copy[newIndex] = temp;
-      return copy;
-    });
-  };
 
   // Accessory Linking
   const handleLinkAccessory = async (e) => {
@@ -695,106 +620,13 @@ export default function AdminProductFormPage() {
               <h2 className={styles.sectionTitle}>{adminAr.products.sectionPhotos}</h2>
             </div>
             <div className={styles.sectionBody}>
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                accept="image/jpeg,image/png,image/webp"
-                onChange={handleFileInputChange}
-                disabled={uploadingImages}
-                style={{ display: 'none' }}
+              <ImageManager
+                productId={isEditMode ? id : null}
+                images={images}
+                onImagesChange={setImages}
+                queuedFiles={queuedFiles}
+                onQueuedFilesChange={setQueuedFiles}
               />
-
-              <div
-                className={styles.dropzone}
-                onClick={() => fileInputRef.current?.click()}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={handleDropImages}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    fileInputRef.current?.click();
-                  }
-                }}
-              >
-                <Upload size={28} color="var(--color-royal-blue)" />
-                <span className={styles.dropzoneText}>
-                  {uploadingImages ? 'جاري ضغط ورفع الصور...' : adminAr.products.uploadDropzone}
-                </span>
-                <span className={styles.dropzoneHint}>
-                  يتم ضغط الصور تلقائياً على المتصفح إلى أبعاد 1600 بكسل وجودة 80%
-                </span>
-              </div>
-
-              {images.length === 0 ? (
-                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-slate-500)', margin: 0 }}>
-                  لا توجد صور مرفوعة حتى الآن. اضغط على المربع أعلاه لرفع صور الجهاز.
-                </p>
-              ) : (
-                <div className={styles.photosGrid}>
-                  {images.map((img, index) => (
-                    <div
-                      key={img.id}
-                      className={`${styles.photoCard} ${img.is_primary ? styles.photoCardPrimary : ''}`}
-                    >
-                      <img
-                        src={resolveImageUrl(img.thumb_path || img.path)}
-                        alt=""
-                        className={styles.photoImg}
-                      />
-                      <div className={styles.photoActions}>
-                        {img.is_primary ? (
-                          <StatusChip variant="info" label="رئيسية" icon={Star} size="sm" />
-                        ) : (
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleSetPrimaryImage(img.id)}
-                          >
-                            رئيسية
-                          </Button>
-                        )}
-                        <div style={{ display: 'flex', gap: 2 }}>
-                          {index > 0 && (
-                            <button
-                              type="button"
-                              className={styles.deleteIconBtn}
-                              onClick={() => handleMoveImage(index, -1)}
-                              title="تحريك للخلف"
-                              aria-label="تحريك للخلف"
-                            >
-                              <MoveUp size={12} />
-                            </button>
-                          )}
-                          {index < images.length - 1 && (
-                            <button
-                              type="button"
-                              className={styles.deleteIconBtn}
-                              onClick={() => handleMoveImage(index, 1)}
-                              title="تحريك للأمام"
-                              aria-label="تحريك للأمام"
-                            >
-                              <MoveDown size={12} />
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            className={styles.deleteIconBtn}
-                            onClick={() => handleDeleteImage(img.id)}
-                            title="حذف الصورة"
-                            aria-label="حذف الصورة"
-                          >
-                            <Trash2 size={12} />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           </section>
 

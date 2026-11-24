@@ -356,7 +356,7 @@ export default function AdminProductsPage() {
       isPrimary: true,
       render: (p) => {
         const thumb = resolveImageUrl(
-          p.primary_image || p.image_path || (p.images && p.images[0]?.thumb_path)
+          p.thumb_url || p.primary_image || p.image_path || (p.images && p.images[0]?.thumb_path)
         );
         return (
           <div className={styles.productPrimary}>
@@ -483,7 +483,7 @@ export default function AdminProductsPage() {
 
   const renderProductMobileCard = (p) => {
     const thumb = resolveImageUrl(
-      p.primary_image || p.image_path || (p.images && p.images[0]?.thumb_path)
+      p.thumb_url || p.primary_image || p.image_path || (p.images && p.images[0]?.thumb_path)
     );
     const isActive = Number(p.is_active) === 1;
     const isFeatured = Number(p.is_featured) === 1;

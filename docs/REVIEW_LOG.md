@@ -23,3 +23,12 @@ File-by-file comprehensive review of `src/` and `wex-api` in execution order.
 | `src/pages/store/FaqPage.module.css` | Fixed 16px bottom padding caused content overlap with tab bar | Updated to `padding-bottom: var(--tabbar-clearance-v2)`. |
 | `src/pages/admin/AdminSettingsPage.jsx` | Mixed Latin `'ويكس تكنولوجي - Wex Technology'` | Cleaned to Modern Standard Arabic `'ويكس تكنولوجي'`. |
 | `wex-api/app/Database/Seeds/DevSeeder.php` | Mixed Latin `'Wex Technology - متجر التقنية'` | Cleaned to Modern Standard Arabic `'متجر التقنية'`. |
+| `wex-api/app/Controllers/Api/V1/Admin/ProductImageAdminController.php` | Lacked alt attribute, reorder endpoint, 10-image limit, and auto-primary promotion on delete | Added 10-image limit check, `reorder` method (`PUT /order`), `alt` update handling, and auto-promotion of next image to primary on delete. |
+| `wex-api/app/Presenters/PublicProductPresenter.php` | Omitted `primary_image`, `thumb_url`, and `alt` in public payload | Added `primary_image`, `thumb_url`, and `alt` fields. |
+| `src/components/admin/ImageManager.jsx` | Missing unified image manager with bulk dropzone, compression, concurrency limit, alt editing, reordering, and create-mode queueing | Created `ImageManager.jsx` and CSS module supporting both edit and create modes with 3-file concurrency and retry. |
+| `src/components/common/Lightbox.jsx` | Product detail lacked full-screen pinch-zoom and swipeable lightbox | Created `Lightbox.jsx` with touch swipe, double-tap zoom, keyboard navigation, and 44px close button. |
+| `src/pages/store/ProductDetailPage.jsx` | Gallery lacked swipe gestures and dot indicators; zoom modal was basic non-interactive modal | Added CSS scroll-snap gallery with dots and integrated full-screen `Lightbox`. |
+| `src/pages/admin/AdminProductFormPage.jsx` | In create mode, blocked image uploading; lacked image reordering persistence and alt editing | Replaced photo section with `<ImageManager>`, uploading queued images upon product creation. |
+| `src/pages/admin/AdminProductsPage.jsx` | Rendered thumbnail without checking presenter's `thumb_url` | Updated to check `thumb_url` first with `ProductTypeSvg` fallback. |
+| `src/components/products/ProductCard.jsx` | Missed `thumb_url` and `primary_image` fallbacks | Added `product.thumb_url` and `product.primary_image` checks. |
+

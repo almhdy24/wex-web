@@ -50,7 +50,13 @@ export default function ProductCard({ product, index, style = {} }) {
   const isOutOfStock =
     product.stock_status === 'out_of_stock' ||
     (product.stock_quantity !== undefined && product.stock_quantity <= 0);
-  const imageUrl = getProductImageUrl(product.image?.thumb_path || product.image?.path || product.primary_image_url);
+  const imageUrl = getProductImageUrl(
+    product.thumb_url ||
+    product.image?.thumb_path ||
+    product.primary_image ||
+    product.image?.path ||
+    product.primary_image_url
+  );
   const quickSpecs = getQuickSpecs(product);
   const descriptionText = product.short_description || (quickSpecs.length > 0 ? quickSpecs.join(' · ') : '');
 

@@ -21,6 +21,23 @@
   - **Bank Account Card & Seeder:** Sanitized seeder and SQLite database `account_name` from `'Wex Technology - متجر التقنية'` to `'متجر التقنية'`. Wrapped account number in `<bdi dir="ltr">` and unified copy button with inline icon + label.
   - Detailed file-by-file log maintained in `docs/REVIEW_LOG.md`.
 
+- [x] **Phase 3: Product Images End-to-End**
+  - **Backend (`wex-api`):**
+    - Created migration `2026-11-24-000001_AddAltToProductImagesTable` adding `alt` column to `product_images`.
+    - Added `PUT /api/v1/admin/products/{id}/images/order` endpoint for bulk sort-order updates.
+    - Updated `ProductImageAdminController` with max 10 images limit, alt updates, and automatic promotion of next image to primary upon deletion of current primary.
+    - Tested with `ProductImageFeatureTest.php` (3/3 tests PASS, 8 assertions).
+  - **Admin Image Manager (`ImageManager.jsx`):**
+    - Built comprehensive `ImageManager` with bulk dropzone, client-side compression (1600px, 0.82 quality), concurrency limit of 3, progress bar, set primary image with badge, alt text editing, and reordering.
+    - Supports both edit mode (live API sync) and create mode (local queuing and post-create upload).
+    - Integrated into `AdminProductFormPage.jsx` and updated `AdminProductsPage.jsx` to render `thumb_url` with `ProductTypeSvg` fallback (needs on-device check: Admin Products `/admin/products`, Product Form `/admin/products/new`).
+  - **Storefront Swipeable Gallery & Lightbox:**
+    - `ProductDetailPage.jsx`: Swipeable gallery using CSS scroll-snap (`overflow-x: auto; scroll-snap-type: x mandatory; direction: rtl;`), dot indicators, and thumbnail strip (needs on-device check: Product Detail `/products/:slug`).
+    - `Lightbox.jsx`: Fullscreen touch-friendly modal with swipe navigation, pinch/double-tap toggle zoom, keyboard arrow navigation, and 44px close button.
+    - Updated `ProductCard.jsx`, `CartPage.jsx`, and `ComparePage.jsx` to support `thumb_url` consistently.
+    - Added `src/__tests__/image-manager.test.jsx` (7/7 tests PASS).
+
+
 
 ## Stabilization Sprint (Branch: stabilize) — Active
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ShoppingCart,
@@ -24,7 +24,7 @@ import AppBar from '../../components/common/AppBar';
 import BrandRibbons from '../../components/common/BrandRibbons';
 import Button from '../../components/common/Button';
 import Page from '../../components/common/Page';
-import Modal from '../../components/common/Modal';
+import Lightbox from '../../components/common/Lightbox';
 import Price from '../../components/common/Price';
 import NoticeLine from '../../components/common/NoticeLine';
 import Tabs from '../../components/common/Tabs';
@@ -168,13 +168,39 @@ export default function ProductDetailPage({
   const isOutOfStock = product.stock_status === 'out_of_stock' || product.stock_quantity === 0;
 
   // Images
-  const rawImages = product.images || [];
-  const activeImageObj = (rawImages.length > 0 && rawImages[selectedImageIndex])
-    ? rawImages[selectedImageIndex]
-    : (product.primary_image || (rawImages.length > 0 ? rawImages[0] : null));
-  const rawImageUrl = activeImageObj ? getProductImageUrl(activeImageObj) : null;
-  const isRealPhoto = rawImageUrl && !rawImageUrl.includes('favicon.svg');
-  const displayImage = !imageError && isRealPhoto ? rawImageUrl : null;
+  const galleryImages = useMemo(() => {
+    if (!product) return [];
+    const imgs = product.images || [];
+    if (imgs.length > 0) {
+      return imgs.map((img) => ({
+        url: getProductImageUrl(img.thumb_path || img.path || img.image_url || img),
+        fullUrl: getProductImageUrl(img.path || img.image_url || img.thumb_path || img),
+        alt: img.alt || product.name || 'صورة الجهاز',
+      }));
+    }
+    const single = product.primary_image || product.thumb_url || product.image_path;
+    if (single) {
+      const url = getProductImageUrl(single);
+      return [{
+        url,
+        fullUrl: url,
+        alt: product.name || 'صورة الجهاز',
+      }];
+    }
+    return [];
+  }, [product]);
+
+  const slideRefs = useRef([]);
+  const scrollToSlide = (idx) => {
+    setSelectedImageIndex(idx);
+    if (slideRefs.current[idx]) {
+      slideRefs.current[idx].scrollIntoView({
+        behavior: 'smooth',
+        inline: 'center',
+        block: 'nearest',
+      });
+    }
+  };
 
   // Condition
   const conditionLabel = getConditionLabel(product.condition);
@@ -349,26 +375,76 @@ export default function ProductDetailPage({
             />
           </button>
 
-          {/* Image or White line-art icon */}
-          {displayImage ? (
-            <img
-              src={displayImage}
-              alt={product.name}
-              className={styles.stageImage}
-              loading="eager"
-              fetchPriority="high"
-              decoding="async"
-              width="400"
-              height="300"
-              onError={() => setImageError(true)}
-            />
+          {/* Swipeable Gallery or Fallback */}
+          {galleryImages.length > 0 && !imageError ? (
+            <>
+              <div
+                className={styles.galleryScroll}
+                onScroll={(e) => {
+                  const el = e.currentTarget;
+                  const itemWidth = el.clientWidth || 1;
+                  const idx = Math.round(Math.abs(el.scrollLeft) / itemWidth);
+                  if (idx >= 0 && idx < galleryImages.length && idx !== selectedImageIndex) {
+                    setSelectedImageIndex(idx);
+                  }
+                }}
+              >
+                {galleryImages.map((img, idx) => (
+                  <div
+                    key={idx}
+                    ref={(el) => {
+                      slideRefs.current[idx] = el;
+                    }}
+                    className={styles.gallerySlide}
+                    onClick={() => setIsZoomOpen(true)}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`تكبير الصورة ${idx + 1}`}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        setIsZoomOpen(true);
+                      }
+                    }}
+                  >
+                    <img
+                      src={img.fullUrl}
+                      alt={img.alt}
+                      className={styles.stageImage}
+                      loading={idx === 0 ? 'eager' : 'lazy'}
+                      fetchPriority={idx === 0 ? 'high' : 'auto'}
+                      decoding="async"
+                      width="400"
+                      height="300"
+                      onError={() => setImageError(true)}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {galleryImages.length > 1 && (
+                <div className={styles.dotsRow}>
+                  {galleryImages.map((_, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      className={`${styles.dot} ${selectedImageIndex === idx ? styles.dotActive : ''}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        scrollToSlide(idx);
+                      }}
+                      aria-label={`الانتقال إلى الصورة ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
           ) : (
             <div className={styles.stagePlaceholder}>
               <ProductTypeSvg type={product.type || 'laptop'} />
             </div>
           )}
 
-          {displayImage && (
+          {galleryImages.length > 0 && !imageError && (
             <button
               type="button"
               className={styles.zoomButton}
@@ -381,23 +457,20 @@ export default function ProductDetailPage({
         </div>
 
         {/* Gallery Thumbnails */}
-        {rawImages.length > 1 && (
+        {galleryImages.length > 1 && (
           <div className={styles.thumbnailsRow} role="tablist" aria-label="صور المنتج">
-            {rawImages.map((img, idx) => (
+            {galleryImages.map((img, idx) => (
               <button
                 key={idx}
                 type="button"
                 role="tab"
                 aria-selected={selectedImageIndex === idx}
                 className={`${styles.thumbBtn} ${selectedImageIndex === idx ? styles.thumbBtnActive : ''}`}
-                onClick={() => {
-                  setSelectedImageIndex(idx);
-                  setImageError(false);
-                }}
+                onClick={() => scrollToSlide(idx)}
                 aria-label={`عرض الصورة ${idx + 1}`}
               >
                 <img
-                  src={getProductImageUrl(img.image_url || img.path || img)}
+                  src={img.url}
                   alt=""
                   width="56"
                   height="56"
@@ -567,21 +640,13 @@ export default function ProductDetailPage({
           </div>
         </StickyBar>
 
-        {/* Zoom Modal */}
-        <Modal
-          isOpen={isZoomOpen && Boolean(displayImage)}
+        {/* Fullscreen Lightbox */}
+        <Lightbox
+          isOpen={isZoomOpen && galleryImages.length > 0}
+          images={galleryImages.map((g) => ({ url: g.fullUrl, alt: g.alt }))}
+          initialIndex={selectedImageIndex}
           onClose={() => setIsZoomOpen(false)}
-          variant="image"
-          ariaLabel="تكبير صورة الجهاز"
-        >
-          {displayImage && (
-            <img
-              src={displayImage}
-              alt={product.name}
-              className={styles.zoomImg}
-            />
-          )}
-        </Modal>
+        />
       </Page>
     </div>
   );

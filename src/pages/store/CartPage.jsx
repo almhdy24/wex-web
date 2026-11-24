@@ -104,7 +104,13 @@ export default function CartPage() {
         {/* Items List */}
         <div className={styles.itemsList}>
           {items.map((item) => {
-            const rawImgUrl = getProductImageUrl(item.image?.thumb_path || item.image?.path || item.image_url);
+            const rawImgUrl = getProductImageUrl(
+              item.thumb_url ||
+              item.primary_image ||
+              item.image?.thumb_path ||
+              item.image?.path ||
+              item.image_url
+            );
             const hasRealImage = rawImgUrl && !rawImgUrl.includes('favicon.svg');
             const lineTotal = (item.price_sdg || 0) * item.quantity;
             const maxStock = item.stock_quantity !== undefined && item.stock_quantity !== null

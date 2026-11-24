@@ -198,7 +198,13 @@ export default function ComparePage() {
               <th className={styles.specHeaderCell}>المواصفات</th>
               {compareItems.map((item) => {
                 const isLowest = lowestPrice !== null && Number(item.price_sdg) === lowestPrice;
-                const imgUrl = getProductImageUrl(item.image?.thumb_path || item.image?.path || item.image);
+                const imgUrl = getProductImageUrl(
+                  item.thumb_url ||
+                  item.primary_image ||
+                  item.image?.thumb_path ||
+                  item.image?.path ||
+                  item.image
+                );
 
                 return (
                   <th key={item.id} className={styles.productHeaderCell}>
