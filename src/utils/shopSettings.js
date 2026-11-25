@@ -3,8 +3,8 @@ import { toAsciiDigits } from './formatters';
 export const DEFAULT_SHOP_SETTINGS = {
   shop_name: 'ويكس تكنولوجي',
   shop_address: 'مول الواحة، الشهداء، أم درمان، السودان',
-  shop_phone: '0912300000',
-  shop_whatsapp: '+249912300000',
+  shop_phone: '',
+  shop_whatsapp: '',
   working_hours: 'السبت - الخميس: 9:00 ص - 9:00 م',
   orders_enabled: true,
   orders_disabled_message: 'نعتذر، استقبال الطلبات متوقف مؤقتاً وسنعود لاستقبال طلباتكم قريباً.',
@@ -69,26 +69,35 @@ export function normalizeShopInfo(raw) {
  * Builds a valid, direct WhatsApp URL (https://wa.me/<digits>?text=...)
  * converting Arabic digits, removing non-digits, and normalizing Sudan prefixes.
  */
-export function buildWhatsAppLink(rawPhone, message = '') {
-  const defaultPhone = '249912300000';
-  if (!rawPhone) {
-    return `https://wa.me/${defaultPhone}`;
-  }
-
-  const ascii = toAsciiDigits(String(rawPhone));
-  let digits = ascii.replace(/\D/g, '');
-
-  if (!digits) {
-    digits = defaultPhone;
-  } else if (digits.startsWith('09') || digits.startsWith('01')) {
+/**
+ * Normalises a Sudanese number to international digits (2499XXXXXXXX) or null.
+ * Never invents a number: a missing/invalid setting must hide the contact link,
+ * not send customers to a placeholder that may belong to a stranger.
+ */
+function toInternationalDigits(rawPhone) {
+  if (!rawPhone) return null;
+  let digits = toAsciiDigits(String(rawPhone)).replace(/\D/g, '');
+  if (!digits) return null;
+  if (digits.startsWith('09') || digits.startsWith('01')) {
     digits = '249' + digits.substring(1);
   } else if (digits.startsWith('24909') || digits.startsWith('24901')) {
     digits = '249' + digits.substring(4);
   }
+  return digits.length >= 9 ? digits : null;
+}
+
+export function buildWhatsAppLink(rawPhone, message = '') {
+  const digits = toInternationalDigits(rawPhone);
+  if (!digits) return null;
 
   const baseUrl = `https://wa.me/${digits}`;
   if (message && typeof message === 'string' && message.trim()) {
     return `${baseUrl}?text=${encodeURIComponent(message.trim())}`;
   }
   return baseUrl;
+}
+
+export function buildTelLink(rawPhone) {
+  const digits = toInternationalDigits(rawPhone);
+  return digits ? `tel:+${digits}` : null;
 }

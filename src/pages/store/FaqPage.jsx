@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { ChevronDown, Search, HelpCircle, MessageCircle, Phone, MapPin, ShieldCheck, Clock } from 'lucide-react';
+import { useOutletContext } from 'react-router-dom';
 import Page from '../../components/common/Page';
+import { buildWhatsAppLink, buildTelLink } from '../../utils/shopSettings';
 import AppBar from '../../components/common/AppBar';
 import styles from './FaqPage.module.css';
 
@@ -64,6 +66,10 @@ const FAQ_DATA = [
 ];
 
 export default function FaqPage() {
+  // Contact numbers come from admin shop settings (StoreLayout outlet context).
+  const outlet = useOutletContext();
+  const whatsappUrl = buildWhatsAppLink(outlet?.shopInfo?.whatsapp);
+  const telUrl = buildTelLink(outlet?.shopInfo?.phone);
   const [searchQuery, setSearchQuery] = useState('');
   const [openItems, setOpenItems] = useState({});
 
@@ -212,20 +218,24 @@ export default function FaqPage() {
         </div>
 
         <div className={styles.supportActions}>
-          <a
-            href="https://wa.me/249912345678"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.whatsappBtn}
-          >
-            <MessageCircle size={16} />
-            <span>تواصل عبر واتساب</span>
-          </a>
+          {whatsappUrl && (
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.whatsappBtn}
+            >
+              <MessageCircle size={16} />
+              <span>تواصل عبر واتساب</span>
+            </a>
+          )}
 
-          <a href="tel:+249912345678" className={styles.callBtn}>
-            <Phone size={16} />
-            <span>اتصال هاتفي</span>
-          </a>
+          {telUrl && (
+            <a href={telUrl} className={styles.callBtn}>
+              <Phone size={16} />
+              <span>اتصال هاتفي</span>
+            </a>
+          )}
         </div>
       </div>
     </Page>

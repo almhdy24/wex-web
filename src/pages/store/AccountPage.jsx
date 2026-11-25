@@ -349,6 +349,8 @@ export default function AccountPage() {
     savedContactPhone.trim() !== initialAddressDraft.phone.trim()
   );
 
+  const supportWhatsappUrl = buildWhatsAppLink(shopInfo?.whatsapp, 'مرحباً، أريد الاستفسار عن متجر ويكس');
+
   return (
     <Page className={styles.container}>
       {/* 1. Account Hero Card */}
@@ -858,23 +860,25 @@ export default function AccountPage() {
               </div>
 
               {/* Direct WhatsApp Support */}
-              <a
-                href={buildWhatsAppLink(shopInfo?.whatsapp, 'مرحباً، أريد الاستفسار عن متجر ويكس')}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.menuRow}
-              >
-                <div className={styles.menuRowLeft}>
-                  <MessageCircle size={18} className={styles.menuRowIcon} style={{ color: 'var(--wex-success)' }} />
-                  <div>
-                    <h4 className={styles.menuRowTitle}>{ar.account.menuSupport}</h4>
-                    <p className={styles.menuRowSub}>فريق خدمة عملاء ويكس متاح طوال ساعات العمل</p>
+              {supportWhatsappUrl && (
+                <a
+                  href={supportWhatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.menuRow}
+                >
+                  <div className={styles.menuRowLeft}>
+                    <MessageCircle size={18} className={styles.menuRowIcon} style={{ color: 'var(--wex-success)' }} />
+                    <div>
+                      <h4 className={styles.menuRowTitle}>{ar.account.menuSupport}</h4>
+                      <p className={styles.menuRowSub}>فريق خدمة عملاء ويكس متاح طوال ساعات العمل</p>
+                    </div>
                   </div>
-                </div>
-                <div className={styles.menuRowRight}>
-                  <ExternalLink size={16} />
-                </div>
-              </a>
+                  <div className={styles.menuRowRight}>
+                    <ExternalLink size={16} />
+                  </div>
+                </a>
+              )}
 
               {/* Admin Panel Link */}
               {isAdmin && (

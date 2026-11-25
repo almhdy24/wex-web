@@ -27,10 +27,13 @@ import { getProductUrl } from '../../utils/productUrl';
 import { prefetchRoute } from '../../utils/prefetch';
 import { ar } from '../../content/ar';
 import styles from './DesktopHeader.module.css';
+import { buildWhatsAppLink, buildTelLink } from '../../utils/shopSettings';
 
 const RECENT_SEARCHES_KEY = 'wex_recent_searches_desktop';
 
-export default function DesktopHeader({ onOpenCart }) {
+export default function DesktopHeader({ onOpenCart, shopInfo = null }) {
+  const whatsappUrl = buildWhatsAppLink(shopInfo?.whatsapp);
+  const telUrl = buildTelLink(shopInfo?.phone);
   const navigate = useNavigate();
   const location = useLocation();
   const { totalItems } = useCart();
@@ -207,21 +210,26 @@ export default function DesktopHeader({ onOpenCart }) {
           </div>
 
           <div className={styles.topStripEnd}>
-            <a
-              href="https://wa.me/249912345678"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.topContactLink}
-              title={ar.desktop.whatsapp}
-            >
-              <MessageCircle size={13} className={styles.stripIcon} />
-              <span>{ar.desktop.whatsapp}</span>
-            </a>
-            <span className={styles.divider}>•</span>
-            <a href="tel:+249912345678" className={styles.topContactLink} title="اتصل بنا">
-              <Phone size={13} className={styles.stripIcon} />
-              <span>{ar.desktop.phone}</span>
-            </a>
+            {/* Numbers come from admin shop settings only; never a placeholder. */}
+            {whatsappUrl && (
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.topContactLink}
+                title={ar.desktop.whatsapp}
+              >
+                <MessageCircle size={13} className={styles.stripIcon} />
+                <span>{ar.desktop.whatsapp}</span>
+              </a>
+            )}
+            {whatsappUrl && telUrl && <span className={styles.divider}>•</span>}
+            {telUrl && (
+              <a href={telUrl} className={styles.topContactLink} title="اتصل بنا">
+                <Phone size={13} className={styles.stripIcon} />
+                <span>{ar.desktop.phone}</span>
+              </a>
+            )}
           </div>
         </div>
       </div>

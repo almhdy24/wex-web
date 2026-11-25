@@ -417,15 +417,17 @@ export default function HomePage({
                 <span>الموقع على الخريطة</span>
               </a>
 
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.storeBtnOutline}
-              >
-                <MessageCircle size={18} strokeWidth={2} aria-hidden="true" />
-                <span>تواصل عبر واتساب</span>
-              </a>
+              {whatsappUrl && (
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.storeBtnOutline}
+                >
+                  <MessageCircle size={18} strokeWidth={2} aria-hidden="true" />
+                  <span>تواصل عبر واتساب</span>
+                </a>
+              )}
             </div>
           </div>
         </section>

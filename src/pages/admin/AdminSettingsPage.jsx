@@ -24,8 +24,8 @@ export default function AdminSettingsPage() {
     // Shop details
     shop_name: 'ويكس تكنولوجي',
     shop_address: 'مول الواحة، الشهداء، أم درمان، السودان',
-    shop_phone: '0912300000',
-    shop_whatsapp: '+249912300000',
+    shop_phone: '',
+    shop_whatsapp: '',
     working_hours: 'السبت - الخميس: 9:00 ص - 9:00 م',
     shop_map_link: '',
     social_facebook: '',

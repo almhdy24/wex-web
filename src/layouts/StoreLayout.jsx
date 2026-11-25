@@ -239,7 +239,7 @@ export default function StoreLayout() {
           />
         )}
 
-        <DesktopHeader onOpenCart={() => setIsCartDrawerOpen(true)} />
+        <DesktopHeader onOpenCart={() => setIsCartDrawerOpen(true)} shopInfo={shopInfo} />
         {shopInfo && shopInfo.orders_enabled === false && (
           <div style={{ maxWidth: '1200px', marginInline: 'auto', paddingInline: 'var(--space-4)', width: '100%' }}>
             <OrdersDisabledBanner message={shopInfo.orders_disabled_message} />
@@ -251,7 +251,7 @@ export default function StoreLayout() {
         <PendingOrderBanner />
 
         <main id="main-content" className={styles.desktopMain} tabIndex={-1}>
-          <Outlet />
+          <Outlet context={{ shopInfo }} />
         </main>
 
         <StoreFooter shopInfo={shopInfo} />
@@ -316,7 +316,7 @@ export default function StoreLayout() {
                 : styles.screenContentBackward
             }
           >
-            <Outlet context={{ setCustomTitle }} />
+            <Outlet context={{ setCustomTitle, shopInfo }} />
           </div>
         </main>
 

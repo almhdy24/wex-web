@@ -52,7 +52,10 @@ describe('Shop Settings Normalization & WhatsApp Utility Tests', () => {
     expect(buildWhatsAppLink('0912345678')).toBe('https://wa.me/249912345678');
     expect(buildWhatsAppLink('0123456789')).toBe('https://wa.me/249123456789');
     expect(buildWhatsAppLink('٠٩١٢٣٤٥٦٧٨')).toBe('https://wa.me/249912345678');
-    expect(buildWhatsAppLink(null)).toBe('https://wa.me/249912300000');
+    // WEB-CONTACT-01: never invent a number when the admin has not set one.
+    expect(buildWhatsAppLink(null)).toBeNull();
+    expect(buildWhatsAppLink('')).toBeNull();
+    expect(buildWhatsAppLink('اتصل بنا')).toBeNull();
   });
 
   it('encodes prefilled WhatsApp message parameters safely', () => {

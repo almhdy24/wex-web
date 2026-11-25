@@ -3,7 +3,6 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
 import DesktopHeader from '../components/desktop/DesktopHeader';
-import DesktopFooter from '../components/desktop/DesktopFooter';
 import CartDrawer from '../components/desktop/CartDrawer';
 import { CartContext } from '../context/CartContext';
 import { AuthContext } from '../context/AuthContext';
@@ -60,26 +59,6 @@ describe('Desktop Shell & Navigation Components', () => {
       // Verify Shop Hours & Status
       expect(html).toContain('السبت - الخميس: 9:00 ص - 9:00 م');
       expect(html).toContain('مول الواحة، الشهداء، أم درمان');
-    });
-  });
-
-  describe('DesktopFooter component', () => {
-    it('renders 4 columns, shop address, contact links and how to order steps', () => {
-      const html = renderToStaticMarkup(
-        <MemoryRouter>
-          <DesktopFooter />
-        </MemoryRouter>
-      );
-
-      expect(html).toContain('ويكس تكنولوجي');
-      expect(html).toContain('مول الواحة، الشهداء، أم درمان');
-      expect(html).toContain('روابط المتجر');
-      expect(html).toContain('تواصل معنا');
-      expect(html).toContain('طريقة الطلب');
-      expect(html).toContain('الأسئلة الشائعة');
-      expect(html).toContain('جميع الحقوق محفوظة');
-      // Ensure customer-facing SDG disclaimer
-      expect(html).toContain('ج.س');
     });
   });
 

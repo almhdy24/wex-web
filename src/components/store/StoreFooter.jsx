@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Phone, MessageCircle, MapPin, Mail, Clock, HelpCircle, ShieldCheck } from 'lucide-react';
 import { ar } from '../../content/ar';
-import { normalizeShopInfo, buildWhatsAppLink } from '../../utils/shopSettings';
+import { normalizeShopInfo, buildWhatsAppLink, buildTelLink } from '../../utils/shopSettings';
 import styles from './StoreFooter.module.css';
 
 export default function StoreFooter({ shopInfo = null }) {
@@ -11,7 +11,8 @@ export default function StoreFooter({ shopInfo = null }) {
 
   const shopAddress = info.address || ar.desktop.locationShort;
   const workingHours = info.workingHours || ar.desktop.shopHoursShort;
-  const shopPhone = info.phone || ar.desktop.phone;
+  const shopPhone = info.phone || '';
+  const telUrl = buildTelLink(info.phone);
   const whatsappUrl = buildWhatsAppLink(info.whatsapp);
   const footerText = info.footer_text || ar.desktop.footer.aboutShop;
   const shopMapLink = info.shop_map_link || 'https://maps.google.com/?q=Al-Waha+Mall+Omdurman';
@@ -71,6 +72,7 @@ export default function StoreFooter({ shopInfo = null }) {
           <div className={styles.column}>
             <h4 className={styles.columnHeading}>{ar.desktop.footer.contactUs}</h4>
             <ul className={styles.linksList}>
+              {whatsappUrl && (
               <li>
                 <a
                   href={whatsappUrl}
@@ -82,12 +84,15 @@ export default function StoreFooter({ shopInfo = null }) {
                   <span>{ar.desktop.whatsapp}</span>
                 </a>
               </li>
+              )}
+              {telUrl && (
               <li>
-                <a href={`tel:${shopPhone}`} className={styles.footerLink}>
+                <a href={telUrl} className={styles.footerLink}>
                   <Phone size={15} className={styles.linkIcon} />
-                  <span>{shopPhone}</span>
+                  <bdi dir="ltr">{shopPhone}</bdi>
                 </a>
               </li>
+              )}
               <li>
                 <a href="mailto:support@wextech.sd" className={styles.footerLink}>
                   <Mail size={15} className={styles.linkIcon} />
