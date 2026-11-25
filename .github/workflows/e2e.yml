@@ -60,8 +60,7 @@ jobs:
           wex.corsAllowedOrigins = 'http://127.0.0.1:4173,http://localhost:4173'
           EOF
           php spark migrate --all
-          php spark db:seed DevSeeder
-          php spark db:seed AdminSeeder
+          php spark db:seed DatabaseSeeder
 
       - name: Start wex-api Background Server
         working-directory: wex-api
