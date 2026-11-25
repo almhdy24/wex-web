@@ -1,6 +1,11 @@
 # Wex Technology Web - Project Progress Tracker
 
-## Stabilization, Local HTTPS & UX/IA Sprint (Branch: stabilize) — Active
+## Stabilization, Local HTTPS & UX/IA Sprint (Branch: stabilize) — Complete
+
+- [x] **Phase 3, 4, 5, 6: Storefront IA, Admin Nav/Crawler, Quality Gates & Delivery Readiness**
+  - Storefront: Added `--leading-body: 1.75`, `ordersDisabledStrip`, `وصل حديثاً` horizontal row, `الأكثر طلباً` grid, `الماركات` row, concise 3-step `طريقة الطلب` in `HomePage.jsx`, and receipt-first / awaiting-payment-only bank accounts in `OrderDetailPage.jsx`.
+  - Admin: Fixed `AdminProductsPage.module.css` mobile `.titleInfo` (`display: flex`), unified 19 routes in `adminRoutes.js`, verified all 19 routes (fresh + reload) at 360x800 and 1280x800 in `admin-crawler.spec.js`.
+  - Quality Gates & Report: Added `e2e/tests/07-quality-gates.spec.js` (DOM order, 30-char typing retention, colon-only label check, unlabeled button check, HTML report) and `docs/DELIVERY_READINESS.md`.
 
 - [x] **Phase 1 (P0): Admin 404s & Admin Route Crawler**
   - Root cause 1: `src/sw.js` had `/admin` in `NavigationRoute` `denylist` and `NetworkOnly`, blocking SW navigation fallback on `/admin/*` deep-link reloads. Fixed to denylist `/^\/api\//` only and guard `NetworkOnly` with `request.mode !== 'navigate'` + `pathname.startsWith('/api/')`.

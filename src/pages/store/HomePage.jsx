@@ -38,6 +38,7 @@ export default function HomePage({
 
   const [shopInfo, setShopInfo] = useState(() => (initialShopInfo ? normalizeShopInfo(initialShopInfo) : null));
   const [products, setProducts] = useState(initialProducts);
+  const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(initialLoading);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -48,13 +49,15 @@ export default function HomePage({
     async function loadData() {
       try {
         setLoading(true);
-        const [shopRes, prodsRes] = await Promise.all([
+        const [shopRes, prodsRes, brandsRes] = await Promise.all([
           shopApi.getShop().catch(() => null),
           productsApi.getProducts({ per_page: 24 }).catch(() => ({ data: [] })),
+          productsApi.getBrands().catch(() => ({ data: [] })),
         ]);
         if (isMounted) {
           setShopInfo(shopRes?.data ? normalizeShopInfo(shopRes.data) : null);
           setProducts(prodsRes?.data || []);
+          setBrands(Array.isArray(brandsRes?.data) ? brandsRes.data : []);
         }
       } catch (err) {
         if (isMounted) setError(err.message || 'تعذر تحميل بيانات المتجر');
@@ -138,7 +141,10 @@ export default function HomePage({
   const distinctProducts = Array.from(
     new Map((products || []).map((p) => [p.id, p])).values()
   );
-  const featuredProducts = distinctProducts.slice(0, 6);
+  const newArrivals = distinctProducts.slice(0, 6);
+  const featuredList = distinctProducts.filter((p) => p.is_featured);
+  const featuredProducts = (featuredList.length > 0 ? featuredList : distinctProducts).slice(0, 6);
+  const ordersDisabled = shopInfo?.orders_enabled === false || shopInfo?.orders_enabled === '0';
 
   const whatsappUrl = buildWhatsAppLink(shopInfo?.whatsapp, 'مرحباً، أود الاستفسار عن متجر ويكس تكنولوجي');
 
@@ -247,8 +253,13 @@ export default function HomePage({
         </div>
       </form>
 
-      {/* 3. "آخر تحديث للأسعار" line */}
+      {/* 3. "آخر تحديث للأسعار" / Orders-disabled strip */}
       <Reveal>
+        {ordersDisabled && (
+          <div className={styles.ordersDisabledStrip} role="status">
+            {shopInfo?.orders_disabled_message || 'استقبال الطلبات متوقف مؤقتاً في الوقت الحالي.'}
+          </div>
+        )}
         <div className={styles.priceUpdateLine}>
           <span className={styles.priceDot} aria-hidden="true" />
           <span className={styles.priceUpdateCaption}>
@@ -283,14 +294,36 @@ export default function HomePage({
         </section>
       </Reveal>
 
-      {/* 5. "أجهزة مختارة" section (title + "كل الأجهزة" link + 2-column grid of ProductCard) */}
-      {featuredProducts.length > 0 && (
-        <section className={styles.featuredSection} aria-label="أجهزة مختارة">
+      {/* 5a. "وصل حديثاً" horizontal product row */}
+      {newArrivals.length > 0 && (
+        <section className={styles.featuredSection} aria-label="وصل حديثاً">
           <Reveal>
             <div className={styles.featuredHeader}>
-              <h2 className={styles.featuredTitle}>أجهزة مختارة</h2>
+              <h2 className={styles.featuredTitle}>وصل حديثاً</h2>
+              <Link to="/products?sort=newest" className={styles.featuredLink}>
+                <span>عرض الكل</span>
+                <ArrowLeft size={18} strokeWidth={2} aria-hidden="true" />
+              </Link>
+            </div>
+          </Reveal>
+          <div className={styles.horizontalRow}>
+            {newArrivals.map((product, idx) => (
+              <div key={product.id} className={styles.horizontalCard}>
+                <ProductCard product={product} index={idx} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 5b. "الأكثر طلباً" grid */}
+      {featuredProducts.length > 0 && (
+        <section className={styles.featuredSection} aria-label="الأكثر طلباً">
+          <Reveal>
+            <div className={styles.featuredHeader}>
+              <h2 className={styles.featuredTitle}>الأكثر طلباً</h2>
               <Link to="/products" className={styles.featuredLink}>
-                <span>كل الأجهزة</span>
+                <span>عرض الكل</span>
                 <ArrowLeft size={18} strokeWidth={2} aria-hidden="true" />
               </Link>
             </div>
@@ -303,7 +336,23 @@ export default function HomePage({
         </section>
       )}
 
-      {/* 6. "طريقة الطلب" navy panel */}
+      {/* 5c. Brands row */}
+      {brands.length > 0 && (
+        <section className={styles.brandsSection} aria-label="الماركات">
+          <div className={styles.featuredHeader}>
+            <h2 className={styles.featuredTitle}>الماركات</h2>
+          </div>
+          <div className={styles.brandsRow}>
+            {brands.map((b) => (
+              <Link key={b.id} to={`/products?brand=${b.slug || b.id}`} className={styles.brandChip}>
+                {b.name}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 6. "طريقة الطلب" navy panel (3 concise steps) */}
       <Reveal>
         <section id="how-to-order" className={styles.howToOrderPanel} aria-label="طريقة الطلب">
           <BrandRibbons variant="panel" />
@@ -315,7 +364,7 @@ export default function HomePage({
                   <span className={styles.stepNumCircle}>1</span>
                   <span className={styles.stepConnector} />
                 </div>
-                <p className={styles.stepText}>اختر الجهاز</p>
+                <p className={styles.stepText}>اختر الجهاز وأكّد الطلب لتثبيت السعر</p>
               </div>
 
               <div className={styles.howToOrderStep}>
@@ -323,22 +372,14 @@ export default function HomePage({
                   <span className={styles.stepNumCircle}>2</span>
                   <span className={styles.stepConnector} />
                 </div>
-                <p className={styles.stepText}>أكّد الطلب وثبّت السعر</p>
+                <p className={styles.stepText}>حوّل المبلغ وارفع إشعار التحويل البنكي</p>
               </div>
 
               <div className={styles.howToOrderStep}>
                 <div className={styles.stepIndicatorCol}>
                   <span className={styles.stepNumCircle}>3</span>
-                  <span className={styles.stepConnector} />
                 </div>
-                <p className={styles.stepText}>حوّل المبلغ وارفع الإشعار</p>
-              </div>
-
-              <div className={styles.howToOrderStep}>
-                <div className={styles.stepIndicatorCol}>
-                  <span className={styles.stepNumCircle}>4</span>
-                </div>
-                <p className={styles.stepText}>استلم من المحل أو بالتوصيل</p>
+                <p className={styles.stepText}>استلم طلبك من المحل أو عبر التوصيل</p>
               </div>
             </div>
           </div>

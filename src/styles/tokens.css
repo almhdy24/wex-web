@@ -114,6 +114,7 @@
   --text-title: 18px;
   --text-heading: 22px;
   --text-display: 30px;
+  --leading-body: 1.75;
 
   /* Aliases for store modules using --wex-fs-* */
   --wex-fs-caption: 12px;

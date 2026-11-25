@@ -450,7 +450,7 @@ export default function OrderDetailPage({
   const isExpired = uiState.stage === 'expired';
   const isConfirmed = uiState.stage === 'confirmed';
   const isCompleted = uiState.stage === 'completed';
-  const isCancelled = order.status === 'cancelled';
+  const _isCancelled = order.status === 'cancelled';
   const paymentAccounts = order.payment_accounts || [];
 
   return (
@@ -590,17 +590,13 @@ export default function OrderDetailPage({
           </div>
         )}
 
-        {/* 2. Card "حساب التحويل" */}
+        {/* 2. Card "حساب التحويل" (Only when awaiting payment) */}
+        {(isPending || isRejected) && (
         <section
-          className={`${styles.accountsSection} ${(isExpired || isCancelled) ? styles.accountsSectionMuted : ''}`}
+          className={styles.accountsSection}
           aria-label="حسابات التحويل"
         >
           <h2 className={styles.sectionTitle}>حساب التحويل</h2>
-          {(isExpired || isCancelled) && (
-            <p className={styles.accountsNoticeMuted}>
-              تم إيقاف التحويل البنكي لهذا الطلب.
-            </p>
-          )}
           <div className={styles.accountsList}>
             {paymentAccounts.length > 0 ? (
               paymentAccounts.map((acc, idx) => (
@@ -642,6 +638,7 @@ export default function OrderDetailPage({
             )}
           </div>
         </section>
+        )}
 
         {/* 3. Card Payment Review vs Upload Proof (Receipt Card) */}
         {isPending && <PushPermissionSheet variant="customer" />}
