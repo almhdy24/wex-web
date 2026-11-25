@@ -51,8 +51,8 @@ test.describe('06: Push Notifications E2E & Mobile Screenshots (360x800)', () =>
     const orderRes = await page.request.post('/api/v1/orders', {
       headers: { Authorization: `Bearer ${custToken}` },
       data: {
-        delivery_type: 'pickup',
-        delivery_phone: '+249912345678',
+        order_type: 'pickup',
+        contact_phone: '0912345678',
         items: [{ product_id: productId, quantity: 1 }],
       },
     });
