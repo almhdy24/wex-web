@@ -132,6 +132,9 @@ async function main() {
       deviceScaleFactor: vp.deviceScaleFactor || 1,
       isMobile: vp.isMobile ?? false,
       hasTouch: vp.hasTouch ?? false,
+      // Requests made by the service worker bypass context.route() mocks and hit the
+      // unmocked network (net::ERR_FAILED, stuck skeletons). Snapshots test the page, not the SW.
+      serviceWorkers: 'block',
     });
 
     // Seed mock admin and customer authentication tokens in localStorage

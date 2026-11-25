@@ -73,10 +73,10 @@ test.describe('02: Cart, Checkout & Order Lifecycle (FEAT-005 - FEAT-013)', () =
     await page.waitForLoadState('domcontentloaded');
 
     // Verify order number rendered safely
-    const orderTitle = page.locator('h1, [class*="orderHeaderTitle"]').first();
-    await expect(orderTitle).toBeVisible();
-    const orderTitleText = await orderTitle.textContent();
-    expect(orderTitleText).toMatch(/WEX-/);
+    // The app bar h1 reads 'تفاصيل الطلب'; the order number is rendered in its own bdi.
+    const orderNumberEl = page.getByText(/WEX-\d{6}-[A-Z0-9]+/).first();
+    await expect(orderNumberEl).toBeVisible();
+    expect(await orderNumberEl.textContent()).toMatch(/WEX-\d{6}-/);
 
     // Verify Price Lock countdown timer exists
     const countdown = page.locator('[class*="countdownText"], [dir="ltr"]').first();

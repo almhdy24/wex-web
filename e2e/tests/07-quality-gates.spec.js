@@ -78,13 +78,15 @@ test.describe('07: Storefront & Admin Quality Gates', () => {
     await searchInput.type(sentence, { delay: 10 });
     await expect(searchInput).toHaveValue(sentence);
 
+    // Compare the DOM order of the home sections themselves. (innerText.indexOf was
+    // time-dependent: the rotating hero has a 'طريقة الطلب' button above every section.)
+    await expect(page.locator('section[aria-label="وصل حديثاً"]')).toBeVisible({ timeout: 10000 });
     const domOrderOk = await page.evaluate(() => {
-      const bodyText = document.body.innerText;
-      const idxNew = bodyText.indexOf('وصل حديثاً');
-      const idxPopular = bodyText.indexOf('الأكثر طلباً');
-      const idxHow = bodyText.indexOf('طريقة الطلب');
-      const idxStore = bodyText.indexOf('معلومات المتجر') !== -1 ? bodyText.indexOf('معلومات المتجر') : bodyText.indexOf('مول الواحة');
-      return idxNew !== -1 && idxPopular !== -1 && idxHow !== -1 && idxNew < idxPopular && idxPopular < idxHow && (idxStore === -1 || idxHow < idxStore);
+      const labels = ['وصل حديثاً', 'الأكثر طلباً', 'طريقة الطلب', 'معلومات المتجر'];
+      const all = Array.from(document.querySelectorAll('section[aria-label]'));
+      const idx = labels.map((l) => all.findIndex((el) => el.getAttribute('aria-label') === l));
+      const [n, p, h, st] = idx;
+      return n !== -1 && p !== -1 && h !== -1 && n < p && p < h && (st === -1 || h < st);
     });
     expect(domOrderOk, 'HomePage sections must follow IA order: وصل حديثاً -> الأكثر طلباً -> طريقة الطلب -> المتجر').toBe(true);
 

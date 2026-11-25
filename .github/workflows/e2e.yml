@@ -67,6 +67,9 @@ jobs:
           EOF
           php spark migrate --all
           php spark db:seed DatabaseSeeder
+          # Both viewport projects place real orders against ONE database; give every
+          # seeded product enough stock that later specs do not hit 'out of stock'.
+          php -r '$db = new PDO("sqlite:writable/database/wex_ci.sqlite"); $n = $db->exec("UPDATE products SET stock_quantity = 200 WHERE is_active = 1"); echo "stock reset for $n products\n";'
 
       - name: Start wex-api Background Server
         working-directory: wex-api

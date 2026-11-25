@@ -67,6 +67,9 @@ async function run() {
     const context = await browser.newContext({
       viewport: { width: vp.width, height: vp.height },
       locale: 'ar-SD',
+      // Requests made by the service worker bypass context.route() mocks and hit the
+      // unmocked network (net::ERR_FAILED, stuck skeletons). Snapshots test the page, not the SW.
+      serviceWorkers: 'block',
     });
 
     // Mock API requests
