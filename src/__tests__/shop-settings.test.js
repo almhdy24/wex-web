@@ -60,4 +60,22 @@ describe('Shop Settings Normalization & WhatsApp Utility Tests', () => {
     expect(link).toContain('https://wa.me/249912345678?text=');
     expect(link).toContain(encodeURIComponent('مرحباً، أود الاستفسار'));
   });
+
+  it('correctly normalizes string "0", number 0, and string "false" for orders_enabled and ticker_enabled', () => {
+    const stringZero = normalizeShopInfo({ orders_enabled: '0', ticker_enabled: '0' });
+    expect(stringZero.orders_enabled).toBe(false);
+    expect(stringZero.ticker_enabled).toBe(false);
+
+    const numZero = normalizeShopInfo({ orders_enabled: 0, ticker_enabled: 0 });
+    expect(numZero.orders_enabled).toBe(false);
+    expect(numZero.ticker_enabled).toBe(false);
+
+    const strFalse = normalizeShopInfo({ orders_enabled: 'false', ticker_enabled: 'false' });
+    expect(strFalse.orders_enabled).toBe(false);
+    expect(strFalse.ticker_enabled).toBe(false);
+
+    const stringOne = normalizeShopInfo({ orders_enabled: '1', ticker_enabled: '1' });
+    expect(stringOne.orders_enabled).toBe(true);
+    expect(stringOne.ticker_enabled).toBe(true);
+  });
 });

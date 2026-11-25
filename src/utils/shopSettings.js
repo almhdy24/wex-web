@@ -28,6 +28,14 @@ export function normalizeShopInfo(raw) {
   const whatsapp = info.shop_whatsapp || info.whatsapp || info.whatsapp_number || DEFAULT_SHOP_SETTINGS.shop_whatsapp;
   const workingHours = info.working_hours || info.business_hours || DEFAULT_SHOP_SETTINGS.working_hours;
 
+  const ordersEnabled = info.orders_enabled !== undefined && info.orders_enabled !== null
+    ? (info.orders_enabled !== false && info.orders_enabled !== '0' && info.orders_enabled !== 0 && String(info.orders_enabled) !== 'false')
+    : true;
+
+  const tickerEnabled = info.ticker_enabled !== undefined && info.ticker_enabled !== null
+    ? (info.ticker_enabled !== false && info.ticker_enabled !== '0' && info.ticker_enabled !== 0 && String(info.ticker_enabled) !== 'false')
+    : true;
+
   return {
     ...info,
     // Canonical properties
@@ -50,9 +58,9 @@ export function normalizeShopInfo(raw) {
     working_hours: workingHours,
     business_hours: workingHours,
 
-    orders_enabled: info.orders_enabled !== false,
+    orders_enabled: ordersEnabled,
     orders_disabled_message: info.orders_disabled_message || DEFAULT_SHOP_SETTINGS.orders_disabled_message,
-    ticker_enabled: info.ticker_enabled !== false,
+    ticker_enabled: tickerEnabled,
     lock_hours: Number(info.lock_hours || info.price_lock_hours || DEFAULT_SHOP_SETTINGS.lock_hours),
   };
 }

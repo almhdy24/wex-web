@@ -180,6 +180,17 @@ ul, ol {
   overflow: hidden;
 }
 
+/* Numeric and phone inputs in RTL forms: keep LTR digit order but align to logical start (right) */
+input[type="tel"],
+input[inputmode="tel"],
+input[type="number"],
+input[name*="phone"],
+input[id*="phone"] {
+  direction: ltr;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 .wex-ribbon::before {
   content: "";
   position: absolute;

@@ -1,0 +1,122 @@
+name: End-to-End Test Suite (CI Only)
+
+on:
+  push:
+    branches: [ stabilize, main ]
+  pull_request:
+    branches: [ stabilize, main ]
+  workflow_dispatch:
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: Full-Stack E2E Playwright Suite (Real API + Storefront + Admin)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout wex-web
+        uses: actions/checkout@v4
+        with:
+          path: wex-web
+
+      - name: Checkout wex-api
+        uses: actions/checkout@v4
+        with:
+          repository: almhdy24/wex-api
+          ref: stabilize
+          path: wex-api
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: sqlite3, pdo_sqlite, mbstring, intl, json
+          coverage: none
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: wex-web/package-lock.json
+
+      - name: Configure & Seed wex-api
+        working-directory: wex-api
+        run: |
+          composer install --no-interaction --prefer-dist --optimize-autoloader
+          mkdir -p writable/database writable/uploads/payment_proofs writable/session writable/cache writable/logs
+          chmod -R 777 writable
+          cat << 'EOF' > .env
+          CI_ENVIRONMENT = testing
+          app.baseURL = 'http://127.0.0.1:8080/'
+          database.default.DBDriver = SQLite3
+          database.default.database = wex_ci.sqlite
+          database.tests.DBDriver = SQLite3
+          database.tests.database = wex_ci.sqlite
+          wex.jwtSecret = 'ci-super-secret-key-32-chars-testing-environment-wex'
+          wex.corsAllowedOrigins = 'http://127.0.0.1:4173,http://localhost:4173'
+          EOF
+          php spark migrate --all
+          php spark db:seed DevSeeder
+          php spark db:seed AdminSeeder
+
+      - name: Start wex-api Background Server
+        working-directory: wex-api
+        run: |
+          php -S 127.0.0.1:8080 -t public/ > /tmp/php-server.log 2>&1 &
+          for i in {1..30}; do
+            if curl -s http://127.0.0.1:8080/api/v1/ping | grep -q "pong"; then
+              echo "wex-api is up and healthy!"
+              break
+            fi
+            sleep 1
+          done
+
+      - name: Install Frontend Dependencies & Static Quality Checks
+        working-directory: wex-web
+        run: |
+          npm ci
+          npm run check:all
+
+      - name: Build Production Frontend
+        working-directory: wex-web
+        env:
+          VITE_API_BASE_URL: /api/v1
+        run: npm run build
+
+      - name: Start Vite Preview Server
+        working-directory: wex-web
+        run: |
+          npx vite preview --port 4173 --host 127.0.0.1 &
+          npx wait-on http://127.0.0.1:4173 --timeout 30000
+
+      - name: Install Playwright & Browsers (CI Runner)
+        working-directory: wex-web/e2e
+        run: |
+          npm install
+          npx playwright install --with-deps chromium
+
+      - name: Run E2E Test Suite
+        working-directory: wex-web/e2e
+        run: npx playwright test
+
+      - name: Upload Test Results & Screenshots Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-report
+          path: |
+            wex-web/e2e/playwright-report
+            wex-web/e2e/test-results
+          retention-days: 14
+
+      - name: Dump PHP logs on failure
+        if: failure()
+        run: |
+          echo "=== PHP Server Log ==="
+          cat /tmp/php-server.log || true
+          echo "=== CodeIgniter Log ==="
+          cat wex-api/writable/logs/*.log || true

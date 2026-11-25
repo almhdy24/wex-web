@@ -56,20 +56,18 @@ export default function AuthSheet({ isOpen, onClose, onSuccess }) {
     setErrorMessage('');
     try {
       if (window.google?.accounts?.id && googleClientId) {
-        window.google.accounts.id.prompt(async (notification) => {
+        window.google.accounts.id.prompt((notification) => {
           if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-            setMode('email');
             setLoading(false);
           }
         });
       } else {
-        // Fallback to email OTP if Google is not configured/loaded
-        setMode('email');
         setLoading(false);
+        setErrorMessage('خدمة تسجيل الدخول عبر Google غير مهيأة حالياً. يرجى المتابعة بالبريد الإلكتروني.');
       }
     } catch {
-      setMode('email');
       setLoading(false);
+      setErrorMessage('تعذر الاتصال بخدمة Google. يرجى المحاولة لاحقاً أو استخدام البريد الإلكتروني.');
     }
   };
 

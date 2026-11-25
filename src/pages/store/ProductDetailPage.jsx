@@ -331,8 +331,10 @@ export default function ProductDetailPage({
       ? shippingZones.map((z) => z.zone_name || z.name).join('، ')
       : 'أم درمان، الخرطوم، بحري والولايات';
 
+  const isOrdersDisabled = shopInfo?.orders_enabled === false;
+
   const handleAddToCart = () => {
-    if (isOutOfStock) return;
+    if (isOutOfStock || isOrdersDisabled) return;
     addItem(product, quantity);
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 700);
@@ -340,7 +342,7 @@ export default function ProductDetailPage({
   };
 
   const handleOrderNow = () => {
-    if (isOutOfStock) return;
+    if (isOutOfStock || isOrdersDisabled) return;
     addItem(product, quantity);
     navigate('/checkout');
   };
@@ -654,7 +656,7 @@ export default function ProductDetailPage({
             <button
               type="button"
               className={`${styles.cartIconButton} ${isAdded ? styles.cartIconButtonAdded : ''}`}
-              disabled={isOutOfStock}
+              disabled={isOutOfStock || isOrdersDisabled}
               onClick={handleAddToCart}
               aria-label="أضف إلى السلة"
               title="أضف إلى السلة"
@@ -669,11 +671,15 @@ export default function ProductDetailPage({
 
             <button
               type="button"
-              className={isOutOfStock ? styles.orderBtnUnavailable : styles.orderBtnPrimary}
-              disabled={isOutOfStock}
+              className={isOutOfStock || isOrdersDisabled ? styles.orderBtnUnavailable : styles.orderBtnPrimary}
+              disabled={isOutOfStock || isOrdersDisabled}
               onClick={handleOrderNow}
             >
-              {isOutOfStock ? 'غير متوفر حاليًا' : 'اطلب الآن'}
+              {isOutOfStock
+                ? 'غير متوفر حاليًا'
+                : isOrdersDisabled
+                ? 'استقبال الطلبات متوقف مؤقتاً'
+                : 'اطلب الآن'}
             </button>
           </div>
         </StickyBar>

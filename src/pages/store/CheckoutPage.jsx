@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Store, Truck, Loader2 } from 'lucide-react';
+import { Store, Truck, Loader2, Check } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -8,6 +8,7 @@ import { productsApi } from '../../api/products';
 import { shopApi } from '../../api/shop';
 import { api } from '../../api/client';
 import { formatSdg, isValidSudanPhone, normalizeSudanPhone, toAsciiDigits } from '../../utils/formatters';
+import { normalizeShopInfo } from '../../utils/shopSettings';
 import AppBar from '../../components/common/AppBar';
 import Button from '../../components/common/Button';
 import Page from '../../components/common/Page';
@@ -78,7 +79,7 @@ export default function CheckoutPage({
     return user?.phone || '';
   });
   const [customerNotes, setCustomerNotes] = useState('');
-  const [shopInfo, setShopInfo] = useState(() => initialShopInfo || cachedShop?.data || null);
+  const [shopInfo, setShopInfo] = useState(() => (initialShopInfo ? normalizeShopInfo(initialShopInfo) : cachedShop?.data ? normalizeShopInfo(cachedShop.data) : null));
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [isAuthSheetOpen, setIsAuthSheetOpen] = useState(false);
@@ -115,7 +116,8 @@ export default function CheckoutPage({
     ]).then(([zonesRes, shopRes]) => {
       if (!isMounted) return;
       const zList = zonesRes?.data || [];
-      const sInfo = shopRes?.data || null;
+      const rawShop = shopRes?.data || null;
+      const sInfo = rawShop ? normalizeShopInfo(rawShop) : null;
       setShippingZones(zList);
       swrCache.set('shipping_zones', zList);
       if (sInfo) swrCache.set('shop_info', sInfo);
@@ -170,6 +172,11 @@ export default function CheckoutPage({
 
   // Validate fields
   const validateForm = () => {
+    if (shopInfo?.orders_enabled === false) {
+      toastError(shopInfo?.orders_disabled_message || 'استقبال الطلبات متوقف مؤقتاً في الوقت الحالي');
+      return false;
+    }
+
     const errs = {};
     const cleanPhone = normalizeSudanPhone(contactPhone);
 
@@ -194,6 +201,10 @@ export default function CheckoutPage({
 
   // Execute order submission
   const executeOrderCreation = async () => {
+    if (shopInfo?.orders_enabled === false) {
+      toastError(shopInfo?.orders_disabled_message || 'استقبال الطلبات متوقف مؤقتاً في الوقت الحالي');
+      return;
+    }
     setSubmitting(true);
     const cleanPhone = normalizeSudanPhone(contactPhone);
 
@@ -267,6 +278,13 @@ export default function CheckoutPage({
       />
 
       <Page className={styles.container}>
+      {/* Banner if orders are disabled */}
+      {shopInfo?.orders_enabled === false && (
+        <div className={styles.disabledOrdersNotice} role="alert">
+          <p>{shopInfo?.orders_disabled_message || 'استقبال الطلبات متوقف مؤقتاً في الوقت الحالي، نعتذر عن الإزعاج.'}</p>
+        </div>
+      )}
+
       {/* Section 1: طريقة الاستلام */}
       <section className={styles.sectionCard} aria-labelledby="delivery-type-heading">
         <h2 id="delivery-type-heading" className={styles.sectionHeading}>
@@ -284,6 +302,11 @@ export default function CheckoutPage({
             <div className={styles.optionHeader}>
               <Store size={20} strokeWidth={1.75} aria-hidden="true" />
               <span className={styles.optionTitle}>الاستلام من المحل</span>
+              {orderType === 'pickup' && (
+                <span className={styles.optionCheck}>
+                  <Check size={14} strokeWidth={2.5} aria-hidden="true" />
+                </span>
+              )}
             </div>
             <span className={styles.optionSub}>مجانًا</span>
           </button>
@@ -298,8 +321,17 @@ export default function CheckoutPage({
             <div className={styles.optionHeader}>
               <Truck size={20} strokeWidth={1.75} aria-hidden="true" />
               <span className={styles.optionTitle}>التوصيل</span>
+              {orderType === 'delivery' && (
+                <span className={styles.optionCheck}>
+                  <Check size={14} strokeWidth={2.5} aria-hidden="true" />
+                </span>
+              )}
             </div>
-            <span className={styles.optionSub}>حسب المنطقة</span>
+            <span className={styles.optionSub}>
+              {orderType === 'delivery' && selectedZone
+                ? (shippingFee === 0 ? 'مجانًا' : formatSdg(shippingFee))
+                : 'حسب المنطقة'}
+            </span>
           </button>
         </div>
 
@@ -330,12 +362,16 @@ export default function CheckoutPage({
                 onChange={(e) => setSelectedZoneId(e.target.value)}
                 className={styles.select}
               >
+                {shippingZones.length === 0 && (
+                  <option value="" disabled>لا تتوفر مناطق توصيل حالياً</option>
+                )}
                 {shippingZones.map((z) => {
                   const fee = Number(z.delivery_fee_sdg || z.fee_sdg || 0);
                   const feeText = fee === 0 ? 'مجانًا' : formatSdg(fee);
+                  const zoneLabel = z.zone_name || z.name || z.state_name_ar || 'منطقة التوصيل';
                   return (
                     <option key={z.id} value={z.id}>
-                      {z.zone_name || z.name} - {feeText}
+                      {zoneLabel} - {feeText}
                     </option>
                   );
                 })}
@@ -468,11 +504,13 @@ export default function CheckoutPage({
           <Button
             variant="primary"
             onClick={handleConfirmOrder}
-            disabled={submitting || items.length === 0}
+            disabled={submitting || items.length === 0 || shopInfo?.orders_enabled === false}
             className={styles.confirmBtn}
           >
             {submitting ? (
               <Loader2 size={18} className={styles.spinner} />
+            ) : shopInfo?.orders_enabled === false ? (
+              <span>استقبال الطلبات متوقف مؤقتاً</span>
             ) : (
               <span>تأكيد الطلب</span>
             )}

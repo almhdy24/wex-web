@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Minus, Trash2, ArrowLeft } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
@@ -6,6 +6,9 @@ import { useToast } from '../../context/ToastContext';
 import { formatSdg, getProductImageUrl } from '../../utils/formatters';
 import { getProductUrl } from '../../utils/productUrl';
 import { pluralAr } from '../../utils/pluralAr';
+import { normalizeShopInfo } from '../../utils/shopSettings';
+import { productsApi } from '../../api/products';
+import { swrCache } from '../../api/cache';
 import { useCountUp } from '../../motion';
 import { ProductTypeSvg } from '../../components/common';
 import AppBar from '../../components/common/AppBar';
@@ -47,8 +50,24 @@ export default function CartPage() {
   const total = Math.max(0, estimatedSubtotalSdg - discount);
   const [animatedTotal, countUpRef] = useCountUp(total, 600);
 
+  const [shopInfo, setShopInfo] = useState(() => {
+    const cached = swrCache.get('shop_info');
+    return cached?.data ? normalizeShopInfo(cached.data) : null;
+  });
+
   useEffect(() => {
     refreshCartPrices();
+    let isMounted = true;
+    productsApi.getShopInfo()
+      .then((res) => {
+        if (isMounted && res?.data) {
+          const info = normalizeShopInfo(res.data);
+          setShopInfo(info);
+          swrCache.set('shop_info', info);
+        }
+      })
+      .catch(() => {});
+    return () => { isMounted = false; };
   }, [refreshCartPrices]);
 
   if (items.length === 0) {
@@ -256,15 +275,31 @@ export default function CartPage() {
           السعر قابل للتغيير حتى تأكيد الطلب.
         </NoticeLine>
 
+        {shopInfo?.orders_enabled === false && (
+          <NoticeLine variant="warning" className={styles.priceNoticeRow}>
+            {shopInfo?.orders_disabled_message || 'استقبال الطلبات متوقف مؤقتاً في الوقت الحالي.'}
+          </NoticeLine>
+        )}
+
         {/* Fixed Bottom Bar */}
         <StickyBar>
           <button
             type="button"
-            onClick={() => navigate('/checkout')}
+            disabled={shopInfo?.orders_enabled === false}
+            onClick={() => {
+              if (shopInfo?.orders_enabled === false) return;
+              navigate('/checkout');
+            }}
             className={styles.checkoutBtn}
           >
-            <span>متابعة</span>
-            <span className={styles.stickyTotal}>(<Price value={total} tone="inherit" size="sm" />)</span>
+            {shopInfo?.orders_enabled === false ? (
+              <span>استقبال الطلبات متوقف مؤقتاً</span>
+            ) : (
+              <>
+                <span>متابعة</span>
+                <span className={styles.stickyTotal}>(<Price value={total} tone="inherit" size="sm" />)</span>
+              </>
+            )}
           </button>
         </StickyBar>
       </Page>
