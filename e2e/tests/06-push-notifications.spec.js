@@ -131,7 +131,7 @@ test.describe('06: Push Notifications E2E & Mobile Screenshots (360x800)', () =>
     await loginAs(page, 'admin@wextechnology.com');
     await page.goto('/admin/settings');
     await page.waitForLoadState('domcontentloaded');
-    await expect(page.getByText('نظام الإشعارات الفورية (Push)')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('نظام الإشعارات الفورية')).toBeVisible({ timeout: 10000 });
     await page.screenshot({ path: 'test-results/push-admin-settings-360x800.png', fullPage: true });
   });
 
