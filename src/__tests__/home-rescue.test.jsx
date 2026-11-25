@@ -124,10 +124,10 @@ describe('HomePage Rescue Verification (Phase 2)', () => {
   it('renders steps block with number badges and shop block with hours', () => {
     const html = renderHome();
     expect(html).toContain('طريقة الطلب');
-    expect(html).toContain('اختر الجهاز');
-    expect(html).toContain('أكّد الطلب وثبّت السعر');
-    expect(html).toContain('حوّل المبلغ وارفع الإشعار');
-    expect(html).toContain('استلم من المحل أو بالتوصيل');
+    // 3-step flow introduced by the Phase 3-6 storefront IA (2bd3018)
+    expect(html).toContain('اختر الجهاز وأكّد الطلب لتثبيت السعر');
+    expect(html).toContain('حوّل المبلغ وارفع إشعار التحويل البنكي');
+    expect(html).toContain('استلم طلبك من المحل أو عبر التوصيل');
 
     // Shop Block
     expect(html).toContain('ويكس تكنولوجي');
@@ -138,12 +138,13 @@ describe('HomePage Rescue Verification (Phase 2)', () => {
     expect(html).toContain('تواصل عبر واتساب');
   });
 
-  it('renders single focused "أجهزة مختارة" section and eliminates duplicate sections (Option A)', () => {
+  it('renders the "وصل حديثاً" / "الأكثر طلباً" rows and no duplicate audience sections', () => {
     const html = renderHome();
-    expect(html).toContain('أجهزة مختارة');
-    expect(html).toContain('كل الأجهزة');
-    // Ensure duplicate sections are completely removed
-    expect(html).not.toContain('وصل حديثًا');
+    // Phase 3-6 IA (2bd3018) replaced the single "أجهزة مختارة" section with these rows.
+    expect(html).toContain('وصل حديثاً');
+    expect(html).toContain('الأكثر طلباً');
+    expect(html).not.toContain('أجهزة مختارة');
+    // Ensure duplicate audience sections stay removed
     expect(html).not.toContain('للدراسة');
     expect(html).not.toContain('للعمل');
   });
