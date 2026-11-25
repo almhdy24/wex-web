@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { ordersApi } from '../../api/orders';
@@ -37,8 +37,11 @@ export default function OrdersPage({
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const fetchOrders = async (signal) => {
-    if (!cachedOrders?.data) {
+  // Stable fetcher: reads the cache at call time. Depending on `cachedOrders` (a new entry
+  // after every swrCache.set) would re-run the effect after each fetch, forever.
+  const fetchOrders = useCallback(async (signal) => {
+    const hasCached = Boolean(swrCache.get('my_orders')?.data);
+    if (!hasCached) {
       setLoading(true);
     }
     setError(null);
@@ -49,20 +52,20 @@ export default function OrdersPage({
       swrCache.set('my_orders', fresh);
     } catch (err) {
       if (err?.name === 'AbortError') return;
-      if (!cachedOrders?.data) {
+      if (!hasCached) {
         setError(err.message || 'تعذر تحميل قائمة الطلبات');
       }
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (initialOrders !== null) return;
     const controller = new AbortController();
     fetchOrders(controller.signal);
     return () => controller.abort();
-  }, [initialOrders]);
+  }, [initialOrders, fetchOrders]);
 
   const filteredOrders = useMemo(() => {
     if (!orders || orders.length === 0) return [];
@@ -101,7 +104,7 @@ export default function OrdersPage({
 
       <Page className={styles.container}>
         {error ? (
-          <ErrorState message={error} onRetry={fetchOrders} />
+          <ErrorState message={error} onRetry={() => fetchOrders()} />
         ) : loading ? (
           <div className={styles.ordersList}>
             {Array.from({ length: 3 }).map((_, i) => (

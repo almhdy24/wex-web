@@ -106,7 +106,9 @@ export default function RecentPurchasesToast({
       return;
     }
 
-    if (sessionCount >= MAX_PER_SESSION) {
+    // Read the persisted count (not the state value): this effect itself updates the
+    // count, so depending on the state would re-trigger it and show a toast every 2s.
+    if (getSessionCount() >= MAX_PER_SESSION) {
       setIsVisible(false);
       return;
     }

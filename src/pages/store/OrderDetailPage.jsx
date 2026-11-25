@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   Copy,
@@ -229,25 +229,32 @@ export default function OrderDetailPage({
   const totalAmount = order?.total_sdg ?? order?.total_amount_sdg ?? 0;
 
   // Load Order Data
-  const loadOrder = async (showLoading = true) => {
+  // Latest-request guard: when orderNumber changes (or a poll overlaps a reload) an older,
+  // slower response must not overwrite the newer order on screen.
+  const loadSeqRef = useRef(0);
+  const loadOrder = useCallback(async (showLoading = true) => {
+    const seq = ++loadSeqRef.current;
+    const isLatest = () => seq === loadSeqRef.current;
     if (showLoading) setLoading(true);
     setError(null);
     try {
       const res = await ordersApi.getOrderDetail(orderNumber);
+      if (!isLatest()) return;
       const data = res.data;
       setOrder(data);
     } catch (err) {
+      if (!isLatest()) return;
       setError(err.message || 'تعذر تحميل بيانات الطلب');
     } finally {
-      if (showLoading) setLoading(false);
+      if (showLoading && isLatest()) setLoading(false);
     }
-  };
+  }, [orderNumber]);
 
   useEffect(() => {
     if (initialOrder === null) {
       loadOrder(true);
     }
-  }, [orderNumber, initialOrder]);
+  }, [orderNumber, initialOrder, loadOrder]);
 
   // Poll every 30s while in payment_review (paused on hidden tab)
   useEffect(() => {
@@ -261,7 +268,7 @@ export default function OrderDetailPage({
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [order?.payment?.state, order?.status, orderNumber]);
+  }, [order?.payment?.state, order?.status, orderNumber, loadOrder]);
 
   // Auto-scroll to upload card if navigated right after creation
   useEffect(() => {

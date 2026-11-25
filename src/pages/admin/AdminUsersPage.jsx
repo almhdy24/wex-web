@@ -112,16 +112,20 @@ export default function AdminUsersPage() {
   }, [fetchUsers]);
 
   // U6: Update URL params with replace: true
-  const updateParam = (key, val) => {
-    const next = new URLSearchParams(searchParams);
-    if (val !== undefined && val !== null && val !== '') {
-      next.set(key, val);
-    } else {
-      next.delete(key);
-    }
-    if (key !== 'page') next.delete('page');
-    setSearchParams(next, { replace: true });
-  };
+  // Functional update so callers memoised in an earlier render (filter chips) never
+  // write back a stale copy of the query string (which dropped the current search).
+  const updateParam = useCallback((key, val) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (val !== undefined && val !== null && val !== '') {
+        next.set(key, val);
+      } else {
+        next.delete(key);
+      }
+      if (key !== 'page') next.delete('page');
+      return next;
+    }, { replace: true });
+  }, [setSearchParams]);
 
   // U4: Block self role change and last admin change
   const handleOpenRoleModal = (u) => {
@@ -224,7 +228,7 @@ export default function AdminUsersPage() {
       });
     }
     return chips;
-  }, [roleFilter, activeFilter]);
+  }, [roleFilter, activeFilter, updateParam]);
 
   const columns = [
     {
@@ -391,12 +395,17 @@ export default function AdminUsersPage() {
           loading={loading}
           emptyMessage="لم يتم العثور على مستخدمين يطابقون معايير البحث"
           emptyAction={
-            activeFiltersCount > 0
-              ? {
-                  label: 'مسح الفلاتر',
-                  onClick: () => setSearchParams(new URLSearchParams(), { replace: true }),
-                }
-              : undefined
+            // EmptyState renders `action` as a React node; a {label,onClick} object here
+            // crashed the page whenever a filter matched no users.
+            activeFiltersCount > 0 ? (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setSearchParams(new URLSearchParams(), { replace: true })}
+              >
+                مسح الفلاتر
+              </Button>
+            ) : undefined
           }
           pagination={
             meta.total_pages > 1

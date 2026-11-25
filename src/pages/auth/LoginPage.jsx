@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Mail,
@@ -28,6 +28,7 @@ export default function LoginPage() {
   const { loginWithSession } = useAuth();
   const { success, error: toastError } = useToast();
   const navigate = useNavigate();
+  const googleResponseRef = useRef(null);
   const location = useLocation();
 
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -65,7 +66,9 @@ export default function LoginPage() {
       try {
         window.google.accounts.id.initialize({
           client_id: googleClientId,
-          callback: handleGoogleResponse,
+          // Google keeps the callback from initialize(); route it through a ref so it
+          // always runs the latest handler (current returnTo/navigate), not the first render's.
+          callback: (response) => googleResponseRef.current?.(response),
           auto_select: false,
           cancel_on_tap_outside: true,
         });
@@ -165,6 +168,10 @@ export default function LoginPage() {
       setGoogleLoading(false);
     }
   };
+
+  useEffect(() => {
+    googleResponseRef.current = handleGoogleResponse;
+  });
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();

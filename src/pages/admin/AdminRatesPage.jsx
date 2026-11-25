@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Coins, Check, RefreshCw, AlertTriangle, TrendingUp } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { adminAr } from '../../content/admin.ar';
@@ -28,7 +28,7 @@ export default function AdminRatesPage() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchRates = async () => {
+  const fetchRates = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -65,11 +65,11 @@ export default function AdminRatesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page]);
 
   useEffect(() => {
     fetchRates();
-  }, [page]);
+  }, [fetchRates]);
 
   const currentRate = currentRateObj ? Number(currentRateObj.rate_sdg || currentRateObj.rate) : 0;
   const newRateNum = Number(newRateInput) || 0;

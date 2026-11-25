@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   Phone,
@@ -38,12 +38,15 @@ function ProofThumbnailItem({ proof, orderNumber, onOpen }) {
 
   useEffect(() => {
     let active = true;
+    // Track the URL created by THIS effect run; the state value seen by the cleanup
+    // closure is the initial null, so receipt blobs were never revoked (memory leak).
+    let createdUrl = null;
     adminApi
       .getPaymentProofImage(orderNumber, proof.id)
       .then((blob) => {
         if (!active) return;
-        const url = URL.createObjectURL(blob);
-        setBlobUrl(url);
+        createdUrl = URL.createObjectURL(blob);
+        setBlobUrl(createdUrl);
       })
       .catch(() => {
         if (!active) return;
@@ -55,7 +58,7 @@ function ProofThumbnailItem({ proof, orderNumber, onOpen }) {
 
     return () => {
       active = false;
-      if (blobUrl) URL.revokeObjectURL(blobUrl);
+      if (createdUrl) URL.revokeObjectURL(createdUrl);
     };
   }, [orderNumber, proof.id]);
 
@@ -147,24 +150,31 @@ export default function AdminOrderDetailPage({ initialOrder = null, initialLoadi
       .catch(() => {});
   }, []);
 
-  const loadOrder = async (showLoading = true) => {
+  // Latest-request guard: when orderNumber changes (or a poll overlaps a reload) an older,
+  // slower response must not overwrite the newer order on screen.
+  const loadSeqRef = useRef(0);
+  const loadOrder = useCallback(async (showLoading = true) => {
+    const seq = ++loadSeqRef.current;
+    const isLatest = () => seq === loadSeqRef.current;
     if (showLoading) setLoading(true);
     setError(null);
     try {
       const res = await adminApi.getOrderDetail(orderNumber);
+      if (!isLatest()) return;
       setOrder(res.data);
     } catch (err) {
+      if (!isLatest()) return;
       setError(err.message || 'الاتصال ضعيف. حاول مجدداً.');
     } finally {
-      if (showLoading) setLoading(false);
+      if (showLoading && isLatest()) setLoading(false);
     }
-  };
+  }, [orderNumber]);
 
   useEffect(() => {
     if (initialOrder === null) {
       loadOrder(true);
     }
-  }, [orderNumber, initialOrder]);
+  }, [orderNumber, initialOrder, loadOrder]);
 
   // Clean up blob URL on unmount
   useEffect(() => {
