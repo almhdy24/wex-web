@@ -161,6 +161,10 @@ async function main() {
       const url = `${BASE_URL}${route.path}`;
       const consoleErrors = [];
 
+      // Name the failing URL: 'Failed to load resource' alone is not diagnosable.
+
+      page.on('requestfailed', (req) => console.log(`   ↳ request failed: ${req.method()} ${req.url()} (${req.failure()?.errorText})`));
+
       page.on('console', (msg) => {
         if (msg.type() === 'error') {
           consoleErrors.push(msg.text());
