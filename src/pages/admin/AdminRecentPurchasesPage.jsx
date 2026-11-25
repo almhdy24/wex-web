@@ -50,8 +50,9 @@ export default function AdminRecentPurchasesPage() {
     const nextState = !tickerEnabled;
     setSavingSettings(true);
     try {
-      await api.patch('/admin/recent-purchases/settings', { enabled: nextState });
-      setTickerEnabled(nextState);
+      const res = await api.patch('/admin/recent-purchases/settings', { ticker_enabled: nextState });
+      // Trust the server's stored value, not the optimistic one.
+      setTickerEnabled(typeof res?.data?.ticker_enabled === 'boolean' ? res.data.ticker_enabled : nextState);
       success(nextState ? 'تم تفعيل شريط المشتريات الأخيرة في المتجر' : 'تم تعطيل شريط المشتريات الأخيرة');
     } catch (err) {
       toastError(err.message || 'فشل حفظ الإعداد');
