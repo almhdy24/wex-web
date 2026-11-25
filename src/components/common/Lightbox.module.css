@@ -21,7 +21,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  z-index: 10;
+  z-index: 2; /* local: inside the lightbox's own fixed stacking context */
 }
 
 .counter {
@@ -99,7 +99,7 @@
   color: #FFFFFF;
   border-radius: var(--radius-full, 9999px);
   cursor: pointer;
-  z-index: 10;
+  z-index: 2; /* local: inside the lightbox's own fixed stacking context */
   transition: all 0.15s ease;
 }
 
@@ -125,7 +125,7 @@
   align-items: center;
   justify-content: center;
   padding: 16px;
-  z-index: 10;
+  z-index: 2; /* local: inside the lightbox's own fixed stacking context */
   gap: 12px;
 }
 

@@ -182,9 +182,10 @@ describe('Phase 3: Catalog, Filter Sheet & Product Detail Rescue', () => {
       expect(html).toContain('المعالج');
       expect(html).toContain('Intel Core i5-8350U');
       expect(html).toContain('الذاكرة العشوائية');
-      expect(html).toContain('8GB');
+      // formatSpecValue keeps number+unit together with a no-break space
+      expect(html).toContain('8\u00A0GB');
       expect(html).toContain('التخزين');
-      expect(html).toContain('256GB SSD');
+      expect(html).toContain('256\u00A0GB SSD');
       expect(html).toContain('كرت الشاشة');
       expect(html).toContain('الشاشة');
       expect(html).toContain('البطارية');
