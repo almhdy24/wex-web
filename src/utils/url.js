@@ -24,8 +24,24 @@ export function safeReturnTo(value, fallback = '/') {
     return fallback;
   }
 
-  // Must not contain control characters or newlines
-  if (/[\r\n\t]/.test(trimmed)) {
+  // Must not contain control characters, or backslashes: browsers normalise '\' to '/',
+  // so '/\evil.example' becomes the protocol-relative '//evil.example'.
+  const hasControlChar = Array.from(trimmed).some((ch) => {
+    const code = ch.charCodeAt(0);
+    return code < 32 || code === 127;
+  });
+  if (hasControlChar || trimmed.includes('\\')) {
+    return fallback;
+  }
+
+  // Encoded variants of the above ('/%5Cevil', '/%2F%2Fevil') decode to the same thing.
+  let decoded = trimmed;
+  try {
+    decoded = decodeURIComponent(trimmed);
+  } catch {
+    return fallback;
+  }
+  if (decoded.startsWith('//') || decoded.includes('\\') || decoded.includes('://')) {
     return fallback;
   }
 

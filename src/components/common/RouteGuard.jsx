@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Skeleton } from './Skeleton';
 import Button from './Button';
 import styles from './RouteGuard.module.css';
+import { safeReturnTo } from '../../utils/url';
 
 export function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -91,7 +92,8 @@ export function GuestRoute({ children }) {
       typeof location.state?.from === 'string'
         ? location.state.from
         : location.state?.from?.pathname;
-    const target = rawFrom || searchReturnTo || null;
+    // Both sources are attacker-controllable (?returnTo=...): validate before redirecting.
+    const target = safeReturnTo(rawFrom || searchReturnTo || null, null);
 
     if (user?.role === 'admin' || user?.role === 'staff') {
       const adminTarget = target && target.startsWith('/admin') ? target : '/admin';
