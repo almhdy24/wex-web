@@ -218,3 +218,5 @@ export const adminApi = {
     return api.get(`/admin/audit-logs${qs ? `?${qs}` : ''}`);
   },
 };
+
+export default adminApi;
