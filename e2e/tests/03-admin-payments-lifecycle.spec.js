@@ -22,11 +22,11 @@ test.describe('03: Admin Panel & Order Lifecycle (FEAT-014 - FEAT-017)', () => {
     await page.waitForLoadState('domcontentloaded');
 
     // Verify orders table or list exists
-    const firstOrderItem = page.locator('text=/WEX-/').first();
-    await expect(firstOrderItem).toBeVisible({ timeout: 10000 });
+    const firstOrderRow = page.locator('tbody tr, [class*="cardItem"]').filter({ hasText: /WEX-/ }).first();
+    await expect(firstOrderRow).toBeVisible({ timeout: 10000 });
 
     // Open first order
-    await firstOrderItem.click();
+    await firstOrderRow.click();
     await page.waitForURL(/\/admin\/orders\/.+/);
     await page.waitForLoadState('domcontentloaded');
 

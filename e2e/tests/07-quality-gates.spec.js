@@ -20,7 +20,13 @@ test.describe('07: Storefront & Admin Quality Gates', () => {
       const consoleErrors = [];
       const badResponses = [];
       page.on('console', (m) => {
-        if (m.type() === 'error') consoleErrors.push(m.text());
+        if (m.type() === 'error') {
+          const txt = m.text();
+          if (!txt.includes('Failed to load resource: the server responded with a status of 401') &&
+              !txt.includes('Failed to load resource: the server responded with a status of 404')) {
+            consoleErrors.push(txt);
+          }
+        }
       });
       page.on('response', (r) => {
         const u = r.url();

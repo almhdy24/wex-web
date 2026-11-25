@@ -13,7 +13,7 @@
 
 | Feature / Surface | Status | Evidence |
 |---|---|---|
-| All 19 Admin Routes (fresh + reload, 360x800 & 1280x800) | **VERIFIED** | CI E2E `admin-crawler.spec.js` (run `45551283848` & latest) |
+| All 19 Admin Routes (320/360/412/768px, 76 checks) | **VERIFIED** | CI E2E `admin-audit.spec.js` & `admin-crawler.spec.js` (run `45553220410`: 76/76 PASS) |
 | Storefront IA Order (`وصل حديثاً` -> `الأكثر طلباً` -> `الماركات` -> `طريقة الطلب`) | **VERIFIED** | CI E2E `07-quality-gates.spec.js` |
 | Order Detail Payment Accounts & Receipt-First Order | **VERIFIED** | CI E2E `02-cart-checkout-order.spec.js` & `06-push-notifications.spec.js` |
 | Push Backend (`PushService`, `FakeProvider`, retries, kill switch) | **VERIFIED** | PHPUnit `PushNotificationTest` (5 tests, 27 assertions) + CI E2E `06-push-notifications.spec.js` |
