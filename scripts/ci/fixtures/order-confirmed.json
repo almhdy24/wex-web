@@ -26,8 +26,13 @@
         "product_name": "ThinkPad T480s i7 16GB 512GB",
         "quantity": 1,
         "price_sdg": 680000,
-        "total_sdg": 680000
+        "total_sdg": 680000,
+        "unit_price_sdg": 680000,
+        "line_total_sdg": 680000
       }
-    ]
+    ],
+    "subtotal_sdg": 680000,
+    "discount_sdg": 0,
+    "delivery_fee_sdg": 0
   }
 }

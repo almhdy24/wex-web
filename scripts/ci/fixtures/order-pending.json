@@ -32,8 +32,13 @@
         "product_name": "Dell Latitude 7490 i5 16GB",
         "quantity": 1,
         "price_sdg": 520000,
-        "total_sdg": 520000
+        "total_sdg": 520000,
+        "unit_price_sdg": 520000,
+        "line_total_sdg": 520000
       }
-    ]
+    ],
+    "subtotal_sdg": 520000,
+    "discount_sdg": 0,
+    "delivery_fee_sdg": 0
   }
 }

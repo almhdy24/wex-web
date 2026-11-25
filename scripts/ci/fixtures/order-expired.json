@@ -22,8 +22,13 @@
         "product_name": "HP EliteBook 840 G5",
         "quantity": 1,
         "price_sdg": 490000,
-        "total_sdg": 490000
+        "total_sdg": 490000,
+        "unit_price_sdg": 490000,
+        "line_total_sdg": 490000
       }
-    ]
+    ],
+    "subtotal_sdg": 490000,
+    "discount_sdg": 0,
+    "delivery_fee_sdg": 0
   }
 }
