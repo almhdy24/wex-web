@@ -81,6 +81,39 @@ describe('BUG 2: Product Route, Canonical Links & State Handling', () => {
     vi.clearAllMocks();
   });
 
+  it('renders product details successfully without hook order violation or 404', async () => {
+    const mockProduct = {
+      id: 3,
+      slug: 'hp-elitebook-840-g5',
+      name: 'HP EliteBook 840 G5',
+      type: 'laptop',
+      price_sdg: 520000,
+      stock_status: 'in_stock',
+      specs: {
+        cpu: 'Intel Core i5-8250U',
+        ram: '8 GB',
+      },
+      images: [
+        { id: 5, path: '/uploads/products/hp-elitebook-840-g5.jpg', thumb_path: '/uploads/products/hp-elitebook-840-g5_thumb.jpg', is_primary: true },
+      ],
+    };
+    productsApi.getProductDetail.mockResolvedValue({ success: true, data: mockProduct });
+
+    renderWithProviders(
+      <MemoryRouter initialEntries={['/products/hp-elitebook-840-g5']}>
+        <Routes>
+          <Route path="/products/:slug" element={<ProductDetailPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getAllByText('HP EliteBook 840 G5').length).toBeGreaterThanOrEqual(1);
+      expect(screen.queryByText('المنتج غير متوفر')).toBeNull();
+      expect(screen.queryByText('الصفحة غير موجودة')).toBeNull();
+    });
+  });
+
   it('renders dedicated "المنتج غير متوفر" state when API returns 404 (not generic crash)', async () => {
     const error404 = new Error('المنتج غير متوفر');
     error404.status = 404;

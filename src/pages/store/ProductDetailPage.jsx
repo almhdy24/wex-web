@@ -98,6 +98,30 @@ export default function ProductDetailPage({
   const [isZoomOpen, setIsZoomOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(initialTab); // 'specs' | 'delivery'
   const [isAdded, setIsAdded] = useState(false);
+  const slideRefs = useRef([]);
+
+  // Images
+  const galleryImages = useMemo(() => {
+    if (!product) return [];
+    const imgs = product.images || [];
+    if (imgs.length > 0) {
+      return imgs.map((img) => ({
+        url: getProductImageUrl(img.thumb_path || img.path || img.image_url || img),
+        fullUrl: getProductImageUrl(img.path || img.image_url || img.thumb_path || img),
+        alt: img.alt || product.name || 'صورة الجهاز',
+      }));
+    }
+    const single = product.primary_image || product.thumb_url || product.image_path;
+    if (single) {
+      const url = getProductImageUrl(single);
+      return [{
+        url,
+        fullUrl: url,
+        alt: product.name || 'صورة الجهاز',
+      }];
+    }
+    return [];
+  }, [product]);
 
   const loadData = useCallback(() => {
     if (initialProduct !== null) return;
@@ -205,30 +229,6 @@ export default function ProductDetailPage({
   const inComp = isInCompare(product.id);
   const isOutOfStock = product.stock_status === 'out_of_stock' || product.stock_quantity === 0;
 
-  // Images
-  const galleryImages = useMemo(() => {
-    if (!product) return [];
-    const imgs = product.images || [];
-    if (imgs.length > 0) {
-      return imgs.map((img) => ({
-        url: getProductImageUrl(img.thumb_path || img.path || img.image_url || img),
-        fullUrl: getProductImageUrl(img.path || img.image_url || img.thumb_path || img),
-        alt: img.alt || product.name || 'صورة الجهاز',
-      }));
-    }
-    const single = product.primary_image || product.thumb_url || product.image_path;
-    if (single) {
-      const url = getProductImageUrl(single);
-      return [{
-        url,
-        fullUrl: url,
-        alt: product.name || 'صورة الجهاز',
-      }];
-    }
-    return [];
-  }, [product]);
-
-  const slideRefs = useRef([]);
   const scrollToSlide = (idx) => {
     setSelectedImageIndex(idx);
     if (slideRefs.current[idx]) {
