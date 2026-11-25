@@ -103,7 +103,7 @@ export function deriveOrderUiState(order, now = Date.now(), serverTimeOffset = 0
         message = 'جاري تجهيز عناصر الطلب بالمحل.';
       } else if (rawStatus === 'ready' || rawStatus === 'ready_for_pickup') {
         stage = 'ready';
-        label = 'جاهز للاستلام / الشحن';
+        label = 'جاهز للاستلام أو التوصيل';
         message = 'الطلب جاهز للاستلام أو في انتظار شركة التوصيل.';
       } else if (rawStatus === 'out_for_delivery') {
         stage = 'out_for_delivery';
@@ -208,7 +208,7 @@ export function deriveOrderUiState(order, now = Date.now(), serverTimeOffset = 0
   if (rawStatus === 'ready' || rawStatus === 'ready_for_pickup') {
     return {
       stage: 'ready',
-      label: 'جاهز للاستلام / الشحن',
+      label: 'جاهز للاستلام أو التوصيل',
       primaryAction: null,
       showBanner: false,
       countdown: 0,

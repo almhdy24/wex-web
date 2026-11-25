@@ -95,6 +95,7 @@ jobs:
           node scripts/check-css-modules.mjs
           node scripts/check-admin-english.mjs
           node scripts/contract-check.js
+          node scripts/check-copy.mjs
           node node_modules/eslint/bin/eslint.js src --quiet
           npm run test
 

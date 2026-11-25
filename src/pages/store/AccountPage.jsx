@@ -439,7 +439,7 @@ export default function AccountPage() {
                 <p className={styles.quickCardDesc}>
                   {totalOrderCount > 0
                     ? `لديك ${totalOrderCount} طلب مسجل بالنظام`
-                    : 'استعرض تفاصيل الشراء وإيصالات السداد وحالة التوصيل'}
+                    : 'تفاصيل طلباتك وإشعارات التحويل وحالة التوصيل'}
                 </p>
               </div>
               <ChevronLeft size={18} className={styles.chevronIcon} />

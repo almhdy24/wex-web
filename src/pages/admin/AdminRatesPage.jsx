@@ -165,7 +165,7 @@ export default function AdminRatesPage() {
               <span className={styles.rateValue}>
                 {currentRate ? currentRate.toLocaleString('en-US') : '—'}
               </span>
-              <span className={styles.rateUnit}>جنيه سوداني</span>
+              <span className={styles.rateUnit}>ج.س لكل درهم</span>
             </div>
 
             {currentRateObj && (

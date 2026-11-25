@@ -476,7 +476,7 @@ export default function AdminSettingsPage() {
                 rows={2}
                 value={formData.extra_delivery_note || ''}
                 onChange={handleChange}
-                placeholder="مثال: التوصيل متاح داخل ولاية الخرطوم والولايات المحددة عبر شركات الشحن..."
+                placeholder="مثال: التوصيل متاح داخل ولاية الخرطوم والولايات المحددة."
               />
             </div>
 
