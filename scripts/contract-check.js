@@ -326,7 +326,15 @@ for (const r of routes) {
 }
 
 if (asJson) {
-  console.log(JSON.stringify({ apiRoot, routes: routes.length, calls: calls.length, errors, warns }, null, 2));
+  console.log(JSON.stringify({
+    apiRoot: path.relative(webRoot, apiRoot),
+    routeCount: routes.length,
+    callCount: calls.length,
+    errors,
+    warns,
+    routes,
+    calls: calls.map((c) => ({ ...c, keys: c.keys ? [...c.keys] : null })),
+  }, null, 2));
 } else {
   console.log(`contract-check: ${routes.length} API routes, ${calls.length} frontend calls (api: ${path.relative(webRoot, apiRoot) || apiRoot})`);
   for (const w of warns) console.log(`WARN  ${w}`);
