@@ -78,6 +78,7 @@ jobs:
       - name: Install Frontend Dependencies & Static Quality Checks
         working-directory: wex-web
         run: |
+          rm -f .npmrc
           npm ci
           npm run check:all
 
