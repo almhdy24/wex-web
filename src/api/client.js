@@ -251,10 +251,14 @@ export async function apiClient(endpoint, options = {}, retryOn401 = true) {
       headers,
     });
 
-    // Record server-clock offset if Date header is present
+    // Record server-clock offset from responses that cannot have been served from a cache.
+    // The service worker serves catalog GETs stale-while-revalidate for hours; their Date
+    // header is the original fetch time and would skew the price-lock countdown by hours.
+    // The API marks authenticated/mutating responses `Cache-Control: no-store`.
     try {
       const serverDate = response.headers.get('date');
-      if (serverDate) {
+      const cacheControl = (response.headers.get('cache-control') || '').toLowerCase();
+      if (serverDate && cacheControl.includes('no-store') && !response.headers.get('age')) {
         const serverMs = new Date(serverDate).getTime();
         if (!Number.isNaN(serverMs)) {
           serverTimeOffset = serverMs - Date.now();
