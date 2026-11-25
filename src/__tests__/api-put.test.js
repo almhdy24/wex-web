@@ -30,3 +30,17 @@ describe('api.put', () => {
     await expect(pushApi.updatePreferences({ announcements: true })).resolves.toBeDefined();
   });
 });
+
+// WEB-API-02: a refresh that fails because the network is down must not be
+// reported to the UI as "session expired" (401).
+describe('401 retry when refresh fails offline', () => {
+  it('surfaces the network error (status 0), not 401', async () => {
+    const { apiClient: client, _resetRefreshState } = await import('../api/client');
+    _resetRefreshState();
+    global.fetch = vi.fn()
+      .mockResolvedValueOnce({ ok: false, status: 401, headers: new Headers({ 'content-type': 'application/json' }), json: async () => ({ success: false, message: 'x' }) })
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'));
+
+    await expect(client('/me')).rejects.toMatchObject({ status: 0 });
+  });
+});

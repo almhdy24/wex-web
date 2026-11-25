@@ -279,7 +279,13 @@ export async function apiClient(endpoint, options = {}, retryOn401 = true) {
           credentials: credentialsMode,
           headers: newHeaders,
         }, false);
-      } catch {
+      } catch (refreshError) {
+        // Only a definitive 401 from /auth/refresh means the session is gone. Offline,
+        // 5xx or 429 during refresh must surface as such (performTokenRefresh deliberately
+        // keeps the session in those cases), not as "session expired".
+        if (refreshError instanceof ApiError && refreshError.status !== 401) {
+          throw refreshError;
+        }
         throw new ApiError('انتهت صلاحية الجلسة، يرجى تسجيل الدخول مجدداً', 401);
       }
     }
@@ -348,5 +354,4 @@ export const api = {
   delete: (endpoint, options) => apiClient(endpoint, { ...options, method: 'DELETE' }),
 };
 
-export { axiosInstance } from './axios';
 export { mapApiError } from './errorMapper';
