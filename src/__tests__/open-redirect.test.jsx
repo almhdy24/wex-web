@@ -42,3 +42,11 @@ describe('GuestRoute', () => {
     expect(getByTestId('where').textContent).toBe('/');
   });
 });
+
+describe('validateSameOriginUrl (push deep links)', () => {
+  it('rejects backslash paths that resolve cross-origin', async () => {
+    const { validateSameOriginUrl } = await import('../utils/swPushHelpers');
+    expect(validateSameOriginUrl('/\\evil.example/x', 'https://wex.sd')).toBe('/notifications');
+    expect(validateSameOriginUrl('/orders/WEX-1?x=1#t', 'https://wex.sd')).toBe('/orders/WEX-1?x=1#t');
+  });
+});

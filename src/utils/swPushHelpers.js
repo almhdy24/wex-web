@@ -84,12 +84,10 @@ export function parsePushPayload(raw) {
 export function validateSameOriginUrl(rawUrl, currentOrigin = 'https://wex.sd') {
   if (typeof rawUrl !== 'string') return '/notifications';
   const trimmed = rawUrl.trim();
-  if (!trimmed || trimmed.startsWith('//')) return '/notifications';
+  if (!trimmed || trimmed.startsWith('//') || trimmed.includes('\\')) return '/notifications';
 
-  if (trimmed.startsWith('/')) {
-    return trimmed;
-  }
-
+  // Always parse: a leading '/' alone is not proof of same-origin ('/\\evil.example'
+  // resolves to https://evil.example/ in the URL parser and WindowClient.navigate()).
   try {
     const parsed = new URL(trimmed, currentOrigin);
     if (parsed.origin === currentOrigin && (parsed.protocol === 'https:' || parsed.protocol === 'http:')) {
