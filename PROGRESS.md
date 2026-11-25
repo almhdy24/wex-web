@@ -94,6 +94,21 @@
     - `src/__tests__/bug6-polish.test.jsx` (2/2 tests PASS).
     - Needs on-device check: Admin Orders search bar `/admin/orders`, Edit Payment Account modal `/admin/payment-accounts`.
 
+- [x] **Product Detail Page 404 Resolution (Hook Order Violation in ProductDetailPage)**
+  - **Symptom:** Opening `/products/hp-elitebook-840-g5` displayed the router error page (`NotFoundPage` with code 404).
+  - **Root Cause:**
+    - `ProductDetailPage.jsx` had early returns (`if (loading) return <Skeleton />`, `if (errorStatus === 404) return ...`, `if (error || !product) return ...`) declared *before* `galleryImages = useMemo(...)` and `slideRefs = useRef([])`.
+    - On the initial render (`loading === true`), React executed 30 hooks and returned early.
+    - When data finished loading (`loading === false`), the re-render proceeded past hook 30 to hook 31 (`useMemo`) and hook 32 (`useRef`), causing `Error: Rendered more hooks than during the previous render.` (React Rules of Hooks violation).
+    - React Router caught this render crash via `<StoreLayout errorElement={<NotFoundPage />} />` and mounted `NotFoundPage` (rendering `404 الصفحة غير موجودة`).
+  - **Fix:**
+    - Re-ordered all hooks (`useRef`, `useMemo`, `useState`, `useCallback`, `useEffect`) unconditionally at the very top of `ProductDetailPage.jsx` before any conditional branches or early returns.
+    - Added test case in `src/__tests__/product-routes-bug2.test.jsx` verifying successful render of product details without hook order violations or 404 router fallback.
+  - **Verification:**
+    - `src/__tests__/product-routes-bug2.test.jsx`: 5/5 tests PASS.
+    - `npm run check:all`: 7/7 checks PASS.
+    - Needs on-device check: Direct navigation to `/products/hp-elitebook-840-g5` in browser.
+
 - [x] **PostCSS Syntax Error Fix & Database Zero Refresh with Realistic Seeding**
   - **PostCSS Syntax Error (`src/pages/store/HomePage.module.css`):**
     - Root cause: Duplicate orphan CSS declaration lines (`gap: 6px; position: relative; z-index: 2; }`) outside of any selector at line 177 in `HomePage.module.css`.
