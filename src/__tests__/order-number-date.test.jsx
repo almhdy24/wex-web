@@ -13,19 +13,18 @@ describe('OrderNumber Component & Formatter', () => {
     expect(formatOrderNumber('')).toBe('');
   });
 
-  it('renders order number inside <bdi dir="ltr"> with # placed logically at start in RTL', () => {
+  it('renders "#CODE" as one isolated LTR unit after the Arabic prefix', () => {
+    // Current contract (OrderNumber.jsx): the hash travels inside the <bdi dir="ltr"> so
+    // "#WEX-..." never splits or flips inside RTL text; the root inherits page direction.
     const { container, getByText } = render(<OrderNumber value="WEX-261123-3353B" prefix="طلب" withHash />);
     const root = container.firstElementChild;
     expect(root).not.toBeNull();
-    expect(root.getAttribute('dir')).toBe('rtl');
-
     expect(getByText(/طلب/)).toBeDefined();
-    expect(getByText('#')).toBeDefined();
 
     const bdi = container.querySelector('bdi');
     expect(bdi).not.toBeNull();
     expect(bdi?.getAttribute('dir')).toBe('ltr');
-    expect(bdi?.textContent).toBe('WEX-261123-3353B');
+    expect(bdi?.textContent).toBe('#WEX-261123-3353B');
   });
 });
 

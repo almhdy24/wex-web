@@ -94,7 +94,8 @@ describe('Customer Order & Payment Journey Tests', () => {
 
     // Assert under review badge/label is visible
     await waitFor(() => {
-      expect(Boolean(screen.getByText(/قيد المراجعة/i))).toBe(true);
+      // The status appears in the badge and the payment block: assert at least one.
+      expect(screen.getAllByText(/قيد المراجعة/i).length).toBeGreaterThan(0);
     });
 
     // Assert the upload action CTA button does NOT exist when under review

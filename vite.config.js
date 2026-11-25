@@ -120,6 +120,8 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
-    globals: true
+    globals: true,
+    // Playwright specs live in e2e/ and run only in the e2e workflow.
+    exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**'],
   }
 });
