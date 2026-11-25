@@ -1,5 +1,11 @@
 # Wex Technology Web - Project Progress Tracker
 
+## Push Notification System Sprint (Branch: stabilize) — Active
+
+- [x] **Phase 0: Discovery & Architecture Design**
+  - Audited existing in-app notifications (`wex-api` `NotificationService`, `NotificationController`, `wex-web` `src/api/notifications.js`, `NotificationsPage.jsx`), PWA/Workbox (`vite.config.js`, `PwaPrompt.jsx`, `pwa-workbox.test.js`), `OrderStateMachine`/`OrderService`/`PaymentProofService`, admin sound alerts (`AdminShell.jsx`, `AdminDashboardPage.jsx`), and client-only `FavoritesContext`.
+  - Documented findings and target architecture in [docs/PUSH_DESIGN.md](docs/PUSH_DESIGN.md).
+
 ## End-to-End Production & UI/UX Stabilization Sprint (Branch: stabilize) — Active
 
 - [x] **Phase 0: Make Testing Trustworthy**
