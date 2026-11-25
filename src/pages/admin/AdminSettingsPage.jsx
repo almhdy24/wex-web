@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Store, CreditCard, Sliders, Check, ShoppingBag, Landmark, FileText } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { adminAr } from '../../content/admin.ar';
+import AdminPushSection from '../../components/admin/AdminPushSection';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
@@ -697,6 +698,8 @@ export default function AdminSettingsPage() {
           </div>
         </form>
       </div>
+
+      <AdminPushSection />
     </Page>
   );
 }

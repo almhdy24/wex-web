@@ -1,0 +1,258 @@
+.wrapper {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  padding: 16px;
+  margin-top: 20px;
+}
+
+.topBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #061a55;
+}
+
+.titleRow h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.topActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.killBtn,
+.secondaryBtn,
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.killBtnOn {
+  background: #ecfdf5;
+  color: #047857;
+  border-color: rgba(4, 120, 87, 0.25);
+}
+
+.killBtnOff {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-color: rgba(185, 28, 28, 0.25);
+}
+
+.secondaryBtn,
+.iconBtn {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: rgba(15, 23, 42, 0.12);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.statCard {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statLabel {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.statValue {
+  font-size: 20px;
+  color: #061a55;
+}
+
+.statSub {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.broadcastForm {
+  background: #f8fafc;
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.formHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #061a55;
+}
+
+.formHeader h3 {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.field input,
+.field select,
+.field textarea {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(15, 23, 42, 0.16);
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.previewBox {
+  background: #ffffff;
+  border: 1px dashed rgba(17, 74, 219, 0.35);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.previewTag {
+  font-size: 11px;
+  color: #114adb;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.previewTitle {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #061a55;
+}
+
+.previewBody {
+  font-size: 12.5px;
+  color: #475569;
+  margin-top: 2px;
+}
+
+.submitBtn {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: none;
+  background: #114adb;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.logSection {
+  margin-top: 16px;
+}
+
+.logTitle {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.emptyLog {
+  margin: 0;
+  font-size: 12.5px;
+  color: #64748b;
+}
+
+.logList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.logCard {
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.logTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.logType {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.logStatus {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.status_sent {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status_failed,
+.status_expired {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.logError {
+  margin-top: 4px;
+  font-size: 11.5px;
+  color: #b91c1c;
+}

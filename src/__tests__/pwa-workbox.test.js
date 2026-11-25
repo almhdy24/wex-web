@@ -45,17 +45,18 @@ describe('PWA & Workbox Hardening Verification (Phase 7)', () => {
     const pwaPlugin = viteConfig.plugins.flat().find((p) => p && p.name === 'vite-plugin-pwa');
     expect(pwaPlugin).toBeDefined();
 
-    // Find the runtimeCaching rules
-    // The config can be read from vite.config.js source or options
+    // Verify injectManifest strategy in vite.config.js
     const viteConfigContent = fs.readFileSync(path.join(rootDir, 'vite.config.js'), 'utf8');
+    expect(viteConfigContent).toContain("strategies: 'injectManifest'");
+    expect(viteConfigContent).toContain("filename: 'sw.js'");
 
-    // Rule 1: Orders and Payment proofs must be NetworkOnly or excluded
-    expect(viteConfigContent).toContain('/orders');
-    expect(viteConfigContent).toContain('/payment-proof');
-    expect(viteConfigContent).toContain('NetworkOnly');
-
-    // Assert that public catalog uses StaleWhileRevalidate
-    expect(viteConfigContent).toContain('StaleWhileRevalidate');
-    expect(viteConfigContent).toContain('/api/v1/products');
+    // Verify runtime caching rules in src/sw.js
+    const swContent = fs.readFileSync(path.join(rootDir, 'src/sw.js'), 'utf8');
+    expect(swContent).toContain('/orders');
+    expect(swContent).toContain('/payment-proof');
+    expect(swContent).toContain('/push/');
+    expect(swContent).toContain('NetworkOnly');
+    expect(swContent).toContain('StaleWhileRevalidate');
+    expect(swContent).toContain('/api/v1/products');
   });
 });

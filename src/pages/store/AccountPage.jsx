@@ -32,6 +32,7 @@ import Modal from '../../components/common/Modal';
 import Button from '../../components/common/Button';
 import Tabs from '../../components/common/Tabs';
 import { notificationsApi } from '../../api/notifications';
+import PushPreferencesSection from '../../components/account/PushPreferencesSection';
 import { productsApi } from '../../api/products';
 import { shopApi } from '../../api/shop';
 import { normalizeSudanPhone, isValidSudanPhone } from '../../utils/formatters';
@@ -809,6 +810,7 @@ export default function AccountPage() {
          ========================================================================= */}
       {activeTab === 'settings' && (
         <div className={styles.tabContent}>
+          <PushPreferencesSection />
           <div className={styles.sectionCard}>
             <div className={styles.menuList}>
               {/* Motion Mode Toggle */}

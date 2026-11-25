@@ -2,6 +2,12 @@
 
 ## Push Notification System Sprint (Branch: stabilize) — Active
 
+- [x] **Phase 3, 4, 6: Web Client (`wex-web`), Flutter Contract & Deployment Guide**
+  - Switched `vite.config.js` to `strategies: 'injectManifest'` (`src/sw.js`), preserving all Workbox runtime caching rules and updating `src/__tests__/pwa-workbox.test.js` (3/3 PASS).
+  - Generated monochrome `public/icons/badge-96.png` and implemented `src/utils/swPushHelpers.js`, `src/sw.js` (`push`, `notificationclick`, `pushsubscriptionchange`, foreground suppression, app badge).
+  - Added `src/api/push.js`, `src/utils/push.js`, `src/context/PushContext.jsx`, logout unsubscribe in `AuthContext.jsx`, `PushPermissionSheet.jsx`, `PushPreferencesSection.jsx` (Account > Settings), `AdminPushSection.jsx` (Admin Settings), and `NotificationsPage.jsx` deep-link + unread sync.
+  - Wrote [docs/PUSH_FLUTTER.md](docs/PUSH_FLUTTER.md) and [docs/PUSH_DEPLOY.md](docs/PUSH_DEPLOY.md).
+
 - [x] **Phase 0: Discovery & Architecture Design**
   - Audited existing in-app notifications (`wex-api` `NotificationService`, `NotificationController`, `wex-web` `src/api/notifications.js`, `NotificationsPage.jsx`), PWA/Workbox (`vite.config.js`, `PwaPrompt.jsx`, `pwa-workbox.test.js`), `OrderStateMachine`/`OrderService`/`PaymentProofService`, admin sound alerts (`AdminShell.jsx`, `AdminDashboardPage.jsx`), and client-only `FavoritesContext`.
   - Documented findings and target architecture in [docs/PUSH_DESIGN.md](docs/PUSH_DESIGN.md).

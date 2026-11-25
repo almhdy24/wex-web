@@ -15,6 +15,7 @@ import {
 import { ordersApi } from '../../api/orders';
 import { formatDate } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
+import PushPermissionSheet from '../../components/common/PushPermissionSheet';
 import AppBar from '../../components/common/AppBar';
 import BrandRibbons from '../../components/common/BrandRibbons';
 import Button from '../../components/common/Button';
@@ -643,6 +644,7 @@ export default function OrderDetailPage({
         </section>
 
         {/* 3. Card Payment Review vs Upload Proof (Receipt Card) */}
+        {stage === 'pending_payment' && <PushPermissionSheet variant="customer" />}
         {isReview ? (
           <section className={styles.receiptCard} aria-label="حالة إشعار الدفع">
             <h2 className={styles.sectionTitle}>إشعار التحويل</h2>

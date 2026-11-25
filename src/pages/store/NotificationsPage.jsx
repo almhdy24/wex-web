@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { CheckCheck } from 'lucide-react';
 import { notificationsApi } from '../../api/notifications';
 import { formatDate } from '../../utils/formatters';
+import { validateSameOriginUrl } from '../../utils/swPushHelpers';
+import { usePush } from '../../context/PushContext';
 import { useToast } from '../../context/ToastContext';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
@@ -18,6 +20,7 @@ export default function NotificationsPage() {
   const [error, setError] = useState(null);
   const [markingAll, setMarkingAll] = useState(false);
   const { success, error: toastError } = useToast();
+  const push = usePush();
   const navigate = useNavigate();
 
   const fetchNotifications = async () => {
@@ -44,6 +47,7 @@ export default function NotificationsPage() {
         setNotifications((prev) =>
           prev.map((n) => (n.id === notif.id ? { ...n, is_read: true } : n))
         );
+        push?.refreshUnreadCount();
       } catch {
         // ignore
       }
@@ -53,6 +57,11 @@ export default function NotificationsPage() {
       navigate(`/orders/${notif.order_number}`);
     } else if (notif.data?.order_number) {
       navigate(`/orders/${notif.data.order_number}`);
+    } else if (notif.data?.url) {
+      const target = validateSameOriginUrl(notif.data.url, window.location.origin);
+      if (target !== '/notifications') {
+        navigate(target);
+      }
     }
   };
 
@@ -61,6 +70,7 @@ export default function NotificationsPage() {
     try {
       await notificationsApi.markAllRead();
       setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+      push?.refreshUnreadCount();
       success('تم تحديد جميع الإشعارات كمقروءة');
     } catch (err) {
       toastError(err.message || 'تعذر تحديث الإشعارات');

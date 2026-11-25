@@ -20,6 +20,7 @@ import {
 import { adminApi } from '../../api/admin';
 import { api } from '../../api/client';
 import { adminAr } from '../../content/admin.ar';
+import PushPermissionSheet from '../../components/common/PushPermissionSheet';
 import { formatSdg } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
@@ -224,6 +225,8 @@ export default function AdminDashboardPage() {
 
       {/* Brand divider */}
       <div className={styles.titleDivider} aria-hidden="true" />
+
+      <PushPermissionSheet variant="admin" />
 
       {/* Critical Alert: No Active Payment Account */}
       {!hasActiveAccounts && (

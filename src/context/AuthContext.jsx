@@ -7,6 +7,7 @@ import {
   broadcastAuthEvent,
   ApiError,
 } from '../api/client';
+import { unsubscribeFromDevice } from '../utils/push';
 
 export const AuthContext = createContext(null);
 
@@ -236,6 +237,11 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(async () => {
     try {
+      await unsubscribeFromDevice();
+    } catch {
+      // ignore push unsubscribe failure
+    }
+    try {
       await authApi.logout();
     } catch {
       // Continue clearing even if API call fails
@@ -244,6 +250,11 @@ export function AuthProvider({ children }) {
   }, [clearSession]);
 
   const logoutAll = useCallback(async () => {
+    try {
+      await unsubscribeFromDevice();
+    } catch {
+      // ignore push unsubscribe failure
+    }
     try {
       await authApi.logoutAll();
     } catch {

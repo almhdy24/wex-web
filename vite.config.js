@@ -6,11 +6,14 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
       registerType: 'autoUpdate',
       devOptions: {
         enabled: false,
       },
-      includeAssets: ['favicon.svg', 'favicon.png', 'robots.txt', 'icons/apple-touch-icon.png'],
+      includeAssets: ['favicon.svg', 'favicon.png', 'robots.txt', 'icons/apple-touch-icon.png', 'icons/badge-96.png'],
       manifest: {
         name: 'Wex Technology | ويكس تكنولوجي',
         short_name: 'Wex',
@@ -63,72 +66,8 @@ export default defineConfig({
           }
         ]
       },
-      workbox: {
-        cacheId: `wex-pwa-${Date.now()}`,
-        cleanupOutdatedCaches: true,
+      injectManifest: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api\//, /^\/admin/],
-        runtimeCaching: [
-          {
-            // Explicitly NEVER cache authenticated customer orders, admin, payment proofs or user profile
-            urlPattern: ({ url }) => {
-              const pathname = url.pathname;
-              return pathname.includes('/admin') ||
-                     pathname.includes('/me') ||
-                     pathname.includes('/orders') ||
-                     pathname.includes('/payment-proof');
-            },
-            handler: 'NetworkOnly',
-          },
-          {
-            // Public catalog cached with StaleWhileRevalidate
-            urlPattern: ({ url }) => {
-              const pathname = url.pathname;
-              return pathname.startsWith('/api/v1/products') ||
-                     pathname.startsWith('/api/v1/categories') ||
-                     pathname.startsWith('/api/v1/brands');
-            },
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'wex-catalog-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 12 // 12 hours
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          },
-          {
-            // Public shop metadata
-            urlPattern: ({ url }) => url.pathname.startsWith('/api/v1/shop'),
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'wex-public-api-cache',
-              expiration: {
-                maxEntries: 20,
-                maxAgeSeconds: 60 * 60 * 24 // 24 hours
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          },
-          {
-            // Public product images
-            urlPattern: ({ url }) => url.pathname.startsWith('/uploads/products/'),
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'wex-product-images',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
-              }
-            }
-          }
-        ]
       }
     })
   ],
