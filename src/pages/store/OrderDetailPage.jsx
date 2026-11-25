@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, useOutletContext } from 'react-router-dom';
 import {
   Copy,
   Check,
@@ -11,7 +11,9 @@ import {
   CheckCircle2,
   Loader2,
   ZoomIn,
+  MessageCircle,
 } from 'lucide-react';
+import { buildWhatsAppLink, orderHelpMessage } from '../../utils/shopSettings';
 import { ordersApi } from '../../api/orders';
 import { formatDate } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
@@ -204,6 +206,8 @@ export default function OrderDetailPage({
   initialLoading = null,
 } = {}) {
   const { orderNumber } = useParams();
+  const outlet = useOutletContext();
+  const orderHelpUrl = buildWhatsAppLink(outlet?.shopInfo?.whatsapp, orderHelpMessage(orderNumber));
   const navigate = useNavigate();
   const location = useLocation();
   const { success, error: toastError } = useToast();
@@ -860,6 +864,19 @@ export default function OrderDetailPage({
             </div>
           </div>
         </section>
+
+        {/* Order help: WhatsApp to the shop with the order number prefilled */}
+        {orderHelpUrl && (
+          <a
+            className={styles.orderHelpLink}
+            href={orderHelpUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <MessageCircle size={18} strokeWidth={1.75} aria-hidden="true" />
+            <span>استفسر عن هذا الطلب عبر واتساب</span>
+          </a>
+        )}
 
         {/* Sticky Bottom Button (only while order needs upload) */}
         {(isPending || isRejected) && !isExpired && (

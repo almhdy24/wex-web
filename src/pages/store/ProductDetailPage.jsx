@@ -8,6 +8,7 @@ import {
   Heart,
   GitCompare,
   Share2,
+  MessageCircle,
   Maximize2,
   MapPin,
   Truck,
@@ -16,7 +17,7 @@ import {
 } from 'lucide-react';
 import { productsApi } from '../../api/products';
 import { shopApi } from '../../api/shop';
-import { getProductImageUrl, getConditionLabel } from '../../utils/formatters';
+import { getProductImageUrl, getConditionLabel, formatSdg } from '../../utils/formatters';
 import { useCart } from '../../context/CartContext';
 import { useCompare } from '../../context/CompareContext';
 import { useFavorites } from '../../context/FavoritesContext';
@@ -33,7 +34,7 @@ import Tabs from '../../components/common/Tabs';
 import StickyBar from '../../components/common/StickyBar';
 import Skeleton from '../../components/common/Skeleton';
 import { swrCache } from '../../utils/swrCache';
-import { normalizeShopInfo } from '../../utils/shopSettings';
+import { normalizeShopInfo, buildWhatsAppShareLink, productShareText } from '../../utils/shopSettings';
 import SpecValue from '../../utils/formatSpecValue';
 import styles from './ProductDetailPage.module.css';
 
@@ -360,6 +361,13 @@ export default function ProductDetailPage({
     }
   };
 
+  const shareUrl = typeof window !== 'undefined' && product?.slug
+    ? `${window.location.origin}/products/${encodeURIComponent(product.slug)}`
+    : '';
+  const whatsappShareUrl = buildWhatsAppShareLink(
+    productShareText(product, shareUrl, product?.price_sdg ? formatSdg(product.price_sdg) : ''),
+  );
+
   const handleShare = async () => {
     if (navigator.share) {
       try {
@@ -560,6 +568,17 @@ export default function ProductDetailPage({
             <Share2 size={18} strokeWidth={1.75} aria-hidden="true" />
             <span>مشاركة</span>
           </button>
+          {whatsappShareUrl && (
+            <a
+              className={styles.gridActionBtn}
+              href={whatsappShareUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <MessageCircle size={18} strokeWidth={1.75} aria-hidden="true" />
+              <span>أرسله عبر واتساب</span>
+            </a>
+          )}
         </div>
 
         {/* Tabs */}

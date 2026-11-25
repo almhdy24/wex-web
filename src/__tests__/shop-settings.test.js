@@ -82,3 +82,27 @@ describe('Shop Settings Normalization & WhatsApp Utility Tests', () => {
     expect(stringOne.ticker_enabled).toBe(true);
   });
 });
+
+// GROW-01: WhatsApp product share and order-help links.
+describe('WhatsApp share and order help', () => {
+  it('builds a recipient-less share link with name, price and URL', async () => {
+    const { buildWhatsAppShareLink, productShareText } = await import('../utils/shopSettings');
+    const text = productShareText({ name: 'Dell Latitude 7490' }, 'https://wex-technology.com/products/dell-latitude-7490', '650,000 ج.س');
+    const link = buildWhatsAppShareLink(text);
+    expect(link.startsWith('https://wa.me/?text=')).toBe(true);
+    const decoded = decodeURIComponent(link.split('text=')[1]);
+    expect(decoded).toContain('Dell Latitude 7490');
+    expect(decoded).toContain('650,000 ج.س');
+    expect(decoded).toContain('https://wex-technology.com/products/dell-latitude-7490');
+    expect(buildWhatsAppShareLink('')).toBeNull();
+    expect(productShareText(null, 'x')).toBe('');
+  });
+
+  it('prefills the order number when contacting the shop about an order', async () => {
+    const { buildWhatsAppLink, orderHelpMessage } = await import('../utils/shopSettings');
+    const link = buildWhatsAppLink('0911111111', orderHelpMessage('WEX-261125-BCD23'));
+    expect(link.startsWith('https://wa.me/249911111111?text=')).toBe(true);
+    expect(decodeURIComponent(link.split('text=')[1])).toContain('WEX-261125-BCD23');
+    expect(buildWhatsAppLink('', orderHelpMessage('WEX-1'))).toBeNull();
+  });
+});

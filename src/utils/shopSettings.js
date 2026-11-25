@@ -101,3 +101,22 @@ export function buildTelLink(rawPhone) {
   const digits = toInternationalDigits(rawPhone);
   return digits ? `tel:+${digits}` : null;
 }
+
+/**
+ * Share-to-anyone WhatsApp link (no recipient): the customer picks the chat.
+ * Product shares carry name, price and the page URL.
+ */
+export function buildWhatsAppShareLink(text) {
+  const t = typeof text === 'string' ? text.trim() : '';
+  return t ? `https://wa.me/?text=${encodeURIComponent(t)}` : null;
+}
+
+export function productShareText(product, url, formattedPrice) {
+  if (!product?.name || !url) return '';
+  const pricePart = formattedPrice ? ` بسعر ${formattedPrice}` : '';
+  return `${product.name}${pricePart} في متجر ويكس تكنولوجي:\n${url}`;
+}
+
+export function orderHelpMessage(orderNumber) {
+  return orderNumber ? `مرحباً، أودّ الاستفسار عن الطلب رقم ${orderNumber}.` : 'مرحباً، أودّ الاستفسار عن طلب.';
+}

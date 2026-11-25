@@ -915,3 +915,21 @@
   object-fit: contain;
   border-radius: var(--radius-control);
 }
+
+.orderHelpLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-block-size: 44px;
+  margin-block: 12px 0;
+  margin-inline: 16px;
+  padding-block: 10px;
+  padding-inline: 16px;
+  border: 1px solid var(--wex-border, #d8e0f0);
+  border-radius: var(--radius-lg, 14px);
+  background: var(--wex-surface, #fff);
+  color: var(--wex-text, #0b1b3f);
+  font-weight: 600;
+  text-decoration: none;
+}

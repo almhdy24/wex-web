@@ -396,12 +396,13 @@
 /* Compare / Share Buttons */
 .compareShareGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
   gap: 10px;
   margin: 14px 20px 0;
 }
 
 .gridActionBtn {
+  text-decoration: none;
   height: 46px;
   border-radius: var(--radius-control);
   background: var(--wex-white);
