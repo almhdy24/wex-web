@@ -113,26 +113,26 @@ test.describe('06: Push Notifications E2E & Mobile Screenshots (360x800)', () =>
     await page.goto(`/orders/${orderNumber}`);
     await page.waitForLoadState('domcontentloaded');
     await expect(page.locator('h1, [class*="orderHeaderTitle"]').first()).toBeVisible({ timeout: 10000 });
-    await page.screenshot({ path: 'e2e/test-results/push-prepermission-360x800.png', fullPage: true });
+    await page.screenshot({ path: 'test-results/push-prepermission-360x800.png', fullPage: true });
 
     // 2. Account > Settings (Preferences)
     await page.goto('/account?tab=settings');
     await page.waitForLoadState('domcontentloaded');
     await expect(page.getByText('إرسال إشعار تجريبي')).toBeVisible({ timeout: 10000 });
-    await page.screenshot({ path: 'e2e/test-results/push-preferences-360x800.png', fullPage: true });
+    await page.screenshot({ path: 'test-results/push-preferences-360x800.png', fullPage: true });
 
     // 3. Notifications Page
     await page.goto('/notifications');
     await page.waitForLoadState('domcontentloaded');
     await expect(page.locator('h1').first()).toBeVisible({ timeout: 10000 });
-    await page.screenshot({ path: 'e2e/test-results/push-notifications-360x800.png', fullPage: true });
+    await page.screenshot({ path: 'test-results/push-notifications-360x800.png', fullPage: true });
 
     // 4. Admin Settings (Push Broadcast & Stats)
     await loginAs(page, 'admin@wextechnology.com');
     await page.goto('/admin/settings');
     await page.waitForLoadState('domcontentloaded');
     await expect(page.getByText('نظام الإشعارات الفورية (Push)')).toBeVisible({ timeout: 10000 });
-    await page.screenshot({ path: 'e2e/test-results/push-admin-settings-360x800.png', fullPage: true });
+    await page.screenshot({ path: 'test-results/push-admin-settings-360x800.png', fullPage: true });
   });
 
   test('Service Worker push display and notification click navigation', async ({ page, context }) => {
