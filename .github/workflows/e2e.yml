@@ -29,17 +29,17 @@ jobs:
           ref: stabilize
           path: wex-api
 
-      - name: Setup PHP 8.2
+      - name: Setup PHP 8.3
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.3'
           extensions: sqlite3, pdo_sqlite, mbstring, intl, json
           coverage: none
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
           cache-dependency-path: wex-web/package-lock.json
 
