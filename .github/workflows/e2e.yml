@@ -58,6 +58,7 @@ jobs:
           database.tests.database = wex_ci.sqlite
           wex.jwtSecret = 'ci-super-secret-key-32-chars-testing-environment-wex'
           wex.corsAllowedOrigins = 'http://127.0.0.1:4173,http://localhost:4173'
+          TESTING_LOGIN_ENABLED = true
           PUSH_PROVIDER = 'fake'
           PUSH_FAKE_LOG = true
           VAPID_PUBLIC_KEY = 'BF3uW3qcBkEFr5CDO3WuwS1DM0RMzHH49J0FhhZkVDD3RR8pU6butJePnGZQxRtJFnqURchLkiPsyJWF8vju0Zs'
