@@ -185,6 +185,38 @@ describe('Phase 4: Payment States & Consistency Tests', () => {
       expect(html).not.toContain('تم رفض الإشعار');
     });
 
+    // VIS-02: lock passed but the server has not expired the order yet (cron/lazy expiry lag).
+    it('awaiting_proof with lock passed: expired state, no 00:00:00 "price locked" card, no upload', () => {
+      const order = {
+        id: 204,
+        order_number: 'WEX-261121-C1A94',
+        status: 'pending_payment',
+        total_sdg: 350000,
+        seconds_remaining: 0,
+        lock_expires_at: new Date(Date.now() - 60000).toISOString(),
+        order_type: 'pickup',
+        payment: {
+          state: 'awaiting_proof',
+          can_upload: true,
+          can_review: false,
+          latest_proof: null,
+          proofs_count: 0,
+        },
+        payment_accounts: [{ id: 1, bank_name: 'بنك الخرطوم', account_number: '123456' }],
+      };
+
+      const state = deriveOrderUiState(order);
+      expect(state.stage).toBe('expired');
+      expect(state.canUpload).toBe(false);
+      expect(state.showBanner).toBe(false);
+
+      const html = renderCustomerOrder(order);
+      expect(html).not.toContain('السعر مثبت لمدة');
+      expect(html).not.toContain('00:00:00');
+      expect(html).not.toContain('id="upload-proof-card"');
+      expect(html).toContain('انتهت مهلة تثبيت السعر');
+    });
+
     it('under_review: renders review notice and suppresses upload action buttons', () => {
       const order = {
         id: 202,

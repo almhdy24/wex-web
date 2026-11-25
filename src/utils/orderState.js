@@ -36,7 +36,12 @@ export function deriveOrderUiState(order, now = Date.now(), serverTimeOffset = 0
   if (order.payment) {
     const pState = order.payment.state;
 
-    if (pState === 'expired' || rawStatus === 'cancelled' || rawStatus === 'expired') {
+    // A passed lock on an order still awaiting proof is expired even before the server's
+    // expiry job catches up: showing "السعر مثبت لمدة 00:00:00" and an upload form lies (VIS-02).
+    if (
+      pState === 'expired' || rawStatus === 'cancelled' || rawStatus === 'expired' ||
+      (pState === 'awaiting_proof' && isLockExpired)
+    ) {
       return {
         stage: 'expired',
         label: rawStatus === 'cancelled' ? 'تم إلغاء الطلب' : 'ملغي لانتهاء المهلة',
