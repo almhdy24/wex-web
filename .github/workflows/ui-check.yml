@@ -33,7 +33,7 @@ jobs:
       - name: Setup PHP 8.2
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.3'
           extensions: mbstring, sqlite3, curl, json, intl
           coverage: none
 
