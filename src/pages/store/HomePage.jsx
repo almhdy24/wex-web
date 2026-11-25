@@ -316,12 +316,12 @@ export default function HomePage({
         </section>
       )}
 
-      {/* 5b. "الأكثر طلباً" grid */}
+      {/* 5b. "مختارات المتجر" grid */}
       {featuredProducts.length > 0 && (
-        <section className={styles.featuredSection} aria-label="الأكثر طلباً">
+        <section className={styles.featuredSection} aria-label="مختارات المتجر">
           <Reveal>
             <div className={styles.featuredHeader}>
-              <h2 className={styles.featuredTitle}>الأكثر طلباً</h2>
+              <h2 className={styles.featuredTitle}>مختارات المتجر</h2>
               <Link to="/products" className={styles.featuredLink}>
                 <span>عرض الكل</span>
                 <ArrowLeft size={18} strokeWidth={2} aria-hidden="true" />

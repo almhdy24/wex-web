@@ -82,13 +82,13 @@ test.describe('07: Storefront & Admin Quality Gates', () => {
     // time-dependent: the rotating hero has a 'طريقة الطلب' button above every section.)
     await expect(page.locator('section[aria-label="وصل حديثاً"]')).toBeVisible({ timeout: 10000 });
     const domOrderOk = await page.evaluate(() => {
-      const labels = ['وصل حديثاً', 'الأكثر طلباً', 'طريقة الطلب', 'معلومات المتجر'];
+      const labels = ['وصل حديثاً', 'مختارات المتجر', 'طريقة الطلب', 'معلومات المتجر'];
       const all = Array.from(document.querySelectorAll('section[aria-label]'));
       const idx = labels.map((l) => all.findIndex((el) => el.getAttribute('aria-label') === l));
       const [n, p, h, st] = idx;
       return n !== -1 && p !== -1 && h !== -1 && n < p && p < h && (st === -1 || h < st);
     });
-    expect(domOrderOk, 'HomePage sections must follow IA order: وصل حديثاً -> الأكثر طلباً -> طريقة الطلب -> المتجر').toBe(true);
+    expect(domOrderOk, 'HomePage sections must follow IA order: وصل حديثاً -> مختارات المتجر -> طريقة الطلب -> المتجر').toBe(true);
 
     // Cross-surface check: Admin disables/enables orders_enabled or updates and Storefront reflects it
     await loginAs(page, 'admin@wextechnology.com');

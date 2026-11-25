@@ -138,12 +138,15 @@ describe('HomePage Rescue Verification (Phase 2)', () => {
     expect(html).toContain('تواصل عبر واتساب');
   });
 
-  it('renders the "وصل حديثاً" / "الأكثر طلباً" rows and no duplicate audience sections', () => {
+  it('renders the "وصل حديثاً" / "مختارات المتجر" rows and no duplicate audience sections', () => {
     const html = renderHome();
     // Phase 3-6 IA (2bd3018) replaced the single "أجهزة مختارة" section with these rows.
     expect(html).toContain('وصل حديثاً');
-    expect(html).toContain('الأكثر طلباً');
+    expect(html).toContain('مختارات المتجر');
     expect(html).not.toContain('أجهزة مختارة');
+    // CLAIM-01: no popularity claim the shop cannot back (it lists featured items).
+    expect(html).not.toContain('الأكثر طلب');
+    expect(html).not.toContain('الأكثر مبيع');
     // Ensure duplicate audience sections stay removed
     expect(html).not.toContain('للدراسة');
     expect(html).not.toContain('للعمل');

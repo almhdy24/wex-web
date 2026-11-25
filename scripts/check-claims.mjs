@@ -33,6 +33,8 @@ const FORBIDDEN_WORDS = [
   { pattern: /فاتورة/u, name: 'Invented invoice claim (فاتورة)' },
   { pattern: /جنيه/u, name: 'Non-standard currency label (جنيه instead of ج.س)' },
   { pattern: /ستسجل/u, name: 'Invented promise (ستسجل)' },
+  { pattern: /(?<!الصورة\s)(?:ال)?أصلي(?:ة)?/u, name: 'Unverifiable authenticity claim (أصلي)' },
+  { pattern: /الأكثر\s+(?:طلب|مبيع)/u, name: 'Popularity claim without data (الأكثر طلباً/مبيعاً)' },
 ];
 
 // Dialect words check (Arabic Sudanese colloquial in customer storefront)
