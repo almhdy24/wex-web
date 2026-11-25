@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Store, Truck, Loader2, Check } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
@@ -17,6 +17,7 @@ import NoticeLine from '../../components/common/NoticeLine';
 import StickyBar from '../../components/common/StickyBar';
 import AuthSheet from '../../components/auth/AuthSheet';
 import { swrCache } from '../../utils/swrCache';
+import { idempotencyKeyFor } from '../../utils/idempotency';
 import styles from './CheckoutPage.module.css';
 
 const SAVED_PHONE_KEY = 'wex_saved_contact_phone';
@@ -81,6 +82,9 @@ export default function CheckoutPage({
   const [customerNotes, setCustomerNotes] = useState('');
   const [shopInfo, setShopInfo] = useState(() => (initialShopInfo ? normalizeShopInfo(initialShopInfo) : cachedShop?.data ? normalizeShopInfo(cachedShop.data) : null));
   const [submitting, setSubmitting] = useState(false);
+  // One idempotency key per distinct checkout payload: retries/double taps reuse it,
+  // a changed cart gets a fresh one.
+  const idempotencyRef = useRef(null);
   const [errors, setErrors] = useState({});
   const [isAuthSheetOpen, setIsAuthSheetOpen] = useState(false);
 
@@ -220,7 +224,7 @@ export default function CheckoutPage({
     const payload = {
       order_type: orderType,
       contact_phone: cleanPhone,
-      notes: customerNotes.trim() || undefined,
+      customer_notes: customerNotes.trim() || undefined,
       items: items.map((item) => ({
         product_id: item.id,
         quantity: item.quantity,
@@ -233,7 +237,10 @@ export default function CheckoutPage({
     }
 
     try {
-      const res = await api.post('/orders', payload);
+      idempotencyRef.current = idempotencyKeyFor(payload, idempotencyRef.current);
+      const res = await api.post('/orders', payload, {
+        headers: { 'Idempotency-Key': idempotencyRef.current.key },
+      });
       const createdOrder = res?.data;
       const orderNumber = createdOrder?.order_number || createdOrder?.id;
 
