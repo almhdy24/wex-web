@@ -65,6 +65,16 @@
     - `src/__tests__/datalist-cards-bug3.test.jsx` (2/2 tests PASS).
     - Needs on-device check: Admin Orders `/admin/orders` on mobile screen (~360px).
 
+- [x] **Bug 4: Admin Products Card Status Chip & Header Structure**
+  - **Root Cause:** Unconstrained flex header row without flex-shrink rules on title stack caused chip to collide with brand text at narrow widths (~360px). Redundant fallback "ماركة غير محددة" cluttered header width when brand was null.
+  - **Fix:**
+    - Updated `AdminProductsPage.module.css`: rebuilt `.mobileCardHeader` with `align-items: flex-start`, `.mobileInfo` with `flex: 1; min-width: 0; overflow: hidden;`, and `.mobileStatusChip` with `flex-shrink: 0; margin-inline-start: auto; align-self: flex-start;`.
+    - Omitted brand tag cleanly when brand is absent rather than rendering placeholder "ماركة غير محددة".
+    - Unified stock status into single row with warning icon (`AlertTriangle`) when stock is low.
+  - **Verification:**
+    - `src/__tests__/admin-products-card-bug4.test.jsx` (2/2 tests PASS).
+    - Needs on-device check: Admin Products `/admin/products` on mobile screen (~360px).
+
 - [x] **Phase 4 & 5: Anti-AI Polish & Purposeful Motion**
   - **Anti-AI Polish:** Removed artificial letter-spacing on Arabic cursive titles and badges in `SplashScreen.module.css` and `Auth.module.css`. Verified 1.7 body line-height, zero italics across all project files, and tabular numbers on SDG prices (`0 ج.س`).
   - **Purposeful Motion:**

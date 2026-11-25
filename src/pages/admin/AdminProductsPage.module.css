@@ -211,12 +211,19 @@
 }
 
 .lowStockAlert {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   font-size: 10px;
   font-weight: 700;
   color: #B45309;
   background: #FEF3C7;
   padding: 1px 6px;
   border-radius: var(--radius-full);
+}
+
+.lowStockIcon {
+  flex-shrink: 0;
 }
 
 .outOfStockAlert {
@@ -279,7 +286,7 @@
 
 .mobileCardHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-2);
   width: 100%;
 }
@@ -288,10 +295,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 44px;
-  min-height: 44px;
+  min-width: 36px;
+  min-height: 36px;
   cursor: pointer;
   flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .mobileThumb {
@@ -310,6 +318,7 @@
   gap: 2px;
   flex: 1;
   min-width: 0;
+  overflow: hidden;
 }
 
 .mobileTitle {
@@ -333,10 +342,20 @@
   display: flex;
   align-items: center;
   gap: var(--space-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobileBrand {
+  font-weight: 600;
+  color: var(--color-slate-700);
 }
 
 .mobileStatusChip {
   flex-shrink: 0;
+  margin-inline-start: auto;
+  align-self: flex-start;
 }
 
 .mobileKeyValues {

@@ -10,6 +10,7 @@ import {
   ExternalLink,
   CheckSquare,
   Square,
+  AlertTriangle,
 } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { adminAr } from '../../content/admin.ar';
@@ -515,8 +516,12 @@ export default function AdminProductsPage() {
               {p.name}
             </Link>
             <div className={styles.mobileMeta}>
-              <span>{p.brand_name || p.brand?.name || 'ماركة غير محددة'}</span>
-              <span aria-hidden="true">·</span>
+              {(p.brand_name || p.brand?.name) ? (
+                <>
+                  <span className={styles.mobileBrand}>{p.brand_name || p.brand?.name}</span>
+                  <span aria-hidden="true">·</span>
+                </>
+              ) : null}
               <span>{formatCondition(p.condition)}</span>
             </div>
           </div>
@@ -553,7 +558,10 @@ export default function AdminProductsPage() {
               {p.stock_quantity <= 0 ? (
                 <span className={styles.outOfStockAlert}>نفد</span>
               ) : p.stock_quantity <= 2 ? (
-                <span className={styles.lowStockAlert}>منخفض</span>
+                <span className={styles.lowStockAlert}>
+                  <AlertTriangle size={12} className={styles.lowStockIcon} aria-hidden="true" />
+                  <span>منخفض ({p.stock_quantity})</span>
+                </span>
               ) : null}
             </div>
           </div>
