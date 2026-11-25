@@ -125,7 +125,10 @@ export default function ProductDetailPage({
 
   const loadData = useCallback(() => {
     if (initialProduct !== null) return;
-    if (!cached?.data?.product) {
+    // Read the cache at call time. Depending on `cached?.data?.product` made loadData change
+    // after every swrCache.set (new object), re-running the effect: an endless 3-request loop.
+    const hasCached = Boolean(cacheKey && swrCache.get(cacheKey)?.data?.product);
+    if (!hasCached) {
       setLoading(true);
     }
     setError(null);
@@ -156,18 +159,18 @@ export default function ProductDetailPage({
         if (err?.name === 'AbortError') return;
         const status = err?.status || err?.response?.status;
         setErrorStatus(status);
-        if (!cached?.data?.product) {
+        if (!hasCached) {
           setError(err.message || 'تعذر تحميل بيانات الجهاز');
         }
       })
       .finally(() => {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       });
 
     return () => {
       controller.abort();
     };
-  }, [slug, initialProduct, cacheKey, cached?.data?.product]);
+  }, [slug, initialProduct, cacheKey]);
 
   useEffect(() => {
     const cleanup = loadData();
