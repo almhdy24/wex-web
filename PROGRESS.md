@@ -1,6 +1,12 @@
 # Wex Technology Web - Project Progress Tracker
 
-## Push Notification System Sprint (Branch: stabilize) — Active
+## Push Notification System Sprint (Branch: stabilize) — Complete
+
+- [x] **Phase 5: Tests & CI Proof**
+  - Backend PHPUnit (`wex-api/tests/feature/PushNotificationTest.php`): 5 tests, 27 assertions PASS (auth required, validation, user re-binding, unsubscribe, actor exclusion, kill switch, preferences, order tag coalescing, retry backoff, expiry deactivation, stale-event skipping, broadcast segments).
+  - Frontend Vitest (`src/__tests__/push-notifications.test.jsx`): 8/8 PASS (SW payload parsing, same-origin URL validation, permission state machine, subscribe/unsubscribe lifecycle, pre-permission sheet states, preferences UI, NotificationsPage mark-read).
+  - PWA/Workbox Vitest (`src/__tests__/pwa-workbox.test.js`): 3/3 PASS.
+  - Full-Stack CI E2E (`.github/workflows/e2e.yml`, run `45547882626`): PASS across Mobile-360x800 & Desktop-1280x800, including `06-push-notifications.spec.js` and 360x800 screenshot inspection.
 
 - [x] **Phase 3, 4, 6: Web Client (`wex-web`), Flutter Contract & Deployment Guide**
   - Switched `vite.config.js` to `strategies: 'injectManifest'` (`src/sw.js`), preserving all Workbox runtime caching rules and updating `src/__tests__/pwa-workbox.test.js` (3/3 PASS).
