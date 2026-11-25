@@ -146,43 +146,25 @@ async function main() {
       throw new Error(`testing-login failed: ${login.status()} ${await login.text()}`);
     }
 
-    // Seed mock admin and customer authentication tokens in localStorage
-    await context.addInitScript(() => {
-      try {
-        localStorage.setItem('auth_token', 'mock_ci_admin_token');
-        localStorage.setItem(
-          'auth_user',
-          JSON.stringify({
-            id: 1,
-            name: 'مدير النظام (CI)',
-            email: 'admin@wextechnology.com',
-            role: 'admin',
-          })
-        );
-      } catch {
-        // ignore
+    const page = await context.newPage();
+
+    // Listeners are attached once per page; adding them inside the route loop stacked
+    // one more copy per route (each failure printed N times by the Nth route).
+    let consoleErrors = [];
+    // Name the failing URL: 'Failed to load resource' alone is not diagnosable.
+    page.on('requestfailed', (req) => console.log(`   ↳ request failed: ${req.method()} ${req.url()} (${req.failure()?.errorText})`));
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') {
+        consoleErrors.push(msg.text());
       }
     });
-
-    const page = await context.newPage();
+    page.on('pageerror', (err) => {
+      consoleErrors.push(err.message);
+    });
 
     for (const route of ROUTES) {
       const url = `${BASE_URL}${route.path}`;
-      const consoleErrors = [];
-
-      // Name the failing URL: 'Failed to load resource' alone is not diagnosable.
-
-      page.on('requestfailed', (req) => console.log(`   ↳ request failed: ${req.method()} ${req.url()} (${req.failure()?.errorText})`));
-
-      page.on('console', (msg) => {
-        if (msg.type() === 'error') {
-          consoleErrors.push(msg.text());
-        }
-      });
-
-      page.on('pageerror', (err) => {
-        consoleErrors.push(err.message);
-      });
+      consoleErrors = [];
 
       try {
         await page.goto(url, { waitUntil: 'networkidle', timeout: 15000 });
