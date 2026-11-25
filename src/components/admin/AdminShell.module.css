@@ -459,8 +459,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-full);
   background: transparent;
   border: 1px solid var(--color-border);
@@ -639,8 +639,8 @@
 }
 
 .iconBtn {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -726,7 +726,7 @@
 }
 
 .tabItem span {
-  font-size: 12px;
+  font-size: 11px;
   min-width: 0;
   max-width: 100%;
   overflow: hidden;

@@ -4,6 +4,8 @@
   gap: var(--space-6, 24px);
   padding: var(--space-4, 16px);
   max-width: 1200px;
+  width: 100%;
+  overflow-x: clip;
   margin-inline: auto;
 }
 

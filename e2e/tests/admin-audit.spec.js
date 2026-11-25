@@ -197,5 +197,37 @@ test.describe('Phase 1: Admin Deep Audit (320/360/412/768)', () => {
       path.join(outDir, 'admin-audit-report.json'),
       JSON.stringify(report, null, 2)
     );
+
+    const htmlRows = report
+      .map((r) => {
+        const pass = !r.overflow && !r.notFoundRender && r.colonOnlyLabels.length === 0 && r.smallInputFonts.length === 0 && r.consoleErrors.length === 0 && r.failedRequests.length === 0;
+        return `<tr><td><code>${r.route}</code></td><td>${r.width}px</td><td style="color:${pass ? 'green' : 'red'}"><strong>${pass ? 'PASS' : 'FAIL'}</strong></td><td>${r.overflow}</td><td>${r.smallInputFonts.length}</td><td><a href="${r.screenshot}"><img src="${r.screenshot}" width="120"/></a></td></tr>`;
+      })
+      .join('\n');
+    fs.writeFileSync(
+      path.join(outDir, 'index.html'),
+      `<!doctype html><html><head><meta charset="utf-8"><title>Admin Audit Report</title><style>body{font-family:sans-serif;padding:20px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ddd;padding:6px;text-align:left}</style></head><body><h1>Admin Audit Report (320/360/412/768)</h1><table><thead><tr><th>Route</th><th>Width</th><th>Status</th><th>Overflow</th><th>SmallInputs</th><th>Screenshot</th></tr></thead><tbody>${htmlRows}</tbody></table></body></html>`
+    );
+
+    const failures = report.filter(
+      (r) =>
+        r.overflow ||
+        r.notFoundRender ||
+        r.colonOnlyLabels.length > 0 ||
+        r.smallInputFonts.length > 0 ||
+        r.consoleErrors.length > 0 ||
+        r.failedRequests.length > 0
+    );
+    if (failures.length > 0) {
+      throw new Error(
+        `Admin audit failed on ${failures.length} route/width checks:\n` +
+          failures
+            .map(
+              (f) =>
+                `${f.route} (${f.width}px): overflow=${f.overflow}, notFound=${f.notFoundRender}, smallInputs=${f.smallInputFonts.length}, console=${f.consoleErrors.length}, http=${f.failedRequests.length}`
+            )
+            .join('\n')
+      );
+    }
   });
 });

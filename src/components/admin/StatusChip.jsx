@@ -42,6 +42,7 @@ const DOMAIN_MAP = {
     ready_for_pickup: { label: 'جاهز للاستلام بالمحل', variant: 'info', icon: Store },
     out_for_delivery: { label: 'مع مندوب التوصيل', variant: 'info', icon: Truck },
     delivered: { label: 'تم التسليم بنجاح', variant: 'success', icon: CheckCircle2 },
+    completed: { label: 'مكتمل ومستلم', variant: 'success', icon: CheckCircle2 },
     cancelled: { label: 'ملغي', variant: 'danger', icon: XCircle },
     expired: { label: 'انتهت مهلة السعر', variant: 'danger', icon: AlertTriangle },
   },
