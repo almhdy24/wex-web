@@ -82,6 +82,8 @@ jobs:
           node scripts/check-api-surface.mjs
           node scripts/check-css-modules.mjs
           node scripts/check-admin-english.mjs
+          node scripts/contract-check.js
+          node node_modules/eslint/bin/eslint.js src --quiet
           npm run test
 
       - name: Build Production Frontend

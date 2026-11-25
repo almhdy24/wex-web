@@ -20,6 +20,13 @@ jobs:
       - name: Checkout wex-web
         uses: actions/checkout@v4
 
+      - name: Checkout wex-api (for the static contract check)
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/wex-api
+          ref: stabilize
+          path: .wex-api
+
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
@@ -30,6 +37,8 @@ jobs:
         run: npm ci
 
       - name: Run Static Quality Checks
+        env:
+          WEX_API_DIR: ${{ github.workspace }}/.wex-api
         run: npm run check:all
 
       - name: Build Production Frontend
