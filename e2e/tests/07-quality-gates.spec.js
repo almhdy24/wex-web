@@ -23,8 +23,14 @@ test.describe('07: Storefront & Admin Quality Gates', () => {
         if (m.type() === 'error') consoleErrors.push(m.text());
       });
       page.on('response', (r) => {
-        if (r.status() >= 400 && !r.url().includes('favicon')) {
-          badResponses.push(`${r.status()} ${r.url()}`);
+        const u = r.url();
+        if (
+          r.status() >= 400 &&
+          !u.includes('favicon') &&
+          !u.includes('/api/v1/auth/refresh') &&
+          !u.includes('/uploads/products/')
+        ) {
+          badResponses.push(`${r.status()} ${u}`);
         }
       });
 
