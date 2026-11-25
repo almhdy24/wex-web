@@ -595,11 +595,11 @@ export default function AdminOrderDetailPage({ initialOrder = null, initialLoadi
                     <>
                       <div>
                         <span className={styles.fieldLabel}>المنطقة / الولاية:</span>
-                        <strong className={styles.fieldValue}>{order.shipping_state || 'الخرطوم'}</strong>
+                        <strong className={styles.fieldValue}>{order.shipping_zone_name || '—'}</strong>
                       </div>
                       <div>
                         <span className={styles.fieldLabel}>العنوان التفصيلي:</span>
-                        <strong className={styles.fieldValue}>{order.shipping_address || '—'}</strong>
+                        <strong className={styles.fieldValue}>{order.delivery_address || '—'}</strong>
                       </div>
                     </>
                   )}

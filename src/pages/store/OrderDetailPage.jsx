@@ -847,7 +847,7 @@ export default function OrderDetailPage({
               </div>
               <div className={styles.stepInfo}>
                 <span className={styles.stepTitle}>
-                  {order.order_type === 'delivery' ? 'التوصيل' : 'الاستلام'}
+                  {order.delivery_type === 'delivery' ? 'التوصيل' : 'الاستلام'}
                 </span>
                 <span className={styles.stepNote}>
                   {isCompleted
