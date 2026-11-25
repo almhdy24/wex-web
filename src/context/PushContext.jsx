@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { pushApi } from '../api/push';
 import { notificationsApi } from '../api/notifications';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from './AuthContext';
 import { useToast } from './ToastContext';
 import {
   buildSubscriptionPayload,

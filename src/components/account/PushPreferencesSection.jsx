@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Bell, Smartphone, Trash2, Send, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { usePush } from '../../context/PushContext';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import styles from './PushPreferencesSection.module.css';
 
