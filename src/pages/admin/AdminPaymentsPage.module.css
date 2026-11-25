@@ -85,26 +85,39 @@
    Review Grid: Split Screen
    ========================================================================== */
 .reviewGrid {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-4);
-  align-items: start;
+  align-items: stretch;
 }
 
 @media (min-width: 1024px) {
   .reviewGrid {
+    display: grid;
     grid-template-columns: 1.25fr 1fr;
     min-height: 580px;
+    align-items: start;
   }
+}
+
+.detailsColumn {
+  width: 100%;
+  order: 1;
 }
 
 .imageColumn {
   width: 100%;
-  height: 420px;
+  order: 2;
+  height: 380px;
 }
 
 @media (min-width: 1024px) {
+  .detailsColumn {
+    order: 2;
+  }
+
   .imageColumn {
+    order: 1;
     height: 600px;
   }
 }
@@ -131,11 +144,6 @@
 
 .noImageIcon {
   color: #F59E0B;
-}
-
-/* Details Column */
-.detailsColumn {
-  width: 100%;
 }
 
 .verificationCard {

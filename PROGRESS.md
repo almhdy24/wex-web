@@ -75,6 +75,15 @@
     - `src/__tests__/admin-products-card-bug4.test.jsx` (2/2 tests PASS).
     - Needs on-device check: Admin Products `/admin/products` on mobile screen (~360px).
 
+- [x] **Bug 5: Admin Payments Page Mobile Layout & Dead Area Fix**
+  - **Root Cause:** On phone screens (< 1024px), `.reviewGrid` rendered `.imageColumn` with fixed height (420px-560px) ABOVE the verification details card (`.detailsColumn`), creating a huge empty/viewer void between the header and the first payment card requiring extensive vertical scrolling.
+  - **Fix:**
+    - Updated `AdminPaymentsPage.module.css`: on mobile (< 1024px), `.reviewGrid` displays as flex column with `.detailsColumn` ordered first (`order: 1`) immediately below the page header with standard 16px gap, and `.imageColumn` ordered second (`order: 2`) with height 380px.
+    - Preserved side-by-side desktop layout on screens >= 1024px (`order: 1` image, `order: 2` details).
+  - **Verification:**
+    - `src/__tests__/admin-payments-gap-bug5.test.jsx` (1/1 test PASS).
+    - Needs on-device check: Admin Payments `/admin/payments` on mobile screen (~360px).
+
 - [x] **Phase 4 & 5: Anti-AI Polish & Purposeful Motion**
   - **Anti-AI Polish:** Removed artificial letter-spacing on Arabic cursive titles and badges in `SplashScreen.module.css` and `Auth.module.css`. Verified 1.7 body line-height, zero italics across all project files, and tabular numbers on SDG prices (`0 ج.س`).
   - **Purposeful Motion:**
