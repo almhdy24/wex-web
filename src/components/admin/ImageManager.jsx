@@ -378,7 +378,7 @@ export default function ImageManager({
                   <input
                     type="text"
                     className={styles.altInput}
-                    placeholder="وصف الصورة (Alt)..."
+                    placeholder="وصف الصورة النصي لقارئات الشاشة..."
                     value={currentAlt}
                     onChange={(e) =>
                       setAltDrafts((prev) => ({ ...prev, [item.id]: e.target.value }))

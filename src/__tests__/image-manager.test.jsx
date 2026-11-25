@@ -102,7 +102,7 @@ describe('ImageManager component', () => {
       </ToastContext.Provider>
     );
 
-    const altInput = screen.getByPlaceholderText('وصف الصورة (Alt)...');
+    const altInput = screen.getByPlaceholderText('وصف الصورة النصي لقارئات الشاشة...');
     fireEvent.change(altInput, { target: { value: 'وصف جديد ومفصل' } });
     fireEvent.blur(altInput);
 

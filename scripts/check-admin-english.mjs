@@ -106,10 +106,11 @@ for (const filePath of adminFiles) {
     }
 
     // In JSX files: extract text between > and <
-    const jsxTextMatches = trimmed.matchAll(/>([^<>{]+)</g);
+    // ('=>' arrows and 'a > 1 && b < 2' comparisons are code, not JSX text)
+    const jsxTextMatches = trimmed.matchAll(/(?<![=-])>([^<>{]+)</g);
     for (const m of jsxTextMatches) {
       const text = m[1].trim();
-      if (text && !text.startsWith('&')) {
+      if (text && !text.startsWith('&') && !/&&|\|\||;|\(\s*\w+\s*\)\s*=>/.test(text)) {
         checkStringWords(text, relPath, lineNum, trimmed);
       }
     }
@@ -118,6 +119,8 @@ for (const filePath of adminFiles) {
     const propTextMatches = trimmed.matchAll(/\b(?:placeholder|label|title|alt)\s*=\s*['"]([^'"]+)['"]/g);
     for (const m of propTextMatches) {
       const text = m[1].trim();
+      // An in-app path example ("/notifications") is a value format, not copy.
+      if (/^\/[\w\-/]*$/.test(text)) continue;
       checkStringWords(text, relPath, lineNum, trimmed);
     }
   });

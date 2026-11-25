@@ -100,7 +100,7 @@ export default function AdminPushSection() {
       <div className={styles.topBar}>
         <div className={styles.titleRow}>
           <Bell size={18} />
-          <h2>نظام الإشعارات الفورية (Push)</h2>
+          <h2>نظام الإشعارات الفورية</h2>
         </div>
         <div className={styles.topActions}>
           <button
