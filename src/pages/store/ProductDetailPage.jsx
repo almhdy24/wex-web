@@ -574,9 +574,10 @@ export default function ProductDetailPage({
               href={whatsappShareUrl}
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="أرسل هذا الجهاز عبر واتساب"
             >
               <MessageCircle size={18} strokeWidth={1.75} aria-hidden="true" />
-              <span>أرسله عبر واتساب</span>
+              <span>واتساب</span>
             </a>
           )}
         </div>
