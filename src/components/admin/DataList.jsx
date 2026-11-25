@@ -114,7 +114,13 @@ export default function DataList({
 
             return (
               <div key={rowKey} role="listitem" className={styles.cardItemWrapper}>
-                <article className={styles.cardItem}>
+                {/* The whole card opens the row on touch; the title button stays the
+                    keyboard/screen-reader entry point. Previously only the small title
+                    navigated, so tapping the card body did nothing. */}
+                <article
+                  className={`${styles.cardItem} ${onRowClick ? styles.clickable : ''}`}
+                  onClick={onRowClick ? () => onRowClick(row) : undefined}
+                >
                   {/* Card Header: Select Checkbox + Primary info + Status Badge */}
                   <header className={styles.cardHeader}>
                     <div className={styles.cardHeaderStart}>
@@ -131,7 +137,10 @@ export default function DataList({
                           <button
                             type="button"
                             className={styles.cardTitleBtn}
-                            onClick={() => onRowClick(row)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onRowClick(row);
+                            }}
                           >
                             {primaryCol?.render ? primaryCol.render(row) : row[primaryCol?.key]}
                           </button>
@@ -169,7 +178,7 @@ export default function DataList({
 
                   {/* D2: Card Footer: isActions column slot for mobile */}
                   {actionsCol && (
-                    <footer className={styles.cardFooter}>
+                    <footer className={styles.cardFooter} onClick={(e) => e.stopPropagation()}>
                       {actionsCol.render ? actionsCol.render(row) : row[actionsCol.key]}
                     </footer>
                   )}
