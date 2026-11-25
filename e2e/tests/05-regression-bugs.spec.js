@@ -66,22 +66,32 @@ test.describe('05: Regression Suite for Specific Mobile & Visual Bugs', () => {
   });
 
   test('BUG 4: Phone and numeric inputs have dir=ltr and text-align=right in computed style', async ({ page }) => {
+    // Add item to cart first so /checkout does not redirect to /cart
+    await page.goto('/products');
+    await page.waitForLoadState('domcontentloaded');
+    const firstProduct = page.locator('a[href^="/products/"]').first();
+    await expect(firstProduct).toBeVisible({ timeout: 10000 });
+    await firstProduct.click();
+    await page.waitForURL(/\/products\/.+/);
+
+    const addBtn = page.locator('button:has-text("اطلب الآن"), button:has-text("أضف إلى السلة")').first();
+    await addBtn.click();
+
     await page.goto('/checkout');
     await page.waitForLoadState('domcontentloaded');
 
     const phoneInput = page.locator('#checkout-phone-input');
-    if (await phoneInput.isVisible()) {
-      const styles = await phoneInput.evaluate((el) => {
-        const computed = window.getComputedStyle(el);
-        return {
-          direction: computed.direction,
-          textAlign: computed.textAlign,
-        };
-      });
+    await expect(phoneInput).toBeVisible({ timeout: 10000 });
+    const styles = await phoneInput.evaluate((el) => {
+      const computed = window.getComputedStyle(el);
+      return {
+        direction: computed.direction,
+        textAlign: computed.textAlign,
+      };
+    });
 
-      expect(styles.direction).toBe('ltr');
-      expect(styles.textAlign).toBe('right');
-    }
+    expect(styles.direction).toBe('ltr');
+    expect(styles.textAlign).toBe('right');
 
     await page.screenshot({ path: `e2e/test-results/bug-4-numeric-inputs-${page.viewportSize().width}.png` });
   });

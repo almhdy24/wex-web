@@ -58,11 +58,13 @@ test.describe('02: Cart, Checkout & Order Lifecycle (FEAT-005 - FEAT-013)', () =
 
     const phoneInput = page.locator('#checkout-phone-input');
     await phoneInput.fill('0912345678');
+    await phoneInput.blur();
 
     await page.screenshot({ path: `e2e/test-results/feat-006-checkout-${page.viewportSize().width}.png` });
 
     // 6. Confirm Order
     const confirmBtn = page.locator('button:has-text("تأكيد الطلب")');
+    await expect(confirmBtn).toBeVisible();
     await expect(confirmBtn).toBeEnabled();
     await confirmBtn.click();
 
