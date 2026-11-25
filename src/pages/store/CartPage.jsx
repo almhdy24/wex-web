@@ -8,7 +8,7 @@ import { getProductUrl } from '../../utils/productUrl';
 import { pluralAr } from '../../utils/pluralAr';
 import { normalizeShopInfo } from '../../utils/shopSettings';
 import { productsApi } from '../../api/products';
-import { swrCache } from '../../api/cache';
+import { swrCache } from '../../utils/swrCache';
 import { useCountUp } from '../../motion';
 import { ProductTypeSvg } from '../../components/common';
 import AppBar from '../../components/common/AppBar';
