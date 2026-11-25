@@ -152,6 +152,18 @@
   color: var(--wex-text-secondary);
   cursor: pointer;
   padding: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+}
+
+.closeBtn:focus {
+  outline: none;
+}
+
+.closeBtn:focus-visible {
+  outline: 2px solid var(--wex-royal);
+  outline-offset: 2px;
 }
 
 .closeBtn:hover {

@@ -454,6 +454,7 @@ export default function AdminPaymentAccountsPage() {
             <label className={styles.formLabel}>{adminAr.paymentAccounts.accountNumber} *</label>
             <input
               type="text"
+              inputMode="numeric"
               required
               value={formData.account_number}
               onChange={(e) => setFormData({ ...formData, account_number: e.target.value })}
@@ -496,11 +497,11 @@ export default function AdminPaymentAccountsPage() {
           </div>
 
           <div className={styles.modalActions}>
-            <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>
-              إلغاء
-            </Button>
-            <Button type="submit" variant="primary">
+            <Button type="submit" variant="primary" className={styles.submitBtn}>
               مراجعة وحفظ
+            </Button>
+            <Button type="button" variant="secondary" onClick={() => setModalOpen(false)} className={styles.cancelBtn}>
+              إلغاء
             </Button>
           </div>
         </form>

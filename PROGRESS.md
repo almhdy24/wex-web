@@ -84,6 +84,16 @@
     - `src/__tests__/admin-payments-gap-bug5.test.jsx` (1/1 test PASS).
     - Needs on-device check: Admin Payments `/admin/payments` on mobile screen (~360px).
 
+- [x] **Bug 6: Orders Search Placeholder, Edit Account Sheet Polish & Touch Focus Rings**
+  - **Root Cause:** Orders search placeholder contained English acronym and parentheses ("(WEX-...)") susceptible to bidi flipping. Edit payment account modal had desktop-oriented right-aligned buttons, 14px font size (triggering iOS input zoom), missing numeric inputmode on account number, and tap focus ring on close X.
+  - **Fix:**
+    - Cleaned orders search placeholder to pure Modern Standard Arabic: `"ابحث برقم الطلب أو رقم الهاتف"`.
+    - Updated `AdminPaymentAccountsPage`: added `inputMode="numeric"` to account number, bumped input font size to 16px (`16px`), made footer buttons full-width with equal flex (`flex: 1`), and ordered primary action on start side in DOM. Added keyboard-safe modal scrolling (`max-height: calc(85dvh - 120px); overflow-y: auto`).
+    - Updated `Modal.module.css` and `Sheet.module.css`: restricted close button focus outline strictly to `:focus-visible` only (`outline: none` on regular `:focus` to eliminate touch tap rings).
+  - **Verification:**
+    - `src/__tests__/bug6-polish.test.jsx` (2/2 tests PASS).
+    - Needs on-device check: Admin Orders search bar `/admin/orders`, Edit Payment Account modal `/admin/payment-accounts`.
+
 - [x] **Phase 4 & 5: Anti-AI Polish & Purposeful Motion**
   - **Anti-AI Polish:** Removed artificial letter-spacing on Arabic cursive titles and badges in `SplashScreen.module.css` and `Auth.module.css`. Verified 1.7 body line-height, zero italics across all project files, and tabular numbers on SDG prices (`0 ج.س`).
   - **Purposeful Motion:**

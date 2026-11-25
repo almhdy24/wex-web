@@ -81,11 +81,23 @@
   color: var(--wex-text-secondary);
   cursor: pointer;
   padding: 4px;
+  min-width: 44px;
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-control, 12px);
   transition: color 200ms ease;
+  outline: none;
+}
+
+.closeBtn:focus {
+  outline: none;
+}
+
+.closeBtn:focus-visible {
+  outline: 2px solid var(--wex-royal);
+  outline-offset: 2px;
 }
 
 .closeBtn:hover {

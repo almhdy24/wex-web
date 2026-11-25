@@ -414,6 +414,10 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+  max-height: calc(85dvh - 120px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: env(safe-area-inset-bottom, 16px);
 }
 
 .formGroup {
@@ -433,7 +437,8 @@
   border: 1px solid var(--wex-border, #D5E2F2);
   border-radius: var(--radius-md, 14px);
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: 16px;
+  min-height: 44px;
 }
 
 .formInput:focus {
@@ -457,9 +462,16 @@
 .modalActions {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
+  gap: var(--space-3, 12px);
   margin-top: 10px;
+  width: 100%;
+}
+
+.submitBtn,
+.cancelBtn {
+  flex: 1;
+  width: 100%;
+  justify-content: center;
 }
 
 .loadingGrid {

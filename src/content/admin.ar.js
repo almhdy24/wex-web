@@ -119,7 +119,7 @@ export const adminAr = {
   orders: {
     title: 'إدارة طلبات الشراء',
     subtitle: 'متابعة وتحديث مسار طلبات العملاء',
-    searchPlaceholder: 'بحث برقم الطلب (WEX-...) أو هاتف العميل',
+    searchPlaceholder: 'ابحث برقم الطلب أو رقم الهاتف',
     allStatuses: 'كافة الحالات',
     deliveryTypeAll: 'كافة طرق الاستلام',
     pickup: 'استلام من المحل (مول الواحة)',
