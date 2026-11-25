@@ -8,6 +8,7 @@ import {
   ApiError,
 } from '../api/client';
 import { unsubscribeFromDevice } from '../utils/push';
+import { swrCache } from '../utils/swrCache';
 
 export const AuthContext = createContext(null);
 
@@ -63,6 +64,10 @@ export function AuthProvider({ children }) {
     } catch {
       // Storage unavailable
     }
+
+    // In-memory SWR cache holds per-user data (e.g. 'my_orders'); on a shared device the
+    // next account must never be shown the previous account's orders.
+    swrCache.clear();
 
     if (shouldBroadcast) {
       broadcastAuthEvent({ type: 'LOGOUT' });
@@ -167,6 +172,7 @@ export function AuthProvider({ children }) {
   }, [scheduleProactiveRefresh, clearSession]);
 
   const loginWithSession = useCallback((userData, newAccessToken) => {
+    swrCache.clear();
     setUser(userData);
     setAccessTokenState(newAccessToken);
     setMemoryAccessToken(newAccessToken);
