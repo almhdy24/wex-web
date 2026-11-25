@@ -339,6 +339,12 @@ export const api = {
       method: 'PATCH',
       body: body instanceof FormData ? body : JSON.stringify(body),
     }),
+  put: (endpoint, body, options) =>
+    apiClient(endpoint, {
+      ...options,
+      method: 'PUT',
+      body: body instanceof FormData ? body : JSON.stringify(body),
+    }),
   delete: (endpoint, options) => apiClient(endpoint, { ...options, method: 'DELETE' }),
 };
 
