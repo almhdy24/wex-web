@@ -16,7 +16,7 @@ import {
 export const PushContext = createContext(null);
 
 export function PushProvider({ children }) {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const { info } = useToast();
 
   const [pushState, setPushState] = useState(() => getPushState());
@@ -70,6 +70,10 @@ export function PushProvider({ children }) {
     let active = true;
     setPushState(getPushState());
 
+    if (authLoading) {
+      return undefined;
+    }
+
     if (!isAuthenticated || !user?.id) {
       setIsSubscribed(false);
       setPreferences(null);
@@ -101,7 +105,7 @@ export function PushProvider({ children }) {
     return () => {
       active = false;
     };
-  }, [isAuthenticated, user?.id, refreshUnreadCount, refreshPreferences, refreshSubscriptions]);
+  }, [authLoading, isAuthenticated, user?.id, refreshUnreadCount, refreshPreferences, refreshSubscriptions]);
 
   // Listen for Service Worker push messages (foreground toast, click mark-read, resubscribe)
   useEffect(() => {
