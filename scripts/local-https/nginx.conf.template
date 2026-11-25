@@ -1,0 +1,83 @@
+worker_processes 1;
+pid __OUT_DIR__/nginx.pid;
+error_log __OUT_DIR__/error.log warn;
+
+events {
+    worker_connections 256;
+}
+
+http {
+    include __MIME_TYPES__;
+    default_type application/octet-stream;
+
+    access_log __OUT_DIR__/access.log;
+
+    client_body_temp_path __OUT_DIR__/tmp/client_body;
+    proxy_temp_path __OUT_DIR__/tmp/proxy;
+    fastcgi_temp_path __OUT_DIR__/tmp/fastcgi;
+    uwsgi_temp_path __OUT_DIR__/tmp/uwsgi;
+    scgi_temp_path __OUT_DIR__/tmp/scgi;
+
+    sendfile on;
+    tcp_nopush on;
+    keepalive_timeout 30;
+    client_max_body_size 10m;
+
+    gzip on;
+    gzip_types text/plain text/css application/javascript application/json application/manifest+json image/svg+xml;
+
+    map $http_upgrade $connection_upgrade {
+        default upgrade;
+        '' close;
+    }
+
+    # HTTP -> HTTPS redirect
+    server {
+        listen __HTTP_PORT__;
+        server_name _;
+        return 301 https://$host:8443$request_uri;
+    }
+
+    # HTTPS Server (HTTP/2)
+    server {
+        listen 8443 ssl;
+        http2 on;
+        server_name _;
+
+        ssl_certificate __OUT_DIR__/server.crt;
+        ssl_certificate_key __OUT_DIR__/server.key;
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers HIGH:!aNULL:!MD5;
+
+        # Proxy API & uploads to wex-api (PHP on 8081)
+        location /api {
+            proxy_pass http://127.0.0.1:8081;
+            proxy_http_version 1.1;
+            proxy_set_header Host $http_host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto https;
+        }
+
+        location /uploads {
+            proxy_pass http://127.0.0.1:8081;
+            proxy_http_version 1.1;
+            proxy_set_header Host $http_host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto https;
+        }
+
+        # Never cache Service Worker
+        location ~* ^/(sw\.js|registerSW\.js)$ {
+            add_header Cache-Control "no-cache, no-store, must-revalidate" always;
+            add_header Pragma "no-cache" always;
+            __SW_UPSTREAM__
+        }
+
+        # Frontend (static dist or Vite dev server)
+        location / {
+            __WEB_UPSTREAM__
+        }
+    }
+}

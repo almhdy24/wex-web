@@ -11,7 +11,8 @@ export default defineConfig({
       filename: 'sw.js',
       registerType: 'autoUpdate',
       devOptions: {
-        enabled: false,
+        enabled: process.env.VITE_DEV_SW === '1',
+        type: 'module',
       },
       includeAssets: ['favicon.svg', 'favicon.png', 'robots.txt', 'icons/apple-touch-icon.png', 'icons/badge-96.png'],
       manifest: {

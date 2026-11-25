@@ -6,3 +6,8 @@ dist-ssr
 !.env.example
 .DS_Store
 .npmrc
+
+.wex-local-https/
+*.crt
+*.key
+*.pem

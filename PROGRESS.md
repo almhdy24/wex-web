@@ -1,5 +1,24 @@
 # Wex Technology Web - Project Progress Tracker
 
+## Stabilization, Local HTTPS & UX/IA Sprint (Branch: stabilize) — Active
+
+- [x] **Phase 1 (P0): Admin 404s & Admin Route Crawler**
+  - Root cause 1: `src/sw.js` had `/admin` in `NavigationRoute` `denylist` and `NetworkOnly`, blocking SW navigation fallback on `/admin/*` deep-link reloads. Fixed to denylist `/^\/api\//` only and guard `NetworkOnly` with `request.mode !== 'navigate'` + `pathname.startsWith('/api/')`.
+  - Root cause 2: `router.jsx` used `<NotFoundPage />` as `errorElement`, masking runtime errors as fake 404s. Added `RouteErrorPage.jsx` and explicit `{ path: '*', element: <NotFoundPage /> }` inside `/admin`.
+  - Root cause 3: `AdminShell.jsx` hardcoded route lists and omitted `/admin/brands`. Created `src/app/adminRoutes.js` as Single Source of Truth for `router.jsx`, `AdminShell.jsx`, and `e2e/tests/admin-crawler.spec.js`.
+  - Root cause 4: `PushContext.jsx` fired `/api/v1/push/config` before `AuthContext` finished `initSession()` (`authLoading: true`), causing a `401` on `/admin` reload. Fixed to wait for `authLoading === false`.
+
+- [x] **Phase 2: Local HTTPS (nginx + Local Root CA in Termux)**
+  - Installed `nginx/1.31.10` (`openssl` already present).
+  - Created `scripts/local-https/` (`setup.sh`, `nginx.conf.template`, `start.sh [static|dev]`, `stop.sh`, `status.sh`) and `docs/LOCAL_HTTPS.md`.
+  - Added `VITE_DEV_SW=1` support in `vite.config.js` and `src/main.jsx` so dev SW can be tested locally.
+  - Verified with `nginx -t` and `curl --cacert ~/.wex-local-https/ca.crt`:
+    - `https://localhost:8443/` -> `HTTP 200`
+    - `https://localhost:8443/admin/products` -> `HTTP 200`
+    - `https://localhost:8443/api/v1/ping` -> `HTTP 200` (`"خدمة ويكس تكنولوجي تعمل بنجاح"`)
+    - `https://localhost:8443/api/v1/push/config` -> `HTTP 401` (auth enforced)
+    - `https://localhost:8443/sw.js` -> `HTTP/2 200`, `cache-control: no-cache, no-store, must-revalidate`
+
 ## Push Notification System Sprint (Branch: stabilize) — Complete
 
 - [x] **Phase 5: Tests & CI Proof**
