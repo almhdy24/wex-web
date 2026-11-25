@@ -58,5 +58,15 @@ describe('PWA & Workbox Hardening Verification (Phase 7)', () => {
     expect(swContent).toContain('NetworkOnly');
     expect(swContent).toContain('StaleWhileRevalidate');
     expect(swContent).toContain('/api/v1/products');
+
+    // NET-01: product/price/stock responses are network-first with a short cache cap
+    // (previously stale-while-revalidate for 12 hours).
+    const productRule = swContent.slice(swContent.indexOf("startsWith('/api/v1/products')"));
+    expect(productRule.slice(0, 400)).toContain('NetworkFirst');
+    const m = swContent.match(/PRODUCT_CACHE_MAX_AGE_SECONDS = ([0-9* ]+);/);
+    expect(m).not.toBeNull();
+    // eslint-disable-next-line no-eval
+    expect(eval(m[1])).toBeLessThanOrEqual(15 * 60);
+    expect(swContent).not.toMatch(/60 \* 60 \* 12/);
   });
 });

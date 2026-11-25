@@ -38,21 +38,29 @@ registerRoute(
   new NetworkOnly()
 );
 
-// Public catalog cached with StaleWhileRevalidate
+// Products carry prices and stock: network first (fresh when online), short cache fallback
+// only for slow/offline connections. Never hours-old prices.
+const PRODUCT_CACHE_MAX_AGE_SECONDS = 10 * 60;
 registerRoute(
-  ({ url }) => {
-    const pathname = url.pathname;
-    return (
-      pathname.startsWith('/api/v1/products') ||
-      pathname.startsWith('/api/v1/categories') ||
-      pathname.startsWith('/api/v1/brands')
-    );
-  },
-  new StaleWhileRevalidate({
-    cacheName: 'wex-catalog-cache',
+  ({ url }) => url.pathname.startsWith('/api/v1/products'),
+  new NetworkFirst({
+    cacheName: 'wex-catalog-products',
+    networkTimeoutSeconds: 4,
     plugins: [
-      new ExpirationPlugin({ maxEntries: 50, maxAgeSeconds: 60 * 60 * 12 }),
-      new CacheableResponsePlugin({ statuses: [0, 200] }),
+      new ExpirationPlugin({ maxEntries: 60, maxAgeSeconds: PRODUCT_CACHE_MAX_AGE_SECONDS }),
+      new CacheableResponsePlugin({ statuses: [200] }),
+    ],
+  })
+);
+
+// Categories/brands change rarely: instant from cache, refreshed in the background.
+registerRoute(
+  ({ url }) => url.pathname.startsWith('/api/v1/categories') || url.pathname.startsWith('/api/v1/brands'),
+  new StaleWhileRevalidate({
+    cacheName: 'wex-catalog-taxonomy',
+    plugins: [
+      new ExpirationPlugin({ maxEntries: 20, maxAgeSeconds: 60 * 60 }),
+      new CacheableResponsePlugin({ statuses: [200] }),
     ],
   })
 );
