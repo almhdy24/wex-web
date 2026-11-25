@@ -137,6 +137,15 @@ async function main() {
       serviceWorkers: 'block',
     });
 
+    // Real admin session: the API sets the HttpOnly refresh cookie (same site as the
+    // preview origin), so the app authenticates exactly as in production. A fake token in
+    // localStorage only produced 401s on every admin page.
+    const apiBase = process.env.API_BASE || 'http://127.0.0.1:8080/api/v1';
+    const login = await context.request.post(`${apiBase}/auth/testing-login`, { data: { email: 'admin@wextechnology.com' } });
+    if (!login.ok()) {
+      throw new Error(`testing-login failed: ${login.status()} ${await login.text()}`);
+    }
+
     // Seed mock admin and customer authentication tokens in localStorage
     await context.addInitScript(() => {
       try {
