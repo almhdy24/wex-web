@@ -174,10 +174,6 @@
   position: relative;
   z-index: 2;
 }
-  gap: 6px;
-  position: relative;
-  z-index: 2;
-}
 
 .dot {
   width: 6px;
