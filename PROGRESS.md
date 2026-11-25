@@ -94,6 +94,41 @@
     - `src/__tests__/bug6-polish.test.jsx` (2/2 tests PASS).
     - Needs on-device check: Admin Orders search bar `/admin/orders`, Edit Payment Account modal `/admin/payment-accounts`.
 
+- [x] **PostCSS Syntax Error Fix & Database Zero Refresh with Realistic Seeding**
+  - **PostCSS Syntax Error (`src/pages/store/HomePage.module.css`):**
+    - Root cause: Duplicate orphan CSS declaration lines (`gap: 6px; position: relative; z-index: 2; }`) outside of any selector at line 177 in `HomePage.module.css`.
+    - Fix: Removed orphan lines. Verified with PostCSS build and `npm run check:all` (all 7 checks PASS).
+  - **Backend Zero Refresh & Comprehensive Seeding (`wex-api`):**
+    - Migration safety: Added `tableExists` and `fieldExists` guards in `down()` methods of `2026-11-20-000001_AddPricesUpdatedAtAndOrderItemSdgColumns`, `2026-11-21-000002_AddEventTypeAndMetaToOrderEvents`, and `2026-11-24-000001_AddAltToProductImagesTable` to ensure SQLite rollbacks and migrations run cleanly from zero.
+    - Database Reset: Fully reset `writable/database/wex.sqlite` to zero and ran all 23 migrations cleanly.
+    - Generated Product & Receipt Media:
+      - Generated 800x600 primary images and 300x225 thumbnails plus secondary angle images for all 14 catalog products into `public/uploads/products/`.
+      - Generated official receipt proof image `receipt-bok-1001.jpg` in private `writable/uploads/proofs/`.
+    - Enhanced Seeders (`ProductsSeeder.php` & `DevSeeder.php`):
+      - `ProductsSeeder.php`: Seeds primary and secondary images for all 14 products (8 laptops + 6 accessories) with Arabic alt tags.
+      - `DevSeeder.php`:
+        - Seeds active customer user (`عمر محمد أحمد`, `customer@wex.sd`, `+249912345679`) and staff user (`أحمد علي حسن`, `staff@wextechnology.com`).
+        - Seeds 2 active payment accounts: Bank of Khartoum (`بنك الخرطوم (تطبيق بنكك)`) and Omdurman National Bank (`بنك أم درمان الوطني (أوكاش)`).
+        - Seeds active store announcement banner.
+        - Seeds 7 realistic orders across all canonical states:
+          - `WEX-261125-1001A`: `payment_review` (pickup) with pending proof `receipt-bok-1001.jpg` populated in Admin Payments review queue.
+          - `WEX-261125-1002B`: `pending_payment` (delivery) with active future price-lock.
+          - `WEX-261125-1003C`: `confirmed` with approved proof.
+          - `WEX-261125-1004D`: `ready_for_pickup` with approved proof.
+          - `WEX-261125-1005E`: `out_for_delivery` with assigned courier details.
+          - `WEX-261125-1006F`: `completed` with delivery event history.
+          - `WEX-261125-1007G`: `cancelled` with reason note.
+        - Seeds complete `order_items` (with exact SDG line totals calculated with rounding step 100) and consistent `order_events` timeline matching each order's terminal status.
+    - Verification:
+      - `php spark integrity:check`: 0 violations across all 8 checks (100% consistent data).
+      - `php vendor/bin/phpunit tests/feature/CatalogTest.php`: 6/6 PASS.
+      - `php vendor/bin/phpunit tests/feature/PaymentProofFeatureTest.php`: 4/4 PASS.
+      - `php vendor/bin/phpunit tests/feature/ProductImageFeatureTest.php`: 3/3 PASS.
+      - `php vendor/bin/phpunit tests/feature/PaymentAccountsTest.php`: 8/8 PASS.
+      - `npm run check:all`: PASS (11 contrast pairs, claims, i18n, layout, duplicate messages, CSS classes, layout contract).
+      - Key vitest test files: 100% PASS.
+    - Needs on-device check: Storefront Home `/`, Catalog `/catalog`, Product Detail `/products/:slug`, Admin Payments `/admin/payments` (review queue with receipt image), Admin Orders `/admin/orders`.
+
 - [x] **Phase 4 & 5: Anti-AI Polish & Purposeful Motion**
   - **Anti-AI Polish:** Removed artificial letter-spacing on Arabic cursive titles and badges in `SplashScreen.module.css` and `Auth.module.css`. Verified 1.7 body line-height, zero italics across all project files, and tabular numbers on SDG prices (`0 ج.س`).
   - **Purposeful Motion:**
