@@ -65,7 +65,7 @@ jobs:
       - name: Start wex-api Background Server
         working-directory: wex-api
         run: |
-          php -S 127.0.0.1:8080 -t public/ > /tmp/php-server.log 2>&1 &
+          PHP_CLI_SERVER_WORKERS=4 php -S 127.0.0.1:8080 -t public/ > /tmp/php-server.log 2>&1 &
           for i in {1..30}; do
             if curl -s http://127.0.0.1:8080/api/v1/ping | grep -q "pong"; then
               echo "wex-api is up and healthy!"

@@ -23,34 +23,37 @@ test.describe('04: Settings & Storefront Synchronization (FEAT-018 - FEAT-025)',
   });
 
   test('FEAT-019: Storefront handles orders_enabled=false correctly', async ({ page }) => {
-    // Mock /api/v1/shop to return orders_enabled: false
+    // Mock /api/v1/shop directly to return orders_enabled: false
     await page.route('**/api/v1/shop', async (route) => {
-      const response = await route.fetch();
-      const json = await response.json();
-      if (json.data) {
-        json.data.orders_enabled = false;
-        json.data.orders_disabled_message = 'استقبال الطلبات متوقف مؤقتاً لأعمال الصيانة والتحديث';
-      }
-      await route.fulfill({ json });
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          message: 'معلومات المتجر',
+          data: {
+            name: 'ويكس تكنولوجي',
+            orders_enabled: false,
+            orders_disabled_message: 'استقبال الطلبات متوقف مؤقتاً لأعمال الصيانة والتحديث',
+            ticker_enabled: true,
+            lock_hours: 4,
+          },
+        }),
+      });
     });
 
-    // 1. Verify Checkout Page blocks orders and displays notice
-    await page.goto('/checkout');
-    await page.waitForLoadState('networkidle');
+    // Navigate to /products and open a product
+    await page.goto('/products');
+    await page.waitForLoadState('domcontentloaded');
+    const firstProduct = page.locator('a[href^="/products/"]').first();
+    await expect(firstProduct).toBeVisible({ timeout: 10000 });
+    await firstProduct.click();
+    await page.waitForURL(/\/products\/.+/);
 
-    // If redirected to /cart because cart is empty, add an item first
-    if (page.url().includes('/cart')) {
-      await page.goto('/products');
-      await page.waitForLoadState('networkidle');
-      const firstProduct = page.locator('a[href^="/products/"]').first();
-      await firstProduct.click();
-      await page.waitForURL(/\/products\/.+/);
-
-      // On PDP, verify order button shows orders disabled
-      const orderBtn = page.locator('button:has-text("استقبال الطلبات متوقف مؤقتاً")');
-      await expect(orderBtn).toBeVisible();
-      await expect(orderBtn).toBeDisabled();
-    }
+    // On PDP, verify order button shows orders disabled
+    const orderBtn = page.locator('button:has-text("استقبال الطلبات متوقف مؤقتاً")');
+    await expect(orderBtn).toBeVisible({ timeout: 10000 });
+    await expect(orderBtn).toBeDisabled();
 
     await page.screenshot({ path: `e2e/test-results/feat-019-orders-disabled-${page.viewportSize().width}.png` });
   });

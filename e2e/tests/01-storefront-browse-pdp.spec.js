@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('01: Storefront Browse, Catalog & PDP (FEAT-001 - FEAT-004)', () => {
   test('FEAT-001: Home page loads with header, logo, search, and sections', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Logo & branding
     await expect(page.locator('header, nav, [role="banner"]').first()).toBeVisible();
@@ -18,7 +18,7 @@ test.describe('01: Storefront Browse, Catalog & PDP (FEAT-001 - FEAT-004)', () =
 
   test('FEAT-002: Catalog browse, filter by category and search', async ({ page }) => {
     await page.goto('/products');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Check search input exists
     const searchInput = page.locator('input[type="search"], input[placeholder*="بحث"]').first();
@@ -38,14 +38,14 @@ test.describe('01: Storefront Browse, Catalog & PDP (FEAT-001 - FEAT-004)', () =
   test('FEAT-003: Product Detail Page & image gallery', async ({ page }) => {
     // Navigate to a known product
     await page.goto('/products');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const firstProductLink = page.locator('a[href^="/products/"]').first();
     await expect(firstProductLink).toBeVisible();
     await firstProductLink.click();
 
     await page.waitForURL(/\/products\/.+/);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Verify PDP elements
     await expect(page.locator('h1')).toBeVisible();
@@ -60,7 +60,7 @@ test.describe('01: Storefront Browse, Catalog & PDP (FEAT-001 - FEAT-004)', () =
 
   test('FEAT-004: Favorites and Compare toggle', async ({ page }) => {
     await page.goto('/products');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Locate favorite or compare button on product card
     const favButton = page.locator('button[aria-label*="المفضلة"], button[title*="المفضلة"]').first();

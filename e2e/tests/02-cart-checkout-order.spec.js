@@ -10,7 +10,7 @@ test.describe('02: Cart, Checkout & Order Lifecycle (FEAT-005 - FEAT-013)', () =
   test('FEAT-005 to FEAT-013: Full customer journey from cart to receipt upload', async ({ page }) => {
     // 1. Visit product catalog and click product
     await page.goto('/products');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const firstProduct = page.locator('a[href^="/products/"]').first();
     await expect(firstProduct).toBeVisible();
@@ -24,7 +24,7 @@ test.describe('02: Cart, Checkout & Order Lifecycle (FEAT-005 - FEAT-013)', () =
 
     // 3. Navigate to Cart
     await page.goto('/cart');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     await expect(page.locator('button:has-text("متابعة")')).toBeVisible();
 
     await page.screenshot({ path: `e2e/test-results/feat-005-cart-${page.viewportSize().width}.png` });
@@ -32,7 +32,7 @@ test.describe('02: Cart, Checkout & Order Lifecycle (FEAT-005 - FEAT-013)', () =
     // 4. Click proceed to checkout
     await page.locator('button:has-text("متابعة")').click();
     await page.waitForURL(/\/checkout/);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // 5. Verify Checkout Delivery vs Pickup Option Cards (equal height & checkmark)
     const pickupOption = page.locator('button[role="radio"]:has-text("الاستلام من المحل")');
@@ -68,7 +68,7 @@ test.describe('02: Cart, Checkout & Order Lifecycle (FEAT-005 - FEAT-013)', () =
 
     // 7. Verify Redirect to Order Detail Page
     await page.waitForURL(/\/orders\/[A-Za-z0-9-]+/, { timeout: 15000 });
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Verify order number rendered safely
     const orderTitle = page.locator('h1, [class*="orderHeaderTitle"]').first();

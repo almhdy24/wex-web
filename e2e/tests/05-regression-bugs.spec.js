@@ -4,11 +4,11 @@ import { loginAs } from './helpers.js';
 test.describe('05: Regression Suite for Specific Mobile & Visual Bugs', () => {
   test('BUG 1: Login sheet Google button stays on menu; email button reveals input with back link', async ({ page }) => {
     await page.goto('/cart');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Trigger auth sheet or visit login page
     await page.goto('/auth/login');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Verify phone or email option
     const emailOptionBtn = page.locator('button:has-text("البريد الإلكتروني")');
@@ -34,13 +34,13 @@ test.describe('05: Regression Suite for Specific Mobile & Visual Bugs', () => {
 
     // Navigate to orders
     await page.goto('/orders');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const firstOrder = page.locator('a[href^="/orders/"]').first();
     if (await firstOrder.isVisible()) {
       await firstOrder.click();
       await page.waitForURL(/\/orders\/.+/);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Check order title does not overflow viewport horizontally
       const orderTitle = page.locator('h1, [class*="orderHeaderTitle"]').first();
@@ -67,7 +67,7 @@ test.describe('05: Regression Suite for Specific Mobile & Visual Bugs', () => {
 
   test('BUG 4: Phone and numeric inputs have dir=ltr and text-align=right in computed style', async ({ page }) => {
     await page.goto('/checkout');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const phoneInput = page.locator('#checkout-phone-input');
     if (await phoneInput.isVisible()) {
@@ -89,7 +89,7 @@ test.describe('05: Regression Suite for Specific Mobile & Visual Bugs', () => {
   test('BUG 5: Checkout option cards equal heights, check icon, and price replacement', async ({ page }) => {
     // Add item to cart first
     await page.goto('/products');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     const firstProduct = page.locator('a[href^="/products/"]').first();
     await firstProduct.click();
     await page.waitForURL(/\/products\/.+/);
@@ -98,7 +98,7 @@ test.describe('05: Regression Suite for Specific Mobile & Visual Bugs', () => {
     await addBtn.click();
 
     await page.goto('/checkout');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const pickupBtn = page.locator('button[role="radio"]:has-text("الاستلام من المحل")');
     const deliveryBtn = page.locator('button[role="radio"]:has-text("التوصيل")');
@@ -124,7 +124,7 @@ test.describe('05: Regression Suite for Specific Mobile & Visual Bugs', () => {
 
   test('BUG 6: Button icons layout is inline row, never column', async ({ page }) => {
     await page.goto('/products');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Inspect buttons with icons
     const buttonsWithIcons = page.locator('button svg');
