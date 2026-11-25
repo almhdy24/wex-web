@@ -50,7 +50,7 @@ jobs:
           mkdir -p writable/database writable/uploads/payment_proofs writable/session writable/cache writable/logs
           chmod -R 777 writable
           cat << 'EOF' > .env
-          CI_ENVIRONMENT = testing
+          CI_ENVIRONMENT = development
           app.baseURL = 'http://127.0.0.1:8080/'
           database.default.DBDriver = SQLite3
           database.default.database = wex_ci.sqlite
