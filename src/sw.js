@@ -12,18 +12,20 @@ import {
 cleanupOutdatedCaches();
 precacheAndRoute(self.__WB_MANIFEST || []);
 
-// SPA Navigation fallback (never intercept /api/ or /admin)
+// SPA Navigation fallback (never intercept /api/)
 const navigationHandler = createHandlerBoundToURL('/index.html');
 registerRoute(
   new NavigationRoute(navigationHandler, {
-    denylist: [/^\/api\//, /^\/admin/],
+    denylist: [/^\/api\//],
   })
 );
 
-// Explicitly NEVER cache authenticated customer orders, admin, payment proofs or user profile
+// Explicitly NEVER cache authenticated API routes (orders, admin, payment proofs, profile, push, notifications)
 registerRoute(
-  ({ url }) => {
+  ({ request, url }) => {
+    if (request.mode === 'navigate') return false;
     const pathname = url.pathname;
+    if (!pathname.startsWith('/api/')) return false;
     return (
       pathname.includes('/admin') ||
       pathname.includes('/me') ||

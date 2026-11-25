@@ -28,65 +28,42 @@ import {
   UserCheck,
   ChevronRight,
   X,
+  Tag,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { adminApi } from '../../api/admin';
 import { adminAr } from '../../content/admin.ar';
+import {
+  getAdminNavGroups,
+  getAdminRouteTitle,
+  isTopLevelAdminRoute,
+} from '../../app/adminRoutes';
 import { useIdleTimer } from '../../hooks/useIdleTimer';
 import Sheet from '../common/Sheet';
 import ConfirmDialog from './ConfirmDialog';
 import OrderNumber from '../common/OrderNumber';
 import styles from './AdminShell.module.css';
 
-// S1: Top-level routes where back arrow should NOT be shown
-const TOP_LEVEL_ADMIN_ROUTES = new Set([
-  '/admin',
-  '/admin/orders',
-  '/admin/payments',
-  '/admin/products',
-  '/admin/categories',
-  '/admin/hero-slides',
-  '/admin/home-sections',
-  '/admin/announcements',
-  '/admin/recent-purchases',
-  '/admin/faq',
-  '/admin/pages',
-  '/admin/payment-accounts',
-  '/admin/rates',
-  '/admin/shipping-zones',
-  '/admin/settings',
-  '/admin/users',
-  '/admin/audit-logs',
-]);
-
-// S4: Route meta title map
-const ROUTE_TITLES = {
-  '/admin': adminAr.brand.adminTitle,
-  '/admin/orders': adminAr.nav.orders,
-  '/admin/payments': adminAr.nav.payments,
-  '/admin/products': adminAr.nav.products,
-  '/admin/products/new': 'إضافة جهاز جديد',
-  '/admin/categories': adminAr.nav.categories,
-  '/admin/hero-slides': adminAr.nav.heroSlides,
-  '/admin/home-sections': adminAr.nav.homeSections,
-  '/admin/announcements': adminAr.nav.announcements,
-  '/admin/recent-purchases': adminAr.nav.recentPurchases,
-  '/admin/faq': adminAr.nav.faq,
-  '/admin/pages': adminAr.nav.pages,
-  '/admin/payment-accounts': adminAr.nav.paymentAccounts,
-  '/admin/rates': adminAr.nav.rates,
-  '/admin/shipping-zones': adminAr.nav.shippingZones,
-  '/admin/settings': adminAr.nav.settings,
-  '/admin/users': adminAr.nav.users,
-  '/admin/audit-logs': adminAr.nav.auditLogs,
+const ICON_MAP = {
+  LayoutDashboard,
+  Package,
+  CreditCard,
+  Laptop,
+  FolderTree,
+  Tag,
+  Sliders,
+  LayoutGrid,
+  Megaphone,
+  Activity,
+  HelpCircle,
+  FileText,
+  ScrollText,
+  Landmark,
+  TrendingUp,
+  Truck,
+  Settings,
+  Users,
 };
-
-function getPageTitle(pathname) {
-  if (ROUTE_TITLES[pathname]) return ROUTE_TITLES[pathname];
-  if (pathname.startsWith('/admin/orders/')) return 'تفاصيل الطلب';
-  if (pathname.startsWith('/admin/products/') && pathname.endsWith('/edit')) return 'تعديل الجهاز';
-  return adminAr.brand.adminTitle;
-}
 
 export default function AdminShell({ children }) {
   const { user, logout } = useAuth();
@@ -367,7 +344,7 @@ export default function AdminShell({ children }) {
   }, []);
 
   // S1 & S2 & S3: Smart Back Navigation
-  const isDetailOrSubRoute = !TOP_LEVEL_ADMIN_ROUTES.has(location.pathname);
+  const isDetailOrSubRoute = !isTopLevelAdminRoute(location.pathname);
 
   const handleSmartBack = () => {
     if (typeof window !== 'undefined' && window.history.state && window.history.state.idx > 0) {
@@ -380,7 +357,8 @@ export default function AdminShell({ children }) {
     }
   };
 
-  const currentPageTitle = getPageTitle(location.pathname);
+  const currentPageTitle = getAdminRouteTitle(location.pathname);
+  const navGroups = getAdminNavGroups(user?.role);
 
   return (
     <div className={styles.layout}>
@@ -413,239 +391,38 @@ export default function AdminShell({ children }) {
 
         {/* Navigation Links */}
         <nav className={styles.navMenu} aria-label="أقسام لوحة الإدارة">
-          {/* Group 1: العمليات */}
-          <div className={styles.navGroupHeader}>{adminAr.nav.groupOperations}</div>
-          <NavLink
-            to="/admin"
-            end
-            title={adminAr.nav.dashboard}
-            aria-label={adminAr.nav.dashboard}
-            className={({ isActive }) => `${styles.navItem} ${isActive ? styles.activeNav : ''}`}
-          >
-            <LayoutDashboard size={20} className={styles.navIcon} />
-            <span className={styles.navLabel}>{adminAr.nav.dashboard}</span>
-          </NavLink>
-
-          <NavLink
-            to="/admin/orders"
-            title={adminAr.nav.orders}
-            aria-label={adminAr.nav.orders}
-            className={({ isActive }) => `${styles.navItem} ${isActive ? styles.activeNav : ''}`}
-          >
-            <Package size={20} className={styles.navIcon} />
-            <span className={styles.navLabel}>{adminAr.nav.orders}</span>
-          </NavLink>
-
-          <NavLink
-            to="/admin/payments"
-            title={adminAr.nav.payments}
-            aria-label={adminAr.nav.payments}
-            className={({ isActive }) => `${styles.navItem} ${isActive ? styles.activeNav : ''}`}
-          >
-            <CreditCard size={20} className={styles.navIcon} />
-            <span className={styles.navLabel}>{adminAr.nav.payments}</span>
-            {pendingPaymentsCount > 0 && (
-              <span
-                className={styles.navBadge}
-                aria-label={`${pendingPaymentsCount} إشعار قيد المراجعة`}
-              >
-                {pendingPaymentsCount}
-              </span>
-            )}
-          </NavLink>
-
-          {/* Group 2: المتجر */}
-          {isAdmin && (
-            <>
-              <div className={styles.navGroupHeader}>{adminAr.nav.groupStore}</div>
-              <NavLink
-                to="/admin/products"
-                title={adminAr.nav.products}
-                aria-label={adminAr.nav.products}
-                className={({ isActive }) =>
-                  `${styles.navItem} ${isActive ? styles.activeNav : ''}`
-                }
-              >
-                <Laptop size={20} className={styles.navIcon} />
-                <span className={styles.navLabel}>{adminAr.nav.products}</span>
-              </NavLink>
-
-              <NavLink
-                to="/admin/categories"
-                title={adminAr.nav.categories}
-                aria-label={adminAr.nav.categories}
-                className={({ isActive }) =>
-                  `${styles.navItem} ${isActive ? styles.activeNav : ''}`
-                }
-              >
-                <FolderTree size={20} className={styles.navIcon} />
-                <span className={styles.navLabel}>{adminAr.nav.categories}</span>
-              </NavLink>
-            </>
-          )}
-
-          {/* Group 3: المحتوى والواجهة */}
-          <div className={styles.navGroupHeader}>{adminAr.nav.groupContent}</div>
-          {isAdmin && (
-            <>
-              <NavLink
-                to="/admin/hero-slides"
-                title={adminAr.nav.heroSlides}
-                aria-label={adminAr.nav.heroSlides}
-                className={({ isActive }) =>
-                  `${styles.navItem} ${isActive ? styles.activeNav : ''}`
-                }
-              >
-                <Sliders size={20} className={styles.navIcon} />
-                <span className={styles.navLabel}>{adminAr.nav.heroSlides}</span>
-              </NavLink>
-
-              <NavLink
-                to="/admin/home-sections"
-                title={adminAr.nav.homeSections}
-                aria-label={adminAr.nav.homeSections}
-                className={({ isActive }) =>
-                  `${styles.navItem} ${isActive ? styles.activeNav : ''}`
-                }
-              >
-                <LayoutGrid size={20} className={styles.navIcon} />
-                <span className={styles.navLabel}>{adminAr.nav.homeSections}</span>
-              </NavLink>
-            </>
-          )}
-
-          <NavLink
-            to="/admin/announcements"
-            title={adminAr.nav.announcements}
-            aria-label={adminAr.nav.announcements}
-            className={({ isActive }) => `${styles.navItem} ${isActive ? styles.activeNav : ''}`}
-          >
-            <Megaphone size={20} className={styles.navIcon} />
-            <span className={styles.navLabel}>{adminAr.nav.announcements}</span>
-          </NavLink>
-
-          <NavLink
-            to="/admin/recent-purchases"
-            title={adminAr.nav.recentPurchases}
-            aria-label={adminAr.nav.recentPurchases}
-            className={({ isActive }) => `${styles.navItem} ${isActive ? styles.activeNav : ''}`}
-          >
-            <Activity size={20} className={styles.navIcon} />
-            <span className={styles.navLabel}>{adminAr.nav.recentPurchases}</span>
-          </NavLink>
-
-          {isAdmin && (
-            <>
-              <NavLink
-                to="/admin/faq"
-                title={adminAr.nav.faq}
-                aria-label={adminAr.nav.faq}
-                className={({ isActive }) =>
-                  `${styles.navItem} ${isActive ? styles.activeNav : ''}`
-                }
-              >
-                <HelpCircle size={20} className={styles.navIcon} />
-                <span className={styles.navLabel}>{adminAr.nav.faq}</span>
-              </NavLink>
-
-              <NavLink
-                to="/admin/pages"
-                title={adminAr.nav.pages}
-                aria-label={adminAr.nav.pages}
-                className={({ isActive }) =>
-                  `${styles.navItem} ${isActive ? styles.activeNav : ''}`
-                }
-              >
-                <FileText size={20} className={styles.navIcon} />
-                <span className={styles.navLabel}>{adminAr.nav.pages}</span>
-              </NavLink>
-            </>
-          )}
-
-          {/* Group 4: الدفع والتسعير (Admin only) */}
-          {isAdmin && (
-            <>
-              <div className={styles.navGroupHeader}>{adminAr.nav.groupPricing}</div>
-              <NavLink
-                to="/admin/payment-accounts"
-                title={adminAr.nav.paymentAccounts}
-                aria-label={adminAr.nav.paymentAccounts}
-                className={({ isActive }) =>
-                  `${styles.navItem} ${isActive ? styles.activeNav : ''}`
-                }
-              >
-                <Landmark size={20} className={styles.navIcon} />
-                <span className={styles.navLabel}>{adminAr.nav.paymentAccounts}</span>
-              </NavLink>
-
-              <NavLink
-                to="/admin/rates"
-                title={adminAr.nav.rates}
-                aria-label={adminAr.nav.rates}
-                className={({ isActive }) =>
-                  `${styles.navItem} ${isActive ? styles.activeNav : ''}`
-                }
-              >
-                <TrendingUp size={20} className={styles.navIcon} />
-                <span className={styles.navLabel}>{adminAr.nav.rates}</span>
-              </NavLink>
-
-              <NavLink
-                to="/admin/shipping-zones"
-                title={adminAr.nav.shippingZones}
-                aria-label={adminAr.nav.shippingZones}
-                className={({ isActive }) =>
-                  `${styles.navItem} ${isActive ? styles.activeNav : ''}`
-                }
-              >
-                <Truck size={20} className={styles.navIcon} />
-                <span className={styles.navLabel}>{adminAr.nav.shippingZones}</span>
-              </NavLink>
-            </>
-          )}
-
-          {/* Group 5: النظام (Admin only) */}
-          {isAdmin && (
-            <>
-              <div className={styles.navGroupHeader}>{adminAr.nav.groupSystem}</div>
-              <NavLink
-                to="/admin/settings"
-                title={adminAr.nav.settings}
-                aria-label={adminAr.nav.settings}
-                className={({ isActive }) =>
-                  `${styles.navItem} ${isActive ? styles.activeNav : ''}`
-                }
-              >
-                <Settings size={20} className={styles.navIcon} />
-                <span className={styles.navLabel}>{adminAr.nav.settings}</span>
-              </NavLink>
-
-              <NavLink
-                to="/admin/users"
-                title={adminAr.nav.users}
-                aria-label={adminAr.nav.users}
-                className={({ isActive }) =>
-                  `${styles.navItem} ${isActive ? styles.activeNav : ''}`
-                }
-              >
-                <Users size={20} className={styles.navIcon} />
-                <span className={styles.navLabel}>{adminAr.nav.users}</span>
-              </NavLink>
-
-              {/* S11: ScrollText icon for audit logs */}
-              <NavLink
-                to="/admin/audit-logs"
-                title={adminAr.nav.auditLogs}
-                aria-label={adminAr.nav.auditLogs}
-                className={({ isActive }) =>
-                  `${styles.navItem} ${isActive ? styles.activeNav : ''}`
-                }
-              >
-                <ScrollText size={20} className={styles.navIcon} />
-                <span className={styles.navLabel}>{adminAr.nav.auditLogs}</span>
-              </NavLink>
-            </>
-          )}
+          {navGroups.map((group) => (
+            <React.Fragment key={group.id}>
+              <div className={styles.navGroupHeader}>{group.label}</div>
+              {group.items.map((item) => {
+                const IconComp = ICON_MAP[item.icon] || LayoutDashboard;
+                const badgeCount = item.badgeKey === "pendingPayments" ? pendingPaymentsCount : 0;
+                return (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    end={item.path === "/admin"}
+                    title={item.title}
+                    aria-label={item.title}
+                    className={({ isActive }) =>
+                      `${styles.navItem} ${isActive ? styles.activeNav : ""}`
+                    }
+                  >
+                    <IconComp size={20} className={styles.navIcon} />
+                    <span className={styles.navLabel}>{item.title}</span>
+                    {badgeCount > 0 && (
+                      <span
+                        className={styles.navBadge}
+                        aria-label={`${badgeCount} إشعار قيد المراجعة`}
+                      >
+                        {badgeCount}
+                      </span>
+                    )}
+                  </NavLink>
+                );
+              })}
+            </React.Fragment>
+          ))}
         </nav>
 
         {/* Sidebar Footer */}
@@ -1041,121 +818,27 @@ export default function AdminShell({ children }) {
         title={adminAr.nav.more}
       >
         <div className={styles.moreSheetList}>
-          {isAdmin && (
-            <>
-              <Link
-                to="/admin/categories"
-                className={styles.moreItem}
-                onClick={() => setMoreSheetOpen(false)}
-              >
-                <FolderTree size={20} />
-                <span>{adminAr.nav.categories}</span>
-              </Link>
-              <Link
-                to="/admin/hero-slides"
-                className={styles.moreItem}
-                onClick={() => setMoreSheetOpen(false)}
-              >
-                <Sliders size={20} />
-                <span>{adminAr.nav.heroSlides}</span>
-              </Link>
-              <Link
-                to="/admin/home-sections"
-                className={styles.moreItem}
-                onClick={() => setMoreSheetOpen(false)}
-              >
-                <LayoutGrid size={20} />
-                <span>{adminAr.nav.homeSections}</span>
-              </Link>
-            </>
-          )}
-
-          <Link
-            to="/admin/announcements"
-            className={styles.moreItem}
-            onClick={() => setMoreSheetOpen(false)}
-          >
-            <Megaphone size={20} />
-            <span>{adminAr.nav.announcements}</span>
-          </Link>
-
-          <Link
-            to="/admin/recent-purchases"
-            className={styles.moreItem}
-            onClick={() => setMoreSheetOpen(false)}
-          >
-            <Activity size={20} />
-            <span>{adminAr.nav.recentPurchases}</span>
-          </Link>
-
-          {isAdmin && (
-            <>
-              <Link
-                to="/admin/faq"
-                className={styles.moreItem}
-                onClick={() => setMoreSheetOpen(false)}
-              >
-                <HelpCircle size={20} />
-                <span>{adminAr.nav.faq}</span>
-              </Link>
-              <Link
-                to="/admin/pages"
-                className={styles.moreItem}
-                onClick={() => setMoreSheetOpen(false)}
-              >
-                <FileText size={20} />
-                <span>{adminAr.nav.pages}</span>
-              </Link>
-              <Link
-                to="/admin/payment-accounts"
-                className={styles.moreItem}
-                onClick={() => setMoreSheetOpen(false)}
-              >
-                <Landmark size={20} />
-                <span>{adminAr.nav.paymentAccounts}</span>
-              </Link>
-              <Link
-                to="/admin/rates"
-                className={styles.moreItem}
-                onClick={() => setMoreSheetOpen(false)}
-              >
-                <TrendingUp size={20} />
-                <span>{adminAr.nav.rates}</span>
-              </Link>
-              <Link
-                to="/admin/shipping-zones"
-                className={styles.moreItem}
-                onClick={() => setMoreSheetOpen(false)}
-              >
-                <Truck size={20} />
-                <span>{adminAr.nav.shippingZones}</span>
-              </Link>
-              <Link
-                to="/admin/settings"
-                className={styles.moreItem}
-                onClick={() => setMoreSheetOpen(false)}
-              >
-                <Settings size={20} />
-                <span>{adminAr.nav.settings}</span>
-              </Link>
-              <Link
-                to="/admin/users"
-                className={styles.moreItem}
-                onClick={() => setMoreSheetOpen(false)}
-              >
-                <Users size={20} />
-                <span>{adminAr.nav.users}</span>
-              </Link>
-              <Link
-                to="/admin/audit-logs"
-                className={styles.moreItem}
-                onClick={() => setMoreSheetOpen(false)}
-              >
-                <ScrollText size={20} />
-                <span>{adminAr.nav.auditLogs}</span>
-              </Link>
-            </>
-          )}
+          {navGroups.map((group) => (
+            <React.Fragment key={group.id}>
+              <div className={styles.navGroupHeader} style={{ paddingInlineStart: "8px", marginTop: "8px" }}>
+                {group.label}
+              </div>
+              {group.items.map((item) => {
+                const IconComp = ICON_MAP[item.icon] || LayoutDashboard;
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={styles.moreItem}
+                    onClick={() => setMoreSheetOpen(false)}
+                  >
+                    <IconComp size={20} />
+                    <span>{item.title}</span>
+                  </Link>
+                );
+              })}
+            </React.Fragment>
+          ))}
 
           <Link to="/" className={styles.moreItem} target="_blank" rel="noopener noreferrer">
             <ExternalLink size={20} />

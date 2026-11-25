@@ -92,6 +92,13 @@ jobs:
           VITE_API_BASE_URL: /api/v1
         run: npm run build
 
+      - name: Upload Production Build (dist) Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wex-web-dist
+          path: wex-web/dist
+          retention-days: 7
+
       - name: Start Vite Preview Server
         working-directory: wex-web
         run: |

@@ -8,6 +8,7 @@ import AdminLayout from '../layouts/AdminLayout';
 // Common guards & errors
 import { ProtectedRoute, RoleGuard, GuestRoute } from '../components/common/RouteGuard';
 import NotFoundPage from '../pages/errors/NotFoundPage';
+import RouteErrorPage from '../pages/errors/RouteErrorPage';
 import OfflinePage from '../pages/errors/OfflinePage';
 import Skeleton from '../components/common/Skeleton';
 
@@ -146,7 +147,7 @@ export const router = createBrowserRouter([
         <AdminLayout />
       </RoleGuard>
     ),
-    errorElement: <NotFoundPage />,
+    errorElement: <RouteErrorPage homePath="/admin" />,
     children: [
       { index: true, element: load(AdminDashboardPage) },
       { path: 'orders', element: load(AdminOrdersPage) },
@@ -276,6 +277,7 @@ export const router = createBrowserRouter([
           </RoleGuard>
         ),
       },
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
 ]);
