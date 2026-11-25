@@ -5,11 +5,26 @@ export const CartContext = createContext(null);
 const CART_STORAGE_KEY = 'wex_cart_items';
 const CART_PRICE_CHANGES_KEY = 'wex_cart_price_changes';
 
+/**
+ * Stored carts come from older app versions or hand-edited storage. Anything that is not
+ * an array of {id, quantity} items would crash every render (items.reduce / items.map).
+ */
+export function sanitizeStoredCart(value) {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((i) => i && typeof i === 'object' && (typeof i.id === 'number' || typeof i.id === 'string') && i.id !== '')
+    .map((i) => ({
+      ...i,
+      quantity: Math.min(10, Math.max(1, Math.trunc(Number(i.quantity)) || 1)),
+      price_sdg: Number.isFinite(Number(i.price_sdg)) ? Number(i.price_sdg) : 0,
+    }));
+}
+
 export function CartProvider({ children }) {
   const [items, setItems] = useState(() => {
     try {
       const saved = localStorage.getItem(CART_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : [];
+      return sanitizeStoredCart(saved ? JSON.parse(saved) : []);
     } catch {
       return [];
     }
@@ -18,7 +33,8 @@ export function CartProvider({ children }) {
   const [priceChanges, setPriceChanges] = useState(() => {
     try {
       const saved = sessionStorage.getItem(CART_PRICE_CHANGES_KEY);
-      return saved ? JSON.parse(saved) : {};
+      const parsed = saved ? JSON.parse(saved) : {};
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
     } catch {
       return {};
     }
