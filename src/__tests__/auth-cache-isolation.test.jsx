@@ -50,3 +50,28 @@ describe('auth cache isolation', () => {
     expect(swrCache.get('my_orders')).toBeNull();
   });
 });
+
+// D-9: provider value identity must be stable across parent re-renders.
+describe('AuthProvider value identity', () => {
+  it('does not re-render memoised consumers when the parent re-renders', async () => {
+    const React = await import('react');
+    let consumerRenders = 0;
+    const Consumer = React.memo(function Consumer() {
+      useAuth();
+      consumerRenders += 1;
+      return null;
+    });
+    let bump;
+    function Parent() {
+      const [, setN] = React.useState(0);
+      bump = () => setN((n) => n + 1);
+      return <AuthProvider><Consumer /></AuthProvider>;
+    }
+    render(<Parent />);
+    await act(async () => { await new Promise((r) => setTimeout(r, 20)); });
+    const settled = consumerRenders;
+    await act(async () => { bump(); });
+    await act(async () => { bump(); });
+    expect(consumerRenders).toBe(settled);
+  });
+});

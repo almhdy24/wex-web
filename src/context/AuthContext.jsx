@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { authApi } from '../api/auth';
 import {
   setMemoryAccessToken,
@@ -281,20 +281,24 @@ export function AuthProvider({ children }) {
     });
   }, []);
 
+  // Stable identity: a new object every render re-rendered every useAuth() consumer
+  // whenever the provider's parent re-rendered.
+  const value = useMemo(() => ({
+    user,
+    accessToken,
+    loading,
+    isAuthenticated: !!user,
+    isAdmin: user?.role === 'admin',
+    isStaff: user?.role === 'staff' || user?.role === 'admin',
+    loginWithSession,
+    logout,
+    logoutAll,
+    updateUserProfile,
+  }), [user, accessToken, loading, loginWithSession, logout, logoutAll, updateUserProfile]);
+
   return (
     <AuthContext.Provider
-      value={{
-        user,
-        accessToken,
-        loading,
-        isAuthenticated: !!user,
-        isAdmin: user?.role === 'admin',
-        isStaff: user?.role === 'staff' || user?.role === 'admin',
-        loginWithSession,
-        logout,
-        logoutAll,
-        updateUserProfile,
-      }}
+      value={value}
     >
       {children}
     </AuthContext.Provider>
