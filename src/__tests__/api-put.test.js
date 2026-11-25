@@ -44,3 +44,33 @@ describe('401 retry when refresh fails offline', () => {
     await expect(client('/me')).rejects.toMatchObject({ status: 0 });
   });
 });
+
+// PERF-NET-01: identical concurrent GETs share one request.
+describe('GET de-duplication', () => {
+  it('shares one network request between simultaneous identical GETs', async () => {
+    const { api: client, _resetRefreshState } = await import('../api/client');
+    _resetRefreshState();
+    global.fetch = vi.fn().mockImplementation(() => Promise.resolve({
+      ok: true, status: 200, headers: new Headers({ 'content-type': 'application/json' }),
+      json: async () => ({ success: true, message: '', data: [1], errors: null, meta: null }),
+    }));
+    const [a, b, c] = await Promise.all([client.get('/announcements'), client.get('/announcements'), client.get('/announcements')]);
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(a.data).toEqual([1]);
+    expect(b).toBe(a);
+    expect(c).toBe(a);
+
+    await client.get('/announcements');
+    expect(global.fetch).toHaveBeenCalledTimes(2); // not cached after completion
+  });
+
+  it('does not share requests that carry their own AbortSignal', async () => {
+    const { api: client } = await import('../api/client');
+    global.fetch = vi.fn().mockImplementation(() => Promise.resolve({
+      ok: true, status: 200, headers: new Headers({ 'content-type': 'application/json' }),
+      json: async () => ({ success: true, data: [] }),
+    }));
+    await Promise.all([client.get('/x', { signal: new AbortController().signal }), client.get('/x', { signal: new AbortController().signal })]);
+    expect(global.fetch).toHaveBeenCalledTimes(2);
+  });
+});

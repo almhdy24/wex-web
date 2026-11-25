@@ -335,8 +335,26 @@ export async function apiClient(endpoint, options = {}, retryOn401 = true) {
 }
 
 // Convenience Methods
+// In-flight de-duplication for identical GETs (weak networks / data cost): several
+// components mounting together (layout, banner, toast) share one request. Only calls
+// without an AbortSignal or custom headers are shared, so cancellation stays per-caller.
+const inflightGets = new Map();
+function dedupedGet(endpoint, options) {
+  if (options?.signal || options?.headers) {
+    return apiClient(endpoint, { ...options, method: 'GET' });
+  }
+  const key = `${memoryAccessToken ? 'auth' : 'anon'} ${endpoint}`;
+  const existing = inflightGets.get(key);
+  if (existing) return existing;
+  const p = apiClient(endpoint, { ...options, method: 'GET' }).finally(() => {
+    inflightGets.delete(key);
+  });
+  inflightGets.set(key, p);
+  return p;
+}
+
 export const api = {
-  get: (endpoint, options) => apiClient(endpoint, { ...options, method: 'GET' }),
+  get: (endpoint, options) => dedupedGet(endpoint, options),
   post: (endpoint, body, options) =>
     apiClient(endpoint, {
       ...options,

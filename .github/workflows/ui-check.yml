@@ -64,7 +64,8 @@ jobs:
             php spark migrate --all || true
             php spark db:seed DatabaseSeeder || true
             php spark db:seed DevSeeder || true
-            php spark serve --port 8080 &
+            nohup php -S 127.0.0.1:8080 -t public > /tmp/api.log 2>&1 &
+            for i in $(seq 1 30); do curl -sf http://127.0.0.1:8080/api/v1/ping >/dev/null && break; sleep 1; done
             sleep 2
             curl -s http://127.0.0.1:8080/api/v1/ping || echo "Backend started"
           fi
