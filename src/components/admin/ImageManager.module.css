@@ -222,3 +222,48 @@
   font-size: var(--text-xs, 12px);
   text-align: center;
 }
+
+
+/* Bulk multi-select bar + per-image select box */
+.bulkBar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 8px 10px;
+  border: 1px solid var(--color-slate-200, #e2e8f0);
+  border-radius: 10px;
+  background: var(--color-slate-50, #f8fafc);
+}
+.bulkSelectAll {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.bulkDeleteBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--wex-danger, #c0392b);
+  border-radius: 8px;
+  background: var(--wex-danger, #c0392b);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.selectBox {
+  position: absolute;
+  top: 6px;
+  inset-inline-start: 6px;
+  width: 20px;
+  height: 20px;
+  z-index: 2;
+  cursor: pointer;
+  accent-color: var(--wex-royal, #0b3fbf);
+}
