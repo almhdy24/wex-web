@@ -850,7 +850,7 @@ export default function AccountPage() {
                   <Shield size={18} className={styles.menuRowIcon} />
                   <div>
                     <h4 className={styles.menuRowTitle}>{ar.account.menuPriceLockGuide}</h4>
-                    <p className={styles.menuRowSub}>تثبيت السعر لمدة 4 ساعات لثبات القيمة عند التحويل</p>
+                    <p className={styles.menuRowSub}>تثبيت السعر لمدة {normalizeShopInfo(shopInfo).lockHours} ساعات لثبات القيمة عند التحويل</p>
                   </div>
                 </div>
                 <div className={styles.menuRowRight}>

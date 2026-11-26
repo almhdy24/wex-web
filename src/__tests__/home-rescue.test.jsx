@@ -148,7 +148,8 @@ describe('HomePage Rescue Verification (Phase 2)', () => {
     expect(html).toContain('ويكس تكنولوجي');
     expect(html).toContain('مول الواحة، الشهداء، أم درمان');
     expect(html).toContain('السبت - الخميس: 9:00 ص - 9:00 م');
-    expect(html).toContain('الجمعة: مغلق');
+    // Hours come from the admin text only; no hard-coded 'الجمعة: مغلق' line.
+    expect(html).not.toContain('الجمعة: مغلق');
     expect(html).toContain('الموقع على الخريطة');
     expect(html).toContain('تواصل عبر واتساب');
   });

@@ -27,7 +27,7 @@ describe('Phase 6: Order Detail & FAQ Systems Unit Tests', () => {
       const html = renderToStaticMarkup(
         <MemoryRouter initialEntries={['/faq']}>
           <Routes>
-            <Route element={<Outlet context={{ shopInfo: { whatsapp: '0911111111', phone: '0911111111' } }} />}>
+            <Route element={<Outlet context={{ shopInfo: { whatsapp: '0911111111', phone: '0911111111', address: 'مول الواحة، أم درمان', working_hours: 'يومياً 10 ص - 10 م', lock_hours: 6 } }} />}>
               <Route path="/faq" element={<FaqPage />} />
             </Route>
           </Routes>
@@ -37,6 +37,9 @@ describe('Phase 6: Order Detail & FAQ Systems Unit Tests', () => {
       expect(html).toContain('تثبيت السعر');
       expect(html).toContain('استلام مباشر');
       expect(html).toContain('مول الواحة، أم درمان');
+      // Hours and lock hours come from admin settings, not hard-coded text.
+      expect(html).toContain('يومياً 10 ص - 10 م');
+      expect(html).toContain('6 ساعات');
       expect(html).toContain('تواصل عبر واتساب');
       expect(html).toContain('https://wa.me/249911111111');
     });

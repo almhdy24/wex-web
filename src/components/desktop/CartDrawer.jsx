@@ -6,13 +6,15 @@ import LaptopSvg from '../common/LaptopSvg';
 import { useCart } from '../../context/CartContext';
 import { formatSdg } from '../../utils/formatters';
 import { ar } from '../../content/ar';
+import { appDiscountPercent, appDiscountAmount } from '../../utils/shopSettings';
 import styles from './CartDrawer.module.css';
 
-export default function CartDrawer({ isOpen, onClose }) {
+export default function CartDrawer({ isOpen, onClose, shopInfo = null }) {
   const navigate = useCartNavigate(onClose);
   const { items, updateQuantity, removeItem, estimatedSubtotalSdg, totalItems } = useCart();
 
-  const discount = Math.round(estimatedSubtotalSdg * 0.03);
+  const discountPercent = appDiscountPercent(shopInfo);
+  const discount = appDiscountAmount(estimatedSubtotalSdg, shopInfo);
   const finalTotal = Math.max(0, estimatedSubtotalSdg - discount);
 
   const handleCheckout = () => {
@@ -127,7 +129,7 @@ export default function CartDrawer({ isOpen, onClose }) {
 
               {discount > 0 && (
                 <div className={`${styles.summaryRow} ${styles.discountRow}`}>
-                  <span className={styles.summaryLabel}>{ar.desktop.appDiscount}</span>
+                  <span className={styles.summaryLabel}>خصم التطبيق ({discountPercent}%)</span>
                   <span className={styles.discountValue}>- {formatSdg(discount)}</span>
                 </div>
               )}

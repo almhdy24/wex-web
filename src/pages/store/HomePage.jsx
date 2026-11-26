@@ -23,7 +23,7 @@ import Page from '../../components/common/Page';
 import BrandRibbons from '../../components/common/BrandRibbons';
 import { Reveal, Stagger } from '../../motion';
 import { formatPriceUpdateCaption } from '../../utils/formatters';
-import { normalizeShopInfo, buildWhatsAppLink } from '../../utils/shopSettings';
+import { normalizeShopInfo, buildWhatsAppLink, DEFAULT_MAP_LINK } from '../../utils/shopSettings';
 import styles from './HomePage.module.css';
 
 export default function HomePage({
@@ -402,13 +402,13 @@ export default function HomePage({
               {shopInfo?.address || 'مول الواحة، الشهداء، أم درمان'}
             </p>
             <div className={styles.storeHours}>
+              {/* Admin "working hours" text only (a hard-coded 'الجمعة: مغلق' line contradicted it). */}
               <p>{shopInfo?.workingHours || 'السبت - الخميس: 9:00 ص - 9:00 م'}</p>
-              <p>{shopInfo?.fridayHours || 'الجمعة: مغلق'}</p>
             </div>
 
             <div className={styles.storeButtons}>
               <a
-                href="https://maps.google.com/?q=Al-Waha+Mall+Omdurman"
+                href={shopInfo?.mapLink || DEFAULT_MAP_LINK}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.storeBtnPrimary}

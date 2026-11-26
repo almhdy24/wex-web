@@ -262,6 +262,7 @@ export default function StoreLayout() {
         <CartDrawer
           isOpen={isCartDrawerOpen}
           onClose={() => setIsCartDrawerOpen(false)}
+          shopInfo={shopInfo}
         />
 
         <AnnouncementToast announcements={announcements} />

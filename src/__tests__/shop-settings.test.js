@@ -106,3 +106,27 @@ describe('WhatsApp share and order help', () => {
     expect(buildWhatsAppLink('', orderHelpMessage('WEX-1'))).toBeNull();
   });
 });
+
+// Admin settings must drive the storefront: discount was a fixed 3% in cart/checkout/drawer
+// while the server charged the configured percentage.
+import { appDiscountPercent, appDiscountAmount, normalizeShopInfo as normalizeForSettings, DEFAULT_MAP_LINK } from '../utils/shopSettings';
+
+describe('admin shop settings reach the storefront', () => {
+  it('uses the admin discount percentage (default 3, clamped 0..50)', () => {
+    expect(appDiscountPercent({ app_discount_percent: 5 })).toBe(5);
+    expect(appDiscountPercent({ app_discount_percent: '0' })).toBe(0);
+    expect(appDiscountPercent({})).toBe(3);
+    expect(appDiscountPercent(null)).toBe(3);
+    expect(appDiscountPercent({ app_discount_percent: 90 })).toBe(50);
+    expect(appDiscountAmount(100000, { app_discount_percent: 5 })).toBe(5000);
+    expect(appDiscountAmount(100000, { app_discount_percent: 0 })).toBe(0);
+  });
+
+  it('exposes lock hours and the map link from settings', () => {
+    const s = normalizeForSettings({ lock_hours: 6, shop_map_link: 'https://maps.google.com/?q=X' });
+    expect(s.lockHours).toBe(6);
+    expect(s.mapLink).toBe('https://maps.google.com/?q=X');
+    expect(normalizeForSettings({}).mapLink).toBe(DEFAULT_MAP_LINK);
+    expect(normalizeForSettings({}).discountPercent).toBe(3);
+  });
+});

@@ -8,7 +8,7 @@ import { productsApi } from '../../api/products';
 import { shopApi } from '../../api/shop';
 import { api } from '../../api/client';
 import { formatSdg, isValidSudanPhone, normalizeSudanPhone, toAsciiDigits } from '../../utils/formatters';
-import { normalizeShopInfo } from '../../utils/shopSettings';
+import { normalizeShopInfo, appDiscountPercent, appDiscountAmount } from '../../utils/shopSettings';
 import AppBar from '../../components/common/AppBar';
 import Button from '../../components/common/Button';
 import Page from '../../components/common/Page';
@@ -149,7 +149,8 @@ export default function CheckoutPage({
 
   // Financial calculations
   const subtotal = estimatedSubtotalSdg;
-  const discount = Math.round(subtotal * 0.03);
+  const discountPercent = appDiscountPercent(shopInfo);
+  const discount = appDiscountAmount(subtotal, shopInfo);
   const selectedZone = shippingZones.find((z) => String(z.id) === String(selectedZoneId));
   const shippingFee = orderType === 'delivery' ? Number(selectedZone?.delivery_fee_sdg || selectedZone?.fee_sdg || 0) : 0;
   const total = Math.max(0, subtotal - discount + shippingFee);
@@ -493,7 +494,7 @@ export default function CheckoutPage({
         </div>
 
         <div className={styles.summaryRow}>
-          <span className={styles.summaryLabel}>خصم التطبيق (3%)</span>
+          <span className={styles.summaryLabel}>خصم التطبيق ({discountPercent}%)</span>
           <span className={styles.discountValue}>- <Price value={discount} size="md" tone="success" /></span>
         </div>
 

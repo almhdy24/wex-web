@@ -2,20 +2,21 @@ import React, { useState, useMemo } from 'react';
 import { ChevronDown, Search, HelpCircle, MessageCircle, Phone, MapPin, ShieldCheck, Clock } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
 import Page from '../../components/common/Page';
-import { buildWhatsAppLink, buildTelLink } from '../../utils/shopSettings';
+import { buildWhatsAppLink, buildTelLink, normalizeShopInfo } from '../../utils/shopSettings';
 import AppBar from '../../components/common/AppBar';
 import styles from './FaqPage.module.css';
 
-const FAQ_DATA = [
+// Answers use the admin shop settings (lock hours, address, hours were hard-coded).
+const buildFaqData = ({ lockHours, address, hours }) => [
   {
     category: 'تثبيت السعر والحجز',
     items: [
       {
         q: 'كيف يعمل نظام تثبيت السعر؟',
-        a: 'بعد تأكيد الطلب، يبقى السعر ثابتًا لمدة 4 ساعات لتتمكّن من التحويل عبر الحسابات البنكية.',
+        a: `بعد تأكيد الطلب، يبقى السعر ثابتًا لمدة ${lockHours} ساعات لتتمكّن من التحويل عبر الحسابات البنكية.`,
       },
       {
-        q: 'ماذا يحدث إذا انتهت مهلة الـ 4 ساعات دون رفع الإشعار؟',
+        q: `ماذا يحدث إذا انتهت مهلة الـ ${lockHours} ساعات دون رفع الإشعار؟`,
         a: 'عند انتهاء المهلة، تنتهي فترة تثبيت السعر. يمكنك إعادة الطلب بالسعر الحالي من سجل طلباتك.',
       },
     ],
@@ -55,7 +56,7 @@ const FAQ_DATA = [
     items: [
       {
         q: 'أين يقع المحل وما هي أوقات العمل؟',
-        a: 'محلنا في مول الواحة، الشهداء، أم درمان. نستقبلكم يومياً من الساعة 9:00 صباحاً وحتى 9:00 مساءً، والجمعة مغلق.',
+        a: `محلنا في ${address}. أوقات العمل: ${hours}.`,
       },
       {
         q: 'هل يتوفر توصيل للخرطوم والولايات؟',
@@ -68,6 +69,11 @@ const FAQ_DATA = [
 export default function FaqPage() {
   // Contact numbers come from admin shop settings (StoreLayout outlet context).
   const outlet = useOutletContext();
+  const shop = normalizeShopInfo(outlet?.shopInfo);
+  const FAQ_DATA = useMemo(
+    () => buildFaqData({ lockHours: shop.lockHours, address: shop.address, hours: shop.workingHours }),
+    [shop.lockHours, shop.address, shop.workingHours]
+  );
   const whatsappUrl = buildWhatsAppLink(outlet?.shopInfo?.whatsapp);
   const telUrl = buildTelLink(outlet?.shopInfo?.phone);
   const [searchQuery, setSearchQuery] = useState('');
@@ -94,7 +100,7 @@ export default function FaqPage() {
         items: matchedItems,
       };
     }).filter((cat) => cat.items.length > 0);
-  }, [searchQuery]);
+  }, [searchQuery, FAQ_DATA]);
 
   return (
     <div className={styles.pageWrapper}>
@@ -151,8 +157,8 @@ export default function FaqPage() {
         <div className={styles.highlightCard}>
           <MapPin size={20} className={styles.highlightIcon} />
           <div>
-            <h3 className={styles.highlightTitle}>مول الواحة، أم درمان</h3>
-            <p className={styles.highlightDesc}>مفتوح يومياً من 9:00 ص حتى 9:00 م.</p>
+            <h3 className={styles.highlightTitle}>{shop.address}</h3>
+            <p className={styles.highlightDesc}>{shop.workingHours}</p>
           </div>
         </div>
       </div>

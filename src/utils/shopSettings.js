@@ -62,7 +62,30 @@ export function normalizeShopInfo(raw) {
     orders_disabled_message: info.orders_disabled_message || DEFAULT_SHOP_SETTINGS.orders_disabled_message,
     ticker_enabled: tickerEnabled,
     lock_hours: Number(info.lock_hours || info.price_lock_hours || DEFAULT_SHOP_SETTINGS.lock_hours),
+    lockHours: Number(info.lock_hours || info.price_lock_hours || DEFAULT_SHOP_SETTINGS.lock_hours),
+    // Admin-set discount (was hard-coded 3% across cart/checkout/drawer while the server
+    // charged the configured one).
+    discountPercent: appDiscountPercent(info),
+    mapLink: info.shop_map_link || DEFAULT_MAP_LINK,
+    shop_map_link: info.shop_map_link || DEFAULT_MAP_LINK,
   };
+}
+
+export const DEFAULT_MAP_LINK = 'https://maps.google.com/?q=Al-Waha+Mall+Omdurman';
+
+/** Admin "app discount %" (0–50). Missing -> default 3. */
+export function appDiscountPercent(info) {
+  const raw = info?.app_discount_percent ?? info?.discountPercent;
+  const n = Number(raw);
+  if (raw === undefined || raw === null || raw === '' || !Number.isFinite(n)) {
+    return DEFAULT_SHOP_SETTINGS.app_discount_percent;
+  }
+  return Math.min(50, Math.max(0, Math.round(n)));
+}
+
+/** Discount amount in SDG for a subtotal, using the admin percentage. */
+export function appDiscountAmount(subtotal, info) {
+  return Math.round((Number(subtotal) || 0) * appDiscountPercent(info) / 100);
 }
 
 /**

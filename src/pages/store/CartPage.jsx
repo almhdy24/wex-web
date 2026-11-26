@@ -6,7 +6,7 @@ import { useToast } from '../../context/ToastContext';
 import { formatSdg, getProductImageUrl } from '../../utils/formatters';
 import { getProductUrl } from '../../utils/productUrl';
 import { pluralAr } from '../../utils/pluralAr';
-import { normalizeShopInfo } from '../../utils/shopSettings';
+import { normalizeShopInfo, appDiscountPercent, appDiscountAmount } from '../../utils/shopSettings';
 import { productsApi } from '../../api/products';
 import { swrCache } from '../../utils/swrCache';
 import { useCountUp } from '../../motion';
@@ -46,14 +46,16 @@ export default function CartPage() {
   const { success } = useToast();
   const navigate = useNavigate();
 
-  const discount = Math.round(estimatedSubtotalSdg * 0.03);
-  const total = Math.max(0, estimatedSubtotalSdg - discount);
-  const [animatedTotal, countUpRef] = useCountUp(total, 600);
-
   const [shopInfo, setShopInfo] = useState(() => {
     const cached = swrCache.get('shop_info');
     return cached?.data ? normalizeShopInfo(cached.data) : null;
   });
+
+  // Admin-set app discount (was a fixed 3%).
+  const discountPercent = appDiscountPercent(shopInfo);
+  const discount = appDiscountAmount(estimatedSubtotalSdg, shopInfo);
+  const total = Math.max(0, estimatedSubtotalSdg - discount);
+  const [animatedTotal, countUpRef] = useCountUp(total, 600);
 
   useEffect(() => {
     refreshCartPrices();
@@ -256,7 +258,7 @@ export default function CartPage() {
           </div>
 
           <div className={styles.summaryRow}>
-            <span className={styles.summaryLabel}>خصم التطبيق (3%)</span>
+            <span className={styles.summaryLabel}>خصم التطبيق ({discountPercent}%)</span>
             <span className={styles.discountPill}>
               - <Price value={discount} size="md" tone="success" />
             </span>
