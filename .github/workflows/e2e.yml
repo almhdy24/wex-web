@@ -70,6 +70,9 @@ jobs:
           # Both viewport projects place real orders against ONE database; give every
           # seeded product enough stock that later specs do not hit 'out of stock'.
           php -r '$db = new PDO("sqlite:writable/database/wex_ci.sqlite"); $n = $db->exec("UPDATE products SET stock_quantity = 200 WHERE is_active = 1"); echo "stock reset for $n products\n";'
+          # Seeded products reference image files; without them every thumbnail is a 404
+          # (the admin list started sending images, and the admin crawler fails on 404s).
+          php scripts/generate-product-images.php
 
       - name: Start wex-api Background Server
         working-directory: wex-api
