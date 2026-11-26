@@ -1,5 +1,5 @@
 import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching';
-import { NavigationRoute, registerRoute } from 'workbox-routing';
+import { NavigationRoute, registerRoute, setCatchHandler } from 'workbox-routing';
 import { NetworkFirst, NetworkOnly, StaleWhileRevalidate } from 'workbox-strategies';
 import { ExpirationPlugin } from 'workbox-expiration';
 import { CacheableResponsePlugin } from 'workbox-cacheable-response';
@@ -225,4 +225,14 @@ self.addEventListener('message', (event) => {
       self.navigator.clearAppBadge().catch(() => {});
     }
   }
+});
+
+
+// Navigation that fails with nothing cached (first visit offline): static offline page.
+setCatchHandler(async ({ request }) => {
+  if (request.destination === 'document') {
+    const offline = await caches.match('/offline.html', { ignoreSearch: true });
+    if (offline) return offline;
+  }
+  return Response.error();
 });
