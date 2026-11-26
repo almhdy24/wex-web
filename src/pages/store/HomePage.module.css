@@ -639,3 +639,76 @@
   border-color: var(--wex-royal);
   background: var(--wex-ice-light);
 }
+
+/* Category tiles: calm ice well instead of solid blue squares with a glow (three heavy
+   blue blocks competed with the hero). */
+.categoryTile {
+  border-radius: var(--radius-card);
+  box-shadow: none;
+}
+
+.categoryIconWell {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: var(--wex-ice);
+  color: var(--wex-royal);
+  box-shadow: none;
+}
+
+/* Desktop: real grids at content width. The header already has cart/favourites and the
+   footer repeats the store card. */
+@media (min-width: 1024px) {
+  .heroActions {
+    display: none;
+  }
+
+  .heroBlock {
+    border-radius: var(--radius-panel);
+    padding: 28px 32px 48px;
+  }
+
+  .horizontalRow {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 20px;
+    overflow: visible;
+    padding-bottom: 0;
+  }
+
+  .horizontalCard {
+    flex: none;
+  }
+
+  .featuredGrid {
+    margin: 0;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .categoryTiles {
+    margin: 20px 0 0;
+    gap: 16px;
+  }
+
+  .categoryTile {
+    flex-direction: row;
+    justify-content: center;
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .storeInfoCard {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .featuredHeader {
+    margin: 0 0 14px;
+  }
+
+  .featuredSection {
+    margin-top: 40px;
+  }
+}
