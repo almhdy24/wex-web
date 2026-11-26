@@ -493,6 +493,14 @@
   border-bottom: none;
 }
 
+.specsEmpty {
+  margin: 0;
+  padding: 14px 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--wex-text-secondary);
+}
+
 .specIconBox {
   width: 42px;
   height: 42px;

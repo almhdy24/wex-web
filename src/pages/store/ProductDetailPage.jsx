@@ -37,6 +37,7 @@ import { swrCache } from '../../utils/swrCache';
 import { normalizeShopInfo, buildWhatsAppShareLink, productShareText } from '../../utils/shopSettings';
 import SpecValue from '../../utils/formatSpecValue';
 import styles from './ProductDetailPage.module.css';
+import { buildSpecRows } from '../../utils/productSpecs';
 
 function getSpecPath(label = '', key = '') {
   const l = (label + ' ' + key).toLowerCase();
@@ -248,78 +249,8 @@ export default function ProductDetailPage({
   const conditionLabel = getConditionLabel(product.condition);
 
   // Specifications
-  const specsMap = {};
-  if (Array.isArray(product.specs)) {
-    product.specs.forEach((s) => {
-      const k = (s.spec_key || s.name || s.spec_name || '').toLowerCase();
-      const v = s.spec_value || s.value || '';
-      specsMap[k] = v;
-    });
-  } else if (product.specs && typeof product.specs === 'object') {
-    Object.entries(product.specs).forEach(([k, v]) => {
-      specsMap[k.toLowerCase()] = String(v);
-    });
-  }
-
-  const specRows = [
-    {
-      key: 'processor',
-      label: 'المعالج',
-      value: product.processor || product.cpu || specsMap.processor || specsMap.cpu || null,
-    },
-    {
-      key: 'ram',
-      label: 'الذاكرة العشوائية',
-      value: product.ram || specsMap.ram || null,
-    },
-    {
-      key: 'storage',
-      label: 'التخزين',
-      value: product.storage || specsMap.storage || null,
-    },
-    {
-      key: 'graphics',
-      label: 'كرت الشاشة',
-      value: product.gpu || product.graphics || specsMap.gpu || specsMap.graphics || null,
-    },
-    {
-      key: 'screen',
-      label: 'الشاشة',
-      value: product.screen || product.screen_size || specsMap.screen || specsMap.screen_size || null,
-    },
-    {
-      key: 'battery',
-      label: 'البطارية',
-      value: product.battery || specsMap.battery || null,
-    },
-  ];
-
-  // Inspection/delivery note row: only if API provides text
-  if (product.warranty_text && String(product.warranty_text).trim()) {
-    specRows.push({
-      key: 'warranty',
-      label: 'الاستلام والتسليم',
-      value: String(product.warranty_text).trim(),
-    });
-  }
-
-  // Full spec grouping: add any remaining specs from product.specs
-  const knownKeys = new Set(['processor', 'cpu', 'ram', 'storage', 'graphics', 'gpu', 'screen', 'screen_size', 'battery', 'warranty']);
-  if (Array.isArray(product.specs)) {
-    product.specs.forEach((s) => {
-      const k = (s.spec_key || s.name || s.spec_name || '').toLowerCase();
-      const rawLabel = s.spec_name || s.name || s.label;
-      const v = s.spec_value || s.value || '';
-      if (!knownKeys.has(k) && v && rawLabel) {
-        specRows.push({
-          key: k,
-          label: rawLabel,
-          value: v,
-        });
-        knownKeys.add(k);
-      }
-    });
-  }
+  const specRows = buildSpecRows(product);
+  const visibleSpecRows = specRows.filter((row) => row.value);
 
   // Stock and quantity limits
   const stockCount = typeof product.stock_quantity === 'number'
@@ -597,8 +528,10 @@ export default function ProductDetailPage({
         {/* Specs or Delivery Card */}
         {activeTab === 'specs' ? (
           <div role="tabpanel" id="tabpanel-specs" aria-labelledby="tab-specs" className={styles.specsCard}>
-            {specRows
-              .filter((row) => row.value)
+            {visibleSpecRows.length === 0 && (
+              <p className={styles.specsEmpty}>لم تُضف مواصفات لهذا المنتج بعد. للاستفسار عن التفاصيل تواصل مع المحل.</p>
+            )}
+            {visibleSpecRows
               .map((row, idx) => (
                 <div key={idx} className={styles.specRow}>
                   <div className={styles.specIconBox}>

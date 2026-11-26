@@ -32,10 +32,14 @@ export default function SpecValue({ value, className }) {
     return null;
   }
   const formatted = normalizeSpecText(value);
+  // Latin-only values stay strictly LTR. A value containing Arabic ("لأجهزة حتى 15.6 بوصة",
+  // or anything an admin typed in Arabic) forced to LTR displays its words out of order;
+  // dir="auto" takes the direction of the first strong character instead.
+  const dir = /[\u0600-\u06FF]/.test(formatted) ? 'auto' : 'ltr';
   return React.createElement(
     'bdi',
     {
-      dir: 'ltr',
+      dir,
       ...(className ? { className } : {}),
     },
     formatted
