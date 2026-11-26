@@ -462,3 +462,39 @@
   align-items: center;
   gap: var(--space-2);
 }
+
+/* Mobile: status text + three buttons overflowed 360px (save cut off at the edge, the
+   status wrapped one word per line). Dot only, icon-only preview, save takes the rest. */
+@media (max-width: 767px) {
+  .stickyBottomBar {
+    gap: 8px;
+    padding-inline: 12px;
+  }
+
+  .bottomBarStatus {
+    display: none;
+  }
+
+  .bottomBarInfo {
+    flex: none;
+  }
+
+  .bottomBarActions {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .previewLabel {
+    display: none;
+  }
+
+  .saveBtn {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+/* "للإدارة فقط" broke onto two lines inside its pill beside a long label. */
+.adminBadge {
+  white-space: nowrap;
+}

@@ -780,7 +780,7 @@ export default function AdminProductFormPage() {
           <div className={styles.stickyBottomBar} role="region" aria-label="شريط حفظ التعديلات">
             <div className={styles.bottomBarInfo}>
               {isDirty && <span className={styles.dirtyDot} title="توجد تعديلات غير محفوظة" />}
-              <span>{isDirty ? 'توجد تعديلات غير محفوظة' : 'جميع البيانات محفوظة'}</span>
+              <span className={styles.bottomBarStatus}>{isDirty ? 'توجد تعديلات غير محفوظة' : 'جميع البيانات محفوظة'}</span>
             </div>
             <div className={styles.bottomBarActions}>
               <Link to="/admin/products">
@@ -794,10 +794,11 @@ export default function AdminProductFormPage() {
                   to={getProductUrl(productSlug || id)}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label={adminAr.products.previewInStore}
                 >
-                  <Button type="button" variant="outline" size="md">
+                  <Button type="button" variant="outline" size="md" tabIndex={-1}>
                     <ExternalLink size={16} />
-                    <span>{adminAr.products.previewInStore}</span>
+                    <span className={styles.previewLabel}>{adminAr.products.previewInStore}</span>
                   </Button>
                 </Link>
               )}
@@ -807,6 +808,7 @@ export default function AdminProductFormPage() {
                 variant="primary"
                 size="md"
                 loading={submitting}
+                className={styles.saveBtn}
               >
                 <Check size={16} />
                 <span>{isEditMode ? adminAr.products.saveProduct : adminAr.products.createProduct}</span>

@@ -554,3 +554,31 @@
 .quickRateActions button {
   flex: 1;
 }
+
+/* Rate card footer: tag, status chip and the update link squeezed into one row and each
+   wrapped onto 2-3 lines in a narrow card. Status chip on its own row; tag and link share
+   the next; nothing wraps mid-phrase. */
+.rateCardFooter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.rateUpdatedChip,
+.rateOutdatedChip {
+  order: -1;
+  flex-basis: 100%;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.adminOnlyTag,
+.quickRateBtn {
+  white-space: nowrap;
+}
+
+.quickRateBtn {
+  min-height: 44px;
+}
