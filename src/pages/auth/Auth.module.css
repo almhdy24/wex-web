@@ -557,3 +557,22 @@
 .backLink:hover {
   color: var(--color-royal-blue);
 }
+
+/* Perks are information, not controls: plain icon + text, no pill border (bordered pills
+   read as buttons). */
+.perksRow {
+  gap: 16px;
+}
+
+.perkChip {
+  background: none;
+  border: 0;
+  padding: 0;
+  box-shadow: none;
+  color: var(--wex-text-secondary);
+  font-weight: 600;
+}
+
+.perkIcon {
+  color: var(--wex-royal);
+}
