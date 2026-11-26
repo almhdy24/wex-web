@@ -32,6 +32,11 @@ const EXTRA_LABELS = {
   os: 'نظام التشغيل',
   range: 'المدى',
   compatibility: 'التوافق',
+  dpi: 'دقة المستشعر',
+  resolution: 'الدقة',
+  refresh_rate: 'معدل التحديث',
+  size: 'الحجم',
+  type: 'النوع',
 };
 
 const norm = (k) => String(k || '').trim().toLowerCase();

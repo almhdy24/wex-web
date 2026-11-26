@@ -695,3 +695,11 @@
 .imageLink {
   background: #F6F8FB;
 }
+
+/* Two-column mobile: brand/condition and stock stacked into two badge rows. Keep the one
+   that matters on a saved list: availability. */
+@media (max-width: 639px) {
+  .metaRow .brandBadge {
+    display: none;
+  }
+}

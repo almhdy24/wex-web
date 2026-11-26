@@ -98,3 +98,36 @@ Apple Store app, Jumia: one clear price, calm surfaces, strong type contrast, no
 6. Compare at 360px; favorites as grid.
 7. Admin products filters as one row; name column width.
 8. Type scale + colour/shadow tokens codemod.
+
+## Round 1 results (proof run 45766303413, commit 72b7580; 67/67 captures opened)
+
+| Screen | Before | After |
+|---|---|---|
+| Catalog desktop | 2 columns in a 480px column, no filters | Sticky filter sidebar + 4-column grid, breadcrumbs |
+| PDP desktop | single column, buy bar floating mid-page | Gallery beside title/price/buy box/actions/specs; related 5-up |
+| Cart / checkout desktop | 480px column, CTA bar over the summary / phone field | Content + sticky summary column, action under the summary |
+| Order detail / orders desktop | 600px column | Payment flow + sticky progress column; orders 2-up |
+| Product card | full-width blue bar per card, price as small as the description | Full-bleed photo, price leads, quiet 44px cart control |
+| Mobile chrome | 4-line banner (~140px) + 100px navy band on every page | One-line banner, shorter band; PDP slab 28px shorter |
+| Compare 360 | second product clipped mid-word | Two products beside the labels |
+| Admin products | 5 stacked filters, names wrapped per word, no thumbnails | Filters in two rows, names on one line, real thumbnails |
+| Data truth | accessories labelled "مستعمل استيراد" | real condition; unknown shows no badge |
+
+Regression caught in review and fixed: the wider admin name column pushed delete/preview
+off the table (b4afbc1 → fixed next commit).
+
+## Round 2 critique (from the round 1 result)
+
+1. **Notifications**: still four "unread" signals (side bar, dot, category, date); dense.
+2. **Admin order cards (mobile)**: ~380px each: every field label stacked over its value.
+3. **Order timeline**: future steps are hollow circles that read as radio buttons.
+4. **Cart rows**: delete is a red filled square on every row: alarming for a routine action.
+5. **PDP secondary actions**: compare/share/WhatsApp are three equal bordered pills that
+   compete with the buy box.
+6. **Login sheet**: close control is a 52px outlined square, heavier than the actions.
+7. **Offline / 404**: small grey icon, screens feel unfinished.
+8. **Specs**: unknown English keys (e.g. `dpi`) shown raw as labels.
+9. **Order header**: "طلب" and number wrapped onto two lines (fixed at the start of r2).
+10. **Home desktop**: new-arrivals row 3 cards in a scroller, store card repeats footer
+    (fixed at the start of r2).
+11. **Favorites mobile**: badges stack in two rows; "نقل إلى السلة" wraps to two lines.

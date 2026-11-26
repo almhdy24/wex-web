@@ -11,12 +11,10 @@
 }
 
 .code {
-  font-size: 5rem;
-  font-weight: 800;
-  color: var(--color-navy);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-  margin-block-end: var(--space-2);
+  font-size: var(--text-s);
+  font-weight: 700;
+  color: var(--wex-text-secondary);
+  margin-block-end: var(--space-2, 8px);
 }
 
 .title {
@@ -38,4 +36,18 @@
   gap: var(--space-3);
   flex-wrap: wrap;
   justify-content: center;
+}
+
+/* Illustration: soft ring + ice disc + royal icon (a small grey icon read unfinished). */
+.iconBox {
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, var(--wex-white) 0%, var(--wex-ice) 70%);
+  color: var(--wex-royal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-block-end: var(--space-5, 20px);
+  box-shadow: 0 0 0 10px rgba(30, 107, 255, 0.06), 0 0 0 22px rgba(30, 107, 255, 0.03);
 }

@@ -11,7 +11,7 @@ export default function OfflinePage() {
   return (
     <div className={styles.wrapper}>
       <div className={styles.iconBox} aria-hidden="true">
-        <WifiOff size={32} strokeWidth={1.75} />
+        <WifiOff size={44} strokeWidth={1.6} />
       </div>
       <h1 className={styles.title}>لا يوجد اتصال بالشبكة</h1>
       <p className={styles.message}>

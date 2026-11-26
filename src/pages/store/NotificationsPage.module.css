@@ -199,3 +199,55 @@
     font-size: var(--text-s);
   }
 }
+
+/* One signal for unread (white surface + dot + bold title). Read items sit flat on the
+   page. The side bar, tinted background and category pill made four signals. */
+.card {
+  background: transparent;
+  border: 1px solid var(--wex-border);
+  box-shadow: none;
+  gap: 4px;
+}
+
+.cardUnread {
+  background: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  border-inline-start-width: 1px;
+  box-shadow: var(--shadow-sm);
+}
+
+.cardHeading {
+  font-weight: 600;
+  color: var(--wex-text-secondary);
+}
+
+.cardUnread .cardHeading {
+  font-weight: 800;
+  color: var(--wex-navy);
+}
+
+.typeBadge {
+  background: none;
+  padding: 0;
+  color: var(--wex-text-secondary);
+  font-weight: 600;
+}
+
+.unreadDot {
+  order: -1;
+  width: 8px;
+  height: 8px;
+  background: var(--wex-royal);
+}
+
+.timeLabel {
+  color: var(--wex-text-secondary);
+}
+
+.cardBody {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}

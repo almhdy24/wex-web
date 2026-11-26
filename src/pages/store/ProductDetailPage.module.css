@@ -907,3 +907,36 @@
     flex: none;
   }
 }
+
+/* Secondary actions: one quiet segmented strip (three bordered pills competed with the
+   buy box). */
+.compareShareGrid {
+  gap: 0;
+  background: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--radius-control);
+  overflow: hidden;
+}
+
+.gridActionBtn {
+  height: 44px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--wex-navy);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.gridActionBtn + .gridActionBtn {
+  border-inline-start: 1px solid var(--wex-border);
+}
+
+.gridActionBtn svg {
+  color: var(--wex-royal);
+}
+
+.gridActionBtnActive {
+  background: var(--wex-ice);
+  border-color: var(--wex-border);
+}

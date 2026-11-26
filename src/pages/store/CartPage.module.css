@@ -529,3 +529,38 @@
     margin-top: 0;
   }
 }
+
+/* Delete is routine, not an alarm: quiet grey icon that turns red on press/hover (a red
+   filled square on every row). Undo toast already protects the action. */
+.deleteBtn {
+  background: transparent;
+  color: var(--wex-text-secondary);
+}
+
+@media (hover: hover) {
+  .deleteBtn:hover {
+    background: var(--wex-danger-bg);
+    color: var(--wex-danger);
+  }
+}
+
+.deleteBtn:active {
+  background: var(--wex-danger-bg);
+  color: var(--wex-danger);
+}
+
+/* "Add more" was a dashed box that read as a drop zone: a plain text link. */
+.addMoreLink {
+  height: 44px;
+  border: 0;
+  justify-content: flex-start;
+  padding-inline: 4px;
+  gap: 6px;
+  font-size: var(--text-sm);
+  width: fit-content;
+}
+
+.addMoreLink:hover {
+  background: transparent;
+  text-decoration: underline;
+}

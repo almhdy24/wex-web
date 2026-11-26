@@ -147,3 +147,14 @@
     transition: none !important;
   }
 }
+
+/* The sheet focuses its close control on open; a 2px square ring outside the 44px target
+   read as a heavy boxed button. Round, inset ring instead (still visible for keyboards). */
+.closeBtn {
+  border-radius: 50%;
+}
+
+.closeBtn:focus-visible {
+  outline: 2px solid var(--wex-vivid);
+  outline-offset: -6px;
+}
