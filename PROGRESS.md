@@ -1,5 +1,15 @@
 # Wex Technology Web - Project Progress Tracker
 
+## Admin → Storefront Sync & Mobile Fixes (2026-11-26) — Done, CI green (web ×3, API PHPUnit, deploy smoke)
+
+- [x] Orders toggle: JSON false stored as '' and read as on (API b065aa9); booleans '1'/'0', old '' rows read off.
+- [x] Storefront ignored settings: discount % (was fixed 3%), lock hours, hours, address, map link; /shop now sends map/footer/social (API 144b3f3, web 0d89324).
+- [x] Admin content never reached customers: hero slides, home sections, FAQ, store pages (/returns, /privacy-policy, /terms, /about, /pages/:slug); catalog honours ?type=/?featured= (web c2ea652, 27ddc70).
+- [x] Mobile lightbox showed no image (fixed elements trapped by the screen transform) (web 702d3cb).
+- [x] Admin mobile: product save bar overflow, FAQ one-word-per-line, rate card/badges wrapping.
+- [x] App shell sent no-store since the SEO change; HEAD treated as mutating (API 3d380c3).
+- [x] Reverted guest bootstrap gate (signed out cookie-only sessions; e2e caught it).
+
 ## Design Rounds Sprint (Branch: stabilize) — Active (started 2026-11-26)
 
 Method: critique → improve → prove, 3 rounds over every screen, from CI captures
