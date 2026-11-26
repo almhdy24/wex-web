@@ -201,12 +201,12 @@ export default function DesktopHeader({ onOpenCart, shopInfo = null }) {
             </span>
             <span className={styles.hoursText}>
               <Clock size={13} className={styles.stripIcon} />
-              {ar.desktop.shopHoursShort}
+              {shopInfo?.working_hours || ar.desktop.shopHoursShort}
             </span>
             <span className={styles.divider}>•</span>
             <span className={styles.locationText}>
               <MapPin size={13} className={styles.stripIcon} />
-              {ar.desktop.locationShort}
+              {shopInfo?.address || ar.desktop.locationShort}
             </span>
           </div>
 

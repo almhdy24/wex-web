@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Phone, MessageCircle, MapPin, Mail, Clock, HelpCircle, ShieldCheck } from 'lucide-react';
+import { Phone, MessageCircle, MapPin, Clock, HelpCircle, ShieldCheck } from 'lucide-react';
 import { ar } from '../../content/ar';
 import { normalizeShopInfo, buildWhatsAppLink, buildTelLink } from '../../utils/shopSettings';
 import styles from './StoreFooter.module.css';
@@ -97,12 +97,6 @@ export default function StoreFooter({ shopInfo = null }) {
                 </a>
               </li>
               )}
-              <li>
-                <a href="mailto:support@wextech.sd" className={styles.footerLink}>
-                  <Mail size={15} className={styles.linkIcon} />
-                  <span>support@wextech.sd</span>
-                </a>
-              </li>
               <li>
                 <a
                   href={shopMapLink}
