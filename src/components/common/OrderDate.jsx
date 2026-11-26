@@ -39,9 +39,13 @@ export default function OrderDate({
   return (
     <span className={`${styles.dateLine} ${className}`.trim()} dir="rtl">
       {label && <span className={styles.label}>{label}</span>}
-      <bdi dir="ltr" className={styles.dateTime}>
-        {dateStr} {timeStr}
-      </bdi>
+      {/* Date LTR, then the time as its own RTL unit: one LTR isolate around both put ص/م
+          at the far right, so it was read first ("م 8:00 2026/11/24"). */}
+      <span className={styles.dateTime}>
+        <bdi dir="ltr">{dateStr}</bdi>
+        {timeStr && ' '}
+        {timeStr && <bdi dir="rtl">{timeStr}</bdi>}
+      </span>
       {hasRelative && (
         <span className={styles.relative}>
           <span className={styles.bullet} aria-hidden="true">·</span>

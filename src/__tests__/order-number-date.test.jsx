@@ -47,4 +47,16 @@ describe('OrderDate Component & Formatter', () => {
 
     expect(getByText('تم الإنشاء:')).toBeDefined();
   });
+
+  // VIS-03: one LTR isolate around "date time" put ص/م at the far right, so an Arabic
+  // reader met "م 8:00 2026/11/24". Date isolated LTR, then the time in RTL flow.
+  it('isolates the date LTR and the time (with ص/م) as its own RTL unit after it', () => {
+    const iso = '2026-11-23T14:30:00Z';
+    const { container } = render(<OrderDate date={iso} label="" showRelative={false} />);
+    const [dateBdi, timeBdi] = container.querySelectorAll('bdi');
+    expect(dateBdi.getAttribute('dir')).toBe('ltr');
+    expect(dateBdi.textContent).toMatch(/^\d{4}\/\d{2}\/\d{2}$/);
+    expect(timeBdi.getAttribute('dir')).toBe('rtl');
+    expect(timeBdi.textContent).toMatch(/^\d{1,2}:\d{2} [صم]$/);
+  });
 });
