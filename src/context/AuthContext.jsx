@@ -200,13 +200,9 @@ export function AuthProvider({ children }) {
     let isMounted = true;
 
     async function initSession() {
-      // No cached profile means no sign-in on this browser (every sign-in path writes
-      // wex_user): a refresh would only return 401. Guests no longer pay a request and a
-      // console error on every page load.
-      if (!userRef.current) {
-        setLoading(false);
-        return;
-      }
+      // Always try the cookie, even without a cached profile: Safari can clear localStorage
+      // after 7 days while the HttpOnly session cookie lives on, and API-created sessions
+      // never write wex_user. Skipping here signed those customers out (e2e caught it).
       try {
         const token = await performTokenRefresh();
         if (token && isMounted) {

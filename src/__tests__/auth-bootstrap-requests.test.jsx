@@ -42,13 +42,13 @@ describe('session refresh on tab visibility', () => {
     setVisibility('visible');
   });
 
-  it('guest (no cached profile): no refresh request on load or on tab focus', async () => {
+  it('no cached profile: still restores the session from the cookie on load', async () => {
+    // Safari may drop localStorage while the HttpOnly cookie lives on; API-created sessions
+    // never write wex_user. The bootstrap must try the cookie anyway.
     localStorage.clear();
     render(<AuthProvider><div /></AuthProvider>);
     await act(async () => { await Promise.resolve(); });
-    setVisibility('visible');
-    await act(async () => { document.dispatchEvent(new Event('visibilitychange')); });
-    expect(performTokenRefresh).not.toHaveBeenCalled();
+    expect(performTokenRefresh).toHaveBeenCalledTimes(1);
   });
 
   it('does not refresh when the page becomes hidden; does when it becomes visible', async () => {

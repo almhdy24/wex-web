@@ -223,7 +223,9 @@ async function run() {
       currentRole = route.role || 'guest';
       const page = await context.newPage();
       const consoleErrors = [];
-      page.on('console', (msg) => { if (msg.type() === 'error') consoleErrors.push(msg.text()); });
+      // A guest's session bootstrap gets 401 from /auth/refresh by design (no cookie).
+      const expected401 = (t) => route.role === undefined && /status of 401/.test(t);
+      page.on('console', (msg) => { if (msg.type() === 'error' && !expected401(msg.text())) consoleErrors.push(msg.text()); });
       page.on('pageerror', (err) => consoleErrors.push(err.message));
 
       await page.addInitScript((seed) => {
