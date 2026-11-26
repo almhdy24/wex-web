@@ -354,7 +354,7 @@ export default function CheckoutPage({
           <div className={styles.pickupInfoCard}>
             <div className={styles.pickupInfoRow}>
               <strong>العنوان:</strong>
-              <span>{shopInfo?.address || 'مول الواحة، الشهداء، أم درمان'}</span>
+              <span>{shopInfo?.address || '—'}</span>
             </div>
             <div className={styles.pickupInfoRow}>
               <strong>ساعات العمل:</strong>

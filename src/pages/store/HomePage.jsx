@@ -23,7 +23,7 @@ import Page from '../../components/common/Page';
 import BrandRibbons from '../../components/common/BrandRibbons';
 import { Reveal, Stagger } from '../../motion';
 import { formatPriceUpdateCaption } from '../../utils/formatters';
-import { normalizeShopInfo, buildWhatsAppLink, DEFAULT_MAP_LINK } from '../../utils/shopSettings';
+import { normalizeShopInfo, buildWhatsAppLink } from '../../utils/shopSettings';
 import styles from './HomePage.module.css';
 import { formatHoursAr, renderLockDuration } from '../../utils/arabicDuration';
 
@@ -473,29 +473,29 @@ export default function HomePage({
             <BrandRibbons variant="header" />
             <div className={styles.storeTopBandContent}>
               <h2 className={styles.storeName}>{shopInfo?.name || 'ويكس تكنولوجي'}</h2>
-              <p className={styles.storeTagline}>فريق ويكس في خدمتكم في المتجر بأم درمان</p>
+              <p className={styles.storeTagline}>فريق ويكس في خدمتكم في المتجر</p>
             </div>
           </div>
 
           <div className={styles.storeBody}>
             <p className={styles.storeAddress}>
-              {shopInfo?.address || 'مول الواحة، الشهداء، أم درمان'}
+              {shopInfo?.address || '—'}
             </p>
             <div className={styles.storeHours}>
               {/* Admin "working hours" text only (a hard-coded 'الجمعة: مغلق' line contradicted it). */}
-              <p>{shopInfo?.workingHours || 'السبت - الخميس: 9:00 ص - 9:00 م'}</p>
+              <p>{shopInfo?.workingHours || '—'}</p>
             </div>
 
             <div className={styles.storeButtons}>
-              <a
-                href={shopInfo?.mapLink || DEFAULT_MAP_LINK}
+              {shopInfo?.mapLink && <a
+                href={shopInfo.mapLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.storeBtnPrimary}
               >
                 <MapPin size={18} strokeWidth={2} aria-hidden="true" />
                 <span>الموقع على الخريطة</span>
-              </a>
+              </a>}
 
               {whatsappUrl && (
                 <a

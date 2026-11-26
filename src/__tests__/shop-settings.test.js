@@ -127,6 +127,10 @@ describe('admin shop settings reach the storefront', () => {
     expect(s.lockHours).toBe(6);
     expect(s.mapLink).toBe('https://maps.google.com/?q=X');
     expect(normalizeForSettings({}).mapLink).toBe(DEFAULT_MAP_LINK);
+    expect(DEFAULT_MAP_LINK).toBe('');
+    expect(normalizeForSettings({}).address).toBe('');
+    // no explicit link: search for the admin's address
+    expect(normalizeForSettings({ shop_address: 'شارع النيل' }).mapLink).toContain(encodeURIComponent('شارع النيل'));
     expect(normalizeForSettings({}).discountPercent).toBe(3);
   });
 });

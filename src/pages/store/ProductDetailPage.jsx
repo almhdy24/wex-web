@@ -282,12 +282,12 @@ export default function ProductDetailPage({
   const maxQuantity = Math.max(1, Math.min(10, stockCount > 0 ? stockCount : 1));
 
   // Factual shop and delivery info
-  const shopAddress = shopInfo?.address || 'مول الواحة، الشهداء، أم درمان';
-  const shopHours = shopInfo?.business_hours || 'السبت - الخميس: 9:00 ص - 9:00 م، الجمعة: مغلق';
+  const shopAddress = shopInfo?.address || '—';
+  const shopHours = shopInfo?.business_hours || '—';
   const zonesText =
     shippingZones.length > 0
       ? shippingZones.map((z) => z.zone_name || z.name).join('، ')
-      : 'أم درمان، الخرطوم، بحري والولايات';
+      : 'حسب مناطق التوصيل المتاحة عند إتمام الطلب';
 
   const isOrdersDisabled = shopInfo?.orders_enabled === false;
 

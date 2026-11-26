@@ -199,15 +199,19 @@ export default function DesktopHeader({ onOpenCart, shopInfo = null }) {
               <span className={styles.statusDot} />
               {shopStatus.isOpen ? ar.desktop.statusOpen : ar.desktop.statusClosed}
             </span>
-            <span className={styles.hoursText}>
-              <Clock size={13} className={styles.stripIcon} />
-              {shopInfo?.working_hours || ar.desktop.shopHoursShort}
-            </span>
-            <span className={styles.divider}>•</span>
-            <span className={styles.locationText}>
-              <MapPin size={13} className={styles.stripIcon} />
-              {shopInfo?.address || ar.desktop.locationShort}
-            </span>
+            {shopInfo?.working_hours && (
+              <span className={styles.hoursText}>
+                <Clock size={13} className={styles.stripIcon} />
+                {shopInfo.working_hours}
+              </span>
+            )}
+            {shopInfo?.working_hours && shopInfo?.address && <span className={styles.divider}>•</span>}
+            {shopInfo?.address && (
+              <span className={styles.locationText}>
+                <MapPin size={13} className={styles.stripIcon} />
+                {shopInfo.address}
+              </span>
+            )}
           </div>
 
           <div className={styles.topStripEnd}>
@@ -228,7 +232,7 @@ export default function DesktopHeader({ onOpenCart, shopInfo = null }) {
             {telUrl && (
               <a href={telUrl} className={styles.topContactLink} title="اتصل بنا">
                 <Phone size={13} className={styles.stripIcon} />
-                <span>{ar.desktop.phone}</span>
+                <bdi dir="ltr">{shopInfo?.phone}</bdi>
               </a>
             )}
           </div>

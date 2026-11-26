@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
-    <title>Wex Technology | متجر ويكس تكنولوجي - أم درمان</title>
-    <meta name="description" content="متجر أجهزة لابتوب وهواتف محمولة وملحقات في أم درمان، الشهداء. تثبيت السعر عند الطلب واستلام من المحل أو توصيل." />
+    <title>Wex Technology | متجر ويكس تكنولوجي</title>
+    <meta name="description" content="متجر أجهزة لابتوب وهواتف محمولة وملحقات. تثبيت السعر عند الطلب واستلام من المحل أو توصيل." />
     <meta name="theme-color" content="#061A55" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -28,8 +28,8 @@
       html, body {
         margin: 0;
         padding: 0;
-        background-color: #061A55;
-        color: #FFFFFF;
+        background-color: #F3F7FF;
+        color: #061A55;
         font-family: 'Tajawal', system-ui, -apple-system, sans-serif;
         -webkit-font-smoothing: antialiased;
       }
@@ -42,32 +42,20 @@
   <body>
     <a href="#main-content" class="skip-link">انتقل إلى المحتوى الأساسي</a>
     <div id="root">
-      <!-- Pre-hydration brand fallback: pixel-for-pixel matched with React SplashScreen -->
-      <div id="wex-preboot" style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background-color:#061A55;background-image:radial-gradient(circle at 50% 40%, #082370 0%, #061A55 65%, #030D2C 100%);color:#FFFFFF;z-index:9999;user-select:none;text-align:center;padding:16px;">
-        <div style="width:76px;height:76px;border-radius:20px;display:flex;align-items:center;justify-content:center;margin-bottom:22px;box-shadow:0 12px 30px rgba(0,0,0,0.4),0 0 16px rgba(0,183,255,0.18);">
-          <svg width="76" height="76" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;">
-            <defs>
-              <linearGradient id="preGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#0B3FBF"/>
-                <stop offset="100%" stop-color="#1E6BFF"/>
-              </linearGradient>
-            </defs>
-            <rect width="128" height="128" rx="28" fill="url(#preGrad)"/>
-            <path d="M26 40 L44 92 L58 56 L68 78 L84 40 L96 40 L76 92 L62 60 L50 92 L18 40 Z" fill="#FFFFFF"/>
-            <circle cx="96" cy="44" r="6" fill="#00B7FF"/>
+      <!-- Pre-hydration splash: same look as the React SplashScreen (no jump on hydrate) -->
+      <div id="wex-preboot" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(120% 80% at 50% 35%,#FFFFFF 0%,#F3F7FF 60%,#E8F0FF 100%);color:#061A55;z-index:9999;user-select:none;text-align:center;">
+        <div style="display:flex;flex-direction:column;align-items:center;width:100%;max-width:360px;">
+          <svg viewBox="220 340 590 345" width="132" style="display:block;height:auto;margin-bottom:20px;" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs><linearGradient id="preBlue" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0B3FBF"/><stop offset="100%" stop-color="#1E8BFF"/></linearGradient></defs>
+            <path d="M328 390 H445 L706 648 H575 Z" fill="#061A55"/>
+            <path d="M230 675 C300 668 352 664 372 660 C470 590 560 520 640 452 C690 410 740 378 795 350 C740 352 690 354 662 356 C610 372 560 412 520 444 C420 524 320 600 230 675 Z" fill="url(#preBlue)"/>
           </svg>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:16px;">
-          <span style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;color:#00B7FF;text-transform:uppercase;">WEX TECHNOLOGY</span>
-          <h1 style="font-family:'Tajawal',system-ui,sans-serif;font-size:24px;font-weight:800;color:#FFFFFF;margin:0;line-height:1.25;">ويكس تكنولوجي</h1>
-          <p style="font-family:'Tajawal',system-ui,sans-serif;font-size:14px;font-weight:500;color:#CBD5E1;margin:0;line-height:1.4;">أجهزة الحواسيب المحمولة والإلكترونيات</p>
-        </div>
-        <div style="display:inline-flex;align-items:center;gap:8px;padding:5px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:9999px;font-family:'Tajawal',system-ui,sans-serif;font-size:12px;font-weight:600;color:#E2E8F0;margin-bottom:28px;">
-          <span style="width:6px;height:6px;border-radius:50%;background-color:#00B7FF;box-shadow:0 0 6px rgba(0,183,255,0.6);display:inline-block;"></span>
-          <span>أم درمان · مول الواحة</span>
-        </div>
-        <div style="width:150px;height:2px;background:rgba(255,255,255,0.12);border-radius:2px;overflow:hidden;position:relative;">
-          <div style="width:40%;height:100%;border-radius:2px;background:linear-gradient(90deg,transparent 0%,#1E6BFF 50%,#00B7FF 100%);"></div>
+          <h1 style="font-family:'Tajawal',system-ui,sans-serif;font-size:26px;font-weight:800;line-height:1.25;margin:0;color:#061A55;">ويكس تكنولوجي</h1>
+          <span style="margin-top:4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;color:#1E6BFF;">WEX TECHNOLOGY</span>
+          <p style="margin:12px 0 0;font-family:'Tajawal',system-ui,sans-serif;font-size:15px;font-weight:500;line-height:1.5;color:#475569;">أجهزة الحواسيب المحمولة والإلكترونيات</p>
+          <div style="margin-top:32px;width:140px;height:3px;border-radius:3px;background:rgba(11,63,191,0.12);overflow:hidden;position:relative;">
+            <div style="position:absolute;top:0;bottom:0;inset-inline-start:30%;width:40%;border-radius:3px;background:linear-gradient(90deg,#0B3FBF,#1E8BFF);"></div>
+          </div>
         </div>
       </div>
     </div>

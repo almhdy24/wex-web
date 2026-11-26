@@ -10,7 +10,9 @@ import styles from './SplashScreen.module.css';
  * - Safety ceiling timeout: ensures slow networks or API hangs never trap the customer
  * - Pre-hydration and layout-shift prevention: aligns with root canvas
  * - Full Arabic RTL support and refined bilingual typography
- * - Accessible: supports reduced motion, semantic status role, and keyboard escape
+ * - Accessible: supports reduced motion, semantic status role, keyboard Escape/Enter and tap to skip
+ * - Shows only brand facts: the real X mark, the name and what the shop sells (no location:
+ *   the address is an admin setting and is shown where it matters, e.g. checkout)
  */
 export default function SplashScreen({
   isReady = false,
@@ -88,68 +90,37 @@ export default function SplashScreen({
       aria-label={ar.splash.ariaLabel || ar.splash.title}
       onClick={handleClose}
     >
-      <div className={styles.ambientGlow} aria-hidden="true" />
+      <div className={styles.contentWrapper}>
+        {/* The real WEX "X" mark as a sub-1 KB vector: instant on slow mobile data. */}
+        <svg
+          className={styles.brandMark}
+          viewBox="220 340 590 345"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          data-testid="wex-x-mark"
+        >
+          <defs>
+            <linearGradient id="wexSplashBlue" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#0B3FBF" />
+              <stop offset="100%" stopColor="#1E8BFF" />
+            </linearGradient>
+          </defs>
+          <path className={styles.markNavy} d="M328 390 H445 L706 648 H575 Z" fill="#061A55" />
+          <path className={styles.markBlue} d="M230 675 C300 668 352 664 372 660 C470 590 560 520 640 452 C690 410 740 378 795 350 C740 352 690 354 662 356 C610 372 560 412 520 444 C420 524 320 600 230 675 Z" fill="url(#wexSplashBlue)" />
+        </svg>
 
-      <div className={styles.contentWrapper} onClick={(e) => e.stopPropagation()}>
-        {/* WEX Vector Brand Monogram */}
-        <div className={styles.brandMarkWrapper}>
-          <svg
-            className={styles.brandMarkSvg}
-            viewBox="0 0 128 128"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-          >
-            <defs>
-              <linearGradient id="wexSplashGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#0B3FBF" />
-                <stop offset="100%" stopColor="#1E6BFF" />
-              </linearGradient>
-            </defs>
-            <rect width="128" height="128" rx="28" fill="url(#wexSplashGrad)" />
-            <path
-              d="M26 40 L44 92 L58 56 L68 78 L84 40 L96 40 L76 92 L62 60 L50 92 L18 40 Z"
-              fill="#FFFFFF"
-            />
-            <circle cx="96" cy="44" r="6" fill="#00B7FF" />
-          </svg>
-        </div>
+        <h1 className={styles.brandTitle}>{ar.splash.title}</h1>
+        <span className={styles.brandEn}>{ar.splash.brandEn || 'WEX TECHNOLOGY'}</span>
+        <p className={styles.brandSubtitle}>{ar.splash.subtitle}</p>
 
-        {/* Refined Brand Identity */}
-        <div className={styles.brandIdentity}>
-          <span className={styles.brandEn}>{ar.splash.brandEn || 'WEX TECHNOLOGY'}</span>
-          <h1 className={styles.brandTitle}>{ar.splash.title}</h1>
-          <p className={styles.brandSubtitle}>{ar.splash.subtitle}</p>
-        </div>
-
-        {/* Location & Store Origin Badge */}
-        <div className={styles.locationBadge} aria-label={ar.splash.location}>
-          <span className={styles.locationDot} aria-hidden="true" />
-          <span className={styles.locationText}>{ar.splash.location}</span>
-        </div>
-
-        {/* Minimal Hairline Progress State */}
         <div className={styles.progressArea}>
           <div className={styles.hairlineTrack} role="progressbar" aria-label={ar.common.loading}>
             <div className={styles.hairlineThumb} />
           </div>
-
-          <div className={styles.statusRow}>
-            {showSlowNotice && (
-              <span className={styles.slowNotice}>{ar.splash.initializing}</span>
-            )}
-          </div>
+          <p className={styles.slowNotice} aria-hidden={!showSlowNotice}>
+            {showSlowNotice ? ar.splash.initializing : '\u00a0'}
+          </p>
         </div>
-
-        {/* Polite Skip Action (for accessibility or user control) */}
-        <button
-          type="button"
-          className={styles.dismissAction}
-          onClick={handleClose}
-          aria-label={ar.splash.skip}
-        >
-          {ar.splash.skip}
-        </button>
       </div>
     </aside>
   );

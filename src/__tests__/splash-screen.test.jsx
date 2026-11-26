@@ -38,14 +38,13 @@ describe('WEX Brand Loading Screen & First Impression', () => {
       expect(html).toContain(ar.splash.ariaLabel);
     });
 
-    it('renders the crisp WEX vector monogram SVG without bitmap blur', () => {
+    it('renders the real WEX X brand mark as an inline vector (no heavy bitmap)', () => {
       const html = renderToStaticMarkup(<SplashScreen isReady={false} />);
-      expect(html).toContain('svg');
-      expect(html).toContain('wexSplashGrad');
-      // Contains the official geometric W path coordinates
-      expect(html).toContain('M26 40 L44 92 L58 56 L68 78 L84 40');
-      // Contains the brand cyan accent dot
-      expect(html).toContain('fill="#00B7FF"');
+      expect(html).toContain('data-testid="wex-x-mark"');
+      expect(html).toContain('wexSplashBlue');
+      expect(html).not.toContain('<img');
+      // the old invented "W" monogram is gone
+      expect(html).not.toContain('M26 40 L44 92');
     });
 
     it('renders bilingual brand typography (Arabic title and English brand uppercase)', () => {
@@ -55,9 +54,10 @@ describe('WEX Brand Loading Screen & First Impression', () => {
       expect(html).toContain(ar.splash.subtitle);
     });
 
-    it('renders authentic Omdurman physical store location badge', () => {
+    it('shows no hard-coded shop location (the address is an admin setting)', () => {
       const html = renderToStaticMarkup(<SplashScreen isReady={false} />);
-      expect(html).toContain(ar.splash.location);
+      expect(html).not.toMatch(/أم درمان|الواحة|الشهداء|Omdurman/);
+      expect(ar.splash.location).toBeUndefined();
     });
 
     it('renders hairline indeterminate progress bar with role="progressbar"', () => {
@@ -67,9 +67,9 @@ describe('WEX Brand Loading Screen & First Impression', () => {
       expect(html).toContain('hairlineThumb');
     });
 
-    it('renders an accessible dismiss/proceed button', () => {
+    it('has no visible skip button clutter (tap anywhere, Escape or Enter still skip)', () => {
       const html = renderToStaticMarkup(<SplashScreen isReady={false} />);
-      expect(html).toContain(ar.splash.skip);
+      expect(html).not.toContain('<button');
     });
 
     it('does NOT contain previous poor visual artifacts (tacky ribbons, rotating xMark, white card box)', () => {

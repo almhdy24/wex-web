@@ -56,10 +56,25 @@ describe('Desktop Shell & Navigation Components', () => {
       // Verify Search
       expect(html).toContain('ابحث عن جهاز أو ماركة');
 
-      // Verify Shop Hours & Status
-      expect(html).toContain('السبت - الخميس: 9:00 ص - 9:00 م');
-      expect(html).toContain('مول الواحة، الشهداء، أم درمان');
+      // No shop settings -> no invented hours or place in the top bar
+      expect(html).not.toContain('السبت - الخميس');
+      expect(html).not.toMatch(/مول الواحة|أم درمان/);
     });
+  });
+
+  it('top bar shows the admin address and hours from settings', () => {
+    const html = renderToStaticMarkup(
+      <MemoryRouter>
+        <AuthContext.Provider value={dummyAuth}>
+          <CartContext.Provider value={dummyCart}>
+            <DesktopHeader onOpenCart={() => {}} shopInfo={{ address: 'شارع النيل، الخرطوم', working_hours: 'يوميًا 9 ص - 9 م', phone: '0911000000' }} />
+          </CartContext.Provider>
+        </AuthContext.Provider>
+      </MemoryRouter>
+    );
+    expect(html).toContain('شارع النيل، الخرطوم');
+    expect(html).toContain('يوميًا 9 ص - 9 م');
+    expect(html).not.toContain('234 5678');
   });
 
   describe('CartDrawer component', () => {

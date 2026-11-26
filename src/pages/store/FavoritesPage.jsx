@@ -83,7 +83,7 @@ export default function FavoritesPage() {
           </div>
           <p className={styles.subtitle}>
             {favorites.length > 0
-              ? `لديك ${favorites.length} جهاز محفوظ للمتابعة والشراء الفوري بأم درمان`
+              ? `لديك ${favorites.length} جهاز محفوظ للمتابعة والشراء`
               : ar.wishlist.subtitle}
           </p>
         </div>

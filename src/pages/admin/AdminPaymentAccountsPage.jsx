@@ -469,7 +469,7 @@ export default function AdminPaymentAccountsPage() {
               type="text"
               value={formData.branch}
               onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
-              placeholder="مثال: فرع الشهداء - أم درمان"
+              placeholder="مثال: الفرع الرئيسي"
               className={styles.formInput}
             />
           </div>

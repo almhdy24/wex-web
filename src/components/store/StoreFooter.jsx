@@ -9,13 +9,13 @@ export default function StoreFooter({ shopInfo = null }) {
   const currentYear = new Date().getFullYear();
   const info = normalizeShopInfo(shopInfo);
 
-  const shopAddress = info.address || ar.desktop.locationShort;
-  const workingHours = info.workingHours || ar.desktop.shopHoursShort;
+  const shopAddress = info.address;
+  const workingHours = info.workingHours;
   const shopPhone = info.phone || '';
   const telUrl = buildTelLink(info.phone);
   const whatsappUrl = buildWhatsAppLink(info.whatsapp);
   const footerText = info.footer_text || ar.desktop.footer.aboutShop;
-  const shopMapLink = info.shop_map_link || 'https://maps.google.com/?q=Al-Waha+Mall+Omdurman';
+  const shopMapLink = info.mapLink;
   const shopName = info.name || ar.common.appName;
 
   return (
@@ -121,7 +121,7 @@ export default function StoreFooter({ shopInfo = null }) {
             </div>
             <div className={styles.trustBadge}>
               <ShieldCheck size={18} className={styles.trustIcon} />
-              <span>استلام مباشر للجهاز بمقرنا في أم درمان</span>
+              <span>استلام مباشر للجهاز من المحل</span>
             </div>
           </div>
         </div>

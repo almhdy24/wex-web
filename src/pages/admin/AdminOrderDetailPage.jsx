@@ -432,7 +432,7 @@ export default function AdminOrderDetailPage({ initialOrder = null, initialLoadi
         <div className={styles.printHeader}>
           <h1>{shopSettings?.shop_name || 'متجر ويكس تكنولوجي'} — بطاقة طلب</h1>
           <p>
-            {shopSettings?.shop_address || 'مول الواحة، الشهداء، أم درمان'}
+            {shopSettings?.shop_address || ''}
             {shopSettings?.shop_phone && (
               <>
                 {' '}| هاتف:{' '}
@@ -551,7 +551,7 @@ export default function AdminOrderDetailPage({ initialOrder = null, initialLoadi
                       {order.customer?.phone || order.customer_phone || order.delivery_phone || '—'}
                     </span>
                     <span className={styles.deliveryBadge}>
-                      {isDelivery ? 'توصيل إلى العنوان' : 'استلام من المحل (مول الواحة)'}
+                      {isDelivery ? 'توصيل إلى العنوان' : 'استلام من المحل'}
                     </span>
                   </div>
                   <div className={styles.custActions}>
@@ -590,7 +590,7 @@ export default function AdminOrderDetailPage({ initialOrder = null, initialLoadi
                 <div className={styles.deliveryDetailsGrid}>
                   <div>
                     <span className={styles.fieldLabel}>طريقة الاستلام:</span>
-                    <strong className={styles.fieldValue}>{isDelivery ? 'توصيل إلى العنوان' : 'استلام من المحل (مول الواحة)'}</strong>
+                    <strong className={styles.fieldValue}>{isDelivery ? 'توصيل إلى العنوان' : 'استلام من المحل'}</strong>
                   </div>
                   {isDelivery && (
                     <>

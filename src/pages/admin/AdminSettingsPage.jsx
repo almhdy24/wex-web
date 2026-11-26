@@ -24,7 +24,7 @@ export default function AdminSettingsPage() {
   const [formData, setFormData] = useState({
     // Shop details
     shop_name: 'ويكس تكنولوجي',
-    shop_address: 'مول الواحة، الشهداء، أم درمان، السودان',
+    shop_address: '',
     shop_phone: '',
     shop_whatsapp: '',
     working_hours: 'السبت - الخميس: 9:00 ص - 9:00 م',
@@ -41,7 +41,7 @@ export default function AdminSettingsPage() {
     // Store policies (Inspection, Hand-off & Warranty clarification)
     policy_inspection_title: 'المعاينة والاستلام',
     policy_inspection: 'أجهزة مستوردة؛ يعاين العميل الجهاز بنفسه عند الاستلام في المتجر.',
-    policy_pickup: 'يمكنك استلام الجهاز من مقرنا في مول الواحة، الشهداء، أم درمان.',
+    policy_pickup: 'يمكنك استلام الجهاز من المحل بعد تأكيد الطلب.',
     policy_return: 'نظراً لطبيعة الأجهزة المستوردة، يتم الاستلام بعد المعاينة المباشرة.',
     inspection_note: '',
     returns_note: '',
@@ -365,7 +365,7 @@ export default function AdminSettingsPage() {
                 name="shop_address"
                 value={formData.shop_address}
                 onChange={handleChange}
-                placeholder="مثال: مول الواحة، الشهداء، أم درمان"
+                placeholder="اسم المبنى، الحي، المدينة"
                 required
               />
               <Input

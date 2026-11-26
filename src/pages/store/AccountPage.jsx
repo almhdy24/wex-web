@@ -482,16 +482,16 @@ export default function AccountPage() {
           <div className={styles.sectionCard}>
             <div className={styles.sectionHeader}>
               <Store size={20} className={styles.sectionIcon} />
-              <h3 className={styles.sectionTitle}>متجر ويكس تكنولوجي — فرع أم درمان</h3>
+              <h3 className={styles.sectionTitle}>متجر ويكس تكنولوجي</h3>
             </div>
             <div className={styles.shopInfoList}>
               <div className={styles.shopInfoRow}>
                 <MapPin size={16} className={styles.shopInfoIcon} />
-                <span>{shopInfo?.address || 'أم درمان، الشهداء — مول الواحة، الطابق الأرضي'}</span>
+                <span>{shopInfo?.address || '—'}</span>
               </div>
               <div className={styles.shopInfoRow}>
                 <Smartphone size={16} className={styles.shopInfoIcon} />
-                <span dir="ltr">{shopInfo?.contact_phone || shopInfo?.phone || '+249 91 234 5678'}</span>
+                <span dir="ltr">{shopInfo?.contact_phone || shopInfo?.phone || '—'}</span>
               </div>
             </div>
           </div>
@@ -549,7 +549,7 @@ export default function AccountPage() {
                   placeholder="09XXXXXXXX"
                 />
                 <span className={styles.fieldHint}>
-                  يستخدم لتأكيد حجز السعر وتنسيق تسليم الأجهزة في أم درمان والخرطوم.
+                  يستخدم لتأكيد حجز السعر وتنسيق تسليم الأجهزة.
                 </span>
                 {profileErrors.phone && (
                   <span className={styles.errorText}>{profileErrors.phone}</span>

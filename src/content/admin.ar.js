@@ -12,7 +12,7 @@ export const adminAr = {
   brand: {
     name: 'ويكس تكنولوجي',
     adminTitle: 'لوحة الإدارة والعمليات',
-    adminSubtitle: 'متجر الحواسيب والإلكترونيات — أم درمان',
+    adminSubtitle: 'متجر الحواسيب والإلكترونيات',
     roleAdmin: 'مدير النظام',
     roleStaff: 'طاقم العمل',
     storeFrontLink: 'زيارة المتجر',
@@ -122,7 +122,7 @@ export const adminAr = {
     searchPlaceholder: 'ابحث برقم الطلب أو رقم الهاتف',
     allStatuses: 'كافة الحالات',
     deliveryTypeAll: 'كافة طرق الاستلام',
-    pickup: 'استلام من المحل (مول الواحة)',
+    pickup: 'استلام من المحل',
     delivery: 'توصيل إلى العنوان',
     orderNumber: 'رقم الطلب',
     customer: 'العميل',

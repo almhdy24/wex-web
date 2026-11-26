@@ -2,10 +2,10 @@ import { toAsciiDigits } from './formatters';
 
 export const DEFAULT_SHOP_SETTINGS = {
   shop_name: 'ويكس تكنولوجي',
-  shop_address: 'مول الواحة، الشهداء، أم درمان، السودان',
+  shop_address: '', // admin setting only; never a hard-coded place
   shop_phone: '',
   shop_whatsapp: '',
-  working_hours: 'السبت - الخميس: 9:00 ص - 9:00 م',
+  working_hours: '',
   orders_enabled: true,
   orders_disabled_message: 'نعتذر، استقبال الطلبات متوقف مؤقتاً وسنعود لاستقبال طلباتكم قريباً.',
   ticker_enabled: true,
@@ -66,12 +66,19 @@ export function normalizeShopInfo(raw) {
     // Admin-set discount (was hard-coded 3% across cart/checkout/drawer while the server
     // charged the configured one).
     discountPercent: appDiscountPercent(info),
-    mapLink: info.shop_map_link || DEFAULT_MAP_LINK,
-    shop_map_link: info.shop_map_link || DEFAULT_MAP_LINK,
+    mapLink: info.shop_map_link || mapsSearchLink(address),
+    shop_map_link: info.shop_map_link || mapsSearchLink(address),
   };
 }
 
-export const DEFAULT_MAP_LINK = 'https://maps.google.com/?q=Al-Waha+Mall+Omdurman';
+/** Map link for the admin's address when no explicit link is set ('' when no address). */
+export function mapsSearchLink(address) {
+  const a = String(address || '').trim();
+  return a ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(a)}` : '';
+}
+
+/** @deprecated kept for imports; there is no default place. */
+export const DEFAULT_MAP_LINK = '';
 
 /** Admin "app discount %" (0–50). Missing -> default 3. */
 export function appDiscountPercent(info) {
