@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { createPortal } from 'react-dom';
 import { X, ChevronRight, ChevronLeft, ZoomIn, ZoomOut } from 'lucide-react';
 import styles from './Lightbox.module.css';
 
@@ -128,7 +129,10 @@ export default function Lightbox({
     setPan({ x: 0, y: 0 });
   };
 
-  return (
+  // Portal to <body>: on mobile the page sits in a transformed screen container, which
+  // becomes the containing block for position:fixed, so the overlay covered the (tall)
+  // page instead of the screen and the image was centred far off-screen.
+  return createPortal(
     <div
       className={styles.overlay}
       role="dialog"
@@ -212,7 +216,8 @@ export default function Lightbox({
           )}
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
