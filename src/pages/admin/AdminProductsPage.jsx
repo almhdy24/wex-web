@@ -211,7 +211,7 @@ export default function AdminProductsPage() {
         type: orig.type || 'laptop',
         category_id: orig.category_id || undefined,
         brand_id: orig.brand_id || undefined,
-        condition: orig.condition || 'used',
+        condition: orig.condition || 'used_imported',
         price_aed: Number(orig.price_aed),
         stock_quantity: 0,
         warranty_text: orig.warranty_text || undefined,
@@ -703,7 +703,7 @@ export default function AdminProductsPage() {
             { value: '', label: adminAr.products.allConditions },
             { value: 'brand_new', label: 'جديد' },
             { value: 'open_box', label: 'كرتونة مفتوحة' },
-            { value: 'used', label: 'مستعمل استيراد' },
+            { value: 'used_imported', label: 'مستعمل استيراد' },
             { value: 'refurbished', label: 'مجدد' },
           ]}
         />

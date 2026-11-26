@@ -47,7 +47,7 @@ export default function AdminProductFormPage() {
     type: 'laptop',
     category_id: '',
     brand_id: '',
-    condition: 'used',
+    condition: 'used_imported',
     price_aed: '',
     stock_quantity: 1,
     warranty_text: '',
@@ -124,7 +124,7 @@ export default function AdminProductFormPage() {
             type: p.type || 'laptop',
             category_id: p.category_id || '',
             brand_id: p.brand_id || '',
-            condition: p.condition || 'used',
+            condition: p.condition || 'used_imported',
             price_aed: p.price_aed || '',
             stock_quantity: Number(p.stock_quantity ?? 1),
             warranty_text: p.warranty_text || '',
@@ -512,7 +512,7 @@ export default function AdminProductFormPage() {
                   options={[
                     { value: 'brand_new', label: 'جديد' },
                     { value: 'open_box', label: 'كرتونة مفتوحة' },
-                    { value: 'used', label: 'مستعمل استيراد' },
+                    { value: 'used_imported', label: 'مستعمل استيراد' },
                     { value: 'refurbished', label: 'مجدد' },
                   ]}
                   required
