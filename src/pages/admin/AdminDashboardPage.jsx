@@ -226,8 +226,6 @@ export default function AdminDashboardPage() {
       {/* Brand divider */}
       <div className={styles.titleDivider} aria-hidden="true" />
 
-      <PushPermissionSheet variant="admin" />
-
       {/* Critical Alert: No Active Payment Account */}
       {!hasActiveAccounts && (
         <aside className={styles.dangerAlertBanner} role="alert" aria-label="تنبيه حسابات الدفع">
@@ -335,6 +333,10 @@ export default function AdminDashboardPage() {
           </Link>
         </div>
       </section>
+
+      {/* Setup prompt after the work queue: the payment-review card is the first thing an
+          admin needs, not the browser-permission notice. */}
+      <PushPermissionSheet variant="admin" />
 
       {/* Low Stock Warning Banner if items are low */}
       {low_stock_products.length > 0 && (
