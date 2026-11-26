@@ -161,7 +161,7 @@ describe('Auth Pages: LoginPage', () => {
       </MemoryRouter>
     );
 
-    const emailInput = screen.getByPlaceholderText('name@example.com');
+    const emailInput = screen.getByPlaceholderText('بريدك الإلكتروني');
     fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
 
     const clearBtn = screen.getByLabelText('مسح البريد');
