@@ -3,7 +3,10 @@
   width: 100%;
   height: min(70dvh, 560px);
   min-height: 320px;
-  background-color: var(--color-slate-900);
+  /* Light stage: receipts are mostly-white screenshots; near-black framed them harshly
+     and dominated the review screen. Controls keep their own navy pill. */
+  background-color: var(--wex-ice);
+  border: 1px solid var(--wex-border);
   border-radius: var(--radius-lg);
   overflow: hidden;
   display: flex;
