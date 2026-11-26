@@ -659,3 +659,39 @@
   cursor: pointer;
   min-height: 40px;
 }
+
+/* Mobile: two columns like every other product list (one 180px photo per row made a very
+   long scroll). Photo keeps the 4:3 studio ratio; the move-to-cart label wraps under the
+   icon only if it must. */
+@media (max-width: 639px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .imageLink {
+    height: auto;
+    aspect-ratio: 4 / 3;
+    background: #F6F8FB;
+  }
+
+  .cardBody {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .metaRow {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .cartBtn {
+    min-height: 44px;
+    padding: 6px 8px;
+    font-size: 12.5px;
+  }
+}
+
+.imageLink {
+  background: #F6F8FB;
+}

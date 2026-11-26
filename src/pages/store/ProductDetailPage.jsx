@@ -346,7 +346,7 @@ export default function ProductDetailPage({
     <div className={styles.pageWrapper}>
       <AppBar
         tone="navy"
-        overlap={84}
+        overlap={56}
         title={product.name}
         titleAs="span"
         showBack={true}

@@ -363,7 +363,6 @@ export default function CatalogPage({
         title="الأجهزة"
         showBack={true}
         backTo="/"
-        showWishlist={true}
         showCart={true}
       />
 

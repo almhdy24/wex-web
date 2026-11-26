@@ -292,6 +292,7 @@ export default function CheckoutPage({
         </div>
       )}
 
+      <div className={styles.formCol}>
       {/* Section 1: طريقة الاستلام */}
       <section className={styles.sectionCard} aria-labelledby="delivery-type-heading">
         <h2 id="delivery-type-heading" className={styles.sectionHeading}>
@@ -459,6 +460,10 @@ export default function CheckoutPage({
         </div>
       </section>
 
+      </div>
+
+      {/* Desktop: summary + confirm in a side column */}
+      <aside className={styles.summaryAside} aria-label="ملخص الطلب">
       {/* Section 3: Summary Card */}
       <section className={styles.summaryCard} aria-labelledby="order-summary-heading">
         <h2 id="order-summary-heading" className={styles.sectionHeading}>
@@ -528,6 +533,7 @@ export default function CheckoutPage({
           </Button>
         </div>
       </StickyBar>
+      </aside>
 
       {/* Auth Bottom Sheet (for signed-out users) */}
       <AuthSheet

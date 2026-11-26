@@ -36,3 +36,29 @@
   gap: var(--space-3, 12px);
   width: 100%;
 }
+
+/* Desktop: there is no thumb zone to protect. A fixed bar floated over content in the
+   middle of the page; it becomes an in-flow card that each page places in its layout
+   (PDP buy box, cart/checkout summary column, order detail aside). */
+@media (min-width: 1024px) {
+  .stickyBar {
+    position: static;
+    inset: auto;
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 16px;
+    background: var(--wex-white);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: 1px solid var(--wex-border);
+    border-radius: var(--radius-card);
+    box-shadow: none;
+  }
+
+  .inputFocused {
+    transform: none;
+    opacity: 1;
+    pointer-events: auto;
+  }
+}

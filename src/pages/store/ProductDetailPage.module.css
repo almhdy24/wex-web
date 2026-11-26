@@ -104,7 +104,7 @@
 /* Image Stage */
 .imageStage {
   position: relative;
-  margin: calc(-1 * var(--appbar-overlap, 84px) * 2 / 3) 16px 0;
+  margin: calc(-1 * var(--appbar-overlap, 56px) * 2 / 3) 16px 0;
   height: 230px;
   border-radius: var(--radius-panel);
   background: var(--wex-white);
@@ -816,5 +816,94 @@
 @media (min-width: 768px) {
   .relatedCard {
     flex-basis: 210px;
+  }
+}
+
+/* Desktop: gallery beside the buy box (was a 600px column with a buy bar floating mid-page) */
+@media (min-width: 1024px) {
+  .container {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    grid-template-areas:
+      'gallery title'
+      'gallery buy'
+      'gallery actions'
+      'thumbs tabs'
+      'thumbs panel';
+    grid-template-rows: auto auto auto auto 1fr;
+    column-gap: 40px;
+    align-items: start;
+    max-width: none;
+    padding: 0 0 48px;
+  }
+
+  .imageStage {
+    grid-area: gallery;
+    margin: 0;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    align-self: stretch;
+    min-height: 380px;
+  }
+
+  .thumbnailsRow {
+    grid-area: thumbs;
+    margin: 14px 0 0;
+    width: auto;
+    max-width: none;
+  }
+
+  .titleBlock {
+    grid-area: title;
+    margin: 0;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .purchaseBar {
+    grid-area: buy;
+    margin-top: 18px;
+    box-shadow: none;
+  }
+
+  .compareShareGrid {
+    grid-area: actions;
+    margin: 12px 0 0;
+  }
+
+  .tabsContainer {
+    grid-area: tabs;
+    margin: 22px 0 0;
+  }
+
+  .specsCard,
+  .deliveryCard {
+    grid-area: panel;
+    margin: 12px 0 0;
+  }
+
+  .relatedSection {
+    grid-column: 1 / -1;
+    margin: 36px 0 0;
+  }
+
+  .loadingContainer {
+    max-width: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .relatedRow {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 16px;
+    overflow: visible;
+    padding-bottom: 0;
+  }
+
+  .relatedCard {
+    flex: none;
   }
 }

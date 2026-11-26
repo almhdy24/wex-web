@@ -433,3 +433,48 @@
   font-weight: 600;
   color: var(--color-slate-500, #4B5B85);
 }
+
+/* Sticky label cells need a surface: values scrolled visibly underneath them. */
+.specLabelCell {
+  background: var(--wex-ice-light);
+  box-shadow: 2px 0 6px -2px rgba(6, 26, 85, 0.06);
+}
+
+.tableWrapper {
+  scroll-snap-type: none;
+}
+
+/* 360px: two products side by side next to the label column (was 140px + 200px per
+   product, which clipped the second product mid-word). */
+@media (max-width: 480px) {
+  .compareTable {
+    min-width: 0;
+    table-layout: fixed;
+  }
+
+  .specHeaderCell,
+  .specLabelCell {
+    width: 96px;
+    min-width: 96px;
+    padding: 12px 10px;
+    font-size: 12.5px;
+  }
+
+  .productHeaderCell,
+  .emptySlotCell {
+    width: 116px;
+    min-width: 116px;
+    padding: 12px 8px;
+  }
+
+  .specValCell {
+    padding: 12px 8px;
+    font-size: 12.5px;
+    overflow-wrap: anywhere;
+  }
+
+  .thumbBox {
+    width: 72px;
+    height: 52px;
+  }
+}

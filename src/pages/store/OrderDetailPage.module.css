@@ -933,3 +933,37 @@
   font-weight: 600;
   text-decoration: none;
 }
+
+/* Desktop: payment flow in the main column, order progress + help in a side column. */
+@media (min-width: 1024px) {
+  .container {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    column-gap: 28px;
+    align-items: start;
+    max-width: 1080px;
+    padding-bottom: 48px;
+  }
+
+  .container > * {
+    grid-column: 1;
+    margin-inline: 0;
+  }
+
+  .timelineCard {
+    grid-column: 2;
+    grid-row: 1 / span 6;
+    position: sticky;
+    top: 96px;
+    margin-top: 0;
+  }
+
+  .orderHelpLink {
+    grid-column: 2;
+  }
+
+  /* The upload card already has its buttons; the floating copy only duplicated them. */
+  .stickyBar {
+    display: none;
+  }
+}

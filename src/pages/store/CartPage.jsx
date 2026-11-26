@@ -121,6 +121,7 @@ export default function CartPage() {
       />
 
       <Page className={styles.container}>
+        <div className={styles.itemsCol}>
         {/* Items List */}
         <div className={styles.itemsList}>
           {items.map((item) => {
@@ -239,6 +240,10 @@ export default function CartPage() {
           </div>
         )}
 
+        </div>
+
+        {/* Desktop: summary + checkout action in a side column */}
+        <aside className={styles.summaryAside} aria-label="ملخص السلة">
         {/* Summary Card */}
         <div className={styles.summaryCard}>
           <div className={styles.summaryRow}>
@@ -302,6 +307,7 @@ export default function CartPage() {
             )}
           </button>
         </StickyBar>
+        </aside>
       </Page>
     </div>
   );

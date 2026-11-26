@@ -149,3 +149,55 @@
 :global(.dark) .dismissBtn:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
+
+/* 44px tap target (was ~24px). Negative margin keeps the strip compact. */
+.dismissBtn {
+  min-width: 44px;
+  min-height: 44px;
+  margin: -10px;
+}
+
+/* Mobile: a one-line strip instead of a 4-line card above every screen (~140px). Title and
+   link stay visible; the body truncates. */
+@media (max-width: 1023px) {
+  .container {
+    gap: 0;
+  }
+
+  .banner {
+    border-radius: 0;
+    border-inline: 0;
+    border-top: 0;
+    box-shadow: none;
+    padding: 6px 12px 6px 14px;
+    font-size: 13px;
+    min-height: 44px;
+  }
+
+  .textWrap {
+    flex-wrap: nowrap;
+    gap: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .title {
+    flex: none;
+  }
+
+  .body {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .link {
+    flex: none;
+    margin-inline-start: 4px;
+  }
+
+  .iconWrap svg {
+    width: 16px;
+    height: 16px;
+  }
+}

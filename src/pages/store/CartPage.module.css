@@ -488,3 +488,44 @@
   font-size: 16px;
   white-space: nowrap;
 }
+
+/* Mobile: the column wrappers do not exist for layout (identical to before). */
+.itemsCol,
+.summaryAside {
+  display: contents;
+}
+
+/* Desktop: content column + summary column; the action sits under the summary instead
+   of floating over the page. */
+@media (min-width: 1024px) {
+  .container {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 28px;
+    align-items: start;
+    max-width: 1080px;
+    padding-bottom: 48px;
+  }
+
+  .itemsCol {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+  }
+
+  .summaryAside {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: sticky;
+    top: 96px;
+    min-width: 0;
+  }
+
+  .itemsCol > *,
+  .summaryAside > * {
+    margin-inline: 0;
+    margin-top: 0;
+  }
+}

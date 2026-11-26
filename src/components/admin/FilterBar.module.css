@@ -196,3 +196,15 @@
 .applyBtn {
   flex: 1;
 }
+
+/* Desktop: filters share one row beside the search (each Select stretched to full width,
+   stacking five filters into ~300px of chrome above the table). */
+.desktopFilters {
+  flex: 2 1 560px;
+}
+
+.desktopFilters > * {
+  flex: 1 1 150px;
+  min-width: 140px;
+  max-width: 230px;
+}

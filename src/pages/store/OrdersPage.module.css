@@ -257,3 +257,17 @@
     transform: none !important;
   }
 }
+
+/* Desktop: two columns of order cards at content width (was a 640px column). */
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1080px;
+    padding-bottom: 48px;
+  }
+
+  .ordersList {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
