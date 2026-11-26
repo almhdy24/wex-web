@@ -142,6 +142,11 @@ const ROUTES = [
   } },
   { name: '04-product-detail', path: '/products/lenovo-thinkpad-t480' },
   { name: '05-product-accessory', path: '/products/logitech-wireless-mouse-b170' },
+  // The lightbox showed no image on mobile (trapped by the screen container's transform).
+  { name: '05b-product-lightbox', path: '/products/lenovo-thinkpad-t480', mobileOnly: true, action: async (page) => {
+    await page.getByRole('button', { name: /تكبير الصورة/ }).first().click();
+    await page.waitForTimeout(400);
+  } },
   { name: '06-cart', path: '/cart', cart: true },
   { name: '07-checkout', path: '/checkout', cart: true, ...customer },
   { name: '08-checkout-login-sheet', path: '/checkout', cart: true, action: async (page) => {
