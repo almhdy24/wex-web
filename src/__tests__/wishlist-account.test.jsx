@@ -329,7 +329,8 @@ describe('WEX Wishlist & Customer Account Experience Tests', () => {
       // Verify overview cards
       expect(html).toContain('قائمة الأجهزة المفضلة');
       expect(html).toContain('متابعة وسجل الطلبات');
-      expect(html).toContain('متجر ويكس تكنولوجي — فرع أم درمان');
+      expect(html).toContain('متجر ويكس تكنولوجي');
+      expect(html).not.toContain('فرع أم درمان');
     });
   });
 });

@@ -81,6 +81,7 @@ describe('HomePage Rescue Verification (Phase 2)', () => {
                   ]}
                   initialShopInfo={{
                     address: 'مول الواحة، الشهداء، أم درمان',
+                    working_hours: 'السبت - الخميس: 9:00 ص - 9:00 م',
                     lock_hours: 4,
                     prices_updated_at: '2026-11-20T23:37:02Z',
                     whatsapp: '249912345678',
@@ -147,6 +148,7 @@ describe('HomePage Rescue Verification (Phase 2)', () => {
     // Shop Block
     expect(html).toContain('ويكس تكنولوجي');
     expect(html).toContain('مول الواحة، الشهداء، أم درمان');
+    // hours come from the admin setting passed in shopInfo (no built-in default)
     expect(html).toContain('السبت - الخميس: 9:00 ص - 9:00 م');
     // Hours come from the admin text only; no hard-coded 'الجمعة: مغلق' line.
     expect(html).not.toContain('الجمعة: مغلق');
