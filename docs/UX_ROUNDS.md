@@ -131,3 +131,30 @@ off the table (b4afbc1 → fixed next commit).
 10. **Home desktop**: new-arrivals row 3 cards in a scroller, store card repeats footer
     (fixed at the start of r2).
 11. **Favorites mobile**: badges stack in two rows; "نقل إلى السلة" wraps to two lines.
+
+## Round 2 results (proof runs 45767937838 / 45769371482; 67/67 + 67/67 opened)
+
+| Screen | Before (r1) | After (r2) |
+|---|---|---|
+| Notifications | 4 unread signals, tinted cards with side bars | One signal (white + dot + bold); read items flat |
+| Cart | red square delete per row, dashed "add more" box, loud discount pill | quiet delete (red on press), text link, plain discount |
+| Order timeline | hollow circles (radio look) | done check / current ring+dot / later small dot |
+| PDP actions | three bordered pills | one segmented strip |
+| Offline / 404 | small grey icon | illustrated state, 404 as a label |
+| Home desktop | 3-card scroller, duplicate hero logo/actions, store card = footer | 5-up row, 4-up picks, compact category row, no duplicates |
+| Admin cards (mobile) | ~380px, one field per line | two fields per row |
+| Admin dashboard | permission notice above the work queue | payment review first |
+| Login | perks as button-like pills | plain icon + text |
+
+Caught in review: order header title still wrapped: first a specificity loss to
+`.navy h1`, then an empty AppBar side reserving 44px. Both fixed.
+
+## Round 3 critique
+
+1. **Skeletons** still have the old card anatomy (inner framed image, full-width button bar):
+   layout shifts when products arrive.
+2. **Admin settings**: a ~3000px single page of five cards with no way to jump between them.
+3. **FAQ**: hero card with a 56px icon takes the first screen before any question.
+4. **Admin payments**: receipt viewer on solid black dominates; heavy for a review tool.
+5. **Checkout (mobile)**: selected option shown only by border colour + a small check.
+6. **Order header (360px)**: verify one line after the AppBar fix.

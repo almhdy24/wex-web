@@ -61,69 +61,107 @@
   border-radius: 50%;
 }
 
-/* Redesign Product Card Skeleton */
+/* Product card skeleton: mirrors ProductCard's anatomy */
 .productCard {
   background: var(--wex-white);
   border: 1px solid var(--wex-border);
-  border-radius: 22px;
-  padding: 8px 8px 12px;
+  border-radius: var(--radius-card);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 8px;
   box-sizing: border-box;
 }
 
 .productImage {
-  height: 112px;
-  border-radius: 16px;
+  aspect-ratio: 4 / 3;
+  background: #F6F8FB;
+}
+
+.productInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 12px 0;
+}
+
+.productBar1,
+.productBar1b,
+.productBar2,
+.productPrice,
+.productButton {
   background: var(--wex-ice);
   position: relative;
   overflow: hidden;
 }
 
 .productBar1 {
-  height: 14px;
+  height: 13px;
   border-radius: 7px;
-  background: var(--wex-ice);
-  width: 80%;
-  position: relative;
-  overflow: hidden;
+  width: 88%;
+}
+
+.productBar1b {
+  height: 13px;
+  border-radius: 7px;
+  width: 58%;
 }
 
 .productBar2 {
-  height: 12px;
-  border-radius: 7px;
-  background: var(--wex-ice);
-  width: 50%;
-  position: relative;
-  overflow: hidden;
+  height: 11px;
+  border-radius: 6px;
+  width: 72%;
+  margin-top: 2px;
+}
+
+.productFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 8px 10px 12px;
+  margin-top: auto;
+}
+
+.productPrice {
+  height: 16px;
+  width: 42%;
+  border-radius: 8px;
 }
 
 .productButton {
+  width: 44px;
   height: 44px;
-  border-radius: 14px;
-  background: var(--wex-ice);
-  margin-top: auto;
-  position: relative;
-  overflow: hidden;
+  border-radius: 50%;
 }
 
 .productImage::after,
 .productBar1::after,
+.productBar1b::after,
 .productBar2::after,
+.productPrice::after,
 .productButton::after {
   content: '';
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.6) 50%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%);
   animation: wexShimmer 1.4s linear infinite;
   will-change: transform;
+}
+
+.productImage {
+  position: relative;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .productImage::after,
+  .productBar1::after,
+  .productBar1b::after,
+  .productBar2::after,
+  .productPrice::after,
+  .productButton::after {
+    animation: none;
+  }
 }
 
 .tableSkeleton {

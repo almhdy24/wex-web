@@ -27,11 +27,19 @@ export function Skeleton({
 
 export function ProductCardSkeleton() {
   return (
+    // Same anatomy as ProductCard (4:3 photo, 2-line title, one line, price + 44px circle)
+    // so nothing shifts when products arrive.
     <div className={styles.productCard} aria-hidden="true">
       <div className={styles.productImage} />
-      <div className={styles.productBar1} />
-      <div className={styles.productBar2} />
-      <div className={styles.productButton} />
+      <div className={styles.productInfo}>
+        <div className={styles.productBar1} />
+        <div className={styles.productBar1b} />
+        <div className={styles.productBar2} />
+      </div>
+      <div className={styles.productFooter}>
+        <div className={styles.productPrice} />
+        <div className={styles.productButton} />
+      </div>
     </div>
   );
 }

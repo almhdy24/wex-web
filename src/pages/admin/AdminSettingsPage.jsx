@@ -250,9 +250,19 @@ export default function AdminSettingsPage() {
       {/* Decorative Ribbon */}
       <div className={styles.titleDivider} aria-hidden="true" />
 
+      {/* Section navigator: the page is ~3000px of forms; jump straight to a section. */}
+      <nav className={styles.sectionNav} aria-label="أقسام الإعدادات">
+        <a href="#settings-orders">استقبال الطلبات</a>
+        <a href="#settings-store">بيانات المتجر</a>
+        <a href="#settings-policies">نصوص الاستلام</a>
+        <a href="#settings-bank">الحساب البنكي</a>
+        <a href="#settings-ops">التشغيل والتسعير</a>
+        <a href="#settings-push">الإشعارات</a>
+      </nav>
+
       <div className={styles.sectionsStack}>
         {/* Section 1: Order-Taking Control */}
-        <form onSubmit={handleSaveOrdersControl} className={styles.card}>
+        <form onSubmit={handleSaveOrdersControl} id="settings-orders" className={styles.card}>
           <div className={styles.cardHeader}>
             <div className={styles.cardHeaderTitle}>
               <ShoppingBag size={18} color="var(--color-royal-blue)" />
@@ -320,7 +330,7 @@ export default function AdminSettingsPage() {
         </form>
 
         {/* Section 2: Store Information */}
-        <form onSubmit={handleSaveShopInfo} className={styles.card}>
+        <form onSubmit={handleSaveShopInfo} id="settings-store" className={styles.card}>
           <div className={styles.cardHeader}>
             <div className={styles.cardHeaderTitle}>
               <Store size={18} color="var(--color-royal-blue)" />
@@ -457,7 +467,7 @@ export default function AdminSettingsPage() {
         </form>
 
         {/* Section 2b: Store Policies & Delivery Notes */}
-        <form onSubmit={handleSavePolicies} className={styles.card}>
+        <form onSubmit={handleSavePolicies} id="settings-policies" className={styles.card}>
           <div className={styles.cardHeader}>
             <div className={styles.cardHeaderTitle}>
               <FileText size={18} color="var(--color-royal-blue)" />
@@ -532,7 +542,7 @@ export default function AdminSettingsPage() {
         </form>
 
         {/* Section 3: Bank Account for Bankak */}
-        <form onSubmit={handleSaveBankInfo} className={styles.card}>
+        <form onSubmit={handleSaveBankInfo} id="settings-bank" className={styles.card}>
           <div className={styles.cardHeader}>
             <div className={styles.cardHeaderTitle}>
               <CreditCard size={18} color="var(--color-royal-blue)" />
@@ -605,7 +615,7 @@ export default function AdminSettingsPage() {
         </form>
 
         {/* Section 4: Operations, Price Lock & Discounts */}
-        <form onSubmit={handleSaveOpsInfo} className={styles.card}>
+        <form onSubmit={handleSaveOpsInfo} id="settings-ops" className={styles.card}>
           <div className={styles.cardHeader}>
             <div className={styles.cardHeaderTitle}>
               <Sliders size={18} color="var(--color-royal-blue)" />
@@ -699,7 +709,9 @@ export default function AdminSettingsPage() {
         </form>
       </div>
 
-      <AdminPushSection />
+      <div id="settings-push" className={styles.anchorTarget}>
+        <AdminPushSection />
+      </div>
     </Page>
   );
 }

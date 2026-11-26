@@ -288,3 +288,44 @@
     padding-inline-end: var(--space-6, 24px);
   }
 }
+
+/* Section navigator */
+.sectionNav {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 10px 0;
+  margin-bottom: 8px;
+  background: var(--color-ice);
+}
+
+.sectionNav a {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--wex-border);
+  background: var(--wex-white);
+  color: var(--wex-navy);
+  font-size: var(--text-s);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.sectionNav a:hover,
+.sectionNav a:focus-visible {
+  border-color: var(--wex-royal);
+  color: var(--wex-royal);
+}
+
+.card,
+.anchorTarget {
+  scroll-margin-top: 72px;
+}
