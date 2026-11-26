@@ -63,8 +63,8 @@
 
 /* Redesign Product Card Skeleton */
 .productCard {
-  background: #fff;
-  border: 1px solid #D5E2F7;
+  background: var(--wex-white);
+  border: 1px solid var(--wex-border);
   border-radius: 22px;
   padding: 8px 8px 12px;
   display: flex;
@@ -76,7 +76,7 @@
 .productImage {
   height: 112px;
   border-radius: 16px;
-  background: #EAF3FF;
+  background: var(--wex-ice);
   position: relative;
   overflow: hidden;
 }
@@ -84,7 +84,7 @@
 .productBar1 {
   height: 14px;
   border-radius: 7px;
-  background: #EAF3FF;
+  background: var(--wex-ice);
   width: 80%;
   position: relative;
   overflow: hidden;
@@ -93,7 +93,7 @@
 .productBar2 {
   height: 12px;
   border-radius: 7px;
-  background: #EAF3FF;
+  background: var(--wex-ice);
   width: 50%;
   position: relative;
   overflow: hidden;
@@ -102,7 +102,7 @@
 .productButton {
   height: 44px;
   border-radius: 14px;
-  background: #EAF3FF;
+  background: var(--wex-ice);
   margin-top: auto;
   position: relative;
   overflow: hidden;

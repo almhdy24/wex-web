@@ -5,8 +5,8 @@
   width: 48px;
   height: 48px;
   border-radius: var(--radius-full, 9999px);
-  background: var(--wex-grad-brand, #0B3FBF);
-  color: #FFFFFF;
+  background: var(--wex-grad-brand);
+  color: var(--wex-white);
   border: none;
   cursor: pointer;
   display: flex;

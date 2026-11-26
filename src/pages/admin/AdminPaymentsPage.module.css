@@ -58,7 +58,7 @@
   background-color: #FEF3C7;
   color: #B45309;
   border-radius: var(--radius-full);
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 
 .queueControls {
@@ -168,7 +168,7 @@
 }
 
 .orderNumberLabel {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--color-slate-500);
 }
 
@@ -187,7 +187,7 @@
 }
 
 .amountLabel {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--color-slate-500);
 }
 
@@ -234,7 +234,7 @@
 }
 
 .blockTitle {
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 700;
   color: var(--color-slate-400);
 }
@@ -308,7 +308,7 @@
 }
 
 .proofItemLabel {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--color-slate-500);
 }
 
@@ -342,7 +342,7 @@
 
 .keyboardHelpNotice {
   display: none;
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--color-slate-400);
   text-align: center;
   margin-top: var(--space-1);

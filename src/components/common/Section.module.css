@@ -15,7 +15,7 @@
 .title {
   font-size: var(--text-base, 1rem);
   font-weight: 700;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
   margin: 0;
 }
 

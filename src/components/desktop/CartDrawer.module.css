@@ -18,8 +18,8 @@
   width: 80px;
   height: 80px;
   border-radius: var(--radius-full, 9999px);
-  background: var(--wex-ice, #EAF3FF);
-  color: var(--wex-royal, #0B3FBF);
+  background: var(--wex-ice);
+  color: var(--wex-royal);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -27,20 +27,20 @@
 }
 
 .emptyIcon {
-  color: var(--wex-royal, #0B3FBF);
+  color: var(--wex-royal);
 }
 
 .emptyTitle {
   margin: 0 0 8px;
   font-size: var(--text-lg, 1.125rem);
   font-weight: 700;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
 }
 
 .emptyDesc {
   margin: 0 0 24px;
   font-size: var(--text-sm, 0.875rem);
-  color: var(--wex-gray-600, #475569);
+  color: var(--wex-gray-600);
   line-height: var(--leading-relaxed, 1.7);
   max-width: 280px;
 }
@@ -49,7 +49,7 @@
   padding: 12px 28px;
   border-radius: var(--radius-md, 14px);
   background: var(--wex-grad-brand, linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 50%, #00B7FF 100%));
-  color: #FFFFFF;
+  color: var(--wex-white);
   border: none;
   font-weight: 700;
   font-size: var(--text-sm, 0.875rem);
@@ -79,7 +79,7 @@
   align-items: center;
   gap: 14px;
   padding: 12px;
-  background: var(--wex-ice-light, #F4F8FE);
+  background: var(--wex-ice-light);
   border-radius: var(--radius-md, 14px);
   border: 1px solid rgba(11, 63, 191, 0.08);
 }
@@ -88,8 +88,8 @@
   width: 64px;
   height: 64px;
   border-radius: var(--radius-sm, 8px);
-  background: #FFFFFF;
-  border: 1px solid var(--wex-gray-200, #E2E8F0);
+  background: var(--wex-white);
+  border: 1px solid var(--wex-gray-200);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -118,7 +118,7 @@
   margin: 0 0 4px;
   font-size: var(--text-sm, 0.875rem);
   font-weight: 700;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -127,7 +127,7 @@
 .itemPrice {
   font-size: var(--text-sm, 0.875rem);
   font-weight: 700;
-  color: var(--wex-royal, #0B3FBF);
+  color: var(--wex-royal);
   font-variant-numeric: tabular-nums;
   margin-bottom: 8px;
 }
@@ -142,8 +142,8 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #FFFFFF;
-  border: 1px solid var(--wex-gray-200, #E2E8F0);
+  background: var(--wex-white);
+  border: 1px solid var(--wex-gray-200);
   border-radius: var(--radius-full, 9999px);
   padding: 2px 6px;
 }
@@ -154,7 +154,7 @@
   border-radius: var(--radius-full, 9999px);
   border: none;
   background: transparent;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -185,7 +185,7 @@
   border-radius: var(--radius-full, 9999px);
   border: none;
   background: transparent;
-  color: var(--wex-gray-400, #94A3B8);
+  color: var(--wex-gray-400);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -195,12 +195,12 @@
 }
 
 .removeBtn:hover {
-  color: var(--wex-danger, #EF4444);
-  background: var(--wex-danger-bg, #FEF2F2);
+  color: var(--wex-danger);
+  background: var(--wex-danger-bg);
 }
 
 .footerSummary {
-  border-top: 1px solid var(--wex-gray-200, #E2E8F0);
+  border-top: 1px solid var(--wex-gray-200);
   padding-top: 16px;
   margin-top: auto;
 }
@@ -211,48 +211,48 @@
   align-items: center;
   margin-bottom: 8px;
   font-size: var(--text-sm, 0.875rem);
-  color: var(--wex-gray-600, #475569);
+  color: var(--wex-gray-600);
 }
 
 .summaryLabel {
   font-size: var(--text-sm, 0.875rem);
-  color: var(--wex-gray-600, #475569);
+  color: var(--wex-gray-600);
 }
 
 .summaryValue {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
 }
 
 .discountRow {
-  color: var(--wex-success, #10B981);
+  color: var(--wex-success);
 }
 
 .discountValue {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: var(--wex-success, #10B981);
+  color: var(--wex-success);
 }
 
 .totalRow {
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px dashed var(--wex-gray-200, #E2E8F0);
+  border-top: 1px dashed var(--wex-gray-200);
   font-size: var(--text-base, 1rem);
   font-weight: 800;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
 }
 
 .totalLabel {
   font-size: var(--text-base, 1rem);
   font-weight: 800;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
 }
 
 .totalValue {
   font-size: var(--text-lg, 1.125rem);
-  color: var(--wex-royal, #0B3FBF);
+  color: var(--wex-royal);
   font-variant-numeric: tabular-nums;
 }
 
@@ -268,7 +268,7 @@
   height: 48px;
   border-radius: var(--radius-md, 14px);
   background: var(--wex-grad-brand, linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 50%, #00B7FF 100%));
-  color: #FFFFFF;
+  color: var(--wex-white);
   border: none;
   font-weight: 700;
   font-size: var(--text-base, 1rem);
@@ -295,8 +295,8 @@
   width: 100%;
   height: 44px;
   border-radius: var(--radius-md, 14px);
-  background: var(--wex-ice, #EAF3FF);
-  color: var(--wex-royal, #0B3FBF);
+  background: var(--wex-ice);
+  color: var(--wex-royal);
   border: 1px solid rgba(11, 63, 191, 0.15);
   font-weight: 700;
   font-size: var(--text-sm, 0.875rem);

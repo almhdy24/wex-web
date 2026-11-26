@@ -7,10 +7,10 @@
   height: 44px;
   padding: 0 18px;
   border-radius: 999px;
-  background: var(--wex-white, #fff);
-  border: 1px solid var(--wex-border, #D5E2F7);
-  color: var(--wex-navy, #061A55);
-  font-size: 15px;
+  background: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  color: var(--wex-navy);
+  font-size: var(--text-md);
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
@@ -24,7 +24,7 @@
 }
 
 .chip:hover {
-  border-color: var(--wex-royal, #0B3FBF);
+  border-color: var(--wex-royal);
 }
 
 .icon {
@@ -35,7 +35,7 @@
 .selected,
 .active {
   background: var(--grad-cta);
-  color: var(--wex-white, #fff);
+  color: var(--wex-white);
   border-color: transparent;
   font-weight: 800;
   box-shadow: 0 6px 14px rgba(30, 107, 255, 0.3);

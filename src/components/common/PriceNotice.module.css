@@ -2,12 +2,12 @@
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  background-color: var(--color-ice, #EAF3FF);
+  background-color: var(--color-ice);
   border: 1px solid rgba(30, 107, 255, 0.15);
   border-radius: var(--radius-md, 10px);
   padding: 10px 14px;
-  color: var(--color-navy, #061A55);
-  font-size: 13px;
+  color: var(--color-navy);
+  font-size: var(--text-s);
   line-height: 1.5;
 }
 
@@ -18,14 +18,14 @@
   background-color: rgba(30, 107, 255, 0.08);
   border-radius: var(--radius-sm, 6px);
   padding: 6px 10px;
-  font-size: 12px;
-  color: var(--color-royal, #0B3FBF);
+  font-size: var(--text-xs);
+  color: var(--color-royal);
 }
 
 .icon {
   flex-shrink: 0;
   margin-top: 2px;
-  color: var(--color-vivid, #1E6BFF);
+  color: var(--color-vivid);
 }
 
 .noticeContent {
@@ -39,8 +39,8 @@
 
 .updatedAtLine {
   display: block;
-  font-size: 11px;
-  color: var(--color-slate-500, #64748B);
+  font-size: var(--text-xs);
+  color: var(--color-slate-500);
   margin-top: 4px;
   font-weight: 400;
 }

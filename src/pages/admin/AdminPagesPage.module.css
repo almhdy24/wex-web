@@ -18,13 +18,13 @@
 .title {
   font-size: var(--text-2xl, 1.5rem);
   font-weight: 800;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
   margin: 0;
 }
 
 .subtitle {
   font-size: 0.875rem;
-  color: var(--wex-text-muted, #5A6E85);
+  color: var(--wex-text-muted);
   margin-top: 4px;
 }
 
@@ -68,8 +68,8 @@
 }
 
 .pageCard {
-  background: #FFFFFF;
-  border: 1px solid var(--wex-border, #D5E2F2);
+  background: var(--wex-white);
+  border: 1px solid var(--wex-border);
   border-radius: var(--radius-lg, 16px);
   padding: 16px;
   display: flex;
@@ -79,7 +79,7 @@
 }
 
 .pageCard:hover {
-  box-shadow: 0 4px 16px rgba(6, 26, 85, 0.06);
+  box-shadow: var(--shadow-md);
 }
 
 .pageInactive {
@@ -101,19 +101,19 @@
 }
 
 .pageIcon {
-  color: var(--wex-royal, #0B3FBF);
+  color: var(--wex-royal);
 }
 
 .pageTitle {
   font-size: 1rem;
   font-weight: 800;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
   margin: 0;
 }
 
 .pageSlug {
   font-size: 0.75rem;
-  color: var(--wex-text-muted, #5A6E85);
+  color: var(--wex-text-muted);
   font-family: monospace;
 }
 
@@ -138,7 +138,7 @@
 
 .pageSnippet {
   font-size: 0.8125rem;
-  color: var(--wex-text-muted, #5A6E85);
+  color: var(--wex-text-muted);
   line-height: 1.6;
   margin: 0;
   white-space: pre-line;
@@ -150,7 +150,7 @@
   justify-content: space-between;
   gap: 10px;
   padding-top: 10px;
-  border-top: 1px solid var(--wex-border, #D5E2F2);
+  border-top: 1px solid var(--wex-border);
 }
 
 .draftBadge {
@@ -174,9 +174,9 @@
   gap: 4px;
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--wex-royal, #0B3FBF);
+  color: var(--wex-royal);
   background: transparent;
-  border: 1px solid var(--wex-border, #D5E2F2);
+  border: 1px solid var(--wex-border);
   border-radius: var(--radius-sm, 8px);
   padding: 4px 8px;
   cursor: pointer;
@@ -184,17 +184,17 @@
 }
 
 .actionBtn:hover {
-  background: var(--wex-ice, #EAF3FF);
-  border-color: var(--wex-royal, #0B3FBF);
+  background: var(--wex-ice);
+  border-color: var(--wex-royal);
 }
 
 .deleteBtn {
-  color: var(--wex-danger, #DC2626) !important;
+  color: var(--wex-danger) !important;
 }
 
 .deleteBtn:hover {
   background: #FEE2E2 !important;
-  border-color: var(--wex-danger, #DC2626) !important;
+  border-color: var(--wex-danger) !important;
 }
 
 /* Modal Form */
@@ -219,12 +219,12 @@
 .formLabel {
   font-size: 0.8125rem;
   font-weight: 600;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
 }
 
 .formInput, .formTextarea {
   padding: 10px 14px;
-  border: 1px solid var(--wex-border, #D5E2F2);
+  border: 1px solid var(--wex-border);
   border-radius: var(--radius-md, 14px);
   font-family: inherit;
   font-size: 0.875rem;
@@ -232,7 +232,7 @@
 
 .formInput:focus, .formTextarea:focus {
   outline: none;
-  border-color: var(--wex-royal, #0B3FBF);
+  border-color: var(--wex-royal);
   box-shadow: 0 0 0 3px rgba(11, 63, 191, 0.12);
 }
 

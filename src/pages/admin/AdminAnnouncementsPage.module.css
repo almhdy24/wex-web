@@ -18,13 +18,13 @@
 .title {
   font-size: var(--text-2xl, 1.5rem);
   font-weight: 800;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
   margin: 0;
 }
 
 .subtitle {
   font-size: 0.875rem;
-  color: var(--wex-text-muted, #5A6E85);
+  color: var(--wex-text-muted);
   margin-top: 4px;
 }
 
@@ -36,8 +36,8 @@
 }
 
 .emptyCard {
-  background: #FFFFFF;
-  border: 1px dashed var(--wex-border, #D5E2F2);
+  background: var(--wex-white);
+  border: 1px dashed var(--wex-border);
   border-radius: var(--radius-xl, 20px);
   padding: 48px 24px;
   text-align: center;
@@ -48,18 +48,18 @@
 }
 
 .emptyIcon {
-  color: var(--wex-text-muted, #5A6E85);
+  color: var(--wex-text-muted);
 }
 
 .emptyTitle {
   font-size: 1.125rem;
   font-weight: 800;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
   margin: 0;
 }
 
 .emptyDesc {
-  color: var(--wex-text-muted, #5A6E85);
+  color: var(--wex-text-muted);
   font-size: 0.875rem;
   max-width: 480px;
   margin: 0;
@@ -79,8 +79,8 @@
 }
 
 .card {
-  background: #FFFFFF;
-  border: 1px solid var(--wex-border, #D5E2F2);
+  background: var(--wex-white);
+  border: 1px solid var(--wex-border);
   border-radius: var(--radius-lg, 16px);
   padding: 16px;
   display: flex;
@@ -91,7 +91,7 @@
 }
 
 .card:hover {
-  box-shadow: 0 4px 16px rgba(6, 26, 85, 0.06);
+  box-shadow: var(--shadow-md);
 }
 
 .cardInactive {
@@ -121,8 +121,8 @@
 }
 
 .kind_info {
-  background: #EAF3FF;
-  color: #0B3FBF;
+  background: var(--wex-ice);
+  color: var(--wex-royal);
 }
 
 .kind_promo {
@@ -166,13 +166,13 @@
 .cardTitle {
   font-size: 1rem;
   font-weight: 800;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
   margin: 0;
 }
 
 .cardBody {
   font-size: 0.875rem;
-  color: var(--wex-text-muted, #5A6E85);
+  color: var(--wex-text-muted);
   line-height: 1.6;
   margin: 0;
 }
@@ -182,7 +182,7 @@
   align-items: center;
   gap: 6px;
   font-size: 0.75rem;
-  color: var(--wex-text-muted, #5A6E85);
+  color: var(--wex-text-muted);
 }
 
 .cardActions {
@@ -191,7 +191,7 @@
   justify-content: flex-end;
   gap: 8px;
   padding-top: 8px;
-  border-top: 1px solid var(--wex-border, #D5E2F2);
+  border-top: 1px solid var(--wex-border);
 }
 
 .actionBtn {
@@ -200,9 +200,9 @@
   gap: 4px;
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--wex-royal, #0B3FBF);
+  color: var(--wex-royal);
   background: transparent;
-  border: 1px solid var(--wex-border, #D5E2F2);
+  border: 1px solid var(--wex-border);
   border-radius: var(--radius-sm, 8px);
   padding: 5px 10px;
   cursor: pointer;
@@ -210,17 +210,17 @@
 }
 
 .actionBtn:hover {
-  background: var(--wex-ice, #EAF3FF);
-  border-color: var(--wex-royal, #0B3FBF);
+  background: var(--wex-ice);
+  border-color: var(--wex-royal);
 }
 
 .deleteBtn {
-  color: var(--wex-danger, #DC2626) !important;
+  color: var(--wex-danger) !important;
 }
 
 .deleteBtn:hover {
   background: #FEE2E2 !important;
-  border-color: var(--wex-danger, #DC2626) !important;
+  border-color: var(--wex-danger) !important;
 }
 
 /* Modal Form */
@@ -245,12 +245,12 @@
 .formLabel {
   font-size: 0.8125rem;
   font-weight: 600;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
 }
 
 .formInput, .formTextarea, .formSelect {
   padding: 10px 14px;
-  border: 1px solid var(--wex-border, #D5E2F2);
+  border: 1px solid var(--wex-border);
   border-radius: var(--radius-md, 14px);
   font-family: inherit;
   font-size: 0.875rem;
@@ -258,7 +258,7 @@
 
 .formInput:focus, .formTextarea:focus, .formSelect:focus {
   outline: none;
-  border-color: var(--wex-royal, #0B3FBF);
+  border-color: var(--wex-royal);
   box-shadow: 0 0 0 3px rgba(11, 63, 191, 0.12);
 }
 

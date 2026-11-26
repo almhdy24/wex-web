@@ -65,7 +65,7 @@
 }
 
 .sentenceMeta {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--color-slate-500);
   display: flex;
   align-items: center;
@@ -73,7 +73,7 @@
 }
 
 .ipText {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--color-slate-500);
   font-variant-numeric: tabular-nums;
 }

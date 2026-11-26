@@ -91,7 +91,7 @@
   direction: ltr;
   unicode-bidi: isolate;
   white-space: nowrap;
-  font-size: 16px;
+  font-size: var(--text-base);
   font-weight: 800;
   text-align: start;
   color: var(--wex-navy);
@@ -99,7 +99,7 @@
 }
 
 .orderDate {
-  font-size: 13px;
+  font-size: var(--text-s);
   color: var(--wex-text-secondary);
   direction: ltr;
   text-align: start;
@@ -109,7 +109,7 @@
 .statusChip {
   padding: 5px 14px;
   border-radius: var(--radius-pill);
-  font-size: 13px;
+  font-size: var(--text-s);
   font-weight: 800;
   white-space: nowrap;
   border: none;
@@ -155,12 +155,12 @@
 }
 
 .priceLabel {
-  font-size: 13px;
+  font-size: var(--text-s);
   color: var(--wex-text-secondary);
 }
 
 .priceVal {
-  font-size: 17px;
+  font-size: var(--text-lg);
   font-weight: 800;
   color: var(--wex-navy);
   white-space: nowrap;
@@ -175,7 +175,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--wex-royal);
   font-weight: 800;
 }
@@ -197,7 +197,7 @@
 
 .emptyText {
   color: var(--wex-text-secondary);
-  font-size: 15px;
+  font-size: var(--text-md);
   margin: 0;
 }
 
@@ -228,7 +228,7 @@
   padding: 8px 12px;
   background-color: var(--wex-ice);
   border-radius: var(--radius-control);
-  font-size: 13px;
+  font-size: var(--text-s);
 }
 
 .firstItemName {
@@ -240,7 +240,7 @@
 }
 
 .moreItemsBadge {
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 700;
   color: var(--wex-royal);
   background: var(--wex-white);

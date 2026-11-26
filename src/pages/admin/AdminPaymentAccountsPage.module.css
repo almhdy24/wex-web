@@ -18,13 +18,13 @@
 .title {
   font-size: var(--text-2xl, 1.5rem);
   font-weight: 800;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
   margin: 0;
 }
 
 .subtitle {
   font-size: var(--text-sm, 0.875rem);
-  color: var(--wex-text-muted, #5A6E85);
+  color: var(--wex-text-muted);
   margin-top: 4px;
 }
 
@@ -37,8 +37,8 @@
 
 /* Forbidden State */
 .forbiddenCard {
-  background: #FFFFFF;
-  border: 1px solid var(--wex-border, #D5E2F2);
+  background: var(--wex-white);
+  border: 1px solid var(--wex-border);
   border-radius: var(--radius-xl, 20px);
   padding: 48px 24px;
   text-align: center;
@@ -49,26 +49,26 @@
 }
 
 .forbiddenIcon {
-  color: var(--wex-danger, #DC2626);
+  color: var(--wex-danger);
 }
 
 .forbiddenTitle {
   font-size: 1.25rem;
   font-weight: 800;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
   margin: 0;
 }
 
 .forbiddenDesc {
-  color: var(--wex-text-muted, #5A6E85);
+  color: var(--wex-text-muted);
   max-width: 480px;
   line-height: 1.6;
 }
 
 /* General Notes Section */
 .notesSection {
-  background: #FFFFFF;
-  border: 1px solid var(--wex-border, #D5E2F2);
+  background: var(--wex-white);
+  border: 1px solid var(--wex-border);
   border-radius: var(--radius-xl, 20px);
   padding: var(--space-5, 20px);
   display: flex;
@@ -83,38 +83,38 @@
 }
 
 .sectionIcon {
-  color: var(--wex-royal, #0B3FBF);
+  color: var(--wex-royal);
   margin-top: 2px;
 }
 
 .notesTitle {
   font-size: 1rem;
   font-weight: 700;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
   margin: 0;
 }
 
 .notesDesc {
   font-size: 0.8125rem;
-  color: var(--wex-text-muted, #5A6E85);
+  color: var(--wex-text-muted);
   margin-top: 2px;
 }
 
 .notesTextarea {
   width: 100%;
   padding: 12px 14px;
-  border: 1px solid var(--wex-border, #D5E2F2);
+  border: 1px solid var(--wex-border);
   border-radius: var(--radius-md, 14px);
   font-family: inherit;
   font-size: 0.875rem;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
   line-height: 1.6;
   resize: vertical;
 }
 
 .notesTextarea:focus {
   outline: none;
-  border-color: var(--wex-royal, #0B3FBF);
+  border-color: var(--wex-royal);
   box-shadow: 0 0 0 3px rgba(11, 63, 191, 0.12);
 }
 
@@ -141,7 +141,7 @@
 .sectionTitle {
   font-size: 1.125rem;
   font-weight: 800;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
   margin: 0;
 }
 
@@ -170,8 +170,8 @@
 }
 
 .accountCard {
-  background: #FFFFFF;
-  border: 1px solid var(--wex-border, #D5E2F2);
+  background: var(--wex-white);
+  border: 1px solid var(--wex-border);
   border-radius: var(--radius-lg, 16px);
   padding: 16px;
   display: flex;
@@ -182,7 +182,7 @@
 }
 
 .accountCard:hover {
-  box-shadow: 0 4px 16px rgba(6, 26, 85, 0.06);
+  box-shadow: var(--shadow-md);
 }
 
 .inactiveCard {
@@ -204,19 +204,19 @@
 }
 
 .bankIcon {
-  color: var(--wex-royal, #0B3FBF);
+  color: var(--wex-royal);
 }
 
 .cardBankName {
   font-size: 1rem;
   font-weight: 800;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
   margin: 0;
 }
 
 .cardBranch {
   font-size: 0.75rem;
-  color: var(--wex-text-muted, #5A6E85);
+  color: var(--wex-text-muted);
 }
 
 .statusBadge {
@@ -240,7 +240,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  background: var(--wex-ice, #EAF3FF);
+  background: var(--wex-ice);
   padding: 10px 12px;
   border-radius: var(--radius-md, 14px);
 }
@@ -254,30 +254,30 @@
 
 .detailLabel {
   font-size: 0.75rem;
-  color: var(--wex-text-muted, #5A6E85);
+  color: var(--wex-text-muted);
 }
 
 .detailVal {
   font-size: 0.8125rem;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
 }
 
 .detailValNumber {
   font-size: 0.9375rem;
-  color: var(--wex-royal, #0B3FBF);
+  color: var(--wex-royal);
   font-family: monospace;
   letter-spacing: 0.5px;
 }
 
 .cardNotes {
   font-size: 0.75rem;
-  color: var(--wex-text-muted, #5A6E85);
+  color: var(--wex-text-muted);
   display: flex;
   gap: 6px;
 }
 
 .notesText {
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
 }
 
 .cardActionsRow {
@@ -286,7 +286,7 @@
   justify-content: space-between;
   gap: 8px;
   padding-top: 6px;
-  border-top: 1px solid var(--wex-border, #D5E2F2);
+  border-top: 1px solid var(--wex-border);
 }
 
 .reorderBtns, .operationBtns {
@@ -301,17 +301,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--wex-border, #D5E2F2);
-  background: #FFFFFF;
+  border: 1px solid var(--wex-border);
+  background: var(--wex-white);
   border-radius: var(--radius-sm, 8px);
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
   cursor: pointer;
   transition: color var(--motion-fast, 150ms), border-color var(--motion-fast, 150ms), background-color var(--motion-fast, 150ms);
 }
 
 .iconBtn:hover:not(:disabled) {
-  border-color: var(--wex-royal, #0B3FBF);
-  color: var(--wex-royal, #0B3FBF);
+  border-color: var(--wex-royal);
+  color: var(--wex-royal);
 }
 
 .iconBtn:disabled {
@@ -320,8 +320,8 @@
 }
 
 .deleteIconBtn:hover {
-  border-color: var(--wex-danger, #DC2626) !important;
-  color: var(--wex-danger, #DC2626) !important;
+  border-color: var(--wex-danger) !important;
+  color: var(--wex-danger) !important;
 }
 
 .actionPill {
@@ -345,8 +345,8 @@
 
 /* Empty Card */
 .emptyCard {
-  background: #FFFFFF;
-  border: 1px dashed var(--wex-border, #D5E2F2);
+  background: var(--wex-white);
+  border: 1px dashed var(--wex-border);
   border-radius: var(--radius-xl, 20px);
   padding: 48px 24px;
   text-align: center;
@@ -357,26 +357,26 @@
 }
 
 .emptyIcon {
-  color: var(--wex-text-muted, #5A6E85);
+  color: var(--wex-text-muted);
 }
 
 .emptyTitle {
   font-size: 1.125rem;
   font-weight: 800;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
   margin: 0;
 }
 
 .emptyDesc {
-  color: var(--wex-text-muted, #5A6E85);
+  color: var(--wex-text-muted);
   font-size: 0.875rem;
   margin: 0;
 }
 
 /* Preview Section */
 .previewSection {
-  background: #FFFFFF;
-  border: 1px solid var(--wex-border, #D5E2F2);
+  background: var(--wex-white);
+  border: 1px solid var(--wex-border);
   border-radius: var(--radius-xl, 20px);
   padding: var(--space-5, 20px);
   display: flex;
@@ -393,19 +393,19 @@
 .previewTitle {
   font-size: 1rem;
   font-weight: 700;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
   margin: 0;
 }
 
 .previewSubtitle {
   font-size: 0.8125rem;
-  color: var(--wex-text-muted, #5A6E85);
+  color: var(--wex-text-muted);
   margin-top: 2px;
 }
 
 .previewBox {
   padding: 16px;
-  background: var(--wex-ice, #EAF3FF);
+  background: var(--wex-ice);
   border-radius: var(--radius-lg, 16px);
 }
 
@@ -429,21 +429,21 @@
 .formLabel {
   font-size: 0.8125rem;
   font-weight: 600;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
 }
 
 .formInput {
   padding: 10px 14px;
-  border: 1px solid var(--wex-border, #D5E2F2);
+  border: 1px solid var(--wex-border);
   border-radius: var(--radius-md, 14px);
   font-family: inherit;
-  font-size: 16px;
+  font-size: var(--text-base);
   min-height: 44px;
 }
 
 .formInput:focus {
   outline: none;
-  border-color: var(--wex-royal, #0B3FBF);
+  border-color: var(--wex-royal);
   box-shadow: 0 0 0 3px rgba(11, 63, 191, 0.12);
 }
 

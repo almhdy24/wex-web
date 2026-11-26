@@ -5,7 +5,7 @@
   justify-content: center;
   width: 100%;
   height: 100%;
-  color: var(--wex-gray-400, #94a3b8);
+  color: var(--wex-gray-400);
 }
 
 .placeholderSvg {

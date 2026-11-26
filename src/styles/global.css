@@ -18,7 +18,7 @@
 }
 
 html {
-  font-size: 16px;
+  font-size: var(--text-base);
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
   font-variant-numeric: tabular-nums;
@@ -84,7 +84,7 @@ a {
 
 button, input, select, textarea {
   font-family: inherit;
-  font-size: 16px; /* Avoid iOS auto-zoom */
+  font-size: var(--text-base); /* Avoid iOS auto-zoom */
   color: inherit;
   font-variant-numeric: tabular-nums;
 }

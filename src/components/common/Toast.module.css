@@ -34,7 +34,7 @@
   background-color: var(--wex-white);
   border: 1px solid var(--wex-border);
   border-radius: var(--radius-card, 16px);
-  box-shadow: 0 4px 16px rgba(6, 26, 85, 0.08);
+  box-shadow: var(--shadow-md);
   pointer-events: auto;
   user-select: none;
   font-family: inherit;

@@ -90,7 +90,7 @@
 }
 
 .installBtn:hover {
-  background-color: #00B7FF;
+  background-color: var(--wex-cyan);
 }
 
 .dismissBtn {
@@ -115,7 +115,7 @@
   max-width: 440px;
   margin-inline: auto;
   background-color: var(--wex-navy);
-  color: #FFFFFF;
+  color: var(--wex-white);
   border-radius: var(--radius-card, 16px);
   padding: var(--space-3, 12px) var(--space-4, 16px);
   box-shadow: var(--shadow-toast);
@@ -135,7 +135,7 @@
 
 .refreshBtn {
   background: var(--wex-grad-brand);
-  color: #FFFFFF;
+  color: var(--wex-white);
   border: none;
   border-radius: var(--radius-sm, 8px);
   padding: 6px 14px;

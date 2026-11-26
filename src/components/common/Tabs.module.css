@@ -57,7 +57,7 @@
   height: 20px;
   padding: 0 6px;
   border-radius: var(--radius-pill);
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 700;
   background: var(--wex-ice);
   color: var(--wex-royal);

@@ -25,7 +25,7 @@
 }
 
 .counter {
-  color: #FFFFFF;
+  color: var(--wex-white);
   font-size: var(--text-sm, 14px);
   font-weight: 600;
   background-color: rgba(255, 255, 255, 0.15);
@@ -44,7 +44,7 @@
   justify-content: center;
   background-color: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #FFFFFF;
+  color: var(--wex-white);
   border-radius: var(--radius-full, 9999px);
   cursor: pointer;
   transition: background-color 0.15s ease;
@@ -96,7 +96,7 @@
   justify-content: center;
   background-color: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #FFFFFF;
+  color: var(--wex-white);
   border-radius: var(--radius-full, 9999px);
   cursor: pointer;
   z-index: 2; /* local: inside the lightbox's own fixed stacking context */
@@ -134,7 +134,7 @@
   padding: 8px 16px;
   background-color: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #FFFFFF;
+  color: var(--wex-white);
   border-radius: var(--radius-full, 9999px);
   cursor: pointer;
   font-size: var(--text-xs, 12px);

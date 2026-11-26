@@ -124,14 +124,18 @@
   --wex-fs-heading: 22px;
   --wex-fs-display: 30px;
 
+  /* Canonical type scale (Arabic minimum 12px). Every font-size in modules uses these. */
   --text-xs: 12px;
+  --text-s: 13px;
   --text-sm: 14px;
+  --text-md: 15px;
   --text-base: 16px;
   --text-lg: 18px;
   --text-xl: 20px;
   --text-price: 20px;
   --text-2xl: 24px;
   --text-3xl: 28px;
+  --text-4xl: 34px;
 
   --font-size-xs: 12px;
   --font-size-sm: 14px;

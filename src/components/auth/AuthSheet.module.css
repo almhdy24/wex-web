@@ -136,7 +136,7 @@
   width: 44px;
   height: 52px;
   text-align: center;
-  font-size: 22px;
+  font-size: var(--text-2xl);
   font-weight: 700;
   color: var(--wex-navy);
   background-color: var(--wex-white);

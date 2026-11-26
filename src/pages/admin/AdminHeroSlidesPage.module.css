@@ -18,13 +18,13 @@
 .title {
   font-size: var(--text-2xl, 1.5rem);
   font-weight: 800;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
   margin: 0;
 }
 
 .subtitle {
   font-size: 0.875rem;
-  color: var(--wex-text-muted, #5A6E85);
+  color: var(--wex-text-muted);
   margin-top: 4px;
 }
 
@@ -42,8 +42,8 @@
 }
 
 .slideCard {
-  background: #FFFFFF;
-  border: 1px solid var(--wex-border, #D5E2F2);
+  background: var(--wex-white);
+  border: 1px solid var(--wex-border);
   border-radius: var(--radius-lg, 16px);
   padding: 16px;
   display: flex;
@@ -69,7 +69,7 @@
   height: 60px;
   border-radius: var(--radius-md, 12px);
   overflow: hidden;
-  background: var(--wex-ice, #EAF3FF);
+  background: var(--wex-ice);
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -83,7 +83,7 @@
 }
 
 .slideNoImg {
-  color: var(--wex-text-muted, #5A6E85);
+  color: var(--wex-text-muted);
 }
 
 .slideMainInfo {
@@ -105,14 +105,14 @@
 .slideTitle {
   font-size: 0.9375rem;
   font-weight: 700;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
   margin: 0;
   word-break: break-word;
 }
 
 .slideSub {
   font-size: 0.8125rem;
-  color: var(--wex-text-muted, #5A6E85);
+  color: var(--wex-text-muted);
   margin: 0;
   word-break: break-word;
 }
@@ -124,15 +124,15 @@
   gap: 8px;
   flex-wrap: wrap;
   padding-block: 6px;
-  border-top: 1px dashed var(--wex-border, #D5E2F2);
-  border-bottom: 1px dashed var(--wex-border, #D5E2F2);
+  border-top: 1px dashed var(--wex-border);
+  border-bottom: 1px dashed var(--wex-border);
   font-size: 0.75rem;
-  color: var(--wex-text-muted, #5A6E85);
+  color: var(--wex-text-muted);
 }
 
 .metaLabel {
   font-size: 0.75rem;
-  color: var(--wex-text-muted, #5A6E85);
+  color: var(--wex-text-muted);
 }
 
 .togglePill {
@@ -174,17 +174,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--wex-border, #D5E2F2);
-  background: #FFFFFF;
+  border: 1px solid var(--wex-border);
+  background: var(--wex-white);
   border-radius: var(--radius-sm, 8px);
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
   cursor: pointer;
   transition: background-color var(--motion-fast, 150ms), border-color var(--motion-fast, 150ms), opacity var(--motion-fast, 150ms);
 }
 
 .iconBtn:hover:not(:disabled) {
-  border-color: var(--wex-royal, #0B3FBF);
-  color: var(--wex-royal, #0B3FBF);
+  border-color: var(--wex-royal);
+  color: var(--wex-royal);
 }
 
 .iconBtn:disabled {
@@ -193,8 +193,8 @@
 }
 
 .deleteBtn:hover {
-  border-color: var(--wex-danger, #DC2626) !important;
-  color: var(--wex-danger, #DC2626) !important;
+  border-color: var(--wex-danger) !important;
+  color: var(--wex-danger) !important;
 }
 
 /* Modal Form */
@@ -219,12 +219,12 @@
 .formLabel {
   font-size: 0.8125rem;
   font-weight: 600;
-  color: var(--wex-navy, #061A55);
+  color: var(--wex-navy);
 }
 
 .formInput, .formTextarea {
   padding: 10px 14px;
-  border: 1px solid var(--wex-border, #D5E2F2);
+  border: 1px solid var(--wex-border);
   border-radius: var(--radius-md, 14px);
   font-family: inherit;
   font-size: 0.875rem;
@@ -232,7 +232,7 @@
 
 .formInput:focus, .formTextarea:focus {
   outline: none;
-  border-color: var(--wex-royal, #0B3FBF);
+  border-color: var(--wex-royal);
   box-shadow: 0 0 0 3px rgba(11, 63, 191, 0.12);
 }
 
@@ -268,8 +268,8 @@
   bottom: calc(var(--admin-tab-bar-height, 56px) + env(safe-area-inset-bottom, 0px));
   inset-inline-start: 0;
   inset-inline-end: 0;
-  background: var(--color-white, #FFFFFF);
-  border-top: 1px solid var(--color-slate-200, #E2E8F0);
+  background: var(--color-white);
+  border-top: 1px solid var(--color-slate-200);
   box-shadow: 0 -4px 12px rgba(6, 26, 85, 0.08);
   padding: var(--space-3, 12px) var(--space-4, 16px);
   display: flex;

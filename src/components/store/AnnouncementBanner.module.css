@@ -170,7 +170,7 @@
     border-top: 0;
     box-shadow: none;
     padding: 6px 12px 6px 14px;
-    font-size: 13px;
+    font-size: var(--text-s);
     min-height: 44px;
   }
 
