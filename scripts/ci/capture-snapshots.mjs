@@ -23,6 +23,12 @@ const productsFixture = loadFixture('products.json');
 const productDetailFixture = loadFixture('product-detail.json');
 const orderConfirmedFixture = loadFixture('order-confirmed.json');
 const orderPendingFixture = loadFixture('order-pending.json');
+// A fixed lock time goes stale: once past it the 'pending' snapshot shows 00:00:00 (and,
+// correctly, the expired state since VIS-02). Keep the lock 4 hours ahead of the run.
+if (orderPendingFixture?.data) {
+  orderPendingFixture.data.lock_expires_at = new Date(Date.now() + 4 * 3600 * 1000).toISOString();
+  orderPendingFixture.data.seconds_remaining = 4 * 3600;
+}
 const orderExpiredFixture = loadFixture('order-expired.json');
 const ordersListFixture = loadFixture('orders-list.json');
 const adminDashboardFixture = loadFixture('admin-dashboard.json');
