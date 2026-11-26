@@ -1,0 +1,302 @@
+{
+    "success": true,
+    "message": "قائمة طلباتك",
+    "data": [
+        {
+            "order_number": "WEX-261126-VZ2CC",
+            "status": "confirmed",
+            "status_label": "مؤكد وجاري التجهيز",
+            "delivery_type": "pickup",
+            "payment": {
+                "state": "approved",
+                "can_upload": false,
+                "can_review": false,
+                "latest_proof": {
+                    "id": 13,
+                    "status": "approved",
+                    "sender_name": "محمد أحمد",
+                    "reference_number": "TRX-48213",
+                    "review_note": null,
+                    "image_url": "/api/v1/orders/WEX-261126-VZ2CC/payment-proof/13/image",
+                    "uploaded_at": "2026-11-26T00:49:05Z",
+                    "created_at": "2026-11-26T00:49:05Z",
+                    "reviewed_at": "2026-11-26T00:49:06Z"
+                },
+                "proofs_count": 1
+            },
+            "total_sdg": 851200,
+            "total_amount_sdg": 851200,
+            "lock_expires_at": "2026-11-26T04:49:05Z",
+            "expires_at": "2026-11-26T04:49:05Z",
+            "seconds_remaining": 0,
+            "created_at": "2026-11-26T00:49:05Z"
+        },
+        {
+            "order_number": "WEX-261126-T29Q9",
+            "status": "pending_payment",
+            "status_label": "في انتظار التحويل البنكي",
+            "delivery_type": "pickup",
+            "payment": {
+                "state": "rejected",
+                "can_upload": true,
+                "can_review": false,
+                "latest_proof": {
+                    "id": 12,
+                    "status": "rejected",
+                    "sender_name": "محمد أحمد",
+                    "reference_number": "TRX-48213",
+                    "review_note": "المبلغ في الإشعار لا يطابق المطلوب",
+                    "image_url": "/api/v1/orders/WEX-261126-T29Q9/payment-proof/12/image",
+                    "uploaded_at": "2026-11-26T00:49:05Z",
+                    "created_at": "2026-11-26T00:49:05Z",
+                    "reviewed_at": "2026-11-26T00:49:05Z"
+                },
+                "proofs_count": 1
+            },
+            "total_sdg": 504400,
+            "total_amount_sdg": 504400,
+            "lock_expires_at": "2026-11-26T04:49:05Z",
+            "expires_at": "2026-11-26T04:49:05Z",
+            "seconds_remaining": 14397,
+            "created_at": "2026-11-26T00:49:05Z"
+        },
+        {
+            "order_number": "WEX-261126-RHMMH",
+            "status": "payment_review",
+            "status_label": "مراجعة التحويل",
+            "delivery_type": "pickup",
+            "payment": {
+                "state": "under_review",
+                "can_upload": false,
+                "can_review": true,
+                "latest_proof": {
+                    "id": 11,
+                    "status": "pending",
+                    "sender_name": "محمد أحمد",
+                    "reference_number": "TRX-48213",
+                    "review_note": null,
+                    "image_url": "/api/v1/orders/WEX-261126-RHMMH/payment-proof/11/image",
+                    "uploaded_at": "2026-11-26T00:49:04Z",
+                    "created_at": "2026-11-26T00:49:04Z",
+                    "reviewed_at": null
+                },
+                "proofs_count": 1
+            },
+            "total_sdg": 567500,
+            "total_amount_sdg": 567500,
+            "lock_expires_at": "2026-11-26T04:49:04Z",
+            "expires_at": "2026-11-26T04:49:04Z",
+            "seconds_remaining": 0,
+            "created_at": "2026-11-26T00:49:04Z"
+        },
+        {
+            "order_number": "WEX-261126-BRNM3",
+            "status": "pending_payment",
+            "status_label": "في انتظار التحويل البنكي",
+            "delivery_type": "pickup",
+            "payment": {
+                "state": "awaiting_proof",
+                "can_upload": true,
+                "can_review": false,
+                "latest_proof": null,
+                "proofs_count": 0
+            },
+            "total_sdg": 472900,
+            "total_amount_sdg": 472900,
+            "lock_expires_at": "2026-11-26T04:49:04Z",
+            "expires_at": "2026-11-26T04:49:04Z",
+            "seconds_remaining": 14396,
+            "created_at": "2026-11-26T00:49:04Z"
+        },
+        {
+            "order_number": "WEX-261125-1007G",
+            "status": "cancelled",
+            "status_label": "ملغي",
+            "delivery_type": "pickup",
+            "payment": {
+                "state": "expired",
+                "can_upload": false,
+                "can_review": false,
+                "latest_proof": null,
+                "proofs_count": 0
+            },
+            "total_sdg": 1040400,
+            "total_amount_sdg": 1040400,
+            "lock_expires_at": "2026-11-25T00:49:00Z",
+            "expires_at": "2026-11-25T00:49:00Z",
+            "seconds_remaining": 0,
+            "created_at": "2026-11-26T00:49:00Z"
+        },
+        {
+            "order_number": "WEX-261125-1006F",
+            "status": "completed",
+            "status_label": "مكتمل ومستلم",
+            "delivery_type": "delivery",
+            "payment": {
+                "state": "approved",
+                "can_upload": false,
+                "can_review": false,
+                "latest_proof": {
+                    "id": 10,
+                    "status": "approved",
+                    "sender_name": "عمر محمد أحمد",
+                    "reference_number": "BOK-9988776",
+                    "review_note": "تم الاستلام.",
+                    "image_url": "/api/v1/orders/WEX-261125-1006F/payment-proof/10/image",
+                    "uploaded_at": "2026-11-24T23:49:00Z",
+                    "created_at": "2026-11-24T23:49:00Z",
+                    "reviewed_at": "2026-11-24T23:49:00Z"
+                },
+                "proofs_count": 1
+            },
+            "total_sdg": 1549800,
+            "total_amount_sdg": 1549800,
+            "lock_expires_at": "2026-11-25T00:49:00Z",
+            "expires_at": "2026-11-25T00:49:00Z",
+            "seconds_remaining": 0,
+            "created_at": "2026-11-26T00:49:00Z"
+        },
+        {
+            "order_number": "WEX-261125-1005E",
+            "status": "out_for_delivery",
+            "status_label": "خرج مع المندوب للتوصيل",
+            "delivery_type": "delivery",
+            "payment": {
+                "state": "approved",
+                "can_upload": false,
+                "can_review": false,
+                "latest_proof": {
+                    "id": 9,
+                    "status": "approved",
+                    "sender_name": "عمر محمد أحمد",
+                    "reference_number": "BOK-1122334",
+                    "review_note": "تم التأكيد.",
+                    "image_url": "/api/v1/orders/WEX-261125-1005E/payment-proof/9/image",
+                    "uploaded_at": "2026-11-25T18:49:00Z",
+                    "created_at": "2026-11-25T18:49:00Z",
+                    "reviewed_at": "2026-11-25T18:49:00Z"
+                },
+                "proofs_count": 1
+            },
+            "total_sdg": 1456200,
+            "total_amount_sdg": 1456200,
+            "lock_expires_at": "2026-11-26T04:49:00Z",
+            "expires_at": "2026-11-26T04:49:00Z",
+            "seconds_remaining": 0,
+            "created_at": "2026-11-26T00:49:00Z"
+        },
+        {
+            "order_number": "WEX-261125-1004D",
+            "status": "ready_for_pickup",
+            "status_label": "جاهز للاستلام من المحل",
+            "delivery_type": "pickup",
+            "payment": {
+                "state": "approved",
+                "can_upload": false,
+                "can_review": false,
+                "latest_proof": {
+                    "id": 8,
+                    "status": "approved",
+                    "sender_name": "عمر محمد أحمد",
+                    "reference_number": "OCASH-541298",
+                    "review_note": "تم التحقق من الحساب.",
+                    "image_url": "/api/v1/orders/WEX-261125-1004D/payment-proof/8/image",
+                    "uploaded_at": "2026-11-25T21:49:00Z",
+                    "created_at": "2026-11-25T21:49:00Z",
+                    "reviewed_at": "2026-11-25T21:49:00Z"
+                },
+                "proofs_count": 1
+            },
+            "total_sdg": 1261000,
+            "total_amount_sdg": 1261000,
+            "lock_expires_at": "2026-11-26T04:49:00Z",
+            "expires_at": "2026-11-26T04:49:00Z",
+            "seconds_remaining": 0,
+            "created_at": "2026-11-26T00:49:00Z"
+        },
+        {
+            "order_number": "WEX-261125-1003C",
+            "status": "confirmed",
+            "status_label": "مؤكد وجاري التجهيز",
+            "delivery_type": "pickup",
+            "payment": {
+                "state": "approved",
+                "can_upload": false,
+                "can_review": false,
+                "latest_proof": {
+                    "id": 7,
+                    "status": "approved",
+                    "sender_name": "عمر محمد أحمد",
+                    "reference_number": "BOK-8723419",
+                    "review_note": "تمت مطابقة الحساب وتأكيد استلام المبلغ بنجاح.",
+                    "image_url": "/api/v1/orders/WEX-261125-1003C/payment-proof/7/image",
+                    "uploaded_at": "2026-11-26T00:34:00Z",
+                    "created_at": "2026-11-26T00:34:00Z",
+                    "reviewed_at": "2026-11-26T00:34:00Z"
+                },
+                "proofs_count": 1
+            },
+            "total_sdg": 504400,
+            "total_amount_sdg": 504400,
+            "lock_expires_at": "2026-11-26T04:49:00Z",
+            "expires_at": "2026-11-26T04:49:00Z",
+            "seconds_remaining": 0,
+            "created_at": "2026-11-26T00:49:00Z"
+        },
+        {
+            "order_number": "WEX-261125-1002B",
+            "status": "pending_payment",
+            "status_label": "في انتظار التحويل البنكي",
+            "delivery_type": "delivery",
+            "payment": {
+                "state": "awaiting_proof",
+                "can_upload": true,
+                "can_review": false,
+                "latest_proof": null,
+                "proofs_count": 0
+            },
+            "total_sdg": 572500,
+            "total_amount_sdg": 572500,
+            "lock_expires_at": "2026-11-26T02:49:00Z",
+            "expires_at": "2026-11-26T02:49:00Z",
+            "seconds_remaining": 7192,
+            "created_at": "2026-11-26T00:49:00Z"
+        },
+        {
+            "order_number": "WEX-261125-1001A",
+            "status": "payment_review",
+            "status_label": "مراجعة التحويل",
+            "delivery_type": "pickup",
+            "payment": {
+                "state": "under_review",
+                "can_upload": false,
+                "can_review": true,
+                "latest_proof": {
+                    "id": 6,
+                    "status": "pending",
+                    "sender_name": "عمر محمد أحمد",
+                    "reference_number": "BOK-9847120",
+                    "review_note": null,
+                    "image_url": "/api/v1/orders/WEX-261125-1001A/payment-proof/6/image",
+                    "uploaded_at": "2026-11-26T00:49:00Z",
+                    "created_at": "2026-11-26T00:49:00Z",
+                    "reviewed_at": null
+                },
+                "proofs_count": 1
+            },
+            "total_sdg": 495000,
+            "total_amount_sdg": 495000,
+            "lock_expires_at": "2026-11-26T03:49:00Z",
+            "expires_at": "2026-11-26T03:49:00Z",
+            "seconds_remaining": 0,
+            "created_at": "2026-11-26T00:49:00Z"
+        }
+    ],
+    "errors": null,
+    "meta": {
+        "page": 1,
+        "per_page": 20,
+        "total": 11,
+        "total_pages": 1
+    }
+}

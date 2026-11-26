@@ -1,0 +1,188 @@
+{
+    "success": true,
+    "message": "مناطق التوصيل ورسومها",
+    "data": [
+        {
+            "id": 1,
+            "name": "أم درمان",
+            "zone_name": "أم درمان",
+            "state_name_ar": "أم درمان",
+            "fee_sdg": 5000,
+            "delivery_fee_sdg": 5000,
+            "is_active": true
+        },
+        {
+            "id": 2,
+            "name": "الخرطوم",
+            "zone_name": "الخرطوم",
+            "state_name_ar": "الخرطوم",
+            "fee_sdg": 6000,
+            "delivery_fee_sdg": 6000,
+            "is_active": true
+        },
+        {
+            "id": 3,
+            "name": "بحري",
+            "zone_name": "بحري",
+            "state_name_ar": "بحري",
+            "fee_sdg": 6000,
+            "delivery_fee_sdg": 6000,
+            "is_active": true
+        },
+        {
+            "id": 4,
+            "name": "الجزيرة",
+            "zone_name": "الجزيرة",
+            "state_name_ar": "الجزيرة",
+            "fee_sdg": 9000,
+            "delivery_fee_sdg": 9000,
+            "is_active": true
+        },
+        {
+            "id": 9,
+            "name": "النيل الأبيض",
+            "zone_name": "النيل الأبيض",
+            "state_name_ar": "النيل الأبيض",
+            "fee_sdg": 10000,
+            "delivery_fee_sdg": 10000,
+            "is_active": true
+        },
+        {
+            "id": 11,
+            "name": "نهر النيل",
+            "zone_name": "نهر النيل",
+            "state_name_ar": "نهر النيل",
+            "fee_sdg": 10000,
+            "delivery_fee_sdg": 10000,
+            "is_active": true
+        },
+        {
+            "id": 8,
+            "name": "سنار",
+            "zone_name": "سنار",
+            "state_name_ar": "سنار",
+            "fee_sdg": 11000,
+            "delivery_fee_sdg": 11000,
+            "is_active": true
+        },
+        {
+            "id": 12,
+            "name": "الشمالية",
+            "zone_name": "الشمالية",
+            "state_name_ar": "الشمالية",
+            "fee_sdg": 12000,
+            "delivery_fee_sdg": 12000,
+            "is_active": true
+        },
+        {
+            "id": 7,
+            "name": "القضارف",
+            "zone_name": "القضارف",
+            "state_name_ar": "القضارف",
+            "fee_sdg": 13000,
+            "delivery_fee_sdg": 13000,
+            "is_active": true
+        },
+        {
+            "id": 10,
+            "name": "النيل الأزرق",
+            "zone_name": "النيل الأزرق",
+            "state_name_ar": "النيل الأزرق",
+            "fee_sdg": 13000,
+            "delivery_fee_sdg": 13000,
+            "is_active": true
+        },
+        {
+            "id": 6,
+            "name": "كسلا",
+            "zone_name": "كسلا",
+            "state_name_ar": "كسلا",
+            "fee_sdg": 14000,
+            "delivery_fee_sdg": 14000,
+            "is_active": true
+        },
+        {
+            "id": 13,
+            "name": "شمال كردفان",
+            "zone_name": "شمال كردفان",
+            "state_name_ar": "شمال كردفان",
+            "fee_sdg": 14000,
+            "delivery_fee_sdg": 14000,
+            "is_active": true
+        },
+        {
+            "id": 5,
+            "name": "البحر الأحمر",
+            "zone_name": "البحر الأحمر",
+            "state_name_ar": "البحر الأحمر",
+            "fee_sdg": 15000,
+            "delivery_fee_sdg": 15000,
+            "is_active": true
+        },
+        {
+            "id": 14,
+            "name": "جنوب كردفان",
+            "zone_name": "جنوب كردفان",
+            "state_name_ar": "جنوب كردفان",
+            "fee_sdg": 18000,
+            "delivery_fee_sdg": 18000,
+            "is_active": true
+        },
+        {
+            "id": 15,
+            "name": "غرب كردفان",
+            "zone_name": "غرب كردفان",
+            "state_name_ar": "غرب كردفان",
+            "fee_sdg": 18000,
+            "delivery_fee_sdg": 18000,
+            "is_active": true
+        },
+        {
+            "id": 16,
+            "name": "شمال دارفور",
+            "zone_name": "شمال دارفور",
+            "state_name_ar": "شمال دارفور",
+            "fee_sdg": 20000,
+            "delivery_fee_sdg": 20000,
+            "is_active": true
+        },
+        {
+            "id": 17,
+            "name": "جنوب دارفور",
+            "zone_name": "جنوب دارفور",
+            "state_name_ar": "جنوب دارفور",
+            "fee_sdg": 22000,
+            "delivery_fee_sdg": 22000,
+            "is_active": true
+        },
+        {
+            "id": 19,
+            "name": "وسط دارفور",
+            "zone_name": "وسط دارفور",
+            "state_name_ar": "وسط دارفور",
+            "fee_sdg": 22000,
+            "delivery_fee_sdg": 22000,
+            "is_active": true
+        },
+        {
+            "id": 20,
+            "name": "شرق دارفور",
+            "zone_name": "شرق دارفور",
+            "state_name_ar": "شرق دارفور",
+            "fee_sdg": 22000,
+            "delivery_fee_sdg": 22000,
+            "is_active": true
+        },
+        {
+            "id": 18,
+            "name": "غرب دارفور",
+            "zone_name": "غرب دارفور",
+            "state_name_ar": "غرب دارفور",
+            "fee_sdg": 24000,
+            "delivery_fee_sdg": 24000,
+            "is_active": true
+        }
+    ],
+    "errors": null,
+    "meta": null
+}

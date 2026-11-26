@@ -1,0 +1,51 @@
+{
+    "success": true,
+    "message": "تفاصيل الجهاز",
+    "data": {
+        "id": 9,
+        "slug": "logitech-wireless-mouse-b170",
+        "type": "accessory",
+        "name": "ماوس لاسلكي لوجيتك B170",
+        "short_description": "ماوس لاسلكي مريح وعملي",
+        "description": "مدى اتصال 10 أمتار وبطارية تدوم طويلاً، متوافق مع كافة الأنظمة.",
+        "condition": "new",
+        "price_sdg": 22800,
+        "stock_status": "in_stock",
+        "warranty_text": null,
+        "specs": {
+            "connectivity": "Wireless 2.4GHz USB Nano",
+            "dpi": "1000 DPI"
+        },
+        "is_featured": false,
+        "category": {
+            "id": 3,
+            "name_ar": "إكسسوارات",
+            "name_en": "Accessories",
+            "slug": "accessories"
+        },
+        "brand": {
+            "id": 8,
+            "name": "Logitech",
+            "slug": "logitech"
+        },
+        "images": [
+            {
+                "id": 17,
+                "path": "/uploads/products/logitech-wireless-mouse-b170.jpg",
+                "thumb_path": "/uploads/products/logitech-wireless-mouse-b170_thumb.jpg",
+                "is_primary": true,
+                "sort_order": 1
+            },
+            {
+                "id": 18,
+                "path": "/uploads/products/logitech-wireless-mouse-b170-2.jpg",
+                "thumb_path": "/uploads/products/logitech-wireless-mouse-b170-2_thumb.jpg",
+                "is_primary": false,
+                "sort_order": 2
+            }
+        ],
+        "accessories": []
+    },
+    "errors": null,
+    "meta": null
+}

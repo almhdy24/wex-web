@@ -1,0 +1,48 @@
+{
+    "success": true,
+    "message": "",
+    "data": [
+        {
+            "id": 1,
+            "bank_name": "بنك الخرطوم (تطبيق بنكك)",
+            "account_name": "متجر التقنية",
+            "account_number": "100200300",
+            "branch": "الفرع الرئيسي - أم درمان",
+            "notes": "يرجى كتابة رقم الطلب في خانة الملاحظات عند التحويل عبر تطبيق بنكك.",
+            "is_active": true,
+            "sort_order": 1,
+            "created_at": {
+                "date": "2026-11-26 00:48:59.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            },
+            "updated_at": {
+                "date": "2026-11-26 00:49:00.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            }
+        },
+        {
+            "id": 2,
+            "bank_name": "بنك أم درمان الوطني (أوكاش)",
+            "account_name": "متجر التقنية",
+            "account_number": "200300400",
+            "branch": "فرع الرياض - الخرطوم",
+            "notes": "يرجى إرفاق إشعار التحويل بعد إتمام العملية مباشرة.",
+            "is_active": true,
+            "sort_order": 2,
+            "created_at": {
+                "date": "2026-11-26 00:48:59.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            },
+            "updated_at": {
+                "date": "2026-11-26 00:49:00.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            }
+        }
+    ],
+    "errors": null,
+    "meta": null
+}

@@ -1,0 +1,152 @@
+{
+    "success": true,
+    "message": "قائمة الماركات",
+    "data": [
+        {
+            "id": 4,
+            "name": "Acer",
+            "slug": "acer",
+            "is_active": true,
+            "created_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            },
+            "updated_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            }
+        },
+        {
+            "id": 6,
+            "name": "Apple",
+            "slug": "apple",
+            "is_active": true,
+            "created_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            },
+            "updated_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            }
+        },
+        {
+            "id": 5,
+            "name": "Asus",
+            "slug": "asus",
+            "is_active": true,
+            "created_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            },
+            "updated_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            }
+        },
+        {
+            "id": 1,
+            "name": "Dell",
+            "slug": "dell",
+            "is_active": true,
+            "created_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            },
+            "updated_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            }
+        },
+        {
+            "id": 2,
+            "name": "HP",
+            "slug": "hp",
+            "is_active": true,
+            "created_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            },
+            "updated_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            }
+        },
+        {
+            "id": 9,
+            "name": "Kingston",
+            "slug": "kingston",
+            "is_active": true,
+            "created_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            },
+            "updated_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            }
+        },
+        {
+            "id": 3,
+            "name": "Lenovo",
+            "slug": "lenovo",
+            "is_active": true,
+            "created_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            },
+            "updated_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            }
+        },
+        {
+            "id": 8,
+            "name": "Logitech",
+            "slug": "logitech",
+            "is_active": true,
+            "created_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            },
+            "updated_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            }
+        },
+        {
+            "id": 7,
+            "name": "Samsung",
+            "slug": "samsung",
+            "is_active": true,
+            "created_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            },
+            "updated_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            }
+        }
+    ],
+    "errors": null,
+    "meta": null
+}

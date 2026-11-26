@@ -1,0 +1,49 @@
+{
+    "success": true,
+    "message": "سجل العمليات الإدارية",
+    "data": [
+        {
+            "id": 2,
+            "user": {
+                "id": 1,
+                "name": "مدير النظام",
+                "email": "admin@wextechnology.com"
+            },
+            "action": "payment_proof_approved",
+            "entity": "order",
+            "entity_id": 18,
+            "details": {
+                "order_number": "WEX-261126-VZ2CC",
+                "proof_id": 13,
+                "note": null
+            },
+            "ip": null,
+            "created_at": "2026-11-26T00:49:06Z"
+        },
+        {
+            "id": 1,
+            "user": {
+                "id": 1,
+                "name": "مدير النظام",
+                "email": "admin@wextechnology.com"
+            },
+            "action": "payment_proof_rejected",
+            "entity": "order",
+            "entity_id": 17,
+            "details": {
+                "order_number": "WEX-261126-T29Q9",
+                "proof_id": 12,
+                "note": "المبلغ في الإشعار لا يطابق المطلوب"
+            },
+            "ip": null,
+            "created_at": "2026-11-26T00:49:05Z"
+        }
+    ],
+    "errors": null,
+    "meta": {
+        "page": 1,
+        "per_page": 20,
+        "total": 2,
+        "total_pages": 1
+    }
+}

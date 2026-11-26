@@ -1,0 +1,10 @@
+{
+    "success": true,
+    "message": "إعدادات الإشعارات",
+    "data": {
+        "webPushPublicKey": "",
+        "enabled": false
+    },
+    "errors": null,
+    "meta": null
+}

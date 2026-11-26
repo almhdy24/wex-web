@@ -1,0 +1,62 @@
+{
+    "success": true,
+    "message": "قائمة الفئات",
+    "data": [
+        {
+            "id": 1,
+            "name_ar": "لابتوبات",
+            "name_en": "Laptops",
+            "slug": "laptops",
+            "sort_order": 1,
+            "is_active": true,
+            "created_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            },
+            "updated_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            }
+        },
+        {
+            "id": 2,
+            "name_ar": "تلفونات",
+            "name_en": "Phones",
+            "slug": "phones",
+            "sort_order": 2,
+            "is_active": true,
+            "created_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            },
+            "updated_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            }
+        },
+        {
+            "id": 3,
+            "name_ar": "إكسسوارات",
+            "name_en": "Accessories",
+            "slug": "accessories",
+            "sort_order": 3,
+            "is_active": true,
+            "created_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            },
+            "updated_at": {
+                "date": "2026-11-26 00:48:58.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            }
+        }
+    ],
+    "errors": null,
+    "meta": null
+}

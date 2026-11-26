@@ -3,53 +3,174 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+/**
+ * Design-review snapshots: every storefront and admin screen at 360x800 and 1280x800.
+ *
+ * API responses are recorded from a real, freshly seeded API (fixtures/recorded/*.json,
+ * see docs/CI-SCREENSHOTS.md), so the screens render real shapes and states. Product
+ * photos are studio-style renders (fixtures/images, render-product-images.py): text
+ * wireframes made card and gallery design impossible to judge.
+ */
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const BASE_URL = process.env.BASE_URL || 'http://127.0.0.1:4173';
 const OUTPUT_DIR = path.resolve(__dirname, 'screenshots');
+const FIX = path.resolve(__dirname, 'fixtures');
+const REC = path.join(FIX, 'recorded');
+const IMG = path.join(FIX, 'images');
 
-const FIXTURES_DIR = path.resolve(__dirname, 'fixtures');
+const rec = (name) => JSON.parse(fs.readFileSync(path.join(REC, `${name}.json`), 'utf8'));
+const legacy = (name) => JSON.parse(fs.readFileSync(path.join(FIX, `${name}.json`), 'utf8'));
 
-function loadFixture(file) {
-  const p = path.join(FIXTURES_DIR, file);
-  return JSON.parse(fs.readFileSync(p, 'utf8'));
+const ORDERS = rec('_orders');
+const inHours = (h) => new Date(Date.now() + h * 3600 * 1000).toISOString();
+
+// Recorded lock times go stale; keep live orders' locks in the future for every run.
+function freshOrder(name, hours) {
+  const o = rec(name);
+  if (o?.data && hours) {
+    o.data.lock_expires_at = inHours(hours);
+    o.data.seconds_remaining = Math.round(hours * 3600);
+    if (o.data.payment) o.data.payment.lock_expires_at = o.data.lock_expires_at;
+  }
+  return o;
 }
 
-const shopFixture = loadFixture('shop.json');
-const categoriesFixture = loadFixture('categories.json');
-const brandsFixture = loadFixture('brands.json');
-const productsFixture = loadFixture('products.json');
-const productDetailFixture = loadFixture('product-detail.json');
-const orderConfirmedFixture = loadFixture('order-confirmed.json');
-const orderPendingFixture = loadFixture('order-pending.json');
-// A fixed lock time goes stale: once past it the 'pending' snapshot shows 00:00:00 (and,
-// correctly, the expired state since VIS-02). Keep the lock 4 hours ahead of the run.
-if (orderPendingFixture?.data) {
-  orderPendingFixture.data.lock_expires_at = new Date(Date.now() + 4 * 3600 * 1000).toISOString();
-  orderPendingFixture.data.seconds_remaining = 4 * 3600;
+const orderByNumber = {
+  [ORDERS.pending]: freshOrder('order-pending', 3.4),
+  [ORDERS.review]: freshOrder('order-review', 2.1),
+  [ORDERS.rejected]: freshOrder('order-reject', 1.6),
+  [ORDERS.confirmed]: rec('order-conf'),
+  'WEX-EXPIRED-001': legacy('order-expired'),
+};
+
+const ordersList = rec('orders-list');
+const products = rec('products');
+const productList = products.data || [];
+
+// Exact path (after /api/v1) -> recorded response.
+const EXACT = {
+  '/shop': 'shop', '/categories': 'categories', '/brands': 'brands', '/shipping-zones': 'zones',
+  '/announcements': 'announcements', '/content/hero-slides': 'hero-slides',
+  '/content/home-sections': 'home-sections', '/content/faq': 'faq', '/content/pages': 'pages',
+  '/notifications/unread-count': 'unread', '/push/config': 'push-config', '/push/preferences': 'push-prefs',
+  '/admin/dashboard': 'admin-dashboard', '/admin/settings': 'admin-settings', '/admin/rates': 'admin-rates',
+  '/admin/shipping-zones': 'admin-zones', '/admin/users': 'admin-users', '/admin/categories': 'admin-categories',
+  '/admin/brands': 'admin-brands', '/admin/audit-logs': 'admin-audit', '/admin/hero-slides': 'admin-hero',
+  '/admin/faq': 'admin-faq', '/admin/pages': 'admin-pages', '/admin/announcements': 'admin-announcements',
+  '/admin/payment-accounts': 'admin-payment-accounts',
+};
+
+const ok = (data) => ({ success: true, message: '', data });
+
+// Which studio image stands in for a product photo path.
+function imageFor(file) {
+  const f = file.toLowerCase();
+  const thumb = f.includes('_thumb');
+  let base = null;
+  if (f.includes('mouse')) base = 'mouse';
+  else if (f.includes('backpack') || f.includes('bag')) base = 'backpack';
+  else if (f.includes('charger')) base = 'charger';
+  else if (f.includes('ssd') || f.includes('ram')) base = 'ssd';
+  else if (f.includes('cooling')) base = 'laptop-gray';
+  else if (f.includes('phone') || f.includes('iphone') || f.includes('galaxy')) base = 'phone-black';
+  else {
+    const laptops = ['laptop-silver', 'laptop-black', 'laptop-gray', 'laptop-navy'];
+    let h = 0;
+    for (const c of f.replace(/(_thumb|-\d+)?\.jpg$/, '')) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+    base = laptops[h % laptops.length];
+  }
+  return path.join(IMG, `${base}${thumb ? '_thumb' : ''}.jpg`);
 }
-const orderExpiredFixture = loadFixture('order-expired.json');
-const ordersListFixture = loadFixture('orders-list.json');
-const adminDashboardFixture = loadFixture('admin-dashboard.json');
-const userProfileFixture = loadFixture('user-profile.json');
+
+let currentRole = 'guest'; // set per route; drives /me and /auth/refresh
+
+async function handleApi(route) {
+  const url = new URL(route.request().url());
+  const p = url.pathname.replace(/^.*\/api\/v1/, '');
+  const method = route.request().method();
+
+  if (p === '/auth/refresh') {
+    if (currentRole === 'guest') return route.fulfill({ status: 401, json: { success: false, message: '' } });
+    return route.fulfill({ json: ok({ access_token: `ci-${currentRole}`, expires_in: 900 }) });
+  }
+  if (p === '/me') return route.fulfill({ json: rec(currentRole === 'admin' ? 'me-admin' : 'me-customer') });
+  if (method !== 'GET') return route.fulfill({ json: ok(null) });
+
+  if (EXACT[p]) return route.fulfill({ json: rec(EXACT[p]) });
+
+  let m;
+  if ((m = p.match(/^\/products\/([^/]+)$/))) {
+    const slug = decodeURIComponent(m[1]);
+    const item = productList.find((x) => x.slug === slug);
+    if (item?.type === 'accessory') return route.fulfill({ json: rec('product-detail-acc') });
+    return route.fulfill({ json: rec('product-detail') });
+  }
+  if (p === '/products') return route.fulfill({ json: products });
+  if ((m = p.match(/^\/(admin\/)?orders\/([^/]+)$/))) {
+    const o = orderByNumber[decodeURIComponent(m[2])];
+    if (o) return route.fulfill({ json: o });
+    return route.fulfill({ status: 404, json: { success: false, message: 'الطلب غير موجود.' } });
+  }
+  if (p === '/orders') return route.fulfill({ json: ordersList });
+  if (p === '/admin/orders') {
+    return route.fulfill({ json: rec(url.searchParams.get('status') === 'payment_review' ? 'admin-payments' : 'admin-orders') });
+  }
+  if (/^\/admin\/products\/\d+$/.test(p)) return route.fulfill({ json: rec('admin-product') });
+  if (p === '/admin/products') return route.fulfill({ json: rec('admin-products') });
+  if (p === '/notifications') return route.fulfill({ json: rec('notifications') });
+
+  return route.fulfill({ json: ok([]) });
+}
+
+const customer = { role: 'customer' };
+const admin = { role: 'admin' };
+const twoProducts = productList.slice(0, 2);
 
 const ROUTES = [
-  { name: '01-home', path: '/', auth: false },
-  { name: '02-catalog', path: '/catalog', auth: false },
-  { name: '03-product-detail', path: '/products/thinkpad-t480s', auth: false },
-  { name: '04-cart', path: '/cart', auth: false, cart: true },
-  { name: '05-checkout', path: '/checkout', auth: true, cart: true },
-  { name: '06-order-detail-confirmed', path: '/orders/WEX-261123-3353B', auth: true },
-  { name: '07-order-detail-pending', path: '/orders/WEX-PENDING-001', auth: true },
-  { name: '08-order-detail-expired', path: '/orders/WEX-EXPIRED-001', auth: true },
-  { name: '09-account', path: '/account', auth: true },
-  { name: '10-login', path: '/login', auth: false },
-  { name: '11-admin-dashboard', path: '/admin', auth: true, admin: true },
-  { name: '12-admin-orders-list', path: '/admin/orders', auth: true, admin: true },
-  { name: '13-admin-order-detail', path: '/admin/orders/WEX-261123-3353B', auth: true, admin: true },
-  { name: '14-admin-products-list', path: '/admin/products', auth: true, admin: true },
-  { name: '15-admin-product-form', path: '/admin/products/new', auth: true, admin: true },
+  // Storefront
+  { name: '01-home', path: '/' },
+  { name: '02-catalog', path: '/catalog' },
+  { name: '03-catalog-filter-sheet', path: '/catalog', mobileOnly: true, action: async (page) => {
+    await page.getByRole('button', { name: 'تصفية' }).first().click();
+    await page.waitForTimeout(400);
+  } },
+  { name: '04-product-detail', path: '/products/lenovo-thinkpad-t480' },
+  { name: '05-product-accessory', path: '/products/logitech-wireless-mouse-b170' },
+  { name: '06-cart', path: '/cart', cart: true },
+  { name: '07-checkout', path: '/checkout', cart: true, ...customer },
+  { name: '08-checkout-login-sheet', path: '/checkout', cart: true, action: async (page) => {
+    await page.locator('input[type="tel"]').first().fill('0912345678');
+    await page.getByRole('button', { name: /تأكيد الطلب/ }).last().click();
+    await page.waitForTimeout(400);
+  } },
+  { name: '09-orders', path: '/orders', ...customer },
+  { name: '10-order-pending', path: `/orders/${ORDERS.pending}`, ...customer },
+  { name: '11-order-review', path: `/orders/${ORDERS.review}`, ...customer },
+  { name: '12-order-rejected', path: `/orders/${ORDERS.rejected}`, ...customer },
+  { name: '13-order-confirmed', path: `/orders/${ORDERS.confirmed}`, ...customer },
+  { name: '14-order-expired', path: '/orders/WEX-EXPIRED-001', ...customer },
+  { name: '15-account', path: '/account', ...customer },
+  { name: '16-favorites', path: '/favorites', ...customer, favorites: true },
+  { name: '17-compare', path: '/compare', compare: true },
+  { name: '18-notifications', path: '/notifications', ...customer },
+  { name: '19-faq', path: '/faq' },
+  { name: '20-login', path: '/login' },
+  { name: '21-offline', path: '/offline' },
+  { name: '22-not-found', path: '/this-page-does-not-exist' },
+  // Admin
+  { name: '30-admin-dashboard', path: '/admin', ...admin },
+  { name: '31-admin-orders', path: '/admin/orders', ...admin },
+  { name: '32-admin-order-detail', path: `/admin/orders/${ORDERS.review}`, ...admin },
+  { name: '33-admin-payments', path: '/admin/payments', ...admin },
+  { name: '34-admin-products', path: '/admin/products', ...admin },
+  { name: '35-admin-product-new', path: '/admin/products/new', ...admin },
+  { name: '36-admin-product-edit', path: '/admin/products/2/edit', ...admin },
+  { name: '37-admin-settings', path: '/admin/settings', ...admin },
+  { name: '38-admin-hero-slides', path: '/admin/hero-slides', ...admin },
+  { name: '39-admin-faq', path: '/admin/faq', ...admin },
+  { name: '40-admin-pages', path: '/admin/pages', ...admin },
+  { name: '41-admin-users', path: '/admin/users', ...admin },
 ];
 
 const VIEWPORTS = [
@@ -58,169 +179,81 @@ const VIEWPORTS = [
 ];
 
 async function run() {
+  const only = process.env.SNAP_ONLY ? new RegExp(process.env.SNAP_ONLY) : null;
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-
   const browser = await chromium.launch({ headless: true });
-  let hasFailures = false;
-  const failureReasons = [];
+  const failures = [];
 
   for (const vp of VIEWPORTS) {
     const vpDir = path.join(OUTPUT_DIR, vp.name);
     fs.mkdirSync(vpDir, { recursive: true });
-
-    console.log(`\n📷 Capturing snapshots for viewport: ${vp.name} (${vp.width}x${vp.height})`);
+    console.log(`\n📷 ${vp.name} (${vp.width}x${vp.height})`);
 
     const context = await browser.newContext({
       viewport: { width: vp.width, height: vp.height },
       locale: 'ar-SD',
-      // Full-page captures never scroll, so <Reveal> sections (opacity 0 until intersected)
-      // were blank bands in every screenshot (VIS-04). Reduced motion renders them at rest.
+      // Full-page captures never scroll: <Reveal> sections stay at opacity 0 unless motion
+      // is reduced (VIS-04).
       reducedMotion: 'reduce',
-      // Requests made by the service worker bypass context.route() mocks and hit the
-      // unmocked network (net::ERR_FAILED, stuck skeletons). Snapshots test the page, not the SW.
+      // SW requests bypass context.route() mocks.
       serviceWorkers: 'block',
     });
-
-    // Mock API requests
-    await context.route('**/api/**', async (route) => {
-      const url = new URL(route.request().url());
-      const p = url.pathname;
-
-      if (p.includes('/shop')) {
-        return route.fulfill({ json: shopFixture });
-      }
-      if (p.includes('/categories')) {
-        return route.fulfill({ json: categoriesFixture });
-      }
-      if (p.includes('/brands')) {
-        return route.fulfill({ json: brandsFixture });
-      }
-      if (p.includes('/products/thinkpad-t480s') || p.includes('/products/1')) {
-        return route.fulfill({ json: productDetailFixture });
-      }
-      if (p.includes('/products')) {
-        return route.fulfill({ json: productsFixture });
-      }
-      if (p.includes('/orders/WEX-PENDING-001')) {
-        return route.fulfill({ json: orderPendingFixture });
-      }
-      if (p.includes('/orders/WEX-EXPIRED-001')) {
-        return route.fulfill({ json: orderExpiredFixture });
-      }
-      if (p.includes('/orders/WEX-261123-3353B') || p.includes('/admin/orders/WEX-261123-3353B')) {
-        return route.fulfill({ json: orderConfirmedFixture });
-      }
-      if (p.includes('/orders')) {
-        return route.fulfill({ json: ordersListFixture });
-      }
-      if (p.includes('/admin/dashboard') || p.includes('/admin/stats')) {
-        return route.fulfill({ json: adminDashboardFixture });
-      }
-      if (p.includes('/auth/me') || p.includes('/users/me')) {
-        return route.fulfill({ json: userProfileFixture });
-      }
-
-      return route.fulfill({ json: { success: true, data: [] } });
+    await context.route('**/api/**', handleApi);
+    await context.route('**/uploads/products/**', (route) => {
+      const file = new URL(route.request().url()).pathname.split('/').pop();
+      return route.fulfill({ path: imageFor(file), contentType: 'image/jpeg' });
     });
 
     for (const route of ROUTES) {
+      if (route.mobileOnly && vp.width > 480) continue;
+      if (only && !only.test(route.name)) continue;
+      currentRole = route.role || 'guest';
       const page = await context.newPage();
       const consoleErrors = [];
+      page.on('console', (msg) => { if (msg.type() === 'error') consoleErrors.push(msg.text()); });
+      page.on('pageerror', (err) => consoleErrors.push(err.message));
 
-      page.on('console', (msg) => {
-        if (msg.type() === 'error') {
-          consoleErrors.push(msg.text());
-        }
+      await page.addInitScript((seed) => {
+        localStorage.clear();
+        if (seed.user) localStorage.setItem('wex_user', JSON.stringify(seed.user));
+        if (seed.cart) localStorage.setItem('wex_cart_items', JSON.stringify(seed.cart));
+        if (seed.favorites) localStorage.setItem(`wex_user_favorites_${seed.user?.id}`, JSON.stringify(seed.favorites));
+        if (seed.compare) localStorage.setItem('wex_compare_items', JSON.stringify(seed.compare));
+      }, {
+        user: route.role ? rec(route.role === 'admin' ? 'me-admin' : 'me-customer').data : null,
+        cart: route.cart ? [{ ...productList[1], quantity: 1 }, { ...productList[8], quantity: 2 }] : null,
+        favorites: route.favorites ? productList.slice(2, 5) : null,
+        compare: route.compare ? twoProducts : null,
       });
-
-      page.on('pageerror', (err) => {
-        consoleErrors.push(err.message);
-      });
-
-      // Cart and checkout with an empty cart both render the 'السلة فارغة' screen, so
-      // neither page was ever captured in use. Seed one fixture product.
-      if (route.cart) {
-        const p = productsFixture?.data?.[0] || productsFixture?.[0];
-        await page.addInitScript((item) => {
-          localStorage.setItem('wex_cart_items', JSON.stringify([item]));
-        }, { ...p, quantity: 1 });
-      }
-
-      // Inject authentication tokens if route requires auth
-      if (route.auth) {
-        await page.addInitScript(({ admin }) => {
-          localStorage.setItem('wex_token', 'mock_jwt_token_for_ci');
-          localStorage.setItem('token', 'mock_jwt_token_for_ci');
-          localStorage.setItem(
-            'wex_user',
-            JSON.stringify({
-              id: admin ? 1 : 10,
-              name: admin ? 'مشرف المتجر' : 'أحمد إبراهيم',
-              phone: '0912345678',
-              role: admin ? 'admin' : 'customer',
-            })
-          );
-        }, { admin: Boolean(route.admin) });
-      }
 
       try {
-        const fullUrl = `${BASE_URL}${route.path}`;
-        await page.goto(fullUrl, { waitUntil: 'networkidle', timeout: 15000 });
-        await page.waitForTimeout(500); // Allow animations & layout to settle
+        await page.goto(`${BASE_URL}${route.path}`, { waitUntil: 'networkidle', timeout: 20000 });
+        await page.waitForTimeout(400);
+        if (route.action) await route.action(page);
 
-        // Check horizontal overflow
-        const overflow = await page.evaluate(() => {
-          const doc = document.documentElement;
-          return {
-            scrollWidth: doc.scrollWidth,
-            clientWidth: doc.clientWidth,
-            hasOverflow: doc.scrollWidth > window.innerWidth + 1,
-          };
-        });
+        const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
+        if (overflow) failures.push(`[Overflow] ${vp.name} ${route.name}`);
+        if (consoleErrors.length) failures.push(`[Console] ${vp.name} ${route.name}: ${consoleErrors.join('; ')}`);
 
-        if (overflow.hasOverflow) {
-          const msg = `[Overflow] ${vp.name} ${route.name} (${route.path}): scrollWidth (${overflow.scrollWidth}px) > viewport (${vp.width}px)`;
-          console.error(`  ❌ ${msg}`);
-          failureReasons.push(msg);
-          hasFailures = true;
-        }
-
-        // Check console errors
-        if (consoleErrors.length > 0) {
-          const msg = `[Console Errors] ${vp.name} ${route.name}: ${consoleErrors.join('; ')}`;
-          console.error(`  ❌ ${msg}`);
-          failureReasons.push(msg);
-          hasFailures = true;
-        }
-
-        const screenshotPath = path.join(vpDir, `${route.name}.png`);
-        await page.screenshot({ path: screenshotPath, fullPage: true });
-        console.log(`  ✓ ${route.name} saved -> ${path.relative(process.cwd(), screenshotPath)}`);
+        await page.screenshot({ path: path.join(vpDir, `${route.name}.png`), fullPage: !route.action });
+        console.log(`  ✓ ${route.name}${overflow ? ' (overflow)' : ''}${consoleErrors.length ? ' (console errors)' : ''}`);
       } catch (err) {
-        const msg = `[Load Failure] ${vp.name} ${route.name} (${route.path}): ${err.message}`;
-        console.error(`  ❌ ${msg}`);
-        failureReasons.push(msg);
-        hasFailures = true;
+        failures.push(`[Load] ${vp.name} ${route.name}: ${err.message.split('\n')[0]}`);
+        console.error(`  ❌ ${route.name}: ${err.message.split('\n')[0]}`);
       } finally {
         await page.close();
       }
     }
-
     await context.close();
   }
-
   await browser.close();
 
-  if (hasFailures) {
-    console.error('\n❌ Visual CI Snapshots Failed:');
-    for (const r of failureReasons) {
-      console.error(`  - ${r}`);
-    }
+  if (failures.length) {
+    console.error('\n❌ Snapshot problems:');
+    failures.forEach((f) => console.error(`  - ${f}`));
     process.exit(1);
-  } else {
-    console.log('\n✅ Visual CI Snapshots: All routes captured cleanly with 0 console errors and 0 horizontal overflow.');
-    process.exit(0);
   }
+  console.log('\n✅ All screens captured: 0 console errors, 0 horizontal overflow.');
 }
 
 run().catch((err) => {

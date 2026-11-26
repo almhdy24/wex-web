@@ -1,0 +1,19 @@
+{
+    "success": true,
+    "message": "سجل أسعار الصرف",
+    "data": [
+        {
+            "id": 1,
+            "rate_sdg": 650,
+            "changed_by": null,
+            "created_at": "2026-11-26T00:48:58Z"
+        }
+    ],
+    "errors": null,
+    "meta": {
+        "page": 1,
+        "per_page": 20,
+        "total": 1,
+        "total_pages": 1
+    }
+}

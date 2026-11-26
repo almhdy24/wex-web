@@ -1,0 +1,251 @@
+{
+    "success": true,
+    "message": "قائمة الأجهزة والمنتجات",
+    "data": [
+        {
+            "id": 1,
+            "slug": "dell-latitude-7490",
+            "type": "laptop",
+            "name": "Dell Latitude 7490",
+            "short_description": "لابتوب مكتبي خفيف للأعمال اليومية",
+            "condition": "used_imported",
+            "price_sdg": 487500,
+            "stock_status": "in_stock",
+            "is_featured": true,
+            "primary_image": "/uploads/products/dell-latitude-7490.jpg",
+            "thumb_url": "/uploads/products/dell-latitude-7490_thumb.jpg",
+            "image": {
+                "path": "/uploads/products/dell-latitude-7490.jpg",
+                "thumb_path": "/uploads/products/dell-latitude-7490_thumb.jpg"
+            }
+        },
+        {
+            "id": 2,
+            "slug": "lenovo-thinkpad-t480",
+            "type": "laptop",
+            "name": "Lenovo ThinkPad T480",
+            "short_description": "جهاز عملي ومناسب للمبرمجين والمحاسبين",
+            "condition": "used_imported",
+            "price_sdg": 585000,
+            "stock_status": "in_stock",
+            "is_featured": true,
+            "primary_image": "/uploads/products/lenovo-thinkpad-t480.jpg",
+            "thumb_url": "/uploads/products/lenovo-thinkpad-t480_thumb.jpg",
+            "image": {
+                "path": "/uploads/products/lenovo-thinkpad-t480.jpg",
+                "thumb_path": "/uploads/products/lenovo-thinkpad-t480_thumb.jpg"
+            }
+        },
+        {
+            "id": 3,
+            "slug": "hp-elitebook-840-g5",
+            "type": "laptop",
+            "name": "HP EliteBook 840 G5",
+            "short_description": "هيكل ألمنيوم أنيق وخفيف للعمل والدراسة",
+            "condition": "used_imported",
+            "price_sdg": 520000,
+            "stock_status": "low_stock",
+            "is_featured": true,
+            "primary_image": "/uploads/products/hp-elitebook-840-g5.jpg",
+            "thumb_url": "/uploads/products/hp-elitebook-840-g5_thumb.jpg",
+            "image": {
+                "path": "/uploads/products/hp-elitebook-840-g5.jpg",
+                "thumb_path": "/uploads/products/hp-elitebook-840-g5_thumb.jpg"
+            }
+        },
+        {
+            "id": 4,
+            "slug": "hp-probook-450-g6",
+            "type": "laptop",
+            "name": "HP ProBook 450 G6",
+            "short_description": "شاشة كبيرة مع لوحة أرقام جانبية",
+            "condition": "new",
+            "price_sdg": 877500,
+            "stock_status": "low_stock",
+            "is_featured": true,
+            "primary_image": "/uploads/products/hp-probook-450-g6.jpg",
+            "thumb_url": "/uploads/products/hp-probook-450-g6_thumb.jpg",
+            "image": {
+                "path": "/uploads/products/hp-probook-450-g6.jpg",
+                "thumb_path": "/uploads/products/hp-probook-450-g6_thumb.jpg"
+            }
+        },
+        {
+            "id": 5,
+            "slug": "dell-inspiron-15-3580",
+            "type": "laptop",
+            "name": "Dell Inspiron 15 3580",
+            "short_description": "سعة تخزين كبيرة ومناسب للطلاب",
+            "condition": "new",
+            "price_sdg": 812500,
+            "stock_status": "in_stock",
+            "is_featured": false,
+            "primary_image": "/uploads/products/dell-inspiron-15-3580.jpg",
+            "thumb_url": "/uploads/products/dell-inspiron-15-3580_thumb.jpg",
+            "image": {
+                "path": "/uploads/products/dell-inspiron-15-3580.jpg",
+                "thumb_path": "/uploads/products/dell-inspiron-15-3580_thumb.jpg"
+            }
+        },
+        {
+            "id": 6,
+            "slug": "acer-aspire-5",
+            "type": "laptop",
+            "name": "Acer Aspire 5",
+            "short_description": "معالج الجيل العاشر مع وحدة تخزين SSD",
+            "condition": "new",
+            "price_sdg": 1072500,
+            "stock_status": "in_stock",
+            "is_featured": false,
+            "primary_image": "/uploads/products/acer-aspire-5.jpg",
+            "thumb_url": "/uploads/products/acer-aspire-5_thumb.jpg",
+            "image": {
+                "path": "/uploads/products/acer-aspire-5.jpg",
+                "thumb_path": "/uploads/products/acer-aspire-5_thumb.jpg"
+            }
+        },
+        {
+            "id": 7,
+            "slug": "macbook-air-2019",
+            "type": "laptop",
+            "name": "MacBook Air 2019",
+            "short_description": "شاشة ريتنا عالية الدقة ووزن خفيف جداً",
+            "condition": "used_imported",
+            "price_sdg": 1495000,
+            "stock_status": "low_stock",
+            "is_featured": false,
+            "primary_image": "/uploads/products/macbook-air-2019.jpg",
+            "thumb_url": "/uploads/products/macbook-air-2019_thumb.jpg",
+            "image": {
+                "path": "/uploads/products/macbook-air-2019.jpg",
+                "thumb_path": "/uploads/products/macbook-air-2019_thumb.jpg"
+            }
+        },
+        {
+            "id": 8,
+            "slug": "asus-tuf-fx505",
+            "type": "laptop",
+            "name": "Asus TUF FX505",
+            "short_description": "كرت شاشة منفصل للألعاب والتصميم",
+            "condition": "new",
+            "price_sdg": 1592500,
+            "stock_status": "in_stock",
+            "is_featured": false,
+            "primary_image": "/uploads/products/asus-tuf-fx505.jpg",
+            "thumb_url": "/uploads/products/asus-tuf-fx505_thumb.jpg",
+            "image": {
+                "path": "/uploads/products/asus-tuf-fx505.jpg",
+                "thumb_path": "/uploads/products/asus-tuf-fx505_thumb.jpg"
+            }
+        },
+        {
+            "id": 9,
+            "slug": "logitech-wireless-mouse-b170",
+            "type": "accessory",
+            "name": "ماوس لاسلكي لوجيتك B170",
+            "short_description": "ماوس لاسلكي مريح وعملي",
+            "condition": "new",
+            "price_sdg": 22800,
+            "stock_status": "in_stock",
+            "is_featured": false,
+            "primary_image": "/uploads/products/logitech-wireless-mouse-b170.jpg",
+            "thumb_url": "/uploads/products/logitech-wireless-mouse-b170_thumb.jpg",
+            "image": {
+                "path": "/uploads/products/logitech-wireless-mouse-b170.jpg",
+                "thumb_path": "/uploads/products/logitech-wireless-mouse-b170_thumb.jpg"
+            }
+        },
+        {
+            "id": 10,
+            "slug": "laptop-backpack-15-waterproof",
+            "type": "accessory",
+            "name": "شنطة ظهر لابتوب مقاومة للماء 15.6",
+            "short_description": "شنطة ظهر مبطنة لحماية الجهاز",
+            "condition": "new",
+            "price_sdg": 32500,
+            "stock_status": "in_stock",
+            "is_featured": false,
+            "primary_image": "/uploads/products/laptop-backpack-15-waterproof.jpg",
+            "thumb_url": "/uploads/products/laptop-backpack-15-waterproof_thumb.jpg",
+            "image": {
+                "path": "/uploads/products/laptop-backpack-15-waterproof.jpg",
+                "thumb_path": "/uploads/products/laptop-backpack-15-waterproof_thumb.jpg"
+            }
+        },
+        {
+            "id": 11,
+            "slug": "original-laptop-charger-65w",
+            "type": "accessory",
+            "name": "شاحن لابتوب 65 واط",
+            "short_description": "شاحن بديل عالي الجودة مع كابل الكهرباء",
+            "condition": "new",
+            "price_sdg": 39000,
+            "stock_status": "in_stock",
+            "is_featured": false,
+            "primary_image": "/uploads/products/original-laptop-charger-65w.jpg",
+            "thumb_url": "/uploads/products/original-laptop-charger-65w_thumb.jpg",
+            "image": {
+                "path": "/uploads/products/original-laptop-charger-65w.jpg",
+                "thumb_path": "/uploads/products/original-laptop-charger-65w_thumb.jpg"
+            }
+        },
+        {
+            "id": 12,
+            "slug": "kingston-ssd-256gb",
+            "type": "accessory",
+            "name": "هارد SSD كينغستون 256 جيجابايت",
+            "short_description": "ترقية أداء الإقلاع والبرامج",
+            "condition": "new",
+            "price_sdg": 45500,
+            "stock_status": "in_stock",
+            "is_featured": false,
+            "primary_image": "/uploads/products/kingston-ssd-256gb.jpg",
+            "thumb_url": "/uploads/products/kingston-ssd-256gb_thumb.jpg",
+            "image": {
+                "path": "/uploads/products/kingston-ssd-256gb.jpg",
+                "thumb_path": "/uploads/products/kingston-ssd-256gb_thumb.jpg"
+            }
+        },
+        {
+            "id": 13,
+            "slug": "laptop-ram-8gb-ddr4",
+            "type": "accessory",
+            "name": "رام 8 جيجابايت DDR4 للابتوب",
+            "short_description": "رام لتحسين استجابة الجهاز وتعدد المهام",
+            "condition": "new",
+            "price_sdg": 42300,
+            "stock_status": "in_stock",
+            "is_featured": false,
+            "primary_image": "/uploads/products/laptop-ram-8gb-ddr4.jpg",
+            "thumb_url": "/uploads/products/laptop-ram-8gb-ddr4_thumb.jpg",
+            "image": {
+                "path": "/uploads/products/laptop-ram-8gb-ddr4.jpg",
+                "thumb_path": "/uploads/products/laptop-ram-8gb-ddr4_thumb.jpg"
+            }
+        },
+        {
+            "id": 14,
+            "slug": "laptop-cooling-pad-dual-fans",
+            "type": "accessory",
+            "name": "قاعدة تبريد لابتوب بمروحتين",
+            "short_description": "قاعدة مريحة للتبريد وتقليل الحرارة",
+            "condition": "new",
+            "price_sdg": 29300,
+            "stock_status": "in_stock",
+            "is_featured": false,
+            "primary_image": "/uploads/products/laptop-cooling-pad-dual-fans.jpg",
+            "thumb_url": "/uploads/products/laptop-cooling-pad-dual-fans_thumb.jpg",
+            "image": {
+                "path": "/uploads/products/laptop-cooling-pad-dual-fans.jpg",
+                "thumb_path": "/uploads/products/laptop-cooling-pad-dual-fans_thumb.jpg"
+            }
+        }
+    ],
+    "errors": null,
+    "meta": {
+        "page": 1,
+        "per_page": 20,
+        "total": 14,
+        "total_pages": 1
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "success": true,
+    "message": "عدد الإشعارات غير المقروءة",
+    "data": {
+        "unread_count": 9
+    },
+    "errors": null,
+    "meta": null
+}

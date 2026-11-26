@@ -1,0 +1,166 @@
+{
+    "success": true,
+    "message": "قائمة الإشعارات",
+    "data": [
+        {
+            "id": 25,
+            "type": "payment_approved",
+            "title": "تم تأكيد الدفع بنجاح",
+            "body": "تم تأكيد الدفع لطلبك رقم WEX-261126-VZ2CC وجاري التجهيز.",
+            "order_id": 18,
+            "order_number": "WEX-261126-VZ2CC",
+            "data": {
+                "type": "payment_approved",
+                "order_id": 18,
+                "order_number": "WEX-261126-VZ2CC",
+                "url": "/orders/WEX-261126-VZ2CC"
+            },
+            "is_read": false,
+            "read_at": null,
+            "created_at": "2026-11-26T00:49:06Z"
+        },
+        {
+            "id": 22,
+            "type": "payment_proof_uploaded",
+            "title": "تم استلام إشعار التحويل",
+            "body": "طلبك رقم WEX-261126-VZ2CC قيد مراجعة التحويل البنكي حالياً.",
+            "order_id": 18,
+            "order_number": "WEX-261126-VZ2CC",
+            "data": {
+                "type": "payment_proof_uploaded",
+                "order_id": 18,
+                "order_number": "WEX-261126-VZ2CC",
+                "url": "/orders/WEX-261126-VZ2CC"
+            },
+            "is_read": false,
+            "read_at": null,
+            "created_at": "2026-11-26T00:49:05Z"
+        },
+        {
+            "id": 19,
+            "type": "order_created",
+            "title": "تم استلام طلبك بنجاح",
+            "body": "تم إنشاء طلبك رقم WEX-261126-VZ2CC وحجز السعر. ارفع إشعار التحويل لإتمام الطلب.",
+            "order_id": 18,
+            "order_number": "WEX-261126-VZ2CC",
+            "data": {
+                "type": "order_created",
+                "order_id": 18,
+                "order_number": "WEX-261126-VZ2CC",
+                "url": "/orders/WEX-261126-VZ2CC"
+            },
+            "is_read": false,
+            "read_at": null,
+            "created_at": "2026-11-26T00:49:05Z"
+        },
+        {
+            "id": 18,
+            "type": "payment_rejected",
+            "title": "تعذر تأكيد إشعار التحويل البنكي",
+            "body": "تم رفض إشعار التحويل للطلب رقم WEX-261126-T29Q9. السبب: المبلغ في الإشعار لا يطابق المطلوب",
+            "order_id": 17,
+            "order_number": "WEX-261126-T29Q9",
+            "data": {
+                "type": "payment_rejected",
+                "order_id": 17,
+                "order_number": "WEX-261126-T29Q9",
+                "url": "/orders/WEX-261126-T29Q9"
+            },
+            "is_read": false,
+            "read_at": null,
+            "created_at": "2026-11-26T00:49:05Z"
+        },
+        {
+            "id": 15,
+            "type": "payment_proof_uploaded",
+            "title": "تم استلام إشعار التحويل",
+            "body": "طلبك رقم WEX-261126-T29Q9 قيد مراجعة التحويل البنكي حالياً.",
+            "order_id": 17,
+            "order_number": "WEX-261126-T29Q9",
+            "data": {
+                "type": "payment_proof_uploaded",
+                "order_id": 17,
+                "order_number": "WEX-261126-T29Q9",
+                "url": "/orders/WEX-261126-T29Q9"
+            },
+            "is_read": false,
+            "read_at": null,
+            "created_at": "2026-11-26T00:49:05Z"
+        },
+        {
+            "id": 10,
+            "type": "order_created",
+            "title": "تم استلام طلبك بنجاح",
+            "body": "تم إنشاء طلبك رقم WEX-261126-T29Q9 وحجز السعر. ارفع إشعار التحويل لإتمام الطلب.",
+            "order_id": 17,
+            "order_number": "WEX-261126-T29Q9",
+            "data": {
+                "type": "order_created",
+                "order_id": 17,
+                "order_number": "WEX-261126-T29Q9",
+                "url": "/orders/WEX-261126-T29Q9"
+            },
+            "is_read": false,
+            "read_at": null,
+            "created_at": "2026-11-26T00:49:05Z"
+        },
+        {
+            "id": 7,
+            "type": "payment_proof_uploaded",
+            "title": "تم استلام إشعار التحويل",
+            "body": "طلبك رقم WEX-261126-RHMMH قيد مراجعة التحويل البنكي حالياً.",
+            "order_id": 16,
+            "order_number": "WEX-261126-RHMMH",
+            "data": {
+                "type": "payment_proof_uploaded",
+                "order_id": 16,
+                "order_number": "WEX-261126-RHMMH",
+                "url": "/orders/WEX-261126-RHMMH"
+            },
+            "is_read": false,
+            "read_at": null,
+            "created_at": "2026-11-26T00:49:04Z"
+        },
+        {
+            "id": 4,
+            "type": "order_created",
+            "title": "تم استلام طلبك بنجاح",
+            "body": "تم إنشاء طلبك رقم WEX-261126-RHMMH وحجز السعر. ارفع إشعار التحويل لإتمام الطلب.",
+            "order_id": 16,
+            "order_number": "WEX-261126-RHMMH",
+            "data": {
+                "type": "order_created",
+                "order_id": 16,
+                "order_number": "WEX-261126-RHMMH",
+                "url": "/orders/WEX-261126-RHMMH"
+            },
+            "is_read": false,
+            "read_at": null,
+            "created_at": "2026-11-26T00:49:04Z"
+        },
+        {
+            "id": 1,
+            "type": "order_created",
+            "title": "تم استلام طلبك بنجاح",
+            "body": "تم إنشاء طلبك رقم WEX-261126-BRNM3 وحجز السعر. ارفع إشعار التحويل لإتمام الطلب.",
+            "order_id": 15,
+            "order_number": "WEX-261126-BRNM3",
+            "data": {
+                "type": "order_created",
+                "order_id": 15,
+                "order_number": "WEX-261126-BRNM3",
+                "url": "/orders/WEX-261126-BRNM3"
+            },
+            "is_read": false,
+            "read_at": null,
+            "created_at": "2026-11-26T00:49:04Z"
+        }
+    ],
+    "errors": null,
+    "meta": {
+        "page": 1,
+        "per_page": 20,
+        "total": 9,
+        "total_pages": 1
+    }
+}

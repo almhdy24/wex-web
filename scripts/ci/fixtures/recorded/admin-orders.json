@@ -1,0 +1,670 @@
+{
+    "success": true,
+    "message": "قائمة طلبات العملاء",
+    "data": [
+        {
+            "id": 18,
+            "order_number": "WEX-261126-VZ2CC",
+            "user_id": 2,
+            "customer": {
+                "name": "عمر محمد أحمد",
+                "phone": "+249912345679",
+                "email": "customer@wex.sd"
+            },
+            "customer_name": "عمر محمد أحمد",
+            "customer_phone": "+249912345679",
+            "payment": {
+                "state": "approved",
+                "can_upload": false,
+                "can_review": false,
+                "latest_proof": {
+                    "id": 13,
+                    "status": "approved",
+                    "sender_name": "محمد أحمد",
+                    "reference_number": "TRX-48213",
+                    "review_note": null,
+                    "image_url": "/api/v1/orders/WEX-261126-VZ2CC/payment-proof/13/image",
+                    "uploaded_at": "2026-11-26T00:49:05Z",
+                    "created_at": "2026-11-26T00:49:05Z",
+                    "reviewed_at": "2026-11-26T00:49:06Z"
+                },
+                "proofs_count": 1
+            },
+            "amount": 851200,
+            "expected_amount": 851200,
+            "payment_proofs": [
+                {
+                    "id": 13,
+                    "status": "approved",
+                    "sender_name": "محمد أحمد",
+                    "reference_number": "TRX-48213",
+                    "review_note": null,
+                    "image_url": "/api/v1/orders/WEX-261126-VZ2CC/payment-proof/13/image",
+                    "created_at": "2026-11-26T00:49:05Z",
+                    "uploaded_at": "2026-11-26T00:49:05Z",
+                    "reviewed_at": "2026-11-26T00:49:06Z"
+                }
+            ],
+            "proofs": [
+                {
+                    "id": 13,
+                    "status": "approved",
+                    "sender_name": "محمد أحمد",
+                    "reference_number": "TRX-48213",
+                    "review_note": null,
+                    "image_url": "/api/v1/orders/WEX-261126-VZ2CC/payment-proof/13/image",
+                    "created_at": "2026-11-26T00:49:05Z",
+                    "uploaded_at": "2026-11-26T00:49:05Z",
+                    "reviewed_at": "2026-11-26T00:49:06Z"
+                }
+            ],
+            "status": "confirmed",
+            "status_label": "مؤكد وجاري التجهيز",
+            "delivery_type": "pickup",
+            "delivery_phone": "+249912345678",
+            "rate_sdg_snapshot": 650,
+            "subtotal_aed": 1350,
+            "total_sdg": 851200,
+            "total_amount_sdg": 851200,
+            "lock_expires_at": "2026-11-26T04:49:05Z",
+            "expires_at": "2026-11-26T04:49:05Z",
+            "seconds_remaining": 0,
+            "created_at": "2026-11-26T00:49:05Z"
+        },
+        {
+            "id": 17,
+            "order_number": "WEX-261126-T29Q9",
+            "user_id": 2,
+            "customer": {
+                "name": "عمر محمد أحمد",
+                "phone": "+249912345679",
+                "email": "customer@wex.sd"
+            },
+            "customer_name": "عمر محمد أحمد",
+            "customer_phone": "+249912345679",
+            "payment": {
+                "state": "rejected",
+                "can_upload": true,
+                "can_review": false,
+                "latest_proof": {
+                    "id": 12,
+                    "status": "rejected",
+                    "sender_name": "محمد أحمد",
+                    "reference_number": "TRX-48213",
+                    "review_note": "المبلغ في الإشعار لا يطابق المطلوب",
+                    "image_url": "/api/v1/orders/WEX-261126-T29Q9/payment-proof/12/image",
+                    "uploaded_at": "2026-11-26T00:49:05Z",
+                    "created_at": "2026-11-26T00:49:05Z",
+                    "reviewed_at": "2026-11-26T00:49:05Z"
+                },
+                "proofs_count": 1
+            },
+            "amount": 504400,
+            "expected_amount": 504400,
+            "payment_proofs": [
+                {
+                    "id": 12,
+                    "status": "rejected",
+                    "sender_name": "محمد أحمد",
+                    "reference_number": "TRX-48213",
+                    "review_note": "المبلغ في الإشعار لا يطابق المطلوب",
+                    "image_url": "/api/v1/orders/WEX-261126-T29Q9/payment-proof/12/image",
+                    "created_at": "2026-11-26T00:49:05Z",
+                    "uploaded_at": "2026-11-26T00:49:05Z",
+                    "reviewed_at": "2026-11-26T00:49:05Z"
+                }
+            ],
+            "proofs": [
+                {
+                    "id": 12,
+                    "status": "rejected",
+                    "sender_name": "محمد أحمد",
+                    "reference_number": "TRX-48213",
+                    "review_note": "المبلغ في الإشعار لا يطابق المطلوب",
+                    "image_url": "/api/v1/orders/WEX-261126-T29Q9/payment-proof/12/image",
+                    "created_at": "2026-11-26T00:49:05Z",
+                    "uploaded_at": "2026-11-26T00:49:05Z",
+                    "reviewed_at": "2026-11-26T00:49:05Z"
+                }
+            ],
+            "status": "pending_payment",
+            "status_label": "في انتظار التحويل البنكي",
+            "delivery_type": "pickup",
+            "delivery_phone": "+249912345678",
+            "rate_sdg_snapshot": 650,
+            "subtotal_aed": 800,
+            "total_sdg": 504400,
+            "total_amount_sdg": 504400,
+            "lock_expires_at": "2026-11-26T04:49:05Z",
+            "expires_at": "2026-11-26T04:49:05Z",
+            "seconds_remaining": 14395,
+            "created_at": "2026-11-26T00:49:05Z"
+        },
+        {
+            "id": 16,
+            "order_number": "WEX-261126-RHMMH",
+            "user_id": 2,
+            "customer": {
+                "name": "عمر محمد أحمد",
+                "phone": "+249912345679",
+                "email": "customer@wex.sd"
+            },
+            "customer_name": "عمر محمد أحمد",
+            "customer_phone": "+249912345679",
+            "payment": {
+                "state": "under_review",
+                "can_upload": false,
+                "can_review": true,
+                "latest_proof": {
+                    "id": 11,
+                    "status": "pending",
+                    "sender_name": "محمد أحمد",
+                    "reference_number": "TRX-48213",
+                    "review_note": null,
+                    "image_url": "/api/v1/orders/WEX-261126-RHMMH/payment-proof/11/image",
+                    "uploaded_at": "2026-11-26T00:49:04Z",
+                    "created_at": "2026-11-26T00:49:04Z",
+                    "reviewed_at": null
+                },
+                "proofs_count": 1
+            },
+            "amount": 567500,
+            "expected_amount": 567500,
+            "payment_proofs": [
+                {
+                    "id": 11,
+                    "status": "pending",
+                    "sender_name": "محمد أحمد",
+                    "reference_number": "TRX-48213",
+                    "review_note": null,
+                    "image_url": "/api/v1/orders/WEX-261126-RHMMH/payment-proof/11/image",
+                    "created_at": "2026-11-26T00:49:04Z",
+                    "uploaded_at": "2026-11-26T00:49:04Z",
+                    "reviewed_at": null
+                }
+            ],
+            "proofs": [
+                {
+                    "id": 11,
+                    "status": "pending",
+                    "sender_name": "محمد أحمد",
+                    "reference_number": "TRX-48213",
+                    "review_note": null,
+                    "image_url": "/api/v1/orders/WEX-261126-RHMMH/payment-proof/11/image",
+                    "created_at": "2026-11-26T00:49:04Z",
+                    "uploaded_at": "2026-11-26T00:49:04Z",
+                    "reviewed_at": null
+                }
+            ],
+            "status": "payment_review",
+            "status_label": "مراجعة التحويل",
+            "delivery_type": "pickup",
+            "delivery_phone": "+249912345678",
+            "rate_sdg_snapshot": 650,
+            "subtotal_aed": 900,
+            "total_sdg": 567500,
+            "total_amount_sdg": 567500,
+            "lock_expires_at": "2026-11-26T04:49:04Z",
+            "expires_at": "2026-11-26T04:49:04Z",
+            "seconds_remaining": 0,
+            "created_at": "2026-11-26T00:49:04Z"
+        },
+        {
+            "id": 15,
+            "order_number": "WEX-261126-BRNM3",
+            "user_id": 2,
+            "customer": {
+                "name": "عمر محمد أحمد",
+                "phone": "+249912345679",
+                "email": "customer@wex.sd"
+            },
+            "customer_name": "عمر محمد أحمد",
+            "customer_phone": "+249912345679",
+            "payment": {
+                "state": "awaiting_proof",
+                "can_upload": true,
+                "can_review": false,
+                "latest_proof": null,
+                "proofs_count": 0
+            },
+            "amount": 472900,
+            "expected_amount": 472900,
+            "payment_proofs": [],
+            "proofs": [],
+            "status": "pending_payment",
+            "status_label": "في انتظار التحويل البنكي",
+            "delivery_type": "pickup",
+            "delivery_phone": "+249912345678",
+            "rate_sdg_snapshot": 650,
+            "subtotal_aed": 750,
+            "total_sdg": 472900,
+            "total_amount_sdg": 472900,
+            "lock_expires_at": "2026-11-26T04:49:04Z",
+            "expires_at": "2026-11-26T04:49:04Z",
+            "seconds_remaining": 14394,
+            "created_at": "2026-11-26T00:49:04Z"
+        },
+        {
+            "id": 14,
+            "order_number": "WEX-261125-1007G",
+            "user_id": 2,
+            "customer": {
+                "name": "عمر محمد أحمد",
+                "phone": "+249912345679",
+                "email": "customer@wex.sd"
+            },
+            "customer_name": "عمر محمد أحمد",
+            "customer_phone": "+249912345679",
+            "payment": {
+                "state": "expired",
+                "can_upload": false,
+                "can_review": false,
+                "latest_proof": null,
+                "proofs_count": 0
+            },
+            "amount": 1040400,
+            "expected_amount": 1040400,
+            "payment_proofs": [],
+            "proofs": [],
+            "status": "cancelled",
+            "status_label": "ملغي",
+            "delivery_type": "pickup",
+            "delivery_phone": "+249912345679",
+            "rate_sdg_snapshot": 650,
+            "subtotal_aed": 1650,
+            "total_sdg": 1040400,
+            "total_amount_sdg": 1040400,
+            "lock_expires_at": "2026-11-25T00:49:00Z",
+            "expires_at": "2026-11-25T00:49:00Z",
+            "seconds_remaining": 0,
+            "created_at": "2026-11-26T00:49:00Z"
+        },
+        {
+            "id": 13,
+            "order_number": "WEX-261125-1006F",
+            "user_id": 2,
+            "customer": {
+                "name": "عمر محمد أحمد",
+                "phone": "+249912345679",
+                "email": "customer@wex.sd"
+            },
+            "customer_name": "عمر محمد أحمد",
+            "customer_phone": "+249912345679",
+            "payment": {
+                "state": "approved",
+                "can_upload": false,
+                "can_review": false,
+                "latest_proof": {
+                    "id": 10,
+                    "status": "approved",
+                    "sender_name": "عمر محمد أحمد",
+                    "reference_number": "BOK-9988776",
+                    "review_note": "تم الاستلام.",
+                    "image_url": "/api/v1/orders/WEX-261125-1006F/payment-proof/10/image",
+                    "uploaded_at": "2026-11-24T23:49:00Z",
+                    "created_at": "2026-11-24T23:49:00Z",
+                    "reviewed_at": "2026-11-24T23:49:00Z"
+                },
+                "proofs_count": 1
+            },
+            "amount": 1549800,
+            "expected_amount": 1549800,
+            "payment_proofs": [
+                {
+                    "id": 10,
+                    "status": "approved",
+                    "sender_name": "عمر محمد أحمد",
+                    "reference_number": "BOK-9988776",
+                    "review_note": "تم الاستلام.",
+                    "image_url": "/api/v1/orders/WEX-261125-1006F/payment-proof/10/image",
+                    "created_at": "2026-11-24T23:49:00Z",
+                    "uploaded_at": "2026-11-24T23:49:00Z",
+                    "reviewed_at": "2026-11-24T23:49:00Z"
+                }
+            ],
+            "proofs": [
+                {
+                    "id": 10,
+                    "status": "approved",
+                    "sender_name": "عمر محمد أحمد",
+                    "reference_number": "BOK-9988776",
+                    "review_note": "تم الاستلام.",
+                    "image_url": "/api/v1/orders/WEX-261125-1006F/payment-proof/10/image",
+                    "created_at": "2026-11-24T23:49:00Z",
+                    "uploaded_at": "2026-11-24T23:49:00Z",
+                    "reviewed_at": "2026-11-24T23:49:00Z"
+                }
+            ],
+            "status": "completed",
+            "status_label": "مكتمل ومستلم",
+            "delivery_type": "delivery",
+            "delivery_phone": "+249912345679",
+            "rate_sdg_snapshot": 650,
+            "subtotal_aed": 2450,
+            "total_sdg": 1549800,
+            "total_amount_sdg": 1549800,
+            "lock_expires_at": "2026-11-25T00:49:00Z",
+            "expires_at": "2026-11-25T00:49:00Z",
+            "seconds_remaining": 0,
+            "created_at": "2026-11-26T00:49:00Z"
+        },
+        {
+            "id": 12,
+            "order_number": "WEX-261125-1005E",
+            "user_id": 2,
+            "customer": {
+                "name": "عمر محمد أحمد",
+                "phone": "+249912345679",
+                "email": "customer@wex.sd"
+            },
+            "customer_name": "عمر محمد أحمد",
+            "customer_phone": "+249912345679",
+            "payment": {
+                "state": "approved",
+                "can_upload": false,
+                "can_review": false,
+                "latest_proof": {
+                    "id": 9,
+                    "status": "approved",
+                    "sender_name": "عمر محمد أحمد",
+                    "reference_number": "BOK-1122334",
+                    "review_note": "تم التأكيد.",
+                    "image_url": "/api/v1/orders/WEX-261125-1005E/payment-proof/9/image",
+                    "uploaded_at": "2026-11-25T18:49:00Z",
+                    "created_at": "2026-11-25T18:49:00Z",
+                    "reviewed_at": "2026-11-25T18:49:00Z"
+                },
+                "proofs_count": 1
+            },
+            "amount": 1456200,
+            "expected_amount": 1456200,
+            "payment_proofs": [
+                {
+                    "id": 9,
+                    "status": "approved",
+                    "sender_name": "عمر محمد أحمد",
+                    "reference_number": "BOK-1122334",
+                    "review_note": "تم التأكيد.",
+                    "image_url": "/api/v1/orders/WEX-261125-1005E/payment-proof/9/image",
+                    "created_at": "2026-11-25T18:49:00Z",
+                    "uploaded_at": "2026-11-25T18:49:00Z",
+                    "reviewed_at": "2026-11-25T18:49:00Z"
+                }
+            ],
+            "proofs": [
+                {
+                    "id": 9,
+                    "status": "approved",
+                    "sender_name": "عمر محمد أحمد",
+                    "reference_number": "BOK-1122334",
+                    "review_note": "تم التأكيد.",
+                    "image_url": "/api/v1/orders/WEX-261125-1005E/payment-proof/9/image",
+                    "created_at": "2026-11-25T18:49:00Z",
+                    "uploaded_at": "2026-11-25T18:49:00Z",
+                    "reviewed_at": "2026-11-25T18:49:00Z"
+                }
+            ],
+            "status": "out_for_delivery",
+            "status_label": "خرج مع المندوب للتوصيل",
+            "delivery_type": "delivery",
+            "delivery_phone": "+249912345679",
+            "rate_sdg_snapshot": 650,
+            "subtotal_aed": 2300,
+            "total_sdg": 1456200,
+            "total_amount_sdg": 1456200,
+            "lock_expires_at": "2026-11-26T04:49:00Z",
+            "expires_at": "2026-11-26T04:49:00Z",
+            "seconds_remaining": 0,
+            "created_at": "2026-11-26T00:49:00Z"
+        },
+        {
+            "id": 11,
+            "order_number": "WEX-261125-1004D",
+            "user_id": 2,
+            "customer": {
+                "name": "عمر محمد أحمد",
+                "phone": "+249912345679",
+                "email": "customer@wex.sd"
+            },
+            "customer_name": "عمر محمد أحمد",
+            "customer_phone": "+249912345679",
+            "payment": {
+                "state": "approved",
+                "can_upload": false,
+                "can_review": false,
+                "latest_proof": {
+                    "id": 8,
+                    "status": "approved",
+                    "sender_name": "عمر محمد أحمد",
+                    "reference_number": "OCASH-541298",
+                    "review_note": "تم التحقق من الحساب.",
+                    "image_url": "/api/v1/orders/WEX-261125-1004D/payment-proof/8/image",
+                    "uploaded_at": "2026-11-25T21:49:00Z",
+                    "created_at": "2026-11-25T21:49:00Z",
+                    "reviewed_at": "2026-11-25T21:49:00Z"
+                },
+                "proofs_count": 1
+            },
+            "amount": 1261000,
+            "expected_amount": 1261000,
+            "payment_proofs": [
+                {
+                    "id": 8,
+                    "status": "approved",
+                    "sender_name": "عمر محمد أحمد",
+                    "reference_number": "OCASH-541298",
+                    "review_note": "تم التحقق من الحساب.",
+                    "image_url": "/api/v1/orders/WEX-261125-1004D/payment-proof/8/image",
+                    "created_at": "2026-11-25T21:49:00Z",
+                    "uploaded_at": "2026-11-25T21:49:00Z",
+                    "reviewed_at": "2026-11-25T21:49:00Z"
+                }
+            ],
+            "proofs": [
+                {
+                    "id": 8,
+                    "status": "approved",
+                    "sender_name": "عمر محمد أحمد",
+                    "reference_number": "OCASH-541298",
+                    "review_note": "تم التحقق من الحساب.",
+                    "image_url": "/api/v1/orders/WEX-261125-1004D/payment-proof/8/image",
+                    "created_at": "2026-11-25T21:49:00Z",
+                    "uploaded_at": "2026-11-25T21:49:00Z",
+                    "reviewed_at": "2026-11-25T21:49:00Z"
+                }
+            ],
+            "status": "ready_for_pickup",
+            "status_label": "جاهز للاستلام من المحل",
+            "delivery_type": "pickup",
+            "delivery_phone": "+249912345679",
+            "rate_sdg_snapshot": 650,
+            "subtotal_aed": 2000,
+            "total_sdg": 1261000,
+            "total_amount_sdg": 1261000,
+            "lock_expires_at": "2026-11-26T04:49:00Z",
+            "expires_at": "2026-11-26T04:49:00Z",
+            "seconds_remaining": 0,
+            "created_at": "2026-11-26T00:49:00Z"
+        },
+        {
+            "id": 10,
+            "order_number": "WEX-261125-1003C",
+            "user_id": 2,
+            "customer": {
+                "name": "عمر محمد أحمد",
+                "phone": "+249912345679",
+                "email": "customer@wex.sd"
+            },
+            "customer_name": "عمر محمد أحمد",
+            "customer_phone": "+249912345679",
+            "payment": {
+                "state": "approved",
+                "can_upload": false,
+                "can_review": false,
+                "latest_proof": {
+                    "id": 7,
+                    "status": "approved",
+                    "sender_name": "عمر محمد أحمد",
+                    "reference_number": "BOK-8723419",
+                    "review_note": "تمت مطابقة الحساب وتأكيد استلام المبلغ بنجاح.",
+                    "image_url": "/api/v1/orders/WEX-261125-1003C/payment-proof/7/image",
+                    "uploaded_at": "2026-11-26T00:34:00Z",
+                    "created_at": "2026-11-26T00:34:00Z",
+                    "reviewed_at": "2026-11-26T00:34:00Z"
+                },
+                "proofs_count": 1
+            },
+            "amount": 504400,
+            "expected_amount": 504400,
+            "payment_proofs": [
+                {
+                    "id": 7,
+                    "status": "approved",
+                    "sender_name": "عمر محمد أحمد",
+                    "reference_number": "BOK-8723419",
+                    "review_note": "تمت مطابقة الحساب وتأكيد استلام المبلغ بنجاح.",
+                    "image_url": "/api/v1/orders/WEX-261125-1003C/payment-proof/7/image",
+                    "created_at": "2026-11-26T00:34:00Z",
+                    "uploaded_at": "2026-11-26T00:34:00Z",
+                    "reviewed_at": "2026-11-26T00:34:00Z"
+                }
+            ],
+            "proofs": [
+                {
+                    "id": 7,
+                    "status": "approved",
+                    "sender_name": "عمر محمد أحمد",
+                    "reference_number": "BOK-8723419",
+                    "review_note": "تمت مطابقة الحساب وتأكيد استلام المبلغ بنجاح.",
+                    "image_url": "/api/v1/orders/WEX-261125-1003C/payment-proof/7/image",
+                    "created_at": "2026-11-26T00:34:00Z",
+                    "uploaded_at": "2026-11-26T00:34:00Z",
+                    "reviewed_at": "2026-11-26T00:34:00Z"
+                }
+            ],
+            "status": "confirmed",
+            "status_label": "مؤكد وجاري التجهيز",
+            "delivery_type": "pickup",
+            "delivery_phone": "+249912345679",
+            "rate_sdg_snapshot": 650,
+            "subtotal_aed": 800,
+            "total_sdg": 504400,
+            "total_amount_sdg": 504400,
+            "lock_expires_at": "2026-11-26T04:49:00Z",
+            "expires_at": "2026-11-26T04:49:00Z",
+            "seconds_remaining": 0,
+            "created_at": "2026-11-26T00:49:00Z"
+        },
+        {
+            "id": 9,
+            "order_number": "WEX-261125-1002B",
+            "user_id": 2,
+            "customer": {
+                "name": "عمر محمد أحمد",
+                "phone": "+249912345679",
+                "email": "customer@wex.sd"
+            },
+            "customer_name": "عمر محمد أحمد",
+            "customer_phone": "+249912345679",
+            "payment": {
+                "state": "awaiting_proof",
+                "can_upload": true,
+                "can_review": false,
+                "latest_proof": null,
+                "proofs_count": 0
+            },
+            "amount": 572500,
+            "expected_amount": 572500,
+            "payment_proofs": [],
+            "proofs": [],
+            "status": "pending_payment",
+            "status_label": "في انتظار التحويل البنكي",
+            "delivery_type": "delivery",
+            "delivery_phone": "+249912345679",
+            "rate_sdg_snapshot": 650,
+            "subtotal_aed": 900,
+            "total_sdg": 572500,
+            "total_amount_sdg": 572500,
+            "lock_expires_at": "2026-11-26T02:49:00Z",
+            "expires_at": "2026-11-26T02:49:00Z",
+            "seconds_remaining": 7190,
+            "created_at": "2026-11-26T00:49:00Z"
+        },
+        {
+            "id": 8,
+            "order_number": "WEX-261125-1001A",
+            "user_id": 2,
+            "customer": {
+                "name": "عمر محمد أحمد",
+                "phone": "+249912345679",
+                "email": "customer@wex.sd"
+            },
+            "customer_name": "عمر محمد أحمد",
+            "customer_phone": "+249912345679",
+            "payment": {
+                "state": "under_review",
+                "can_upload": false,
+                "can_review": true,
+                "latest_proof": {
+                    "id": 6,
+                    "status": "pending",
+                    "sender_name": "عمر محمد أحمد",
+                    "reference_number": "BOK-9847120",
+                    "review_note": null,
+                    "image_url": "/api/v1/orders/WEX-261125-1001A/payment-proof/6/image",
+                    "uploaded_at": "2026-11-26T00:49:00Z",
+                    "created_at": "2026-11-26T00:49:00Z",
+                    "reviewed_at": null
+                },
+                "proofs_count": 1
+            },
+            "amount": 495000,
+            "expected_amount": 495000,
+            "payment_proofs": [
+                {
+                    "id": 6,
+                    "status": "pending",
+                    "sender_name": "عمر محمد أحمد",
+                    "reference_number": "BOK-9847120",
+                    "review_note": null,
+                    "image_url": "/api/v1/orders/WEX-261125-1001A/payment-proof/6/image",
+                    "created_at": "2026-11-26T00:49:00Z",
+                    "uploaded_at": "2026-11-26T00:49:00Z",
+                    "reviewed_at": null
+                }
+            ],
+            "proofs": [
+                {
+                    "id": 6,
+                    "status": "pending",
+                    "sender_name": "عمر محمد أحمد",
+                    "reference_number": "BOK-9847120",
+                    "review_note": null,
+                    "image_url": "/api/v1/orders/WEX-261125-1001A/payment-proof/6/image",
+                    "created_at": "2026-11-26T00:49:00Z",
+                    "uploaded_at": "2026-11-26T00:49:00Z",
+                    "reviewed_at": null
+                }
+            ],
+            "status": "payment_review",
+            "status_label": "مراجعة التحويل",
+            "delivery_type": "pickup",
+            "delivery_phone": "+249912345679",
+            "rate_sdg_snapshot": 650,
+            "subtotal_aed": 785,
+            "total_sdg": 495000,
+            "total_amount_sdg": 495000,
+            "lock_expires_at": "2026-11-26T03:49:00Z",
+            "expires_at": "2026-11-26T03:49:00Z",
+            "seconds_remaining": 0,
+            "created_at": "2026-11-26T00:49:00Z"
+        }
+    ],
+    "errors": null,
+    "meta": {
+        "page": 1,
+        "per_page": 20,
+        "total": 11,
+        "total_pages": 1
+    }
+}

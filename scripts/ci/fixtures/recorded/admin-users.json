@@ -1,0 +1,46 @@
+{
+    "success": true,
+    "message": "قائمة المستخدمين",
+    "data": [
+        {
+            "id": 3,
+            "name": "أحمد علي حسن",
+            "email": "staff@wextechnology.com",
+            "phone": "+249912345670",
+            "role": "staff",
+            "is_active": true,
+            "email_notifications": true,
+            "last_login_at": null,
+            "created_at": "2026-11-26T00:48:59Z"
+        },
+        {
+            "id": 2,
+            "name": "عمر محمد أحمد",
+            "email": "customer@wex.sd",
+            "phone": "+249912345679",
+            "role": "customer",
+            "is_active": true,
+            "email_notifications": true,
+            "last_login_at": null,
+            "created_at": "2026-11-26T00:48:59Z"
+        },
+        {
+            "id": 1,
+            "name": "مدير النظام",
+            "email": "admin@wextechnology.com",
+            "phone": null,
+            "role": "admin",
+            "is_active": true,
+            "email_notifications": true,
+            "last_login_at": null,
+            "created_at": "2026-11-26T00:48:59Z"
+        }
+    ],
+    "errors": null,
+    "meta": {
+        "page": 1,
+        "per_page": 20,
+        "total": 3,
+        "total_pages": 1
+    }
+}

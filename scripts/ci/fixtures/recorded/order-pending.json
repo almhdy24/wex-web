@@ -1,0 +1,95 @@
+{
+    "success": true,
+    "message": "تفاصيل الطلب",
+    "data": {
+        "order_number": "WEX-261126-BRNM3",
+        "status": "pending_payment",
+        "status_label": "في انتظار التحويل البنكي",
+        "delivery_type": "pickup",
+        "delivery_phone": "+249912345678",
+        "delivery_address": null,
+        "shipping_zone_name": null,
+        "customer_note": null,
+        "payment": {
+            "state": "awaiting_proof",
+            "can_upload": true,
+            "can_review": false,
+            "latest_proof": null,
+            "proofs_count": 0
+        },
+        "proofs": [],
+        "payment_proofs": [],
+        "app_discount_percent_snapshot": 3,
+        "subtotal_sdg": 487500,
+        "discount_sdg": 14625,
+        "delivery_fee_sdg": 0,
+        "shipping_fee_sdg": 0,
+        "total_sdg": 472900,
+        "total_amount_sdg": 472900,
+        "lock_expires_at": "2026-11-26T04:49:04Z",
+        "expires_at": "2026-11-26T04:49:04Z",
+        "seconds_remaining": 14396,
+        "courier_name": null,
+        "courier_phone": null,
+        "cancelled_reason": null,
+        "bank_details": {
+            "bank_name": "بنك الخرطوم (تطبيق بنكك)",
+            "bank_account_name": "متجر التقنية",
+            "bank_account_number": "100200300",
+            "amount_sdg": 472900,
+            "order_number": "WEX-261126-BRNM3"
+        },
+        "payment_accounts": [
+            {
+                "id": 1,
+                "bank_name": "بنك الخرطوم (تطبيق بنكك)",
+                "account_name": "متجر التقنية",
+                "account_number": "100200300",
+                "branch": "الفرع الرئيسي - أم درمان",
+                "notes": "يرجى كتابة رقم الطلب في خانة الملاحظات عند التحويل عبر تطبيق بنكك."
+            },
+            {
+                "id": 2,
+                "bank_name": "بنك أم درمان الوطني (أوكاش)",
+                "account_name": "متجر التقنية",
+                "account_number": "200300400",
+                "branch": "فرع الرياض - الخرطوم",
+                "notes": "يرجى إرفاق إشعار التحويل بعد إتمام العملية مباشرة."
+            }
+        ],
+        "payment_general_notes": "يرجى التحويل إلى أحد حسابات المتجر أدناه وإرفاق صورة واضحة من إشعار التحويل البنكي قبل انتهاء مهلة تثبيت السعر.",
+        "items": [
+            {
+                "id": 19,
+                "product_id": 1,
+                "name": "Dell Latitude 7490",
+                "product_name": "Dell Latitude 7490",
+                "type": "laptop",
+                "unit_price_sdg": 487500,
+                "price_sdg": 487500,
+                "quantity": 1,
+                "line_total_sdg": 487500
+            }
+        ],
+        "timeline": [
+            {
+                "id": 43,
+                "from_status": null,
+                "to_status": "pending_payment",
+                "status_text": "في انتظار التحويل البنكي",
+                "type": "order_created",
+                "event_type": "order_created",
+                "meta": {
+                    "lock_hours": 4,
+                    "lock_expires_at": "2026-11-26T04:49:04Z"
+                },
+                "note": "تم إنشاء الطلب وتثبيت السعر لمدة 4 ساعات",
+                "created_at": "2026-11-26T00:49:04Z"
+            }
+        ],
+        "created_at": "2026-11-26T00:49:04Z",
+        "updated_at": "2026-11-26T00:49:04Z"
+    },
+    "errors": null,
+    "meta": null
+}

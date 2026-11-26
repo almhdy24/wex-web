@@ -1,0 +1,68 @@
+{
+    "success": true,
+    "message": "",
+    "data": [
+        {
+            "id": 1,
+            "title": "أجهزة لابتوب لأعمالك ودراستك",
+            "subtitle": "أجهزة مستوردة متوفرة في فرعنا بأم درمان",
+            "image": "/assets/hero/hero-1.webp",
+            "button_label": "استعرض الأجهزة",
+            "link": "/catalog",
+            "sort_order": 1,
+            "is_active": true,
+            "created_at": {
+                "date": "2026-11-26 00:48:57.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            },
+            "updated_at": {
+                "date": "2026-11-26 00:48:57.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            }
+        },
+        {
+            "id": 2,
+            "title": "تثبيت السعر والدفع عبر بنكك",
+            "subtitle": "استقرار السعر من لحظة الطلب وحتى إتمام التحويل البنكي خلال المهلة المحددة",
+            "image": "/assets/hero/hero-2.webp",
+            "button_label": "كيفية الطلب",
+            "link": "/#how-to-order",
+            "sort_order": 2,
+            "is_active": true,
+            "created_at": {
+                "date": "2026-11-26 00:48:57.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            },
+            "updated_at": {
+                "date": "2026-11-26 00:48:57.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            }
+        },
+        {
+            "id": 3,
+            "title": "ملحقات ومستلزمات تقنية أساسية مع كل جهاز",
+            "subtitle": "حقائب وشواحن ومحولات متوافقة مع جهازك",
+            "image": "/assets/hero/hero-3.webp",
+            "button_label": "الملحقات",
+            "link": "/catalog?type=accessory",
+            "sort_order": 3,
+            "is_active": true,
+            "created_at": {
+                "date": "2026-11-26 00:48:57.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            },
+            "updated_at": {
+                "date": "2026-11-26 00:48:57.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+            }
+        }
+    ],
+    "errors": null,
+    "meta": null
+}

@@ -1,0 +1,144 @@
+{
+    "success": true,
+    "message": "تفاصيل الطلب",
+    "data": {
+        "order_number": "WEX-261126-RHMMH",
+        "status": "payment_review",
+        "status_label": "مراجعة التحويل",
+        "delivery_type": "pickup",
+        "delivery_phone": "+249912345678",
+        "delivery_address": null,
+        "shipping_zone_name": null,
+        "customer_note": null,
+        "payment": {
+            "state": "under_review",
+            "can_upload": false,
+            "can_review": true,
+            "latest_proof": {
+                "id": 11,
+                "status": "pending",
+                "sender_name": "محمد أحمد",
+                "reference_number": "TRX-48213",
+                "review_note": null,
+                "image_url": "/api/v1/orders/WEX-261126-RHMMH/payment-proof/11/image",
+                "uploaded_at": "2026-11-26T00:49:04Z",
+                "created_at": "2026-11-26T00:49:04Z",
+                "reviewed_at": null
+            },
+            "proofs_count": 1
+        },
+        "proofs": [
+            {
+                "id": 11,
+                "status": "pending",
+                "sender_name": "محمد أحمد",
+                "reference_number": "TRX-48213",
+                "review_note": null,
+                "image_url": "/api/v1/orders/WEX-261126-RHMMH/payment-proof/11/image",
+                "created_at": "2026-11-26T00:49:04Z",
+                "uploaded_at": "2026-11-26T00:49:04Z",
+                "reviewed_at": null
+            }
+        ],
+        "payment_proofs": [
+            {
+                "id": 11,
+                "status": "pending",
+                "sender_name": "محمد أحمد",
+                "reference_number": "TRX-48213",
+                "review_note": null,
+                "image_url": "/api/v1/orders/WEX-261126-RHMMH/payment-proof/11/image",
+                "created_at": "2026-11-26T00:49:04Z",
+                "uploaded_at": "2026-11-26T00:49:04Z",
+                "reviewed_at": null
+            }
+        ],
+        "app_discount_percent_snapshot": 3,
+        "subtotal_sdg": 585000,
+        "discount_sdg": 17550,
+        "delivery_fee_sdg": 0,
+        "shipping_fee_sdg": 0,
+        "total_sdg": 567500,
+        "total_amount_sdg": 567500,
+        "lock_expires_at": "2026-11-26T04:49:04Z",
+        "expires_at": "2026-11-26T04:49:04Z",
+        "seconds_remaining": 0,
+        "courier_name": null,
+        "courier_phone": null,
+        "cancelled_reason": null,
+        "bank_details": {
+            "bank_name": "بنك الخرطوم (تطبيق بنكك)",
+            "bank_account_name": "متجر التقنية",
+            "bank_account_number": "100200300",
+            "amount_sdg": 567500,
+            "order_number": "WEX-261126-RHMMH"
+        },
+        "payment_accounts": [
+            {
+                "id": 1,
+                "bank_name": "بنك الخرطوم (تطبيق بنكك)",
+                "account_name": "متجر التقنية",
+                "account_number": "100200300",
+                "branch": "الفرع الرئيسي - أم درمان",
+                "notes": "يرجى كتابة رقم الطلب في خانة الملاحظات عند التحويل عبر تطبيق بنكك."
+            },
+            {
+                "id": 2,
+                "bank_name": "بنك أم درمان الوطني (أوكاش)",
+                "account_name": "متجر التقنية",
+                "account_number": "200300400",
+                "branch": "فرع الرياض - الخرطوم",
+                "notes": "يرجى إرفاق إشعار التحويل بعد إتمام العملية مباشرة."
+            }
+        ],
+        "payment_general_notes": "يرجى التحويل إلى أحد حسابات المتجر أدناه وإرفاق صورة واضحة من إشعار التحويل البنكي قبل انتهاء مهلة تثبيت السعر.",
+        "items": [
+            {
+                "id": 20,
+                "product_id": 2,
+                "name": "Lenovo ThinkPad T480",
+                "product_name": "Lenovo ThinkPad T480",
+                "type": "laptop",
+                "unit_price_sdg": 585000,
+                "price_sdg": 585000,
+                "quantity": 1,
+                "line_total_sdg": 585000
+            }
+        ],
+        "timeline": [
+            {
+                "id": 44,
+                "from_status": null,
+                "to_status": "pending_payment",
+                "status_text": "في انتظار التحويل البنكي",
+                "type": "order_created",
+                "event_type": "order_created",
+                "meta": {
+                    "lock_hours": 4,
+                    "lock_expires_at": "2026-11-26T04:49:04Z"
+                },
+                "note": "تم إنشاء الطلب وتثبيت السعر لمدة 4 ساعات",
+                "created_at": "2026-11-26T00:49:04Z"
+            },
+            {
+                "id": 45,
+                "from_status": "pending_payment",
+                "to_status": "payment_review",
+                "status_text": "مراجعة التحويل",
+                "type": "payment_proof_uploaded",
+                "event_type": "payment_proof_uploaded",
+                "meta": {
+                    "proof_id": 11,
+                    "sender_name": "محمد أحمد",
+                    "reference_number": "TRX-48213"
+                },
+                "note": "قام العميل برفع إشعار التحويل البنكي للمراجعة (اسم المحول: محمد أحمد) (رقم العملية: TRX-48213)",
+                "created_at": "2026-11-26T00:49:04Z"
+            }
+        ],
+        "created_at": "2026-11-26T00:49:04Z",
+        "updated_at": "2026-11-26T00:49:04Z"
+    },
+    "errors": null,
+    "meta": null
+}

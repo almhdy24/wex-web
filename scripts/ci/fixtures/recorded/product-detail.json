@@ -1,0 +1,133 @@
+{
+    "success": true,
+    "message": "تفاصيل الجهاز",
+    "data": {
+        "id": 2,
+        "slug": "lenovo-thinkpad-t480",
+        "type": "laptop",
+        "name": "Lenovo ThinkPad T480",
+        "short_description": "جهاز عملي ومناسب للمبرمجين والمحاسبين",
+        "description": "أداء مستقر وبطارية مزدوجة ولوحة مفاتيح مريحة جداً للكتابة الطويلة.",
+        "condition": "used_imported",
+        "price_sdg": 585000,
+        "stock_status": "in_stock",
+        "warranty_text": null,
+        "specs": {
+            "cpu": "Intel Core i5-8250U",
+            "ram": "16 GB",
+            "storage": "256 GB SSD",
+            "gpu": "Intel UHD Graphics 620",
+            "screen": "14 بوصة HD"
+        },
+        "is_featured": true,
+        "category": {
+            "id": 1,
+            "name_ar": "لابتوبات",
+            "name_en": "Laptops",
+            "slug": "laptops"
+        },
+        "brand": {
+            "id": 3,
+            "name": "Lenovo",
+            "slug": "lenovo"
+        },
+        "images": [
+            {
+                "id": 3,
+                "path": "/uploads/products/lenovo-thinkpad-t480.jpg",
+                "thumb_path": "/uploads/products/lenovo-thinkpad-t480_thumb.jpg",
+                "is_primary": true,
+                "sort_order": 1
+            },
+            {
+                "id": 4,
+                "path": "/uploads/products/lenovo-thinkpad-t480-2.jpg",
+                "thumb_path": "/uploads/products/lenovo-thinkpad-t480-2_thumb.jpg",
+                "is_primary": false,
+                "sort_order": 2
+            }
+        ],
+        "accessories": [
+            {
+                "id": 9,
+                "slug": "logitech-wireless-mouse-b170",
+                "type": "accessory",
+                "name": "ماوس لاسلكي لوجيتك B170",
+                "short_description": "ماوس لاسلكي مريح وعملي",
+                "price_sdg": 22800,
+                "stock_status": "in_stock",
+                "image": {
+                    "path": "/uploads/products/logitech-wireless-mouse-b170.jpg",
+                    "thumb_path": "/uploads/products/logitech-wireless-mouse-b170_thumb.jpg"
+                }
+            },
+            {
+                "id": 10,
+                "slug": "laptop-backpack-15-waterproof",
+                "type": "accessory",
+                "name": "شنطة ظهر لابتوب مقاومة للماء 15.6",
+                "short_description": "شنطة ظهر مبطنة لحماية الجهاز",
+                "price_sdg": 32500,
+                "stock_status": "in_stock",
+                "image": {
+                    "path": "/uploads/products/laptop-backpack-15-waterproof.jpg",
+                    "thumb_path": "/uploads/products/laptop-backpack-15-waterproof_thumb.jpg"
+                }
+            },
+            {
+                "id": 11,
+                "slug": "original-laptop-charger-65w",
+                "type": "accessory",
+                "name": "شاحن لابتوب 65 واط",
+                "short_description": "شاحن بديل عالي الجودة مع كابل الكهرباء",
+                "price_sdg": 39000,
+                "stock_status": "in_stock",
+                "image": {
+                    "path": "/uploads/products/original-laptop-charger-65w.jpg",
+                    "thumb_path": "/uploads/products/original-laptop-charger-65w_thumb.jpg"
+                }
+            },
+            {
+                "id": 12,
+                "slug": "kingston-ssd-256gb",
+                "type": "accessory",
+                "name": "هارد SSD كينغستون 256 جيجابايت",
+                "short_description": "ترقية أداء الإقلاع والبرامج",
+                "price_sdg": 45500,
+                "stock_status": "in_stock",
+                "image": {
+                    "path": "/uploads/products/kingston-ssd-256gb.jpg",
+                    "thumb_path": "/uploads/products/kingston-ssd-256gb_thumb.jpg"
+                }
+            },
+            {
+                "id": 13,
+                "slug": "laptop-ram-8gb-ddr4",
+                "type": "accessory",
+                "name": "رام 8 جيجابايت DDR4 للابتوب",
+                "short_description": "رام لتحسين استجابة الجهاز وتعدد المهام",
+                "price_sdg": 42300,
+                "stock_status": "in_stock",
+                "image": {
+                    "path": "/uploads/products/laptop-ram-8gb-ddr4.jpg",
+                    "thumb_path": "/uploads/products/laptop-ram-8gb-ddr4_thumb.jpg"
+                }
+            },
+            {
+                "id": 14,
+                "slug": "laptop-cooling-pad-dual-fans",
+                "type": "accessory",
+                "name": "قاعدة تبريد لابتوب بمروحتين",
+                "short_description": "قاعدة مريحة للتبريد وتقليل الحرارة",
+                "price_sdg": 29300,
+                "stock_status": "in_stock",
+                "image": {
+                    "path": "/uploads/products/laptop-cooling-pad-dual-fans.jpg",
+                    "thumb_path": "/uploads/products/laptop-cooling-pad-dual-fans_thumb.jpg"
+                }
+            }
+        ]
+    },
+    "errors": null,
+    "meta": null
+}

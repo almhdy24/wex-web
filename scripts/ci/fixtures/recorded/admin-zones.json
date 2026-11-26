@@ -1,0 +1,168 @@
+{
+    "success": true,
+    "message": "قائمة مناطق التوصيل",
+    "data": [
+        {
+            "id": 1,
+            "state_name_ar": "أم درمان",
+            "fee_sdg": 5000,
+            "is_active": true,
+            "created_at": "2026-11-26T00:48:58Z",
+            "updated_at": "2026-11-26T00:48:58Z"
+        },
+        {
+            "id": 2,
+            "state_name_ar": "الخرطوم",
+            "fee_sdg": 6000,
+            "is_active": true,
+            "created_at": "2026-11-26T00:48:58Z",
+            "updated_at": "2026-11-26T00:48:58Z"
+        },
+        {
+            "id": 3,
+            "state_name_ar": "بحري",
+            "fee_sdg": 6000,
+            "is_active": true,
+            "created_at": "2026-11-26T00:48:58Z",
+            "updated_at": "2026-11-26T00:48:58Z"
+        },
+        {
+            "id": 4,
+            "state_name_ar": "الجزيرة",
+            "fee_sdg": 9000,
+            "is_active": true,
+            "created_at": "2026-11-26T00:48:58Z",
+            "updated_at": "2026-11-26T00:48:58Z"
+        },
+        {
+            "id": 5,
+            "state_name_ar": "البحر الأحمر",
+            "fee_sdg": 15000,
+            "is_active": true,
+            "created_at": "2026-11-26T00:48:58Z",
+            "updated_at": "2026-11-26T00:48:58Z"
+        },
+        {
+            "id": 6,
+            "state_name_ar": "كسلا",
+            "fee_sdg": 14000,
+            "is_active": true,
+            "created_at": "2026-11-26T00:48:58Z",
+            "updated_at": "2026-11-26T00:48:58Z"
+        },
+        {
+            "id": 7,
+            "state_name_ar": "القضارف",
+            "fee_sdg": 13000,
+            "is_active": true,
+            "created_at": "2026-11-26T00:48:58Z",
+            "updated_at": "2026-11-26T00:48:58Z"
+        },
+        {
+            "id": 8,
+            "state_name_ar": "سنار",
+            "fee_sdg": 11000,
+            "is_active": true,
+            "created_at": "2026-11-26T00:48:58Z",
+            "updated_at": "2026-11-26T00:48:58Z"
+        },
+        {
+            "id": 9,
+            "state_name_ar": "النيل الأبيض",
+            "fee_sdg": 10000,
+            "is_active": true,
+            "created_at": "2026-11-26T00:48:58Z",
+            "updated_at": "2026-11-26T00:48:58Z"
+        },
+        {
+            "id": 10,
+            "state_name_ar": "النيل الأزرق",
+            "fee_sdg": 13000,
+            "is_active": true,
+            "created_at": "2026-11-26T00:48:58Z",
+            "updated_at": "2026-11-26T00:48:58Z"
+        },
+        {
+            "id": 11,
+            "state_name_ar": "نهر النيل",
+            "fee_sdg": 10000,
+            "is_active": true,
+            "created_at": "2026-11-26T00:48:58Z",
+            "updated_at": "2026-11-26T00:48:58Z"
+        },
+        {
+            "id": 12,
+            "state_name_ar": "الشمالية",
+            "fee_sdg": 12000,
+            "is_active": true,
+            "created_at": "2026-11-26T00:48:58Z",
+            "updated_at": "2026-11-26T00:48:58Z"
+        },
+        {
+            "id": 13,
+            "state_name_ar": "شمال كردفان",
+            "fee_sdg": 14000,
+            "is_active": true,
+            "created_at": "2026-11-26T00:48:58Z",
+            "updated_at": "2026-11-26T00:48:58Z"
+        },
+        {
+            "id": 14,
+            "state_name_ar": "جنوب كردفان",
+            "fee_sdg": 18000,
+            "is_active": true,
+            "created_at": "2026-11-26T00:48:58Z",
+            "updated_at": "2026-11-26T00:48:58Z"
+        },
+        {
+            "id": 15,
+            "state_name_ar": "غرب كردفان",
+            "fee_sdg": 18000,
+            "is_active": true,
+            "created_at": "2026-11-26T00:48:58Z",
+            "updated_at": "2026-11-26T00:48:58Z"
+        },
+        {
+            "id": 16,
+            "state_name_ar": "شمال دارفور",
+            "fee_sdg": 20000,
+            "is_active": true,
+            "created_at": "2026-11-26T00:48:58Z",
+            "updated_at": "2026-11-26T00:48:58Z"
+        },
+        {
+            "id": 17,
+            "state_name_ar": "جنوب دارفور",
+            "fee_sdg": 22000,
+            "is_active": true,
+            "created_at": "2026-11-26T00:48:58Z",
+            "updated_at": "2026-11-26T00:48:58Z"
+        },
+        {
+            "id": 18,
+            "state_name_ar": "غرب دارفور",
+            "fee_sdg": 24000,
+            "is_active": true,
+            "created_at": "2026-11-26T00:48:58Z",
+            "updated_at": "2026-11-26T00:48:58Z"
+        },
+        {
+            "id": 19,
+            "state_name_ar": "وسط دارفور",
+            "fee_sdg": 22000,
+            "is_active": true,
+            "created_at": "2026-11-26T00:48:58Z",
+            "updated_at": "2026-11-26T00:48:58Z"
+        },
+        {
+            "id": 20,
+            "state_name_ar": "شرق دارفور",
+            "fee_sdg": 22000,
+            "is_active": true,
+            "created_at": "2026-11-26T00:48:58Z",
+            "updated_at": "2026-11-26T00:48:58Z"
+        }
+    ],
+    "errors": null,
+    "meta": null
+}

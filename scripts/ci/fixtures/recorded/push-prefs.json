@@ -1,0 +1,15 @@
+{
+    "success": true,
+    "message": "تفضيلات الإشعارات",
+    "data": {
+        "order_updates": true,
+        "payment_updates": true,
+        "price_alerts": true,
+        "announcements": true,
+        "new_orders": true,
+        "receipts": true,
+        "low_stock": true
+    },
+    "errors": null,
+    "meta": null
+}

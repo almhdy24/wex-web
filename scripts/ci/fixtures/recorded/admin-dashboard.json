@@ -1,0 +1,51 @@
+{
+    "success": true,
+    "message": "مؤشرات لوحة التحكم",
+    "data": {
+        "orders_by_status": {
+            "pending_payment": 3,
+            "payment_review": 2,
+            "confirmed": 2,
+            "ready_for_pickup": 1,
+            "out_for_delivery": 1,
+            "completed": 1,
+            "cancelled": 1,
+            "expired": 0
+        },
+        "pending_reviews_count": 2,
+        "inconsistent_orders_count": 0,
+        "integrity_warning": null,
+        "today_orders": {
+            "count": 10,
+            "revenue_sdg": 5622600
+        },
+        "low_stock_threshold": 2,
+        "low_stock_products": [
+            {
+                "id": 4,
+                "name": "HP ProBook 450 G6",
+                "type": "laptop",
+                "stock_quantity": 1
+            },
+            {
+                "id": 3,
+                "name": "HP EliteBook 840 G5",
+                "type": "laptop",
+                "stock_quantity": 2
+            },
+            {
+                "id": 7,
+                "name": "MacBook Air 2019",
+                "type": "laptop",
+                "stock_quantity": 2
+            }
+        ],
+        "exchange_rate": {
+            "rate_sdg": 650,
+            "updated_at": "2026-11-26T00:48:58Z"
+        },
+        "price_lock_hours": 4
+    },
+    "errors": null,
+    "meta": null
+}

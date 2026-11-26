@@ -94,3 +94,19 @@ Total snapshots generated per CI run: **120 high-resolution PNG images** (30 rou
    ├── ipad-768x1024/
    └── laptop-1280x800/
    ```
+
+---
+
+## Design-review snapshots (`ui-snapshots.yml`, `scripts/ci/capture-snapshots.mjs`)
+
+Every storefront and admin screen (42 routes incl. order states, filter sheet, login sheet,
+offline, 404) at 360x800 and 1280x800, with reduced motion so `<Reveal>` sections render.
+
+- **API data** is recorded from a real, freshly seeded API: `scripts/ci/record-fixtures.sh`
+  (run from a machine with `~/projects/wex-api`). It switches the API `.env` to a throwaway
+  `fixtures.sqlite`, always restores it on exit, places orders as the seeded customer and
+  drives them to pending / under review / rejected / confirmed, then records every GET the
+  screens use into `scripts/ci/fixtures/recorded/`.
+- **Product photos** are studio-style renders without text (`fixtures/images`,
+  `render-product-images.py`). The seed images from wex-api are text wireframes.
+- `SNAP_ONLY=<regex>` captures a subset of routes.

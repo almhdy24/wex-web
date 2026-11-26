@@ -1,0 +1,29 @@
+{
+    "success": true,
+    "message": "إعدادات النظام",
+    "data": {
+        "prices_updated_at": "2026-11-26 00:48:58",
+        "payment_general_notes": "يرجى التحويل إلى أحد حسابات المتجر أدناه وإرفاق صورة واضحة من إشعار التحويل البنكي قبل انتهاء مهلة تثبيت السعر.",
+        "orders_enabled": "1",
+        "orders_disabled_message": "استقبال الطلبات متوقف مؤقتاً في الوقت الحالي، نعتذر عن الإزعاج ونرحب باستفساراتكم عبر الواتساب.",
+        "ticker_enabled": "0",
+        "shop_map_link": "https://maps.google.com/?q=Wex+Technology+Omdurman",
+        "social_facebook": "",
+        "social_instagram": "",
+        "footer_text": "ويكس تكنولوجي - أجهزة لابتوب ومستلزمات تقنية في السودان.",
+        "delivery_notes": "التوصيل متاح داخل ولاية الخرطوم والولايات المحددة عبر مناديب وشركات شحن.",
+        "exchange_rate_sdg": 650,
+        "lock_hours": 4,
+        "app_discount_percent": 3,
+        "rounding_step_sdg": 100,
+        "low_stock_threshold": 2,
+        "shop_name": "Wex Technology (ويكس تكنولوجي)",
+        "shop_address": "مول الواحة، الشهداء، أم درمان",
+        "shop_phone": "",
+        "shop_whatsapp": "",
+        "working_hours": "من 10 صباحاً إلى 10 مساءً، عدا الجمعة",
+        "push_enabled": "1"
+    },
+    "errors": null,
+    "meta": null
+}

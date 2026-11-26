@@ -1,0 +1,158 @@
+{
+    "success": true,
+    "message": "تفاصيل الطلب",
+    "data": {
+        "order_number": "WEX-261126-T29Q9",
+        "status": "pending_payment",
+        "status_label": "في انتظار التحويل البنكي",
+        "delivery_type": "pickup",
+        "delivery_phone": "+249912345678",
+        "delivery_address": null,
+        "shipping_zone_name": null,
+        "customer_note": null,
+        "payment": {
+            "state": "rejected",
+            "can_upload": true,
+            "can_review": false,
+            "latest_proof": {
+                "id": 12,
+                "status": "rejected",
+                "sender_name": "محمد أحمد",
+                "reference_number": "TRX-48213",
+                "review_note": "المبلغ في الإشعار لا يطابق المطلوب",
+                "image_url": "/api/v1/orders/WEX-261126-T29Q9/payment-proof/12/image",
+                "uploaded_at": "2026-11-26T00:49:05Z",
+                "created_at": "2026-11-26T00:49:05Z",
+                "reviewed_at": "2026-11-26T00:49:05Z"
+            },
+            "proofs_count": 1
+        },
+        "proofs": [
+            {
+                "id": 12,
+                "status": "rejected",
+                "sender_name": "محمد أحمد",
+                "reference_number": "TRX-48213",
+                "review_note": "المبلغ في الإشعار لا يطابق المطلوب",
+                "image_url": "/api/v1/orders/WEX-261126-T29Q9/payment-proof/12/image",
+                "created_at": "2026-11-26T00:49:05Z",
+                "uploaded_at": "2026-11-26T00:49:05Z",
+                "reviewed_at": "2026-11-26T00:49:05Z"
+            }
+        ],
+        "payment_proofs": [
+            {
+                "id": 12,
+                "status": "rejected",
+                "sender_name": "محمد أحمد",
+                "reference_number": "TRX-48213",
+                "review_note": "المبلغ في الإشعار لا يطابق المطلوب",
+                "image_url": "/api/v1/orders/WEX-261126-T29Q9/payment-proof/12/image",
+                "created_at": "2026-11-26T00:49:05Z",
+                "uploaded_at": "2026-11-26T00:49:05Z",
+                "reviewed_at": "2026-11-26T00:49:05Z"
+            }
+        ],
+        "app_discount_percent_snapshot": 3,
+        "subtotal_sdg": 520000,
+        "discount_sdg": 15600,
+        "delivery_fee_sdg": 0,
+        "shipping_fee_sdg": 0,
+        "total_sdg": 504400,
+        "total_amount_sdg": 504400,
+        "lock_expires_at": "2026-11-26T04:49:05Z",
+        "expires_at": "2026-11-26T04:49:05Z",
+        "seconds_remaining": 14396,
+        "courier_name": null,
+        "courier_phone": null,
+        "cancelled_reason": null,
+        "bank_details": {
+            "bank_name": "بنك الخرطوم (تطبيق بنكك)",
+            "bank_account_name": "متجر التقنية",
+            "bank_account_number": "100200300",
+            "amount_sdg": 504400,
+            "order_number": "WEX-261126-T29Q9"
+        },
+        "payment_accounts": [
+            {
+                "id": 1,
+                "bank_name": "بنك الخرطوم (تطبيق بنكك)",
+                "account_name": "متجر التقنية",
+                "account_number": "100200300",
+                "branch": "الفرع الرئيسي - أم درمان",
+                "notes": "يرجى كتابة رقم الطلب في خانة الملاحظات عند التحويل عبر تطبيق بنكك."
+            },
+            {
+                "id": 2,
+                "bank_name": "بنك أم درمان الوطني (أوكاش)",
+                "account_name": "متجر التقنية",
+                "account_number": "200300400",
+                "branch": "فرع الرياض - الخرطوم",
+                "notes": "يرجى إرفاق إشعار التحويل بعد إتمام العملية مباشرة."
+            }
+        ],
+        "payment_general_notes": "يرجى التحويل إلى أحد حسابات المتجر أدناه وإرفاق صورة واضحة من إشعار التحويل البنكي قبل انتهاء مهلة تثبيت السعر.",
+        "items": [
+            {
+                "id": 21,
+                "product_id": 3,
+                "name": "HP EliteBook 840 G5",
+                "product_name": "HP EliteBook 840 G5",
+                "type": "laptop",
+                "unit_price_sdg": 520000,
+                "price_sdg": 520000,
+                "quantity": 1,
+                "line_total_sdg": 520000
+            }
+        ],
+        "timeline": [
+            {
+                "id": 46,
+                "from_status": null,
+                "to_status": "pending_payment",
+                "status_text": "في انتظار التحويل البنكي",
+                "type": "order_created",
+                "event_type": "order_created",
+                "meta": {
+                    "lock_hours": 4,
+                    "lock_expires_at": "2026-11-26T04:49:05Z"
+                },
+                "note": "تم إنشاء الطلب وتثبيت السعر لمدة 4 ساعات",
+                "created_at": "2026-11-26T00:49:05Z"
+            },
+            {
+                "id": 47,
+                "from_status": "pending_payment",
+                "to_status": "payment_review",
+                "status_text": "مراجعة التحويل",
+                "type": "payment_proof_uploaded",
+                "event_type": "payment_proof_uploaded",
+                "meta": {
+                    "proof_id": 12,
+                    "sender_name": "محمد أحمد",
+                    "reference_number": "TRX-48213"
+                },
+                "note": "قام العميل برفع إشعار التحويل البنكي للمراجعة (اسم المحول: محمد أحمد) (رقم العملية: TRX-48213)",
+                "created_at": "2026-11-26T00:49:05Z"
+            },
+            {
+                "id": 48,
+                "from_status": "payment_review",
+                "to_status": "pending_payment",
+                "status_text": "في انتظار التحويل البنكي",
+                "type": "payment_rejected",
+                "event_type": "payment_rejected",
+                "meta": {
+                    "proof_id": 12,
+                    "review_note": "المبلغ في الإشعار لا يطابق المطلوب"
+                },
+                "note": "تم رفض إشعار التحويل البنكي. يرجى رفع إشعار تحويل صحيح قبل انتهاء فترة حجز السعر. سبب الرفض: المبلغ في الإشعار لا يطابق المطلوب",
+                "created_at": "2026-11-26T00:49:05Z"
+            }
+        ],
+        "created_at": "2026-11-26T00:49:05Z",
+        "updated_at": "2026-11-26T00:49:05Z"
+    },
+    "errors": null,
+    "meta": null
+}
