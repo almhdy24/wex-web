@@ -138,6 +138,12 @@ describe('Phase 4: Cart, Checkout & Auth Sheet Rescue', () => {
       expect(html).toContain('مجانًا');
       expect(html).toContain('التوصيل');
       expect(html).toContain('حسب المنطقة');
+      // 360px snapshot: title beside icon + check broke into one word per line. The title
+      // sits on its own line, outside the icon/check header row.
+      const headers = [...html.matchAll(/<div class="[^"]*optionHeader[^"]*">([\s\S]*?)<\/div>/g)].map((m) => m[1]);
+      expect(headers).toHaveLength(2);
+      headers.forEach((h) => expect(h).not.toMatch(/optionTitle/));
+      expect(html).toMatch(/<span class="[^"]*optionTitle[^"]*">الاستلام من المحل<\/span>/);
 
       // Section 2: التواصل
       expect(html).toContain('التواصل');

@@ -306,15 +306,17 @@ export default function CheckoutPage({
             className={`${styles.optionBtn} ${orderType === 'pickup' ? styles.optionBtnActive : ''}`}
             onClick={() => setOrderType('pickup')}
           >
+            {/* Icon + check share the top row; the title gets the full card width (at 360px it
+                broke into one word per line beside them). */}
             <div className={styles.optionHeader}>
-              <Store size={20} strokeWidth={1.75} aria-hidden="true" />
-              <span className={styles.optionTitle}>الاستلام من المحل</span>
+              <Store size={20} strokeWidth={1.75} aria-hidden="true" className={styles.optionIcon} />
               {orderType === 'pickup' && (
                 <span className={styles.optionCheck}>
                   <Check size={14} strokeWidth={2.5} aria-hidden="true" />
                 </span>
               )}
             </div>
+            <span className={styles.optionTitle}>الاستلام من المحل</span>
             <span className={styles.optionSub}>مجانًا</span>
           </button>
 
@@ -325,15 +327,17 @@ export default function CheckoutPage({
             className={`${styles.optionBtn} ${orderType === 'delivery' ? styles.optionBtnActive : ''}`}
             onClick={() => setOrderType('delivery')}
           >
+            {/* Icon + check share the top row; the title gets the full card width (at 360px it
+                broke into one word per line beside them). */}
             <div className={styles.optionHeader}>
-              <Truck size={20} strokeWidth={1.75} aria-hidden="true" />
-              <span className={styles.optionTitle}>التوصيل</span>
+              <Truck size={20} strokeWidth={1.75} aria-hidden="true" className={styles.optionIcon} />
               {orderType === 'delivery' && (
                 <span className={styles.optionCheck}>
                   <Check size={14} strokeWidth={2.5} aria-hidden="true" />
                 </span>
               )}
             </div>
+            <span className={styles.optionTitle}>التوصيل</span>
             <span className={styles.optionSub}>
               {orderType === 'delivery' && selectedZone
                 ? (shippingFee === 0 ? 'مجانًا' : formatSdg(shippingFee))

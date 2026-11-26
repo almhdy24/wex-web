@@ -494,3 +494,27 @@
     transition: none;
   }
 }
+
+.optionIcon {
+  flex-shrink: 0;
+}
+
+.optionBtnActive .optionTitle {
+  color: var(--wex-royal);
+}
+
+.optionTitle {
+  color: var(--wex-navy);
+  line-height: 1.4;
+}
+
+/* Label never wraps ("ساعات / العمل:"); the value takes the remaining width. */
+.pickupInfoRow strong {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.pickupInfoRow span {
+  flex: 1;
+  min-width: 0;
+}
