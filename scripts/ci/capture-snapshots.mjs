@@ -241,6 +241,15 @@ async function run() {
         if (overflow) failures.push(`[Overflow] ${vp.name} ${route.name}`);
         if (consoleErrors.length) failures.push(`[Console] ${vp.name} ${route.name}: ${consoleErrors.join('; ')}`);
 
+        if (!route.action) {
+          // The mobile app shell scrolls inside its own container, so a full-page capture
+          // only ever showed the first 800px. Let the document hold the whole screen.
+          await page.addStyleTag({ content: `
+            [class*="desktopViewport"], [class*="appShell"] { height: auto !important; max-height: none !important; min-height: 100dvh !important; overflow: visible !important; }
+            [class*="screensViewport"] { overflow: visible !important; flex: none !important; }
+          ` });
+          await page.waitForTimeout(150);
+        }
         await page.screenshot({ path: path.join(vpDir, `${route.name}.png`), fullPage: !route.action });
         console.log(`  ✓ ${route.name}${overflow ? ' (overflow)' : ''}${consoleErrors.length ? ' (console errors)' : ''}`);
       } catch (err) {
