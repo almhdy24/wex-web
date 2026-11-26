@@ -3,7 +3,7 @@
   flex-direction: column;
   gap: var(--space-4);
   width: 100%;
-  padding-bottom: var(--admin-bottom-clearance, 120px); /* Clearance for sticky bottom bar */
+  padding-bottom: var(--admin-bottom-clearance, 160px); /* clear BOTH the sticky save bar and the 56px bottom tab bar */
 }
 
 @media (min-width: 768px) {
@@ -380,6 +380,8 @@
   border: 1px solid var(--color-slate-200);
   font-family: inherit;
   font-size: var(--text-sm);
+  min-width: 0; /* allow shrinking in the grid so the delete button stays visible on narrow phones */
+  width: 100%;
 }
 
 .specInput:focus {
@@ -389,10 +391,13 @@
 
 .deleteIconBtn {
   background: none;
-  border: none;
+  border: 1px solid var(--color-slate-200);
   color: var(--color-danger);
   cursor: pointer;
   padding: 6px;
+  flex-shrink: 0;
+  min-width: 34px;
+  min-height: 34px;
   border-radius: var(--radius-sm);
   display: inline-flex;
   align-items: center;
