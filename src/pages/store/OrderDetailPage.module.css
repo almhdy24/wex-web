@@ -968,8 +968,9 @@
   }
 }
 
-/* Header: one-line title, status + date on the second row */
-.orderHeaderTitle {
+/* Header: one-line title, status + date on the second row. Two classes: AppBar's
+   `.navy h1 { font-size: 24px }` (class + element) outranked a single class. */
+.orderHeaderContent .orderHeaderTitle {
   font-size: var(--text-lg);
 }
 
@@ -979,7 +980,7 @@
 }
 
 @media (min-width: 1024px) {
-  .orderHeaderTitle {
+  .orderHeaderContent .orderHeaderTitle {
     font-size: var(--text-2xl);
   }
 }
