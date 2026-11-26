@@ -318,3 +318,10 @@
     color: var(--wex-white);
   }
 }
+
+/* An empty action side (e.g. order detail: no cart) still reserved 44px + gap, squeezing
+   headerContent so "طلب #WEX-…" wrapped onto two lines at 360px. */
+.leftSection:empty,
+.navy .leftSection:empty {
+  display: none;
+}
