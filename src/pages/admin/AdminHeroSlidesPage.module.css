@@ -5,6 +5,7 @@
   padding: var(--space-4, 16px);
   max-width: 1200px;
   margin-inline: auto;
+  padding-bottom: var(--admin-bottom-clearance); /* clear the sticky save bar + bottom tab nav on mobile */
 }
 
 .header {
