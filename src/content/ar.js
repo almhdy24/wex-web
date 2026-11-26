@@ -1,4 +1,4 @@
-import { formatHoursAr } from '../utils/arabicDuration';
+import { formatHoursAr } from '../utils/arabicDuration.js';
 /**
  * Central Modern Standard Arabic (الفصحى المعاصرة) Dictionary
  * All customer-visible storefront copy resides strictly in this file.
