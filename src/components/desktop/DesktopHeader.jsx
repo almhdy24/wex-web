@@ -38,7 +38,7 @@ export default function DesktopHeader({ onOpenCart, shopInfo = null }) {
   const location = useLocation();
   const { totalItems } = useCart();
   const { favoriteCount } = useFavorites();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, loading: authLoading, logout } = useAuth();
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -79,6 +79,7 @@ export default function DesktopHeader({ onOpenCart, shopInfo = null }) {
 
   // Fetch unread notifications count
   useEffect(() => {
+    if (authLoading) return; // wait for the session token (see StoreLayout)
     if (!isAuthenticated) {
       setUnreadCount(0);
       return;
@@ -90,7 +91,7 @@ export default function DesktopHeader({ onOpenCart, shopInfo = null }) {
       })
       .catch(() => {});
     return () => { isMounted = false; };
-  }, [isAuthenticated, location.pathname]);
+  }, [isAuthenticated, authLoading, location.pathname]);
 
   // Load recent notifications on popover open
   useEffect(() => {

@@ -9,7 +9,7 @@ import OrderNumber from './OrderNumber';
 import styles from './PendingOrderBanner.module.css';
 
 export default function PendingOrderBanner() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const location = useLocation();
   const [activeOrder, setActiveOrder] = useState(null);
   const [dismissed, setDismissed] = useState(false);
@@ -26,6 +26,7 @@ export default function PendingOrderBanner() {
     (pathname.startsWith('/products/') && pathname !== '/products');
 
   useEffect(() => {
+    if (authLoading) return; // wait for the session token (see StoreLayout)
     if (!isAuthenticated) {
       setActiveOrder(null);
       return;
@@ -66,7 +67,7 @@ export default function PendingOrderBanner() {
       isMounted = false;
       clearInterval(interval);
     };
-  }, [isAuthenticated, pathname]);
+  }, [isAuthenticated, authLoading, pathname]);
 
   // 1-second live tick
   useEffect(() => {

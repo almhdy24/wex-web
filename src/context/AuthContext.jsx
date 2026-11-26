@@ -142,7 +142,10 @@ export function AuthProvider({ children }) {
     const handleReactivation = async () => {
       const now = Date.now();
       if (now - lastActiveRefreshRef.current < 60000) return;
-      if (document.visibilityState === 'visible' || (typeof navigator !== 'undefined' && navigator.onLine)) {
+      // Only when the page is (again) visible. The old `visible || navigator.onLine` was true
+      // on visibilitychange→hidden too, so hiding the tab or leaving the page rotated the
+      // refresh token mid-unload (lost rotation → reuse detection; requests left in flight).
+      if (document.visibilityState === 'visible') {
         lastActiveRefreshRef.current = now;
         try {
           const token = await performTokenRefresh();

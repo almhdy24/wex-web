@@ -145,6 +145,9 @@ export default function StoreLayout() {
 
   // Load count of pending/active orders
   useEffect(() => {
+    // isAuthenticated comes from the cached profile at once; until the session bootstrap has
+    // a token these calls went out unauthenticated (401, refresh, retry) on every page load.
+    if (authLoading) return;
     if (!isAuthenticated) {
       setActiveOrderCount(0);
       setUnreadCount(0);
@@ -170,7 +173,7 @@ export default function StoreLayout() {
       .catch(() => {});
 
     return () => { isMounted = false; };
-  }, [isAuthenticated, location.pathname]);
+  }, [isAuthenticated, authLoading, location.pathname]);
 
   // Load shop public settings and active announcements
   useEffect(() => {
