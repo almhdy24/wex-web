@@ -147,7 +147,14 @@ const ROUTES = [
   { name: '08-checkout-login-sheet', path: '/checkout', cart: true, action: async (page) => {
     await page.locator('input[type="tel"]').first().fill('0912345678');
     // A hidden (responsive) duplicate made `.last()` wait forever; click the visible one.
-    await page.locator('button:visible', { hasText: 'تأكيد الطلب' }).last().click();
+    const btn = page.locator('button:visible', { hasText: 'تأكيد الطلب' }).last();
+    try {
+      await btn.click({ timeout: 5000 });
+    } catch (e) {
+      // Report why (e.g. which element intercepts the tap: that would be a real bug).
+      console.error(`   ! confirm click: ${e.message.split('\n').slice(0, 6).join(' | ')}`);
+      await btn.evaluate((el) => el.click());
+    }
     await page.waitForTimeout(400);
   } },
   { name: '09-orders', path: '/orders', ...customer },
