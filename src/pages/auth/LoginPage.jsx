@@ -19,6 +19,8 @@ import styles from './Auth.module.css';
 import { formatHoursAr } from '../../utils/arabicDuration';
 import { normalizeShopInfo } from '../../utils/shopSettings';
 
+let oneTapPrompted = false;
+
 export default function LoginPage() {
   // Lock duration from the shop settings (was a hard-coded '4 ساعات').
   const lockHours = normalizeShopInfo(useOutletContext()?.shopInfo).lockHours;
@@ -100,7 +102,10 @@ export default function LoginPage() {
         }
 
         // A6: Only prompt One-Tap on non-touch devices and when not recovering from idle logout
-        if (!isTouchDevice && !isIdle) {
+        // Once per page load: setGoogleScriptReady re-runs this effect, and a second
+        // prompt() while the first is open throws "Only one navigator.credentials.get".
+        if (!isTouchDevice && !isIdle && !oneTapPrompted) {
+          oneTapPrompted = true;
           window.google.accounts.id.prompt(() => {});
         }
         return true;
