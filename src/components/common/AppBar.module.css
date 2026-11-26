@@ -325,3 +325,16 @@
 .navy .leftSection:empty {
   display: none;
 }
+
+/* With headerContent (order detail), the header row (back button only) and the content
+   both asked for 100% of one flex row and shrank to ~50% each: the order title got ~170px
+   and wrapped. The row takes only what it needs; the content takes the rest. */
+.navy:has(.headerContent) .headerRow {
+  width: auto;
+  flex: none;
+}
+
+.navy .headerContent {
+  flex: 1;
+  min-width: 0;
+}
