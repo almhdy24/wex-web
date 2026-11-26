@@ -456,3 +456,15 @@
   border-color: #FCA5A5;
   background-color: #FEF2F2;
 }
+
+/* Desktop table: the name column collapsed to its min-content (~60px), wrapping product
+   names one word per line. Give the product cell a real minimum. */
+@media (min-width: 768px) {
+  .productPrimary {
+    min-width: 280px;
+  }
+
+  .priceCol {
+    min-width: 120px;
+  }
+}

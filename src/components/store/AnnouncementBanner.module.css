@@ -181,11 +181,17 @@
     overflow: hidden;
   }
 
+  /* Title and body share the space and truncate; the link never shrinks (it was clipped
+     to "تص…" behind a long title). */
   .title {
-    flex: none;
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .body {
+    flex: 1 1 0;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;

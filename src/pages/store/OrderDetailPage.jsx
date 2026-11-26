@@ -652,7 +652,6 @@ export default function OrderDetailPage({
         )}
 
         {/* 3. Card Payment Review vs Upload Proof (Receipt Card) */}
-        {isPending && <PushPermissionSheet variant="customer" />}
         {isReview ? (
           <section className={styles.receiptCard} aria-label="حالة إشعار الدفع">
             <h2 className={styles.sectionTitle}>إشعار التحويل</h2>
@@ -784,6 +783,10 @@ export default function OrderDetailPage({
             </div>
           </section>
         ) : null}
+
+        {/* Notification permission comes after the upload step, not between the bank
+            accounts and the upload card (the step the customer is here for). */}
+        {isPending && <PushPermissionSheet variant="customer" />}
 
         {/* 4. Notice line */}
         <NoticeLine variant="secondary" className={styles.noticeLine}>
