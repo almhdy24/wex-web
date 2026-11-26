@@ -25,6 +25,7 @@ import { Reveal, Stagger } from '../../motion';
 import { formatPriceUpdateCaption } from '../../utils/formatters';
 import { normalizeShopInfo, buildWhatsAppLink, DEFAULT_MAP_LINK } from '../../utils/shopSettings';
 import styles from './HomePage.module.css';
+import { formatHoursAr, renderLockDuration } from '../../utils/arabicDuration';
 
 
 // Home section (admin) -> product list query. Sources: newest | type | category | featured.
@@ -132,7 +133,7 @@ export default function HomePage({
     },
     {
       title: 'ثبّت السعر عند الطلب',
-      text: `بعد تأكيد الطلب يبقى السعر ثابتًا لمدة ${lockHours} ساعات لتتمكّن من التحويل.`,
+      text: `بعد تأكيد الطلب يبقى السعر ثابتًا لمدة ${formatHoursAr(lockHours)} لتتمكّن من التحويل.`,
       buttonLabel: 'طريقة الطلب',
       action: () => {
         const el = document.getElementById('how-to-order');
@@ -150,8 +151,8 @@ export default function HomePage({
   // Admin slides when any are active; the built-in three otherwise.
   const slides = adminSlides.length > 0
     ? adminSlides.map((sl) => ({
-      title: sl.title,
-      text: sl.subtitle || '',
+      title: renderLockDuration(sl.title, lockHours),
+      text: renderLockDuration(sl.subtitle || '', lockHours),
       buttonLabel: sl.button_label || 'تصفّح الأجهزة',
       action: () => navigate(safeInternalPath(sl.link)),
     }))

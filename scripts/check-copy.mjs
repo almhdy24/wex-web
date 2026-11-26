@@ -89,7 +89,33 @@ const ALLOW = [
 ];
 const allowed = (f, text) => ALLOW.some(([p, re]) => f.endsWith(p) && re.test(text));
 
+// Price-lock duration comes from the lock_hours setting (formatHoursAr / ArabicDuration):
+// no hard-coded "4 ساعات", and no "{n} ساعات" (wrong for 1, 2 and 11+).
+const DURATION = [
+  /(?:لمدة|مهلة|خلال|بمقدار)\s*(?:الـ\s*)?[0-9٠-٩]+\s*ساع/u,
+  /\$?\{[^}]*\}\s*ساعات/u,
+  /(?<![0-9٠-٩])(?:[3-9]|10|[٣-٩]|١٠)\s*ساعات/u,
+];
+// TokeniseDefaultContentDurations holds the OLD default texts it rewrites (by design).
+const DURATION_OK = /arabicDuration\.js$|relativeTimeAr\.js$|RecentPurchasesToast\.jsx$|ArabicDuration\.php$|TokeniseDefaultContentDurations\.php$/;
+const durationFiles = [...files.map((x) => x.f)];
+if (api) {
+  for (const d of ['app/Database/Migrations', 'app/Database/Seeds', 'app/Views']) {
+    durationFiles.push(...walk(path.join(api, d), (p) => p.endsWith('.php')));
+  }
+}
+
 const errors = [];
+for (const f of new Set(durationFiles)) {
+  if (DURATION_OK.test(f) || /DevSeeder\.php$/.test(f)) continue;
+  for (const { text, line } of strings(f)) {
+    // ar.js relative-time plural set ("{count} ساعات" is the 3–10 form chosen by range).
+    if (f.endsWith('src/content/ar.js') && text === '{count} ساعات') continue;
+    if (DURATION.some((re) => re.test(text))) {
+      errors.push(`${path.relative(path.dirname(web), f)}:${line}  «${text.trim().slice(0, 70)}»  → مدة تثبيت السعر من الإعداد lock_hours ({{lock_duration}} / formatHoursAr)`);
+    }
+  }
+}
 for (const { f, customer } of files) {
   for (const { text, line } of strings(f)) {
     const where = `${path.relative(path.dirname(web), f)}:${line}`;
@@ -105,4 +131,4 @@ if (errors.length) {
   console.error(`\n❌ check-copy: ${errors.length} violation(s). See wex-api/docs/GLOSSARY.ar.md`);
   process.exit(1);
 }
-console.log(`✅ check-copy: ${files.length} files clean (glossary, dialect, punctuation, spacing, customer currency).`);
+console.log(`✅ check-copy: ${files.length} files clean (glossary, dialect, punctuation, spacing, customer currency, lock duration).`);

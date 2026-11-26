@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useOutletContext } from 'react-router-dom';
 import {
   Mail,
   ArrowLeft,
@@ -16,8 +16,12 @@ import { useToast } from '../../context/ToastContext';
 import { safeReturnTo } from '../../utils/url';
 import Page from '../../components/common/Page';
 import styles from './Auth.module.css';
+import { formatHoursAr } from '../../utils/arabicDuration';
+import { normalizeShopInfo } from '../../utils/shopSettings';
 
 export default function LoginPage() {
+  // Lock duration from the shop settings (was a hard-coded '4 ساعات').
+  const lockHours = normalizeShopInfo(useOutletContext()?.shopInfo).lockHours;
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -252,7 +256,7 @@ export default function LoginPage() {
             </div>
             <div className={styles.perkChip}>
               <ShieldCheck size={13} className={styles.perkIcon} />
-              <span>تثبيت السعر 4 ساعات</span>
+              <span>تثبيت السعر لمدة {formatHoursAr(lockHours)}</span>
             </div>
           </div>
         </div>

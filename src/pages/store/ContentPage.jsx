@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useOutletContext } from 'react-router-dom';
 import { FileText } from 'lucide-react';
 import AppBar from '../../components/common/AppBar';
 import Page from '../../components/common/Page';
 import Skeleton from '../../components/common/Skeleton';
 import Button from '../../components/common/Button';
 import { productsApi } from '../../api/products';
+import { renderLockDuration } from '../../utils/arabicDuration';
+import { normalizeShopInfo } from '../../utils/shopSettings';
 import styles from './ContentPage.module.css';
 
 /**
@@ -15,6 +17,7 @@ import styles from './ContentPage.module.css';
  */
 export default function ContentPage({ slug: slugProp = null }) {
   const params = useParams();
+  const lockHours = normalizeShopInfo(useOutletContext()?.shopInfo).lockHours;
   const slug = slugProp || params.slug;
   const [page, setPage] = useState(null);
   const [status, setStatus] = useState('loading'); // loading | ready | missing
@@ -37,7 +40,7 @@ export default function ContentPage({ slug: slugProp = null }) {
     return () => { alive = false; };
   }, [slug]);
 
-  const paragraphs = (page?.body || '')
+  const paragraphs = renderLockDuration(page?.body || '', lockHours)
     .split(/\n\s*\n/)
     .map((p) => p.trim())
     .filter(Boolean);

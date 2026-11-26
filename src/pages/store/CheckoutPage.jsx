@@ -19,6 +19,7 @@ import AuthSheet from '../../components/auth/AuthSheet';
 import { swrCache } from '../../utils/swrCache';
 import { idempotencyKeyFor } from '../../utils/idempotency';
 import styles from './CheckoutPage.module.css';
+import { formatHoursAr } from '../../utils/arabicDuration';
 
 const SAVED_PHONE_KEY = 'wex_saved_contact_phone';
 const CHECKOUT_DRAFT_KEY = 'wex_checkout_draft';
@@ -515,7 +516,7 @@ export default function CheckoutPage({
       <StickyBar hideOnInput={true}>
         <div className={styles.stickyContent}>
           <NoticeLine variant="secondary" className={styles.lockNoticeLine}>
-            بعد التأكيد يُثبَّت السعر لمدة {lockHours} ساعات لتحوّل المبلغ وترفع إشعار التحويل.
+            بعد التأكيد يُثبَّت السعر لمدة {formatHoursAr(lockHours)} لتحوّل المبلغ وترفع إشعار التحويل.
           </NoticeLine>
 
           <Button

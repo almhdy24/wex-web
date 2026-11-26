@@ -6,6 +6,7 @@ import Page from '../../components/common/Page';
 import { buildWhatsAppLink, buildTelLink, normalizeShopInfo } from '../../utils/shopSettings';
 import AppBar from '../../components/common/AppBar';
 import styles from './FaqPage.module.css';
+import { formatHoursAr, renderLockDuration } from '../../utils/arabicDuration';
 
 // Answers use the admin shop settings (lock hours, address, hours were hard-coded).
 const buildFaqData = ({ lockHours, address, hours }) => [
@@ -14,10 +15,10 @@ const buildFaqData = ({ lockHours, address, hours }) => [
     items: [
       {
         q: 'كيف يعمل نظام تثبيت السعر؟',
-        a: `بعد تأكيد الطلب، يبقى السعر ثابتًا لمدة ${lockHours} ساعات لتتمكّن من التحويل عبر الحسابات البنكية.`,
+        a: `بعد تأكيد الطلب، يبقى السعر ثابتًا لمدة ${formatHoursAr(lockHours)} لتتمكّن من التحويل عبر الحسابات البنكية.`,
       },
       {
-        q: `ماذا يحدث إذا انتهت مهلة الـ ${lockHours} ساعات دون رفع الإشعار؟`,
+        q: `ماذا يحدث إذا انتهت مهلة تثبيت السعر (${formatHoursAr(lockHours)}) دون رفع الإشعار؟`,
         a: 'عند انتهاء المهلة، تنتهي فترة تثبيت السعر. يمكنك إعادة الطلب بالسعر الحالي من سجل طلباتك.',
       },
     ],
@@ -90,7 +91,7 @@ export default function FaqPage() {
 
   const FAQ_DATA = useMemo(
     () => (adminFaq.length > 0
-      ? [{ category: 'الأسئلة الشائعة', items: adminFaq.map((f) => ({ q: f.question, a: f.answer })) }]
+      ? [{ category: 'الأسئلة الشائعة', items: adminFaq.map((f) => ({ q: renderLockDuration(f.question, shop.lockHours), a: renderLockDuration(f.answer, shop.lockHours) })) }]
       : buildFaqData({ lockHours: shop.lockHours, address: shop.address, hours: shop.workingHours })),
     [adminFaq, shop.lockHours, shop.address, shop.workingHours]
   );

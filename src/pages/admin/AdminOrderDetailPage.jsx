@@ -30,6 +30,7 @@ import OrderNumber, { formatOrderNumber } from '../../components/common/OrderNum
 import OrderDate from '../../components/common/OrderDate';
 import { getNextOrderAction, ORDER_STATUS_LABELS } from '../../utils/orderState';
 import styles from './AdminOrderDetailPage.module.css';
+import { formatHoursAr } from '../../utils/arabicDuration';
 
 function ProofThumbnailItem({ proof, orderNumber, onOpen }) {
   const [blobUrl, setBlobUrl] = useState(null);
@@ -271,7 +272,7 @@ export default function AdminOrderDetailPage({ initialOrder = null, initialLoadi
     setExtendingLock(true);
     try {
       await adminApi.extendLock(orderNumber, lockHours);
-      success(`تم تمديد مهلة السعر بمقدار ${lockHours} ساعات`);
+      success(`تم تمديد مهلة السعر بمقدار ${formatHoursAr(lockHours)}`);
       setLockModalOpen(false);
       loadOrder(false);
     } catch (err) {

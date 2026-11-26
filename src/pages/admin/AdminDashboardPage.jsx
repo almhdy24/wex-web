@@ -31,6 +31,7 @@ import ErrorState from '../../components/common/ErrorState';
 import { Skeleton } from '../../components/common/Skeleton';
 import StatusChip from '../../components/admin/StatusChip';
 import styles from './AdminDashboardPage.module.css';
+import { formatHoursAr } from '../../utils/arabicDuration';
 
 export default function AdminDashboardPage() {
   const { success, error: toastError } = useToast();
@@ -418,7 +419,7 @@ export default function AdminDashboardPage() {
             <span className={styles.metricLabel}>{adminAr.dashboard.priceLockDuration}</span>
             <Clock size={18} className={styles.metricIcon} />
           </div>
-          <div className={styles.metricValue}>{formatCount(price_lock_hours)} ساعات</div>
+          <div className={styles.metricValue}>{formatHoursAr(price_lock_hours)}</div>
           <span className={styles.metricSub}>مهلة التحويل المتاحة للعميل</span>
         </div>
       </section>

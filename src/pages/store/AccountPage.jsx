@@ -40,6 +40,7 @@ import { normalizeSudanPhone, isValidSudanPhone } from '../../utils/formatters';
 import { normalizeShopInfo, buildWhatsAppLink } from '../../utils/shopSettings';
 import { ar } from '../../content/ar';
 import styles from './AccountPage.module.css';
+import { formatHoursAr } from '../../utils/arabicDuration';
 
 const DRAFT_STORAGE_KEY = 'wex_checkout_draft';
 const SAVED_PHONE_KEY = 'wex_saved_contact_phone';
@@ -851,7 +852,7 @@ export default function AccountPage() {
                   <Shield size={18} className={styles.menuRowIcon} />
                   <div>
                     <h4 className={styles.menuRowTitle}>{ar.account.menuPriceLockGuide}</h4>
-                    <p className={styles.menuRowSub}>تثبيت السعر لمدة {normalizeShopInfo(shopInfo).lockHours} ساعات لثبات القيمة عند التحويل</p>
+                    <p className={styles.menuRowSub}>تثبيت السعر لمدة {formatHoursAr(normalizeShopInfo(shopInfo).lockHours)} لثبات القيمة عند التحويل</p>
                   </div>
                 </div>
                 <div className={styles.menuRowRight}>
