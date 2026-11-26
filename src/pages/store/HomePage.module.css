@@ -712,3 +712,21 @@
     margin-top: 40px;
   }
 }
+
+@media (min-width: 1024px) {
+  /* The header already carries the logo; the hero's logo chip + empty top row duplicated it. */
+  .heroTopRow {
+    display: none;
+  }
+
+  /* Exactly one row of new arrivals (a 6th card orphaned onto a second row). */
+  .horizontalCard:nth-child(n + 6) {
+    display: none;
+  }
+
+  .howToOrderPanel {
+    margin: 40px 0 0;
+    border-radius: var(--radius-panel);
+    padding: 28px 32px;
+  }
+}
