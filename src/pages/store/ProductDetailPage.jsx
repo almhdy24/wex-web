@@ -39,6 +39,7 @@ import SpecValue from '../../utils/formatSpecValue';
 import styles from './ProductDetailPage.module.css';
 import { buildSpecRows } from '../../utils/productSpecs';
 import ProductCard from '../../components/products/ProductCard';
+import { isDataSaver } from '../../utils/dataSaver';
 
 function getSpecPath(label = '', key = '') {
   const l = (label + ' ' + key).toLowerCase();
@@ -110,7 +111,7 @@ export default function ProductDetailPage({
   const productId = product?.id ?? null;
   const categoryKey = product?.category?.slug || product?.category_slug || product?.category_id || null;
   useEffect(() => {
-    if (initialRelated !== null || !productId || !categoryKey) return undefined;
+    if (initialRelated !== null || !productId || !categoryKey || isDataSaver()) return undefined;
     const controller = new AbortController();
     productsApi
       .getProducts({ category: categoryKey, per_page: 9 }, { signal: controller.signal })

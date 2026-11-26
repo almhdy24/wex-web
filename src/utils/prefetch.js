@@ -1,6 +1,8 @@
 /**
  * Lightweight Route Prefetcher for storefront navigation
  */
+import { isDataSaver } from './dataSaver';
+
 const prefetchCache = new Set();
 
 const PREFETCH_MAP = {
@@ -17,7 +19,7 @@ const PREFETCH_MAP = {
 };
 
 export function prefetchRoute(pathname) {
-  if (!pathname || prefetchCache.has(pathname)) return;
+  if (!pathname || prefetchCache.has(pathname) || isDataSaver()) return;
   const loader = PREFETCH_MAP[pathname];
   if (loader) {
     prefetchCache.add(pathname);

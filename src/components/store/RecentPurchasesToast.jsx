@@ -4,6 +4,7 @@ import { ShoppingBag, X } from 'lucide-react';
 import { api } from '../../api/client';
 import { getProductImageUrl } from '../../utils/formatters';
 import styles from './RecentPurchasesToast.module.css';
+import { isDataSaver } from '../../utils/dataSaver';
 
 const SESSION_COUNT_KEY = 'wex_recent_purchases_session_count';
 const MAX_PER_SESSION = 3;
@@ -82,7 +83,8 @@ export default function RecentPurchasesToast({
       return;
     }
 
-    if (!tickerEnabled) {
+    // Decorative: not worth a request on Data Saver / 2G.
+    if (!tickerEnabled || isDataSaver()) {
       return;
     }
 

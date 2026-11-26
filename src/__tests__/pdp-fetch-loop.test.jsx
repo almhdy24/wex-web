@@ -75,4 +75,35 @@ describe('ProductDetailPage data loading', () => {
     expect(screen.getAllByText(/HP EliteBook 840 G5/).length).toBeGreaterThan(0);
     expect(document.querySelectorAll('a[href="/products/dell-7490"]').length).toBe(0);
   });
+
+  it('Data Saver: skips the optional similar-devices request', async () => {
+    const original = Object.getOwnPropertyDescriptor(navigator, 'connection');
+    Object.defineProperty(navigator, 'connection', { value: { saveData: true }, configurable: true });
+    try {
+      render(
+        <MemoryRouter initialEntries={['/products/dell-7490']}>
+          <AuthContext.Provider value={{ user: null, isAuthenticated: false }}>
+            <CartContext.Provider value={{ addItem: vi.fn() }}>
+              <ToastContext.Provider value={{ success: vi.fn(), error: vi.fn() }}>
+                <FavoritesContext.Provider value={{ toggleFavorite: vi.fn(), isFavorite: () => false }}>
+                  <CompareContext.Provider value={{ addToCompare: vi.fn(), removeFromCompare: vi.fn(), isInCompare: () => false }}>
+                    <Routes>
+                      <Route path="/products/:slug" element={<ProductDetailPage />} />
+                    </Routes>
+                  </CompareContext.Provider>
+                </FavoritesContext.Provider>
+              </ToastContext.Provider>
+            </CartContext.Provider>
+          </AuthContext.Provider>
+        </MemoryRouter>,
+      );
+      await screen.findAllByText(/Dell Latitude 7490/);
+      await act(async () => { await new Promise((r) => setTimeout(r, 100)); });
+      expect(productsApi.getProductDetail).toHaveBeenCalledTimes(1);
+      expect(productsApi.getProducts).not.toHaveBeenCalled();
+    } finally {
+      if (original) Object.defineProperty(navigator, 'connection', original);
+      else delete navigator.connection;
+    }
+  });
 });
