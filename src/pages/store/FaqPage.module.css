@@ -359,3 +359,17 @@
     font-size: var(--text-3xl);
   }
 }
+
+/* Compact intro: the 56px icon + centred hero took the first screen before any question. */
+.heroHeader {
+  align-items: stretch;
+  text-align: start;
+  padding: 16px;
+  gap: 6px;
+  box-shadow: none;
+  border-color: var(--wex-border);
+}
+
+.iconCircle {
+  display: none;
+}
