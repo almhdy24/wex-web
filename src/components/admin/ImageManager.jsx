@@ -41,6 +41,15 @@ export default function ImageManager({
   const [isDragging, setIsDragging] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(null); // { current, total }
   const [altDrafts, setAltDrafts] = useState({});
+  const [selectedIds, setSelectedIds] = useState(() => new Set());
+
+  const toggleSelected = (imgId) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.has(imgId) ? next.delete(imgId) : next.add(imgId);
+      return next;
+    });
+  };
 
   const isEditMode = Boolean(productId);
   const currentTotal = isEditMode ? images.length : queuedFiles.length;
@@ -221,6 +230,35 @@ export default function ImageManager({
     }
   };
 
+  // Bulk delete every selected image
+  const handleBulkDelete = async () => {
+    const ids = displayList.filter((i) => selectedIds.has(i.id)).map((i) => i.id);
+    if (ids.length === 0) return;
+    setSelectedIds(new Set());
+    if (isEditMode) {
+      onImagesChange(images.filter((img) => !ids.includes(img.id)));
+      let failed = 0;
+      for (const imageId of ids) {
+        try {
+          await adminApi.deleteProductImage(productId, imageId);
+        } catch {
+          failed++;
+        }
+      }
+      const refreshed = await adminApi.getProduct(productId);
+      onImagesChange(refreshed.data?.images || []);
+      failed ? toastError(`تعذّر حذف ${failed} صورة`) : info(`تم حذف ${ids.length} صورة`);
+    } else {
+      ids.forEach((imgId) => {
+        const q = queuedFiles.find((item) => item.id === imgId);
+        if (q?.previewUrl) URL.revokeObjectURL(q.previewUrl);
+      });
+      const filtered = queuedFiles.filter((item) => !ids.includes(item.id));
+      if (filtered.length > 0 && !filtered.some((f) => f.is_primary)) filtered[0].is_primary = true;
+      onQueuedFilesChange(filtered);
+    }
+  };
+
   // Alt Text Save
   const handleSaveAlt = async (targetId, currentVal) => {
     const newAlt = altDrafts[targetId] !== undefined ? altDrafts[targetId] : (currentVal || '');
@@ -308,6 +346,27 @@ export default function ImageManager({
         </div>
       ) : (
         <div className={styles.imagesGrid}>
+          <div className={styles.bulkBar} style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={selectedIds.size > 0 && selectedIds.size === displayList.length}
+                ref={(el) => { if (el) el.indeterminate = selectedIds.size > 0 && selectedIds.size < displayList.length; }}
+                onChange={(e) => setSelectedIds(e.target.checked ? new Set(displayList.map((i) => i.id)) : new Set())}
+              />
+              تحديد الكل
+            </label>
+            {selectedIds.size > 0 && (
+              <button
+                type="button"
+                className={`${styles.actionButton} ${styles.deleteButton}`}
+                onClick={handleBulkDelete}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, width: 'auto', padding: '6px 12px' }}
+              >
+                <Trash2 size={15} /> حذف المحدد ({selectedIds.size})
+              </button>
+            )}
+          </div>
           {displayList.map((item, index) => {
             const isPrimary = Boolean(item.is_primary);
             const imgSrc = isEditMode
@@ -321,6 +380,14 @@ export default function ImageManager({
                 className={`${styles.imageCard} ${isPrimary ? styles.imageCardPrimary : ''}`}
               >
                 <div className={styles.imageThumbWrap}>
+                  <input
+                    type="checkbox"
+                    className={styles.selectBox}
+                    checked={selectedIds.has(item.id)}
+                    onChange={() => toggleSelected(item.id)}
+                    aria-label="تحديد الصورة"
+                    style={{ position: 'absolute', top: 6, insetInlineStart: 6, width: 20, height: 20, zIndex: 2, cursor: 'pointer' }}
+                  />
                   <img src={imgSrc} alt={currentAlt || 'صورة الجهاز'} className={styles.imageThumb} />
                   {isPrimary && (
                     <span className={styles.primaryBadge}>
