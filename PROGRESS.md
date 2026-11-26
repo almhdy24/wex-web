@@ -469,10 +469,10 @@ Rebuilding storefront UI as ONE mobile-app-style experience identical on phone a
   - `AdminProductsPage` & `AdminProductFormPage`: product catalog with inline quick stock editor, specifications builder with presets (laptop, phone), multi-image upload with primary selector, and accessory linking.
   - `AdminRatesPage`, `AdminSettingsPage`, `AdminShippingZonesPage`, `AdminUsersPage`, `AdminAuditLogsPage`: converted to CSS Modules with `AdminCommon.module.css`, brand ribbon decorative divider under all admin page titles, zero inline styles, zero forbidden words, zero emojis.
   - Verified with clean ESLint (0 errors), 24 passing unit tests, and production build.
-- [ ] **Redesign Phase 7: Copy, A11y & Performance Pass**
+- [x] **Redesign Phase 7: Copy, A11y & Performance Pass** (done: see Redesign & Hardening Track, commit `e678743`)
   - Complete copy review eliminating all forbidden words.
   - React.lazy for routes, admin chunk segregation, LCP preloads.
-- [ ] **Redesign Phase 8: Final Audit & Verification**
+- [x] **Redesign Phase 8: Final Audit & Verification** (done: see Redesign & Hardening Track)
   - Automated grep checks: zero inline styles, zero emojis, zero forbidden words, zero Cairo.
   - Full lint, test, build verification and documentation updates.
 

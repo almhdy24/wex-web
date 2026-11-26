@@ -149,6 +149,28 @@ async function main() {
       throw new Error(`testing-login failed: ${login.status()} ${await login.text()}`);
     }
 
+    // '/orders/WEX-101' never existed in the CI seed: the API answered 404 and Chromium logged
+    // 'Failed to load resource' on every viewport. Open a real seeded order instead (admins may
+    // read any order on the customer endpoint).
+    const orderRoute = ROUTES.find((r) => r.name === 'store-order-detail');
+    if (orderRoute && !orderRoute.resolved) {
+      orderRoute.resolved = true;
+      try {
+        const token = (await login.json())?.data?.access_token;
+        const res = await context.request.get(`${apiBase}/admin/orders?per_page=1`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const num = (await res.json())?.data?.[0]?.order_number;
+        if (num) {
+          orderRoute.path = `/orders/${num}`;
+        } else {
+          orderRoute.skip = 'no seeded order';
+        }
+      } catch (e) {
+        orderRoute.skip = `order lookup failed: ${e.message}`;
+      }
+    }
+
     const page = await context.newPage();
 
     // Listeners are attached once per page; adding them inside the route loop stacked
@@ -177,6 +199,10 @@ async function main() {
     });
 
     for (const route of ROUTES) {
+      if (route.skip) {
+        console.log(`  - [${vp.name}] ${route.name} skipped (${route.skip})`);
+        continue;
+      }
       const url = `${BASE_URL}${route.path}`;
       consoleErrors = [];
 
