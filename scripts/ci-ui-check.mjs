@@ -156,6 +156,17 @@ async function main() {
     let consoleErrors = [];
     // Name the failing URL: 'Failed to load resource' alone is not diagnosable.
     page.on('requestfailed', (req) => console.log(`   ↳ request failed: ${req.method()} ${req.url()} (${req.failure()?.errorText})`));
+    // Requests still open when networkidle times out: which, what type, for how long.
+    const inflight = new Map();
+    page.on('request', (req) => inflight.set(req, Date.now()));
+    page.on('requestfinished', (req) => inflight.delete(req));
+    page.on('requestfailed', (req) => inflight.delete(req));
+    const dumpInflight = () => {
+      const now = Date.now();
+      for (const [req, t0] of inflight) {
+        console.error(`     ⏳ open ${now - t0}ms ${req.resourceType()} ${req.method()} ${req.url()}`);
+      }
+    };
     page.on('console', (msg) => {
       if (msg.type() === 'error') {
         consoleErrors.push(msg.text());
@@ -394,6 +405,7 @@ async function main() {
         totalCaptured++;
       } catch (err) {
         console.error(`  ❌ [${vp.name}] ${route.path}: Failed to capture - ${err.message}`);
+        dumpInflight();
         totalErrors++;
       }
     }

@@ -123,7 +123,15 @@ jobs:
 
       - name: API server log (on failure)
         if: failure()
-        run: tail -n 200 /tmp/api.log || true
+        run: |
+          echo "== requests per store endpoint (Accepted vs answered) =="
+          for u in 'orders?per_page=5' 'orders?status=pending_payment' 'notifications/unread-count' 'auth/refresh'; do
+            echo "$u: $(grep -cF "$u" /tmp/api.log || true)"
+          done
+          echo "== connections accepted but never answered =="
+          awk '/Accepted/{a[$7]=$0} /\]: [A-Z]+ /{delete a[$7]} END{for(k in a) print a[k]}' /tmp/api.log | head -40
+          echo "== first 150 lines =="; head -n 150 /tmp/api.log || true
+          echo "== last 100 lines =="; tail -n 100 /tmp/api.log || true
 
       - name: Upload Multi-Viewport Screenshots
         if: always()

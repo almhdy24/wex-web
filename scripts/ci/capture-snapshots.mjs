@@ -32,8 +32,8 @@ const ROUTES = [
   { name: '01-home', path: '/', auth: false },
   { name: '02-catalog', path: '/catalog', auth: false },
   { name: '03-product-detail', path: '/products/thinkpad-t480s', auth: false },
-  { name: '04-cart', path: '/cart', auth: false },
-  { name: '05-checkout', path: '/checkout', auth: true },
+  { name: '04-cart', path: '/cart', auth: false, cart: true },
+  { name: '05-checkout', path: '/checkout', auth: true, cart: true },
   { name: '06-order-detail-confirmed', path: '/orders/WEX-261123-3353B', auth: true },
   { name: '07-order-detail-pending', path: '/orders/WEX-PENDING-001', auth: true },
   { name: '08-order-detail-expired', path: '/orders/WEX-EXPIRED-001', auth: true },
@@ -130,6 +130,15 @@ async function run() {
       page.on('pageerror', (err) => {
         consoleErrors.push(err.message);
       });
+
+      // Cart and checkout with an empty cart both render the 'السلة فارغة' screen, so
+      // neither page was ever captured in use. Seed one fixture product.
+      if (route.cart) {
+        const p = productsFixture?.data?.[0] || productsFixture?.[0];
+        await page.addInitScript((item) => {
+          localStorage.setItem('wex_cart_items', JSON.stringify([item]));
+        }, { ...p, quantity: 1 });
+      }
 
       // Inject authentication tokens if route requires auth
       if (route.auth) {
