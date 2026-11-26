@@ -1,5 +1,23 @@
 # Wex Technology Web - Project Progress Tracker
 
+## Design Rounds Sprint (Branch: stabilize) — Active (started 2026-11-26)
+
+Method: critique → improve → prove, 3 rounds over every screen, from CI captures
+(`ui-snapshots.yml`: 42 routes × 360/1280, real recorded API data, studio photos).
+Critiques and results: `docs/UX_ROUNDS.md`.
+
+- [x] Harness: every screen + all order states, filter/login sheets; recorded fixtures
+  (`scripts/ci/record-fixtures.sh`), studio product photos, whole mobile screens.
+- [x] Round 1 improve: desktop layouts (catalog sidebar + grid, PDP 2-col, cart/checkout
+  summary column, order detail aside, orders 2-col), price-led product card, desktop page
+  banner + breadcrumbs, compact mobile chrome, favorites grid, compare at 360, admin filter
+  row; one type scale/palette/elevation (0 literal font sizes).
+- [x] Bugs found by review: admin list had no images (API), accessories labelled used
+  (API + web), guests sent a 401 refresh per page, refresh on hidden tab, admin order
+  number clipped.
+- [ ] Round 1 prove · [ ] Round 2 · [ ] Round 3 · [ ] Final double check
+
+
 ## Stabilization, Local HTTPS & UX/IA Sprint (Branch: stabilize) — Complete
 
 - [x] **Phase 3, 4, 5, 6: Storefront IA, Admin Nav/Crawler, Quality Gates & Delivery Readiness**
