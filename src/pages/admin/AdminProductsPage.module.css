@@ -465,3 +465,21 @@
     min-width: 220px;
   }
 }
+
+/* Visibility toggle: the chip itself is the control (it sat in a 36px square icon button
+   and spilled out of it). */
+.statusToggleBtn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  border-radius: var(--radius-pill);
+}
+
+.statusToggleBtn:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
+}

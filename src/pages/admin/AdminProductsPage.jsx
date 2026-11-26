@@ -426,7 +426,7 @@ export default function AdminProductsPage() {
         return (
           <button
             type="button"
-            className={styles.actionIconBtn}
+            className={styles.statusToggleBtn}
             onClick={() => handleToggleActive(p)}
             title={isActive ? 'إخفاء من المتجر' : 'تفعيل العرض في المتجر'}
             aria-label={isActive ? 'إخفاء من المتجر' : 'تفعيل العرض في المتجر'}
