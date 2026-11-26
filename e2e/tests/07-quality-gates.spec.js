@@ -80,15 +80,17 @@ test.describe('07: Storefront & Admin Quality Gates', () => {
 
     // Compare the DOM order of the home sections themselves. (innerText.indexOf was
     // time-dependent: the rotating hero has a 'طريقة الطلب' button above every section.)
-    await expect(page.locator('section[aria-label="وصل حديثاً"]')).toBeVisible({ timeout: 10000 });
+    // Product sections may be the built-in rows or admin home sections (/admin/home-sections);
+    // the IA rule is the same: products first, then how-to-order, then the store card.
+    await expect(page.locator('section[data-home-section="products"]').first()).toBeVisible({ timeout: 10000 });
     const domOrderOk = await page.evaluate(() => {
-      const labels = ['وصل حديثاً', 'مختارات المتجر', 'طريقة الطلب', 'معلومات المتجر'];
-      const all = Array.from(document.querySelectorAll('section[aria-label]'));
-      const idx = labels.map((l) => all.findIndex((el) => el.getAttribute('aria-label') === l));
-      const [n, p, h, st] = idx;
-      return n !== -1 && p !== -1 && h !== -1 && n < p && p < h && (st === -1 || h < st);
+      const all = Array.from(document.querySelectorAll('section'));
+      const products = all.map((el, i) => (el.dataset.homeSection === 'products' ? i : -1)).filter((i) => i !== -1);
+      const h = all.findIndex((el) => el.getAttribute('aria-label') === 'طريقة الطلب');
+      const st = all.findIndex((el) => el.getAttribute('aria-label') === 'معلومات المتجر');
+      return products.length > 0 && h !== -1 && products.every((i) => i < h) && (st === -1 || h < st);
     });
-    expect(domOrderOk, 'HomePage sections must follow IA order: وصل حديثاً -> مختارات المتجر -> طريقة الطلب -> المتجر').toBe(true);
+    expect(domOrderOk, 'HomePage IA: product sections -> طريقة الطلب -> المتجر').toBe(true);
 
     // Cross-surface check: Admin disables/enables orders_enabled or updates and Storefront reflects it
     await loginAs(page, 'admin@wextechnology.com');

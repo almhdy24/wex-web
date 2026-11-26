@@ -351,7 +351,7 @@ export default function HomePage({
           built-in rows only when none are configured. */}
       {homeSections.length > 0 ? (
         homeSections.map((sec) => (
-          <section key={sec.id || sec.key} className={styles.featuredSection} aria-label={sec.title}>
+          <section key={sec.id || sec.key} className={styles.featuredSection} aria-label={sec.title} data-home-section="products">
             <Reveal>
               <div className={styles.featuredHeader}>
                 <h2 className={styles.featuredTitle}>{sec.title}</h2>
@@ -372,7 +372,7 @@ export default function HomePage({
         <>
       {/* 5a. "وصل حديثاً" horizontal product row */}
       {newArrivals.length > 0 && (
-        <section className={styles.featuredSection} aria-label="وصل حديثاً">
+        <section className={styles.featuredSection} aria-label="وصل حديثاً" data-home-section="products">
           <Reveal>
             <div className={styles.featuredHeader}>
               <h2 className={styles.featuredTitle}>وصل حديثاً</h2>
@@ -394,7 +394,7 @@ export default function HomePage({
 
       {/* 5b. "مختارات المتجر" grid */}
       {featuredProducts.length > 0 && (
-        <section className={styles.featuredSection} aria-label="مختارات المتجر">
+        <section className={styles.featuredSection} aria-label="مختارات المتجر" data-home-section="products">
           <Reveal>
             <div className={styles.featuredHeader}>
               <h2 className={styles.featuredTitle}>مختارات المتجر</h2>
