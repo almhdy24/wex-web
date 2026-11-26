@@ -86,6 +86,8 @@ export const router = createBrowserRouter([
       { path: 'faq', element: load(FaqPage) },
       // Store pages edited in admin (/admin/pages); there was no route for them.
       { path: 'p/:slug', element: load(ContentPage) },
+      // The API's server-rendered previews and sitemap publish store pages at /pages/<slug>.
+      { path: 'pages/:slug', element: load(ContentPage) },
       { path: 'about', element: <Suspense fallback={<PageFallback />}><ContentPage slug="about" /></Suspense> },
       { path: 'privacy-policy', element: <Suspense fallback={<PageFallback />}><ContentPage slug="privacy-policy" /></Suspense> },
       { path: 'terms', element: <Suspense fallback={<PageFallback />}><ContentPage slug="terms" /></Suspense> },
