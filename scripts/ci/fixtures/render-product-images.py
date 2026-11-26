@@ -119,6 +119,21 @@ def ssd():
     return im
 
 
+def receipt():
+    # A bank-transfer screenshot stand-in (portrait phone capture): bars, not text.
+    w, h = 600 * S, 900 * S
+    im = Image.new('RGB', (w, h), (238, 242, 248))
+    d = ImageDraw.Draw(im)
+    d.rectangle((0, 0, w, 110 * S), fill=(12, 74, 156))
+    d.rounded_rectangle((40 * S, 150 * S, w - 40 * S, 820 * S), radius=24 * S, fill=(255, 255, 255))
+    d.ellipse((w // 2 - 46 * S, 190 * S, w // 2 + 46 * S, 282 * S), fill=(34, 160, 90))
+    d.line([(w // 2 - 22 * S, 236 * S), (w // 2 - 6 * S, 252 * S), (w // 2 + 24 * S, 218 * S)], fill=(255, 255, 255), width=10 * S)
+    for i, (x0, ww) in enumerate([(160, 280), (200, 200), (120, 360), (120, 360), (120, 360), (120, 360), (200, 200)]):
+        y = (330 + i * 64) * S
+        d.rounded_rectangle((x0 * S, y, (x0 + ww) * S, y + 22 * S), radius=8 * S, fill=(214, 222, 234) if i else (40, 52, 80))
+    return im
+
+
 ITEMS = {
     'laptop-silver': lambda: laptop((198, 203, 211), (70, 120, 210)),
     'laptop-black': lambda: laptop((44, 47, 54), (40, 90, 190)),
@@ -133,6 +148,7 @@ ITEMS = {
 
 if __name__ == '__main__':
     os.makedirs(OUT, exist_ok=True)
+    receipt().resize((600, 900), Image.LANCZOS).save(os.path.join(OUT, 'receipt.jpg'), quality=82, optimize=True)
     for name, fn in ITEMS.items():
         im = fn().resize((W, H), Image.LANCZOS)
         im.save(os.path.join(OUT, f'{name}.jpg'), quality=84, optimize=True, progressive=True)

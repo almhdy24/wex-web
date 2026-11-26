@@ -42,6 +42,15 @@ describe('session refresh on tab visibility', () => {
     setVisibility('visible');
   });
 
+  it('guest (no cached profile): no refresh request on load or on tab focus', async () => {
+    localStorage.clear();
+    render(<AuthProvider><div /></AuthProvider>);
+    await act(async () => { await Promise.resolve(); });
+    setVisibility('visible');
+    await act(async () => { document.dispatchEvent(new Event('visibilitychange')); });
+    expect(performTokenRefresh).not.toHaveBeenCalled();
+  });
+
   it('does not refresh when the page becomes hidden; does when it becomes visible', async () => {
     render(<AuthProvider><div /></AuthProvider>);
     await act(async () => { await Promise.resolve(); });

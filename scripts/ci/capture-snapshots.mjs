@@ -100,6 +100,9 @@ async function handleApi(route) {
   if (EXACT[p]) return route.fulfill({ json: rec(EXACT[p]) });
 
   let m;
+  if (/\/payment-proof\/\d+\/image$|\/proofs\/\d+\/image$/.test(p)) {
+    return route.fulfill({ path: path.join(IMG, 'receipt.jpg'), contentType: 'image/jpeg' });
+  }
   if ((m = p.match(/^\/products\/([^/]+)$/))) {
     const slug = decodeURIComponent(m[1]);
     const item = productList.find((x) => x.slug === slug);
@@ -110,6 +113,8 @@ async function handleApi(route) {
   if ((m = p.match(/^\/(admin\/)?orders\/([^/]+)$/))) {
     const o = orderByNumber[decodeURIComponent(m[2])];
     if (o) return route.fulfill({ json: o });
+    // The admin payment queue also lists seeded orders outside the four recorded ones.
+    if (m[1]) return route.fulfill({ json: rec('admin-order') });
     return route.fulfill({ status: 404, json: { success: false, message: 'الطلب غير موجود.' } });
   }
   if (p === '/orders') return route.fulfill({ json: ordersList });
@@ -141,7 +146,8 @@ const ROUTES = [
   { name: '07-checkout', path: '/checkout', cart: true, ...customer },
   { name: '08-checkout-login-sheet', path: '/checkout', cart: true, action: async (page) => {
     await page.locator('input[type="tel"]').first().fill('0912345678');
-    await page.getByRole('button', { name: /تأكيد الطلب/ }).last().click();
+    // A hidden (responsive) duplicate made `.last()` wait forever; click the visible one.
+    await page.locator('button:visible', { hasText: 'تأكيد الطلب' }).last().click();
     await page.waitForTimeout(400);
   } },
   { name: '09-orders', path: '/orders', ...customer },

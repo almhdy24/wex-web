@@ -37,6 +37,8 @@ export function AuthProvider({ children }) {
     return null;
   });
 
+  const userRef = useRef(user);
+  userRef.current = user;
   const [accessToken, setAccessTokenState] = useState(null);
   const [loading, setLoading] = useState(true);
   const refreshTimerRef = useRef(null);
@@ -140,6 +142,7 @@ export function AuthProvider({ children }) {
   // Proactive refresh on window focus, visibilitychange, and online events (debounced 60s)
   useEffect(() => {
     const handleReactivation = async () => {
+      if (!userRef.current) return; // guest: nothing to refresh
       const now = Date.now();
       if (now - lastActiveRefreshRef.current < 60000) return;
       // Only when the page is (again) visible. The old `visible || navigator.onLine` was true
@@ -197,6 +200,13 @@ export function AuthProvider({ children }) {
     let isMounted = true;
 
     async function initSession() {
+      // No cached profile means no sign-in on this browser (every sign-in path writes
+      // wex_user): a refresh would only return 401. Guests no longer pay a request and a
+      // console error on every page load.
+      if (!userRef.current) {
+        setLoading(false);
+        return;
+      }
       try {
         const token = await performTokenRefresh();
         if (token && isMounted) {
