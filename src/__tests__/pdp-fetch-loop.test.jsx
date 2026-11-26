@@ -20,6 +20,7 @@ vi.mock('../api/products', () => ({
   productsApi: {
     getProductDetail: vi.fn(),
     getShippingZones: vi.fn().mockResolvedValue({ data: [] }),
+    getProducts: vi.fn(),
   },
 }));
 vi.mock('../api/shop', () => ({ shopApi: { getShop: vi.fn().mockResolvedValue({ data: {} }) } }));
@@ -27,13 +28,16 @@ vi.mock('../api/shop', () => ({ shopApi: { getShop: vi.fn().mockResolvedValue({ 
 import { productsApi } from '../api/products';
 import ProductDetailPage from '../pages/store/ProductDetailPage';
 
-const product = { id: 7, slug: 'dell-7490', name: 'Dell Latitude 7490', type: 'laptop', condition: 'used_imported', price_sdg: 500000, stock_status: 'in_stock', images: [] };
+const product = { id: 7, slug: 'dell-7490', name: 'Dell Latitude 7490', type: 'laptop', condition: 'used_imported', price_sdg: 500000, stock_status: 'in_stock', images: [], category: { id: 1, slug: 'laptops' } };
 
 beforeEach(() => {
   vi.clearAllMocks();
   swrCache.clear();
   // Fresh object on every call, like a real network response.
   productsApi.getProductDetail.mockImplementation(() => Promise.resolve({ data: { ...product } }));
+  productsApi.getProducts.mockImplementation(() => Promise.resolve({
+    data: [{ ...product }, { id: 8, slug: 'hp-840', name: 'HP EliteBook 840 G5', price_sdg: 490000, stock_status: 'in_stock' }],
+  }));
   window.matchMedia = window.matchMedia || (() => ({ matches: false, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {} }));
   window.scrollTo = window.scrollTo || (() => {});
   globalThis.IntersectionObserver = globalThis.IntersectionObserver || class { observe() {} unobserve() {} disconnect() {} };
@@ -64,5 +68,11 @@ describe('ProductDetailPage data loading', () => {
     await act(async () => { await new Promise((r) => setTimeout(r, 300)); });
 
     expect(productsApi.getProductDetail).toHaveBeenCalledTimes(1);
+    // Similar devices: one category request, current product excluded, no loop.
+    expect(productsApi.getProducts).toHaveBeenCalledTimes(1);
+    expect(productsApi.getProducts.mock.calls[0][0]).toMatchObject({ category: 'laptops' });
+    expect(await screen.findByText('أجهزة مشابهة')).toBeTruthy();
+    expect(screen.getAllByText(/HP EliteBook 840 G5/).length).toBeGreaterThan(0);
+    expect(document.querySelectorAll('a[href="/products/dell-7490"]').length).toBe(0);
   });
 });

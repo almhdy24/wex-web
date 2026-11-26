@@ -86,3 +86,43 @@ describe('product page specs (VIS-01)', () => {
     expect(specRowCount(html)).toBe(0);
   });
 });
+
+// UX audit: compatible accessories were linked in admin but never shown (dropped in the
+// app-shell redesign); "related products" did not exist.
+describe('product page accessories and similar devices', () => {
+  beforeEach(() => swrCache.clear());
+
+  function renderWith(product, related) {
+    return renderToStaticMarkup(
+      <MemoryRouter>
+        <ToastContext.Provider value={{ success: () => {}, error: () => {} }}>
+          <CartContext.Provider value={{ addItem: () => {} }}>
+            <FavoritesContext.Provider value={{ isFavorite: () => false, toggleFavorite: () => {} }}>
+              <CompareContext.Provider value={{ isInCompare: () => false, addToCompare: () => {} }}>
+                <ProductDetailPage initialProduct={{ ...base, ...product }} initialLoading={false} initialRelated={related} />
+              </CompareContext.Provider>
+            </FavoritesContext.Provider>
+          </CartContext.Provider>
+        </ToastContext.Provider>
+      </MemoryRouter>
+    );
+  }
+
+  it('shows admin-linked accessories and similar devices as cards', () => {
+    const html = renderWith(
+      { accessories: [{ id: 9, slug: 'mouse-b170', name: 'ماوس لاسلكي B170', price_sdg: 115500, stock_status: 'in_stock', image: { thumb_path: '/uploads/products/m_thumb.jpg' } }] },
+      [{ id: 3, slug: 'hp-840', name: 'HP EliteBook 840 G5', price_sdg: 490000, stock_status: 'in_stock' }]
+    );
+    expect(html).toContain('ملحقات متوافقة');
+    expect(html).toContain('ماوس لاسلكي B170');
+    expect(html).toContain('href="/products/mouse-b170"');
+    expect(html).toContain('أجهزة مشابهة');
+    expect(html).toContain('HP EliteBook 840 G5');
+  });
+
+  it('renders neither section when there is nothing to show', () => {
+    const html = renderWith({ accessories: [] }, []);
+    expect(html).not.toContain('ملحقات متوافقة');
+    expect(html).not.toContain('أجهزة مشابهة');
+  });
+});

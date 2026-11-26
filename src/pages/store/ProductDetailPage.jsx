@@ -38,6 +38,7 @@ import { normalizeShopInfo, buildWhatsAppShareLink, productShareText } from '../
 import SpecValue from '../../utils/formatSpecValue';
 import styles from './ProductDetailPage.module.css';
 import { buildSpecRows } from '../../utils/productSpecs';
+import ProductCard from '../../components/products/ProductCard';
 
 function getSpecPath(label = '', key = '') {
   const l = (label + ' ' + key).toLowerCase();
@@ -71,6 +72,7 @@ export default function ProductDetailPage({
   initialShippingZones = null,
   initialLoading = null,
   initialTab = 'specs',
+  initialRelated = null,
 } = {}) {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -101,6 +103,26 @@ export default function ProductDetailPage({
   const [activeTab, setActiveTab] = useState(initialTab); // 'specs' | 'delivery'
   const [isAdded, setIsAdded] = useState(false);
   const slideRefs = useRef([]);
+  const [relatedProducts, setRelatedProducts] = useState(initialRelated || []);
+
+  // "أجهزة مشابهة": same category, one list request after the product is known. Keyed on
+  // primitives only (an object dependency here is how WEB-PERF-01's fetch loop happened).
+  const productId = product?.id ?? null;
+  const categoryKey = product?.category?.slug || product?.category_slug || product?.category_id || null;
+  useEffect(() => {
+    if (initialRelated !== null || !productId || !categoryKey) return undefined;
+    const controller = new AbortController();
+    productsApi
+      .getProducts({ category: categoryKey, per_page: 9 }, { signal: controller.signal })
+      .then((res) => {
+        const list = Array.isArray(res?.data) ? res.data : [];
+        setRelatedProducts(list.filter((p) => p && p.id !== productId).slice(0, 8));
+      })
+      .catch(() => {
+        // Optional section: on failure it simply does not appear.
+      });
+    return () => controller.abort();
+  }, [productId, categoryKey, initialRelated]);
 
   // Images
   const galleryImages = useMemo(() => {
@@ -577,6 +599,33 @@ export default function ProductDetailPage({
               </p>
             </div>
           </div>
+        )}
+
+        {/* Compatible accessories linked by the admin (dropped in the app-shell redesign) */}
+        {Array.isArray(product.accessories) && product.accessories.length > 0 && (
+          <section className={styles.relatedSection} aria-labelledby="pdp-accessories-title">
+            <h2 id="pdp-accessories-title" className={styles.relatedTitle}>ملحقات متوافقة</h2>
+            <div className={styles.relatedRow}>
+              {product.accessories.map((acc, idx) => (
+                <div key={acc.id} className={styles.relatedCard}>
+                  <ProductCard product={acc} index={idx} />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {relatedProducts.length > 0 && (
+          <section className={styles.relatedSection} aria-labelledby="pdp-related-title">
+            <h2 id="pdp-related-title" className={styles.relatedTitle}>أجهزة مشابهة</h2>
+            <div className={styles.relatedRow}>
+              {relatedProducts.map((rel, idx) => (
+                <div key={rel.id} className={styles.relatedCard}>
+                  <ProductCard product={rel} index={idx} />
+                </div>
+              ))}
+            </div>
+          </section>
         )}
 
         {/* Purchase Bar (Fixed) */}
