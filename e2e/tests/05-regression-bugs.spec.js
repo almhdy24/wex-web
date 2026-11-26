@@ -136,8 +136,10 @@ test.describe('05: Regression Suite for Specific Mobile & Visual Bugs', () => {
     await page.goto('/products');
     await page.waitForLoadState('domcontentloaded');
 
-    // Inspect buttons with icons
+    // Inspect buttons with icons. The catalog is a lazy route: counting right after
+    // domcontentloaded raced its render (0 buttons on a slow run). Wait for the first one.
     const buttonsWithIcons = page.locator('button svg');
+    await buttonsWithIcons.first().waitFor({ state: 'attached', timeout: 15000 });
     const count = await buttonsWithIcons.count();
     expect(count).toBeGreaterThan(0);
 
