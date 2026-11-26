@@ -3,6 +3,7 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
 import HomePage from '../pages/store/HomePage';
+import StoreFooter from '../components/store/StoreFooter';
 import { AuthContext } from '../context/AuthContext';
 import { CartContext } from '../context/CartContext';
 import { ToastContext } from '../context/ToastContext';
@@ -92,6 +93,20 @@ describe('HomePage Rescue Verification (Phase 2)', () => {
       </MemoryRouter>
     );
   }
+
+  // VIS-04: the desktop footer listed 4 order steps while the home panel lists 3.
+  it('footer "طريقة الطلب" lists exactly the home panel steps', () => {
+    const strip = (t) => t.replace(/<[^>]+>/g, '').trim();
+    const homeSteps = [...renderHome().matchAll(/<p class="[^"]*stepText[^"]*">([^<]+)<\/p>/g)].map((m) => strip(m[1]));
+    const footerHtml = renderToStaticMarkup(
+      <MemoryRouter>
+        <StoreFooter shopInfo={null} />
+      </MemoryRouter>
+    );
+    const footerSteps = [...footerHtml.matchAll(/<div class="[^"]*stepItem[^"]*">([^<]+)<\/div>/g)].map((m) => strip(m[1]).replace(/^\d+\.\s*/, ''));
+    expect(homeSteps).toHaveLength(3);
+    expect(footerSteps).toEqual(homeSteps);
+  });
 
   it('renders guest greeting and search with 12h time price caption', () => {
     const html = renderHome();

@@ -132,6 +132,9 @@ async function main() {
       deviceScaleFactor: vp.deviceScaleFactor || 1,
       isMobile: vp.isMobile ?? false,
       hasTouch: vp.hasTouch ?? false,
+      // Full-page captures never scroll, so <Reveal> sections (opacity 0 until intersected)
+      // were blank bands in every screenshot (VIS-04). Reduced motion renders them at rest.
+      reducedMotion: 'reduce',
       // Requests made by the service worker bypass context.route() mocks and hit the
       // unmocked network (net::ERR_FAILED, stuck skeletons). Snapshots test the page, not the SW.
       serviceWorkers: 'block',

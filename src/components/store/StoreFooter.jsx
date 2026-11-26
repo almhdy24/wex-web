@@ -120,7 +120,6 @@ export default function StoreFooter({ shopInfo = null }) {
               <div className={styles.stepItem}>{ar.desktop.footer.step1}</div>
               <div className={styles.stepItem}>{ar.desktop.footer.step2}</div>
               <div className={styles.stepItem}>{ar.desktop.footer.step3}</div>
-              <div className={styles.stepItem}>{ar.desktop.footer.step4}</div>
             </div>
             <div className={styles.trustBadge}>
               <ShieldCheck size={18} className={styles.trustIcon} />

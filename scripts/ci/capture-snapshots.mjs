@@ -67,6 +67,9 @@ async function run() {
     const context = await browser.newContext({
       viewport: { width: vp.width, height: vp.height },
       locale: 'ar-SD',
+      // Full-page captures never scroll, so <Reveal> sections (opacity 0 until intersected)
+      // were blank bands in every screenshot (VIS-04). Reduced motion renders them at rest.
+      reducedMotion: 'reduce',
       // Requests made by the service worker bypass context.route() mocks and hit the
       // unmocked network (net::ERR_FAILED, stuck skeletons). Snapshots test the page, not the SW.
       serviceWorkers: 'block',
