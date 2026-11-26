@@ -190,6 +190,7 @@ export default function AdminFaqPage() {
                     onClick={() => handleMove(idx, 'up')}
                     className={styles.iconBtn}
                     title="تحريك لأعلى"
+                    aria-label="تحريك لأعلى"
                   >
                     <ArrowUp size={16} />
                   </button>
@@ -199,13 +200,15 @@ export default function AdminFaqPage() {
                     onClick={() => handleMove(idx, 'down')}
                     className={styles.iconBtn}
                     title="تحريك لأسفل"
+                    aria-label="تحريك لأسفل"
                   >
                     <ArrowDown size={16} />
                   </button>
                 </div>
 
                 <div className={styles.crudBtns}>
-                  <button type="button" onClick={() => handleEdit(faq)} className={styles.iconBtn} title="تعديل">
+                  <button type="button" onClick={() => handleEdit(faq)} className={styles.iconBtn} title="تعديل"
+                    aria-label="تعديل">
                     <Edit2 size={16} />
                   </button>
                   <button
@@ -213,6 +216,7 @@ export default function AdminFaqPage() {
                     onClick={() => handleDeleteRequest(faq)}
                     className={`${styles.iconBtn} ${styles.deleteBtn}`}
                     title="حذف"
+                    aria-label="حذف"
                   >
                     <Trash2 size={16} />
                   </button>

@@ -212,3 +212,24 @@
   gap: 16px;
   padding: 16px 0;
 }
+
+.faqQuestion {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Mobile: four icon buttons + status shared the question's row, leaving ~80px: the
+   question ran one word per line. Content full width, actions in a footer row. */
+@media (max-width: 767px) {
+  .faqCard {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .faqActions {
+    justify-content: space-between;
+    padding-top: 10px;
+    border-top: 1px solid var(--wex-border);
+  }
+}
