@@ -967,3 +967,19 @@
     display: none;
   }
 }
+
+/* Header: one-line title, status + date on the second row */
+.orderHeaderTitle {
+  font-size: var(--text-lg);
+}
+
+.orderHeaderDateRow {
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 1024px) {
+  .orderHeaderTitle {
+    font-size: var(--text-2xl);
+  }
+}

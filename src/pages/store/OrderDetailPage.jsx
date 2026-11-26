@@ -480,9 +480,11 @@ export default function OrderDetailPage({
                 <span>طلب </span>
                 <OrderNumber value={order.order_number} withHash />
               </h1>
-              <span className={styles.headerStatusChip}>{uiState.label}</span>
             </div>
+            {/* Status beside the date: title + chip on one row wrapped the number onto a
+                second line at 360px (a ~220px navy slab). */}
             <div className={styles.orderHeaderDateRow}>
+              <span className={styles.headerStatusChip}>{uiState.label}</span>
               <OrderDate date={order.created_at} label="تاريخ الطلب:" />
             </div>
           </div>
