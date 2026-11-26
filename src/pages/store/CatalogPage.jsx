@@ -250,6 +250,109 @@ export default function CatalogPage({
   if (urlPrice !== 'all') activeFiltersCount++;
   if (urlSort !== 'newest') activeFiltersCount++;
 
+  // Filter sections, shared by the mobile sheet (draft, applied on تطبيق) and the desktop
+  // sidebar (applied immediately).
+  const renderFilterSections = (f) => (
+    <>
+    {/* Brand section */}
+    <div className={styles.sheetSection}>
+      <h3 className={styles.sheetSectionTitle}>الماركة</h3>
+      <div className={styles.sheetChipsWrap}>
+        <Chip
+          selected={f.brand === 'all'}
+          onClick={() => f.set.brand('all')}
+          size="sm"
+        >
+          الكل
+        </Chip>
+        {brandsList.map((brand) => (
+          <Chip
+            key={brand}
+            selected={f.brand === brand}
+            onClick={() => f.set.brand(brand)}
+            size="sm"
+          >
+            {brand}
+          </Chip>
+        ))}
+      </div>
+    </div>
+
+    {/* Condition section */}
+    <div className={styles.sheetSection}>
+      <h3 className={styles.sheetSectionTitle}>الحالة</h3>
+      <div className={styles.sheetChipsWrap}>
+        {CONDITION_OPTIONS.map((opt) => (
+          <Chip
+            key={opt.id}
+            selected={f.condition === opt.id}
+            onClick={() => f.set.condition(opt.id)}
+            size="sm"
+          >
+            {opt.label}
+          </Chip>
+        ))}
+      </div>
+    </div>
+
+    {/* Price section */}
+    <div className={styles.sheetSection}>
+      <h3 className={styles.sheetSectionTitle}>السعر</h3>
+      <div className={styles.sheetChipsWrap}>
+        {PRICE_OPTIONS.map((opt) => (
+          <Chip
+            key={opt.id}
+            selected={f.price === opt.id}
+            onClick={() => f.set.price(opt.id)}
+            size="sm"
+          >
+            {opt.label}
+          </Chip>
+        ))}
+      </div>
+    </div>
+
+    {/* Sort section */}
+    <div className={styles.sheetSection}>
+      <h3 className={styles.sheetSectionTitle}>الترتيب</h3>
+      <div className={styles.sheetChipsWrap}>
+        {SORT_OPTIONS.map((opt) => (
+          <Chip
+            key={opt.id}
+            selected={f.sort === opt.id}
+            onClick={() => f.set.sort(opt.id)}
+            size="sm"
+          >
+            {opt.label}
+          </Chip>
+        ))}
+      </div>
+    </div>
+    </>
+  );
+
+  const setLiveFilter = (key, value, fallback) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (value !== fallback) next.set(key, value);
+      else next.delete(key);
+      next.delete('page');
+      return next;
+    });
+  };
+  const liveFilters = {
+    brand: urlBrand,
+    condition: urlCondition,
+    price: urlPrice,
+    sort: urlSort,
+    set: {
+      brand: (v) => setLiveFilter('brand', v, 'all'),
+      condition: (v) => setLiveFilter('condition', v, 'all'),
+      price: (v) => setLiveFilter('price', v, 'all'),
+      sort: (v) => setLiveFilter('sort', v, 'newest'),
+    },
+  };
+
   const totalResults = meta?.total !== undefined ? meta.total : products.length;
 
   return (
@@ -265,6 +368,22 @@ export default function CatalogPage({
       />
 
       <Page padded={false} className={styles.container}>
+      <div className={styles.layout}>
+      {/* Desktop filter sidebar (the mobile sheet's sections, applied immediately) */}
+      <aside className={styles.sidebar} aria-label="تصفية الأجهزة">
+        <div className={styles.sidebarHead}>
+          <h2 className={styles.sidebarTitle}>تصفية</h2>
+          {activeFiltersCount > 0 && (
+            <button type="button" onClick={handleResetAll} className={styles.resetInlineBtn}>
+              <RotateCcw size={14} aria-hidden="true" />
+              <span>مسح الكل</span>
+            </button>
+          )}
+        </div>
+        {renderFilterSections(liveFilters)}
+      </aside>
+
+      <div className={styles.main}>
         {/* Search Field */}
       <div className={styles.searchContainer}>
         <Search size={22} strokeWidth={2} className={styles.searchIcon} aria-hidden="true" />
@@ -410,6 +529,9 @@ export default function CatalogPage({
         </div>
       )}
 
+      </div>
+      </div>
+
       {/* Filter Bottom Sheet */}
       <Sheet
         isOpen={isFilterSheetOpen}
@@ -417,80 +539,7 @@ export default function CatalogPage({
         title="تصفية"
       >
         <div className={styles.sheetContent}>
-          {/* Brand section */}
-          <div className={styles.sheetSection}>
-            <h3 className={styles.sheetSectionTitle}>الماركة</h3>
-            <div className={styles.sheetChipsWrap}>
-              <Chip
-                selected={draftBrand === 'all'}
-                onClick={() => setDraftBrand('all')}
-                size="sm"
-              >
-                الكل
-              </Chip>
-              {brandsList.map((brand) => (
-                <Chip
-                  key={brand}
-                  selected={draftBrand === brand}
-                  onClick={() => setDraftBrand(brand)}
-                  size="sm"
-                >
-                  {brand}
-                </Chip>
-              ))}
-            </div>
-          </div>
-
-          {/* Condition section */}
-          <div className={styles.sheetSection}>
-            <h3 className={styles.sheetSectionTitle}>الحالة</h3>
-            <div className={styles.sheetChipsWrap}>
-              {CONDITION_OPTIONS.map((opt) => (
-                <Chip
-                  key={opt.id}
-                  selected={draftCondition === opt.id}
-                  onClick={() => setDraftCondition(opt.id)}
-                  size="sm"
-                >
-                  {opt.label}
-                </Chip>
-              ))}
-            </div>
-          </div>
-
-          {/* Price section */}
-          <div className={styles.sheetSection}>
-            <h3 className={styles.sheetSectionTitle}>السعر</h3>
-            <div className={styles.sheetChipsWrap}>
-              {PRICE_OPTIONS.map((opt) => (
-                <Chip
-                  key={opt.id}
-                  selected={draftPrice === opt.id}
-                  onClick={() => setDraftPrice(opt.id)}
-                  size="sm"
-                >
-                  {opt.label}
-                </Chip>
-              ))}
-            </div>
-          </div>
-
-          {/* Sort section */}
-          <div className={styles.sheetSection}>
-            <h3 className={styles.sheetSectionTitle}>الترتيب</h3>
-            <div className={styles.sheetChipsWrap}>
-              {SORT_OPTIONS.map((opt) => (
-                <Chip
-                  key={opt.id}
-                  selected={draftSort === opt.id}
-                  onClick={() => setDraftSort(opt.id)}
-                  size="sm"
-                >
-                  {opt.label}
-                </Chip>
-              ))}
-            </div>
-          </div>
+          {renderFilterSections({ brand: draftBrand, condition: draftCondition, price: draftPrice, sort: draftSort, set: { brand: setDraftBrand, condition: setDraftCondition, price: setDraftPrice, sort: setDraftSort } })}
 
           {/* Actions */}
           <div className={styles.sheetActions}>

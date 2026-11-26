@@ -263,3 +263,58 @@
 :global(html[data-motion="reduced"]) .cartCountBadge {
   animation: none !important;
 }
+
+/* Breadcrumbs: desktop only */
+.crumbs {
+  display: none;
+}
+
+/* Desktop (>= 1024px): the desktop header already has logo, search, cart and favourites.
+   The navy band becomes a compact page banner at content width: breadcrumbs + title (+ the
+   page's headerContent), no duplicate icon buttons, no mobile back button. */
+@media (min-width: 1024px) {
+  .navy {
+    border-radius: var(--radius-panel);
+    padding: 22px 28px;
+    margin: 0 0 24px;
+  }
+
+  .navy .headerBtn {
+    display: none;
+  }
+
+  .navy .leftSection,
+  .navy .rightSection {
+    min-width: 0;
+  }
+
+  .navy h1,
+  .navy .title {
+    font-size: 26px;
+  }
+
+  .crumbs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  .crumbs a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .crumbs a:hover,
+  .crumbs a:focus-visible {
+    color: #fff;
+    text-decoration: underline;
+  }
+
+  .crumbs [aria-current='page'] {
+    color: #fff;
+  }
+}

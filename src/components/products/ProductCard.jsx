@@ -7,7 +7,7 @@ import { useCart } from '../../context/CartContext';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useToast } from '../../context/ToastContext';
 import { t } from '../../content/ar';
-import { ProductImage, BrandRibbons, Price } from '../common';
+import { ProductImage, Price } from '../common';
 import LatinText from '../common/LatinText';
 import { triggerHaptic } from '../../utils/haptics';
 import styles from './ProductCard.module.css';
@@ -99,8 +99,6 @@ export default function ProductCard({ product, index, style = {} }) {
       <Link to={getProductUrl(product)} className={styles.cardLink}>
         {/* Image Stage */}
         <div className={styles.imageContainer}>
-          <BrandRibbons variant="tile" />
-
           {/* Product Image / Placeholder */}
           <div className={styles.imageInner}>
             <ProductImage
@@ -151,7 +149,7 @@ export default function ProductCard({ product, index, style = {} }) {
           )}
         </div>
 
-        {/* Text Area */}
+        {/* Text Area: title, one quiet line, then the price leads the bottom row */}
         <div className={styles.info}>
           <h3 className={styles.name} title={product.name} dir="auto">
             <LatinText>{product.name}</LatinText>
@@ -162,36 +160,30 @@ export default function ProductCard({ product, index, style = {} }) {
               {descriptionText}
             </p>
           )}
-
-          {/* Price Row */}
-          <div className={styles.pricing}>
-            <Price value={product.price_sdg} size="md" tone="royal" />
-          </div>
         </div>
       </Link>
 
-      {/* Add Button (only when available) */}
-      {!isOutOfStock && (
-        <button
-          type="button"
-          onClick={handleAddToCart}
-          className={`${styles.addCartBtn} ${isAdded ? styles.addedBtn : ''}`}
-          aria-label={isAdded ? t('product.addedToCart', 'أُضيف إلى السلة') : t('product.quickAdd', 'أضف')}
-          disabled={isAdded}
-        >
-          {isAdded ? (
-            <>
-              <Check size={18} strokeWidth={2} />
-              <span>{t('product.quickAdd', 'أضف')}</span>
-            </>
-          ) : (
-            <>
-              <ShoppingCart size={18} strokeWidth={2} />
-              <span>{t('product.quickAdd', 'أضف')}</span>
-            </>
-          )}
-        </button>
-      )}
+      <div className={styles.footer}>
+        <div className={styles.pricing}>
+          <Price value={product.price_sdg} size="md" tone="navy" />
+        </div>
+
+        {/* Quiet icon button: a full-width blue bar on every card made the grid a wall of
+            blue. The full label is in aria-label (no visible text, so PDP selectors for
+            'أضف إلى السلة' keep matching the page's own button). */}
+        {!isOutOfStock && (
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            className={`${styles.addCartBtn} ${isAdded ? styles.addedBtn : ''}`}
+            aria-label={isAdded ? t('product.addedToCart', 'أُضيف إلى السلة') : `${t('product.quickAdd', 'أضف')} ${product.name} إلى السلة`}
+            title={t('product.quickAdd', 'أضف')}
+            disabled={isAdded}
+          >
+            {isAdded ? <Check size={20} strokeWidth={2.25} aria-hidden="true" /> : <ShoppingCart size={19} strokeWidth={2} aria-hidden="true" />}
+          </button>
+        )}
+      </div>
     </article>
   );
 }

@@ -87,6 +87,14 @@ export default function AppBar({
 
           {isNavy && title && (
             <div className={styles.navyTitleWrapper}>
+              {/* Desktop only: where am I. The mobile back button is hidden there. */}
+              {typeof title === 'string' && (
+                <nav className={styles.crumbs} aria-label="مسار التنقل">
+                  <Link to="/">{ar.navigation.home || 'الرئيسية'}</Link>
+                  <span aria-hidden="true">‹</span>
+                  <span aria-current="page">{title}</span>
+                </nav>
+              )}
               <TitleTag className={styles.title}>{title}</TitleTag>
               {subtitle && <div className={styles.subtitle}>{subtitle}</div>}
             </div>
