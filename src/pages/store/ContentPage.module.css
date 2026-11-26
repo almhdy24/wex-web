@@ -1,0 +1,51 @@
+.pageWrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background-color: var(--wex-ice);
+}
+
+.container {
+  max-width: 760px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.card {
+  margin-top: calc(-1 * var(--appbar-overlap, 36px) / 2);
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  background: var(--wex-white);
+  border: 1px solid var(--wex-border);
+  border-radius: var(--radius-card);
+}
+
+.paragraph {
+  margin: 0;
+  font-size: var(--text-md);
+  line-height: 1.9;
+  color: var(--wex-navy);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.missing {
+  align-items: center;
+  text-align: center;
+}
+
+.missingIcon {
+  color: var(--wex-royal);
+}
+
+@media (min-width: 1024px) {
+  .card {
+    margin-top: 0;
+    padding: 32px;
+  }
+}

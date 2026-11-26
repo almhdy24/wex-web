@@ -879,3 +879,16 @@
   cursor: pointer;
   align-self: flex-end;
 }
+
+.policyLink {
+  color: var(--wex-royal);
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+  padding-block: 6px;
+}
+
+.policyLink:hover,
+.policyLink:focus-visible {
+  text-decoration: underline;
+}

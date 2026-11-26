@@ -26,6 +26,28 @@ import { formatPriceUpdateCaption } from '../../utils/formatters';
 import { normalizeShopInfo, buildWhatsAppLink, DEFAULT_MAP_LINK } from '../../utils/shopSettings';
 import styles from './HomePage.module.css';
 
+
+// Home section (admin) -> product list query. Sources: newest | type | category | featured.
+function homeSectionQuery(sec) {
+  const value = (sec?.source_value || '').trim();
+  switch (sec?.source) {
+    case 'type':
+      return value ? { type: value } : { sort: 'newest' };
+    case 'category':
+      return value ? { category: value } : { sort: 'newest' };
+    case 'featured':
+      return { featured: 1 };
+    default:
+      return { sort: 'newest' };
+  }
+}
+
+// Slide links are admin input: only same-site paths navigate; anything else goes to the catalog.
+function safeInternalPath(link) {
+  const l = String(link || '').trim();
+  return l.startsWith('/') && !l.startsWith('//') && !l.startsWith('/\\') ? l : '/products';
+}
+
 export default function HomePage({
   initialLoading = true,
   initialShopInfo = null,
@@ -43,21 +65,42 @@ export default function HomePage({
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSlide, setActiveSlide] = useState(0);
+  // Admin-managed content (hero slides, home sections) was never read by the storefront.
+  const [adminSlides, setAdminSlides] = useState([]);
+  const [homeSections, setHomeSections] = useState([]);
 
   useEffect(() => {
     let isMounted = true;
     async function loadData() {
       try {
         setLoading(true);
-        const [shopRes, prodsRes, brandsRes] = await Promise.all([
+        const [shopRes, prodsRes, brandsRes, slidesRes, sectionsRes] = await Promise.all([
           shopApi.getShop().catch(() => null),
           productsApi.getProducts({ per_page: 24 }).catch(() => ({ data: [] })),
           productsApi.getBrands().catch(() => ({ data: [] })),
+          productsApi.getHeroSlides().catch(() => ({ data: [] })),
+          productsApi.getHomeSections().catch(() => ({ data: [] })),
         ]);
+        const activeSections = (Array.isArray(sectionsRes?.data) ? sectionsRes.data : [])
+          .filter((sec) => sec && sec.is_active !== false && sec.is_active !== 0)
+          .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+        const sectionsWithProducts = await Promise.all(
+          activeSections.map(async (sec) => {
+            const query = homeSectionQuery(sec);
+            const res = await productsApi.getProducts({ ...query, per_page: sec.limit || 8 }).catch(() => ({ data: [] }));
+            return { ...sec, query, products: Array.isArray(res?.data) ? res.data : [] };
+          })
+        );
         if (isMounted) {
           setShopInfo(shopRes?.data ? normalizeShopInfo(shopRes.data) : null);
           setProducts(prodsRes?.data || []);
           setBrands(Array.isArray(brandsRes?.data) ? brandsRes.data : []);
+          setAdminSlides(
+            (Array.isArray(slidesRes?.data) ? slidesRes.data : [])
+              .filter((sl) => sl && sl.is_active !== false && sl.is_active !== 0 && sl.title)
+              .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+          );
+          setHomeSections(sectionsWithProducts.filter((sec) => sec.products.length > 0));
         }
       } catch (err) {
         if (isMounted) setError(err.message || 'تعذر تحميل بيانات المتجر');
@@ -80,7 +123,7 @@ export default function HomePage({
 
   const lockHours = shopInfo?.lock_hours || 4;
 
-  const slides = [
+  const builtInSlides = [
     {
       title: 'أجهزة لابتوب جديدة ومستعملة',
       text: 'تصفّح الأجهزة المتوفرة بأسعار واضحة.',
@@ -103,6 +146,16 @@ export default function HomePage({
       action: () => navigate('/products?type=accessory'),
     },
   ];
+
+  // Admin slides when any are active; the built-in three otherwise.
+  const slides = adminSlides.length > 0
+    ? adminSlides.map((sl) => ({
+      title: sl.title,
+      text: sl.subtitle || '',
+      buttonLabel: sl.button_label || 'تصفّح الأجهزة',
+      action: () => navigate(safeInternalPath(sl.link)),
+    }))
+    : builtInSlides;
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -294,6 +347,29 @@ export default function HomePage({
         </section>
       </Reveal>
 
+      {/* 5. Admin home sections (order, titles, sources from /admin/home-sections); the
+          built-in rows only when none are configured. */}
+      {homeSections.length > 0 ? (
+        homeSections.map((sec) => (
+          <section key={sec.id || sec.key} className={styles.featuredSection} aria-label={sec.title}>
+            <Reveal>
+              <div className={styles.featuredHeader}>
+                <h2 className={styles.featuredTitle}>{sec.title}</h2>
+                <Link to={`/products?${new URLSearchParams(sec.query).toString()}`} className={styles.featuredLink}>
+                  <span>عرض الكل</span>
+                  <ArrowLeft size={18} strokeWidth={2} aria-hidden="true" />
+                </Link>
+              </div>
+            </Reveal>
+            <Stagger className={styles.featuredGrid}>
+              {sec.products.map((product, idx) => (
+                <ProductCard key={product.id} product={product} index={idx} />
+              ))}
+            </Stagger>
+          </section>
+        ))
+      ) : (
+        <>
       {/* 5a. "وصل حديثاً" horizontal product row */}
       {newArrivals.length > 0 && (
         <section className={styles.featuredSection} aria-label="وصل حديثاً">
@@ -334,6 +410,9 @@ export default function HomePage({
             ))}
           </Stagger>
         </section>
+      )}
+
+        </>
       )}
 
       {/* 5c. Brands row */}

@@ -20,6 +20,7 @@ import {
   Smartphone,
   Mail,
   Lock,
+  FileText,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useFavorites } from '../../context/FavoritesContext';
@@ -856,6 +857,23 @@ export default function AccountPage() {
                 <div className={styles.menuRowRight}>
                   <span className={styles.cyanBadge}>تفاصيل</span>
                   <ChevronLeft size={16} />
+                </div>
+              </div>
+
+              {/* Store policies edited in admin (/admin/pages); mobile has no footer. */}
+              <div className={styles.menuRow}>
+                <div className={styles.menuRowLeft}>
+                  <FileText size={18} className={styles.menuRowIcon} />
+                  <div>
+                    <h4 className={styles.menuRowTitle}>سياسات المتجر</h4>
+                    <p className={styles.menuRowSub}>
+                      <Link to="/returns" className={styles.policyLink}>الاستلام والتسليم</Link>
+                      {' · '}
+                      <Link to="/privacy-policy" className={styles.policyLink}>الخصوصية</Link>
+                      {' · '}
+                      <Link to="/terms" className={styles.policyLink}>شروط الاستخدام</Link>
+                    </p>
+                  </div>
                 </div>
               </div>
 

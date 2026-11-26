@@ -63,6 +63,10 @@ export default function CatalogPage({
   // URL state as single source of truth
   const urlSearch = searchParams.get('search') || searchParams.get('q') || '';
   const urlCategory = searchParams.get('category') || 'all';
+  // Links from home sections / hero slides (?type=accessory, ?featured=1) were ignored:
+  // the catalog showed everything.
+  const urlType = searchParams.get('type') || '';
+  const urlFeatured = searchParams.get('featured') || '';
   const urlBrand = searchParams.get('brand') || 'all';
   const urlCondition = searchParams.get('condition') || 'all';
   const urlPrice = searchParams.get('price') || 'all';
@@ -160,6 +164,8 @@ export default function CatalogPage({
 
     if (urlSearch.trim()) params.q = urlSearch.trim();
     if (urlCategory !== 'all') params.category = urlCategory;
+    if (urlType) params.type = urlType;
+    if (urlFeatured) params.featured = urlFeatured;
     if (urlBrand !== 'all') params.brand = urlBrand;
     if (urlCondition !== 'all') params.condition = urlCondition;
 
@@ -190,7 +196,7 @@ export default function CatalogPage({
     } finally {
       setLoading(false);
     }
-  }, [urlPage, urlSearch, urlCategory, urlBrand, urlCondition, urlPrice, urlSort]);
+  }, [urlPage, urlSearch, urlCategory, urlType, urlFeatured, urlBrand, urlCondition, urlPrice, urlSort]);
 
   useEffect(() => {
     if (initialProducts === null) {
@@ -423,6 +429,8 @@ export default function CatalogPage({
                   } else {
                     next.delete('category');
                   }
+                  next.delete('type');
+                  next.delete('featured');
                   next.delete('page');
                   return next;
                 });
@@ -453,7 +461,7 @@ export default function CatalogPage({
         <span className={styles.resultCount} aria-live="polite">
           {formatResultsCount(totalResults)}
         </span>
-        {(activeFiltersCount > 0 || urlCategory !== 'all' || urlSearch.trim()) && (
+        {(activeFiltersCount > 0 || urlCategory !== 'all' || urlType || urlFeatured || urlSearch.trim()) && (
           <button
             type="button"
             onClick={handleResetAll}

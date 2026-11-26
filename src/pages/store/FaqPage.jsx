@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ChevronDown, Search, HelpCircle, MessageCircle, Phone, MapPin, ShieldCheck, Clock } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
+import { productsApi } from '../../api/products';
 import Page from '../../components/common/Page';
 import { buildWhatsAppLink, buildTelLink, normalizeShopInfo } from '../../utils/shopSettings';
 import AppBar from '../../components/common/AppBar';
@@ -70,9 +71,28 @@ export default function FaqPage() {
   // Contact numbers come from admin shop settings (StoreLayout outlet context).
   const outlet = useOutletContext();
   const shop = normalizeShopInfo(outlet?.shopInfo);
+  // Admin FAQ (/admin/faq) when any entries are active; the built-in list otherwise.
+  const [adminFaq, setAdminFaq] = useState([]);
+  useEffect(() => {
+    let alive = true;
+    productsApi.getFaq()
+      .then((res) => {
+        if (!alive || !Array.isArray(res?.data)) return;
+        setAdminFaq(
+          res.data
+            .filter((f) => f && f.is_active !== false && f.is_active !== 0 && f.question && f.answer)
+            .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+        );
+      })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
+
   const FAQ_DATA = useMemo(
-    () => buildFaqData({ lockHours: shop.lockHours, address: shop.address, hours: shop.workingHours }),
-    [shop.lockHours, shop.address, shop.workingHours]
+    () => (adminFaq.length > 0
+      ? [{ category: 'الأسئلة الشائعة', items: adminFaq.map((f) => ({ q: f.question, a: f.answer })) }]
+      : buildFaqData({ lockHours: shop.lockHours, address: shop.address, hours: shop.workingHours })),
+    [adminFaq, shop.lockHours, shop.address, shop.workingHours]
   );
   const whatsappUrl = buildWhatsAppLink(outlet?.shopInfo?.whatsapp);
   const telUrl = buildTelLink(outlet?.shopInfo?.phone);

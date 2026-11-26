@@ -41,6 +41,7 @@ const NotificationsPage = lazy(() => import('../pages/store/NotificationsPage'))
 const ComparePage = lazy(() => import('../pages/store/ComparePage'));
 const FavoritesPage = lazy(() => import('../pages/store/FavoritesPage'));
 const FaqPage = lazy(() => import('../pages/store/FaqPage'));
+const ContentPage = lazy(() => import('../pages/store/ContentPage'));
 
 // Auth Pages
 const LoginPage = lazy(() => import('../pages/auth/LoginPage'));
@@ -83,6 +84,12 @@ export const router = createBrowserRouter([
       { path: 'favorites', element: load(FavoritesPage) },
       { path: 'wishlist', element: load(FavoritesPage) },
       { path: 'faq', element: load(FaqPage) },
+      // Store pages edited in admin (/admin/pages); there was no route for them.
+      { path: 'p/:slug', element: load(ContentPage) },
+      { path: 'about', element: <Suspense fallback={<PageFallback />}><ContentPage slug="about" /></Suspense> },
+      { path: 'privacy-policy', element: <Suspense fallback={<PageFallback />}><ContentPage slug="privacy-policy" /></Suspense> },
+      { path: 'terms', element: <Suspense fallback={<PageFallback />}><ContentPage slug="terms" /></Suspense> },
+      { path: 'returns', element: <Suspense fallback={<PageFallback />}><ContentPage slug="returns" /></Suspense> },
       {
         path: 'login',
         element: (

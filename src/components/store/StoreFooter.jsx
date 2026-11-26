@@ -65,6 +65,10 @@ export default function StoreFooter({ shopInfo = null }) {
                   <span>{ar.desktop.footer.faq}</span>
                 </Link>
               </li>
+              {/* Store pages edited in admin (/admin/pages) */}
+              <li><Link to="/returns" className={styles.footerLink}>سياسة الاستلام والتسليم</Link></li>
+              <li><Link to="/privacy-policy" className={styles.footerLink}>سياسة الخصوصية</Link></li>
+              <li><Link to="/terms" className={styles.footerLink}>شروط الاستخدام</Link></li>
             </ul>
           </div>
 
