@@ -15,7 +15,7 @@ Critiques and results: `docs/UX_ROUNDS.md`.
 - [x] Bugs found by review: admin list had no images (API), accessories labelled used
   (API + web), guests sent a 401 refresh per page, refresh on hidden tab, admin order
   number clipped.
-- [ ] Round 1 prove · [ ] Round 2 · [ ] Round 3 · [ ] Final double check
+- [x] Round 1 prove (67/67) · [x] Round 2 (134 captures over 2 runs) · [x] Round 3 (67/67) · [x] Final double check (static checks local; CI ui-check/e2e/snapshots on the final commit)
 
 
 ## Stabilization, Local HTTPS & UX/IA Sprint (Branch: stabilize) — Complete

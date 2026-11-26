@@ -158,3 +158,26 @@ Caught in review: order header title still wrapped: first a specificity loss to
 4. **Admin payments**: receipt viewer on solid black dominates; heavy for a review tool.
 5. **Checkout (mobile)**: selected option shown only by border colour + a small check.
 6. **Order header (360px)**: verify one line after the AppBar fix.
+
+## Round 3 results (proof run 45771631629, commit 59e91cc; 67/67 opened)
+
+| Screen | Before (r2) | After (r3) |
+|---|---|---|
+| Loading grids | old skeleton anatomy (framed image, button bar) | mirrors the card: 4:3 photo, 2 lines, price + 44px circle |
+| Admin settings | ~3000px page, no navigation | sticky chip row to six sections |
+| FAQ | 56px icon hero before any question | compact intro; questions on the first screen |
+| Admin payments | receipt on near-black stage | light stage, controls on their own pill |
+| Checkout option | (verified) selected = ice fill + 2px royal border + check | kept |
+
+Caught in the final review and fixed after the proof run: order header content shared
+its row 50/50 with the back button (title wrapped at 360px); the admin visibility chip
+spilled out of a 36px icon-button box. Admin product actions confirmed inside the table at
+1280px (full-resolution crop).
+
+## Still weak (and why)
+- **Hero carousel** rotates three admin-managed slides: one promise + one CTA is a content
+  decision for the shop, not a layout fix.
+- **Typo-tolerant search**: needs a trigram index on the API (MySQL LIKE cannot).
+- **WebP/AVIF**: the API stores JPEG only; needs server-side encoding on upload.
+- **Product photos in CI are studio renders**: real uploads will vary in background and
+  framing; the card uses `object-fit: contain` on #F6F8FB to absorb that.
