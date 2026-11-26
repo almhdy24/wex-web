@@ -22,6 +22,7 @@ vi.mock('../api/admin', () => ({
     getSettings: vi.fn(),
     updateSettings: vi.fn(),
     getPaymentAccounts: vi.fn().mockResolvedValue({ data: [] }),
+    getSetupStatus: vi.fn().mockResolvedValue({ data: { complete: true, missing: [] } }),
   },
 }));
 

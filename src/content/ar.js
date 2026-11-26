@@ -1,3 +1,4 @@
+import { formatHoursAr } from '../utils/arabicDuration';
 /**
  * Central Modern Standard Arabic (الفصحى المعاصرة) Dictionary
  * All customer-visible storefront copy resides strictly in this file.
@@ -634,6 +635,11 @@ export function t(key, vars = {}) {
   }
 
   let result = current;
+  // {duration} is the lock length in its Arabic grammatical form. Callers may pass it
+  // ready-made or just `hours`; it is never left as a raw placeholder.
+  if (result.includes('{duration}') && vars.duration == null) {
+    vars = { ...vars, duration: formatHoursAr(vars.hours ?? 4) };
+  }
   for (const [varKey, varValue] of Object.entries(vars)) {
     const regex = new RegExp(`\\{${varKey}\\}`, 'gi');
     result = result.replace(regex, String(varValue));

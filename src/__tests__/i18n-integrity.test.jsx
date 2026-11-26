@@ -86,6 +86,9 @@ describe('Translation Integrity and Runtime Safety', () => {
     const text = t('priceNotice.full', { hours: 4 });
     expect(text).toContain('4 ساعات');
     expect(text).not.toContain('{hours}');
+    expect(text).not.toContain('{duration}');
+    expect(t('priceNotice.full', { hours: 2 })).toContain('لمدة ساعتين');
+    expect(t('priceNotice.full', { hours: 1 })).toContain('لمدة ساعة واحدة');
     expect(text).not.toMatch(/^[a-z]+(\.[a-zA-Z0-9_]+)+$/);
   });
 
