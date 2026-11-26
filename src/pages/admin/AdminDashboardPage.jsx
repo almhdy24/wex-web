@@ -32,6 +32,7 @@ import { Skeleton } from '../../components/common/Skeleton';
 import StatusChip from '../../components/admin/StatusChip';
 import styles from './AdminDashboardPage.module.css';
 import { formatHoursAr } from '../../utils/arabicDuration';
+import SetupChecklistBanner from '../../components/admin/SetupChecklistBanner';
 
 export default function AdminDashboardPage() {
   const { success, error: toastError } = useToast();
@@ -226,6 +227,8 @@ export default function AdminDashboardPage() {
 
       {/* Brand divider */}
       <div className={styles.titleDivider} aria-hidden="true" />
+
+      <SetupChecklistBanner />
 
       {/* Critical Alert: No Active Payment Account */}
       {!hasActiveAccounts && (

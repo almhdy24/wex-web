@@ -161,6 +161,11 @@ export const adminApi = {
     return api.get('/admin/settings');
   },
 
+  // What the shop still needs before ordering can be opened (fresh installs start closed).
+  getSetupStatus() {
+    return api.get('/admin/setup-status');
+  },
+
   updateSettings(payload) {
     return api.patch('/admin/settings', payload);
   },

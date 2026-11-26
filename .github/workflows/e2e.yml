@@ -73,6 +73,9 @@ jobs:
           # Seeded products reference image files; without them every thumbnail is a 404
           # (the admin list started sending images, and the admin crawler fails on 404s).
           php scripts/generate-product-images.php
+          # Opening orders requires a complete shop setup (contact + payment account); spec 04
+          # toggles ordering off and on through the admin UI.
+          php -r '$db = new PDO("sqlite:writable/database/wex_ci.sqlite"); $db->exec("UPDATE settings SET value = \"0911000000\" WHERE key = \"shop_whatsapp\"");'
 
       - name: Start wex-api Background Server
         working-directory: wex-api

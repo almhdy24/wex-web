@@ -12,6 +12,7 @@ import { Skeleton } from '../../components/common/Skeleton';
 import ErrorState from '../../components/common/ErrorState';
 import Page from '../../components/common/Page';
 import styles from './AdminSettingsPage.module.css';
+import SetupChecklistBanner from '../../components/admin/SetupChecklistBanner';
 
 export default function AdminSettingsPage() {
   const navigate = useNavigate();
@@ -249,6 +250,8 @@ export default function AdminSettingsPage() {
 
       {/* Decorative Ribbon */}
       <div className={styles.titleDivider} aria-hidden="true" />
+
+      <SetupChecklistBanner />
 
       {/* Section navigator: the page is ~3000px of forms; jump straight to a section. */}
       <nav className={styles.sectionNav} aria-label="أقسام الإعدادات">
