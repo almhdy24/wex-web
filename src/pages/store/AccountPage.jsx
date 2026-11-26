@@ -545,7 +545,7 @@ export default function AccountPage() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className={`${styles.input} ${profileErrors.phone ? styles.inputError : ''}`}
-                  placeholder="0912345678"
+                  placeholder="09XXXXXXXX"
                 />
                 <span className={styles.fieldHint}>
                   يستخدم لتأكيد حجز السعر وتنسيق تسليم الأجهزة في أم درمان والخرطوم.
@@ -648,7 +648,7 @@ export default function AccountPage() {
                   value={savedContactPhone}
                   onChange={(e) => setSavedContactPhone(e.target.value)}
                   className={styles.input}
-                  placeholder="0912345678"
+                  placeholder="09XXXXXXXX"
                 />
               </div>
 

@@ -81,7 +81,8 @@ export function parsePushPayload(raw) {
  * Validate a deep link URL so only relative same-origin paths are accepted.
  * Rejects external origins, protocol-relative URLs, and javascript: schemes.
  */
-export function validateSameOriginUrl(rawUrl, currentOrigin = 'https://wex.sd') {
+// Default: the running origin (the service worker's or page's), never a hard-coded domain.
+export function validateSameOriginUrl(rawUrl, currentOrigin = (typeof self !== 'undefined' && self.location ? self.location.origin : 'http://localhost')) {
   if (typeof rawUrl !== 'string') return '/notifications';
   const trimmed = rawUrl.trim();
   if (!trimmed || trimmed.startsWith('//') || trimmed.includes('\\')) return '/notifications';

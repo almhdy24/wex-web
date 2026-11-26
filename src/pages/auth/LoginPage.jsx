@@ -361,7 +361,7 @@ export default function LoginPage() {
                 dir="ltr"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@example.com"
+                placeholder="بريدك الإلكتروني"
                 required
                 autoFocus={!isTouchDevice}
                 autoComplete="email"

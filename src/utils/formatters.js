@@ -275,8 +275,8 @@ export function toAsciiDigits(input) {
 
 /**
  * Normalize and clean Sudanese mobile numbers
- * Accepts: 0912345678, +249912345678, 249912345678, 0123456789 (in Western or Arabic digits)
- * Returns normalized 10-digit format (e.g. 0912345678)
+ * Accepts local (09XXXXXXXX / 01XXXXXXXX), +249… and 249… forms, in Western or Arabic digits
+ * Returns the normalized 10-digit local format (09XXXXXXXX)
  */
 export function normalizeSudanPhone(input) {
   if (!input) return '';

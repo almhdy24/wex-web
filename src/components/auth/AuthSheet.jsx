@@ -257,7 +257,7 @@ export default function AuthSheet({ isOpen, onClose, onSuccess }) {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@example.com"
+                placeholder="بريدك الإلكتروني"
                 className={styles.input}
                 autoFocus
                 required

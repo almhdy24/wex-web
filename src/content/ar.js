@@ -526,7 +526,7 @@ export const ar = {
     loginTitle: 'تسجيل الدخول إلى ويكس',
     loginSubtitle: 'أدخل بريدك الإلكتروني ليصلك رمز التحقق دون كلمة مرور',
     emailLabel: 'البريد الإلكتروني',
-    emailPlaceholder: 'name@example.com',
+    emailPlaceholder: 'بريدك الإلكتروني',
     sendOtp: 'إرسال رمز التحقق',
     sendingOtp: 'جاري إرسال الرمز...',
     verifyTitle: 'أدخل رمز التحقق',
