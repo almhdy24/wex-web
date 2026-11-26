@@ -31,6 +31,9 @@ describe('Formatters & Business Logic Unit Tests', () => {
   it('maps condition keys to Arabic labels', () => {
     expect(getConditionLabel('used_imported')).toBe('مستعمل استيراد');
     expect(getConditionLabel('new')).toBe('جديد');
+    // Missing condition must not be labelled 'used' (accessories arrived without one).
+    expect(getConditionLabel(undefined)).toBe('');
+    expect(getConditionLabel(null)).toBe('');
   });
 
   it('resolves image URLs correctly', () => {

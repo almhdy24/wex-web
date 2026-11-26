@@ -59,7 +59,8 @@
                 "image": {
                     "path": "/uploads/products/logitech-wireless-mouse-b170.jpg",
                     "thumb_path": "/uploads/products/logitech-wireless-mouse-b170_thumb.jpg"
-                }
+                },
+                "condition": "new"
             },
             {
                 "id": 10,
@@ -72,7 +73,8 @@
                 "image": {
                     "path": "/uploads/products/laptop-backpack-15-waterproof.jpg",
                     "thumb_path": "/uploads/products/laptop-backpack-15-waterproof_thumb.jpg"
-                }
+                },
+                "condition": "new"
             },
             {
                 "id": 11,
@@ -85,7 +87,8 @@
                 "image": {
                     "path": "/uploads/products/original-laptop-charger-65w.jpg",
                     "thumb_path": "/uploads/products/original-laptop-charger-65w_thumb.jpg"
-                }
+                },
+                "condition": "new"
             },
             {
                 "id": 12,
@@ -98,7 +101,8 @@
                 "image": {
                     "path": "/uploads/products/kingston-ssd-256gb.jpg",
                     "thumb_path": "/uploads/products/kingston-ssd-256gb_thumb.jpg"
-                }
+                },
+                "condition": "new"
             },
             {
                 "id": 13,
@@ -111,7 +115,8 @@
                 "image": {
                     "path": "/uploads/products/laptop-ram-8gb-ddr4.jpg",
                     "thumb_path": "/uploads/products/laptop-ram-8gb-ddr4_thumb.jpg"
-                }
+                },
+                "condition": "new"
             },
             {
                 "id": 14,
@@ -124,7 +129,8 @@
                 "image": {
                     "path": "/uploads/products/laptop-cooling-pad-dual-fans.jpg",
                     "thumb_path": "/uploads/products/laptop-cooling-pad-dual-fans_thumb.jpg"
-                }
+                },
+                "condition": "new"
             }
         ]
     },

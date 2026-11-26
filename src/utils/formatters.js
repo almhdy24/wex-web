@@ -193,8 +193,11 @@ export function getConditionLabel(condition) {
       return 'مجدد';
     case 'used_imported':
     case 'used':
-    default:
       return 'مستعمل استيراد';
+    default:
+      // Unknown or missing condition: say nothing rather than claim one (compatible
+      // accessories arrived without a condition and were labelled "used").
+      return '';
   }
 }
 

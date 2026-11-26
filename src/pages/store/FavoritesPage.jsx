@@ -204,9 +204,9 @@ export default function FavoritesPage() {
                       <span className={styles.brandBadge}>
                         {product.brand?.name || product.brand_name}
                       </span>
-                    ) : (
+                    ) : condition ? (
                       <span className={styles.brandBadge}>{condition}</span>
-                    )}
+                    ) : null}
 
                     <span
                       className={`${styles.stockPill} ${

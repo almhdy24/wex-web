@@ -68,7 +68,7 @@ export default function ComparePage() {
 
   const getSpecValue = (item, specId) => {
     if (specId === 'condition') {
-      return getConditionLabel(item.condition) || 'مستعمل استيراد';
+      return getConditionLabel(item.condition) || '—';
     }
     if (specId === 'warranty') {
       return item.warranty_text || '—';
@@ -229,9 +229,11 @@ export default function ComparePage() {
                         />
                       </div>
 
-                      <span className={styles.conditionBadge}>
-                        {getConditionLabel(item.condition) || 'مستعمل استيراد'}
-                      </span>
+                      {getConditionLabel(item.condition) && (
+                        <span className={styles.conditionBadge}>
+                          {getConditionLabel(item.condition)}
+                        </span>
+                      )}
 
                       <h3 className={styles.productName}>
                         <Link to={getProductUrl(item)} className={styles.productLink}>
