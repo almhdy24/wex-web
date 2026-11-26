@@ -88,7 +88,9 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  flex: 1;
+  /* A real basis: the status chip wraps below before the title shrinks. Shrinking clipped
+     the start of LTR order numbers ("EX-261126-…") at 360px. */
+  flex: 1 1 12rem;
   min-width: 0;
 }
 
@@ -106,6 +108,8 @@
   font-size: var(--text-sm);
   color: var(--color-navy);
   flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .cardTitleBtn {
