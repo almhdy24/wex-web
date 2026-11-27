@@ -160,7 +160,7 @@
   inset-inline: 0;
   height: 3px;
   border-radius: var(--radius-full, 9999px);
-  background: var(--wex-grad-brand, linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 50%, #00B7FF 100%));
+  background: var(--wex-grad-brand, linear-gradient(135deg, #3340D4 0%, #5A54E6 50%, #6A5CF0 100%));
 }
 
 /* Search Container & Form */
@@ -438,7 +438,7 @@
   height: 18px;
   padding: 0 4px;
   border-radius: var(--radius-full, 9999px);
-  background: var(--wex-grad-brand, linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 50%, #00B7FF 100%));
+  background: var(--wex-grad-brand, linear-gradient(135deg, #3340D4 0%, #5A54E6 50%, #6A5CF0 100%));
   color: var(--wex-white);
   font-size: var(--text-xs);
   font-weight: 800;
@@ -658,7 +658,7 @@
   width: 100%;
   padding: 10px;
   border-radius: var(--radius-md, 14px);
-  background: var(--wex-grad-brand, linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 50%, #00B7FF 100%));
+  background: var(--wex-grad-brand, linear-gradient(135deg, #3340D4 0%, #5A54E6 50%, #6A5CF0 100%));
   color: var(--wex-white);
   text-decoration: none;
   font-size: var(--text-sm, 0.875rem);

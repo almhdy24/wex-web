@@ -188,7 +188,7 @@ export default function RecentPurchasesToast({
               }}
             />
           ) : (
-            <ShoppingBag size={20} color="var(--color-primary, #1e6bff)" />
+            <ShoppingBag size={20} color="var(--color-primary, #5A54E6)" />
           )}
         </div>
 

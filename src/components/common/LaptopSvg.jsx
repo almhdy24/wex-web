@@ -6,7 +6,7 @@ import React from 'react';
  */
 export default function LaptopSvg({
   silhouette = 'business',
-  accentColor = '#1E6BFF',
+  accentColor = '#5A54E6',
   className = '',
 }) {
   const gradId = `screenGrad-${silhouette}-${accentColor.replace('#', '')}`;
@@ -23,8 +23,8 @@ export default function LaptopSvg({
     >
       <defs>
         <linearGradient id={gradId} x1="20" y1="10" x2="180" y2="95" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#061A55" />
-          <stop offset="60%" stopColor="#0B3FBF" />
+          <stop offset="0%" stopColor="#111833" />
+          <stop offset="60%" stopColor="#3340D4" />
           <stop offset="100%" stopColor={accentColor} />
         </linearGradient>
         <linearGradient id="bodyGrad" x1="0" y1="95" x2="200" y2="120" gradientUnits="userSpaceOnUse">
@@ -32,8 +32,8 @@ export default function LaptopSvg({
           <stop offset="100%" stopColor="#BACEE8" />
         </linearGradient>
         <linearGradient id="keyboardGrad" x1="30" y1="96" x2="170" y2="108" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#061A55" stopOpacity="0.2" />
-          <stop offset="100%" stopColor="#061A55" stopOpacity="0.35" />
+          <stop offset="0%" stopColor="#111833" stopOpacity="0.2" />
+          <stop offset="100%" stopColor="#111833" stopOpacity="0.35" />
         </linearGradient>
       </defs>
 
@@ -45,7 +45,7 @@ export default function LaptopSvg({
       <path d="M50 89 L110 17 L128 17 L68 89 Z" fill="rgba(255, 255, 255, 0.16)" />
       <path d="M120 89 L145 45 L155 45 L130 89 Z" fill="rgba(0, 183, 255, 0.28)" />
 
-      <circle cx="100" cy="15.5" r="1.2" fill="#00B7FF" />
+      <circle cx="100" cy="15.5" r="1.2" fill="#6A5CF0" />
       <circle cx="100" cy="53" r="10" fill="rgba(255, 255, 255, 0.08)" />
       <path d="M96 48 L104 58 M104 48 L96 58" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
 

@@ -2,22 +2,22 @@
   /* =========================================================================
      1. Wex Technology Brand Palette (Brand Identity v1.0 - 2026)
      ========================================================================= */
-  --wex-navy: #061A55;             /* Dark navy: text, dark cards, footer */
-  --wex-royal: #0B3FBF;            /* Royal blue: primary buttons, links, active */
-  --wex-vivid: #1E6BFF;            /* Vivid blue: focus rings, interaction, middle gradient */
-  --wex-cyan: #00B7FF;             /* Cyan: accents, rate pulse, ring end, badge accent (never text on white) */
-  --wex-ice: #EAF3FF;              /* Ice blue: page background, subtle pills */
-  --wex-ice-light: #F4F8FE;        /* Ice light: secondary surfaces, inner card containers */
+  --wex-navy: #111833;             /* Dark navy: text, dark cards, footer */
+  --wex-royal: #3340D4;            /* Royal blue: primary buttons, links, active */
+  --wex-vivid: #5A54E6;            /* Vivid blue: focus rings, interaction, middle gradient */
+  --wex-cyan: #6A5CF0;             /* Cyan: accents, rate pulse, ring end, badge accent (never text on white) */
+  --wex-ice: #F6F7FB;              /* Ice blue: page background, subtle pills */
+  --wex-ice-light: #F1F3F9;        /* Ice light: secondary surfaces, inner card containers */
   --wex-white: #FFFFFF;            /* Pure white: primary cards, sheets */
 
   /* Neutrals derived from navy */
-  --wex-text-secondary: #4B5B85;   /* Secondary text (Contrast >= 5.9:1 on ice, 6.7:1 on white) */
-  --wex-border: #D5E2F7;           /* Card & input borders */
-  --wex-disabled: #9AA8C7;         /* Disabled elements */
+  --wex-text-secondary: #5A6276;   /* Secondary text (Contrast >= 5.9:1 on ice, 6.7:1 on white) */
+  --wex-border: #E7E9F1;           /* Card & input borders */
+  --wex-disabled: #AAAFBF;         /* Disabled elements */
 
   /* Dark Card Tokens (For Price Lock Card & Dark Surfaces) */
   --on-dark: #FFFFFF;              /* Pure white text on dark cards */
-  --on-dark-muted: #C9D6F5;        /* Soft ice text on dark cards (Contrast >= 11:1) */
+  --on-dark-muted: #C4CAE4;        /* Soft ice text on dark cards (Contrast >= 11:1) */
 
   /* Status Colors (WCAG AA Compliant on White Background) */
   --wex-success: #12805C;
@@ -30,13 +30,13 @@
   /* =========================================================================
      2. Official Brand Palette & Surfaces (Grounded Authentic Retail)
      ========================================================================= */
-  --wex-grad-brand: linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 50%, #00B7FF 100%);
-  --wex-grad-ribbon: linear-gradient(115deg, rgba(11, 63, 191, 0.95) 0%, rgba(30, 107, 255, 0.90) 60%, rgba(0, 183, 255, 0.85) 100%);
-  --wex-grad-navy: linear-gradient(135deg, #061A55 0%, #0B3FBF 100%);
-  --wex-grad-royal-navy: linear-gradient(135deg, #061A55 0%, #0B3FBF 100%);
-  --wex-grad-surface: linear-gradient(180deg, #FFFFFF 0%, #EAF3FF 100%);
+  --wex-grad-brand: linear-gradient(135deg, #3340D4 0%, #5A54E6 50%, #6A5CF0 100%);
+  --wex-grad-ribbon: linear-gradient(115deg, rgba(51, 64, 212, 0.95) 0%, rgba(90, 84, 230, 0.92) 60%, rgba(106, 92, 240, 0.88) 100%);
+  --wex-grad-navy: linear-gradient(135deg, #151C3C 0%, #2A2E73 100%);
+  --wex-grad-royal-navy: linear-gradient(135deg, #151C3C 0%, #3340D4 100%);
+  --wex-grad-surface: linear-gradient(180deg, #FFFFFF 0%, #F1F3F9 100%);
   --wex-grad-urgent: linear-gradient(135deg, #B42318 0%, #D92D20 100%);
-  --gradient-brand-cta: linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 100%);
+  --gradient-brand-cta: linear-gradient(135deg, #3340D4 0%, #6A5CF0 100%);
 
   /* Focus ring tokens (WCAG 2.2 AA >= 3:1 on all surfaces) */
   --focus-ring: 2px solid var(--wex-vivid);
@@ -77,15 +77,15 @@
      ========================================================================= */
   --radius-xs: 4px;
   --radius-sm: 6px;
-  --radius-control: 10px;
-  --radius-button: 10px;
-  --radius-btn: 10px;
-  --radius-input: 10px;
+  --radius-control: 12px;
+  --radius-button: 12px;
+  --radius-btn: 12px;
+  --radius-input: 12px;
   --radius-md: 10px;
-  --radius-card: 12px;
-  --radius-lg: 12px;
-  --radius-panel: 14px;
-  --radius-xl: 14px;
+  --radius-card: 16px;
+  --radius-lg: 16px;
+  --radius-panel: 18px;
+  --radius-xl: 18px;
   --radius-pill: 999px;
   --radius-chip: 8px;
   --radius-full: 999px;
@@ -174,14 +174,14 @@
      6. Tactile Blue-Tinted Shadows (Restored Richness)
      ========================================================================= */
   --shadow-none: none;
-  --shadow-sm: 0 2px 6px rgba(6, 26, 85, 0.06);
-  --shadow-md: 0 8px 20px rgba(6, 26, 85, 0.09);
-  --shadow-lg: 0 16px 32px rgba(6, 26, 85, 0.12);
-  --shadow-floating: 0 12px 30px rgba(30, 107, 255, 0.22);
+  --shadow-sm: 0 2px 6px rgba(17, 24, 51, 0.06);
+  --shadow-md: 0 8px 20px rgba(17, 24, 51, 0.09);
+  --shadow-lg: 0 16px 32px rgba(17, 24, 51, 0.12);
+  --shadow-floating: 0 12px 30px rgba(51, 64, 212, 0.22);
   --shadow-float: var(--shadow-floating);
-  --shadow-toast: 0 8px 24px rgba(6, 26, 85, 0.14);
-  --shadow-sheet: 0 -8px 30px rgba(6, 26, 85, 0.12);
-  --shadow-sticky: 0 -4px 16px rgba(6, 26, 85, 0.08);
+  --shadow-toast: 0 8px 24px rgba(17, 24, 51, 0.14);
+  --shadow-sheet: 0 -8px 30px rgba(17, 24, 51, 0.12);
+  --shadow-sticky: 0 -4px 16px rgba(17, 24, 51, 0.08);
 
   /* =========================================================================
      7. App Shell Dimensions & Safe Areas
@@ -303,12 +303,12 @@
   --glass-bg: #FFFFFF;
   --glass-border: var(--wex-border);
 
-  --shadow-card-v2: 0 2px 8px rgba(6, 26, 85, 0.05);
-  --shadow-tile-v2: 0 1px 4px rgba(6, 26, 85, 0.05);
-  --shadow-cta-v2: 0 2px 6px rgba(11, 63, 191, 0.2);
-  --shadow-search-v2: 0 4px 16px rgba(6, 26, 85, 0.08);
-  --shadow-float-v2: 0 4px 16px rgba(6, 26, 85, 0.08);
-  --shadow-dark-card-v2: 0 4px 16px rgba(6, 26, 85, 0.12);
+  --shadow-card-v2: 0 2px 8px rgba(17, 24, 51, 0.05);
+  --shadow-tile-v2: 0 1px 4px rgba(17, 24, 51, 0.05);
+  --shadow-cta-v2: 0 2px 6px rgba(51, 64, 212, 0.22);
+  --shadow-search-v2: 0 4px 16px rgba(17, 24, 51, 0.08);
+  --shadow-float-v2: 0 4px 16px rgba(17, 24, 51, 0.08);
+  --shadow-dark-card-v2: 0 4px 16px rgba(17, 24, 51, 0.12);
 
   --radius-header-v2: 0 0 14px 14px;
   --radius-card-v2: 12px;

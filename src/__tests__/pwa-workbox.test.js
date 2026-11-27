@@ -14,8 +14,8 @@ describe('PWA & Workbox Hardening Verification (Phase 7)', () => {
     expect(manifest.display).toBe('standalone');
     expect(manifest.lang).toBe('ar');
     expect(manifest.dir).toBe('rtl');
-    expect(manifest.theme_color).toBe('#061A55');
-    expect(manifest.background_color).toBe('#EAF3FF');
+    expect(manifest.theme_color).toBe('#111833');
+    expect(manifest.background_color).toBe('#F6F7FB');
 
     // Maskable icon
     const maskableIcon = manifest.icons.find((i) => i.purpose?.includes('maskable'));
@@ -37,7 +37,7 @@ describe('PWA & Workbox Hardening Verification (Phase 7)', () => {
     expect(indexHtml).toContain('viewport-fit=cover');
     expect(indexHtml).toContain('rel="apple-touch-icon"');
     expect(indexHtml).toContain('apple-mobile-web-app-capable');
-    expect(indexHtml).toContain('name="theme-color" content="#061A55"');
+    expect(indexHtml).toContain('name="theme-color" content="#111833"');
   });
 
   it('Workbox NEVER caches authenticated API routes, orders, or payment-proof images', () => {

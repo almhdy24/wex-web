@@ -3,8 +3,8 @@ import styles from './DarkCard.module.css';
 
 /**
  * Design System DarkCard
- * - Navy (#061A55) surface, text uses --on-dark (#FFFFFF) and --on-dark-muted (#C9D6F5)
- * - Radius 16, 1px border (#061A55), no shadow
+ * - Navy (#111833) surface, text uses --on-dark (#FFFFFF) and --on-dark-muted (#C9D6F5)
+ * - Radius 16, 1px border (#111833), no shadow
  * - Max ONE dark card per screen
  * - Optional gradient (royal to navy) for payment amount card
  */

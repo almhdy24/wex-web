@@ -12,7 +12,7 @@
   justify-content: center;
   padding: 24px;
   background: radial-gradient(120% 80% at 50% 35%, #FFFFFF 0%, #F3F7FF 60%, #E8F0FF 100%);
-  color: #061A55;
+  color: #111833;
   user-select: none;
   cursor: pointer;
   opacity: 1;
@@ -56,7 +56,7 @@
   font-weight: 800;
   line-height: 1.25;
   margin: 0;
-  color: #061A55;
+  color: #111833;
   animation: fadeUp 420ms 120ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
@@ -66,7 +66,7 @@
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 3px;
-  color: #1E6BFF;
+  color: #5A54E6;
   animation: fadeUp 420ms 160ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
@@ -102,7 +102,7 @@
   inset-block: 0;
   width: 40%;
   border-radius: 3px;
-  background: linear-gradient(90deg, #0B3FBF, #1E8BFF);
+  background: linear-gradient(90deg, #3340D4, #1E8BFF);
   animation: slide 1100ms cubic-bezier(0.45, 0, 0.55, 1) infinite;
 }
 

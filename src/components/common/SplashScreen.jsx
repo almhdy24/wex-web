@@ -101,11 +101,11 @@ export default function SplashScreen({
         >
           <defs>
             <linearGradient id="wexSplashBlue" x1="0%" y1="100%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#0B3FBF" />
+              <stop offset="0%" stopColor="#3340D4" />
               <stop offset="100%" stopColor="#1E8BFF" />
             </linearGradient>
           </defs>
-          <path className={styles.markNavy} d="M328 390 H445 L706 648 H575 Z" fill="#061A55" />
+          <path className={styles.markNavy} d="M328 390 H445 L706 648 H575 Z" fill="#111833" />
           <path className={styles.markBlue} d="M230 675 C300 668 352 664 372 660 C470 590 560 520 640 452 C690 410 740 378 795 350 C740 352 690 354 662 356 C610 372 560 412 520 444 C420 524 320 600 230 675 Z" fill="url(#wexSplashBlue)" />
         </svg>
 

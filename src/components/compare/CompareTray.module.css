@@ -165,7 +165,7 @@
   font-size: var(--text-s);
   font-weight: 700;
   color: var(--wex-white);
-  background: var(--gradient-brand-cta, linear-gradient(135deg, #1E6BFF 0%, #061A55 100%));
+  background: var(--gradient-brand-cta, linear-gradient(135deg, #5A54E6 0%, #111833 100%));
   border: none;
   border-radius: var(--radius-button, 10px);
   text-decoration: none;

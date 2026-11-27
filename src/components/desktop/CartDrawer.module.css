@@ -48,7 +48,7 @@
 .browseBtn {
   padding: 12px 28px;
   border-radius: var(--radius-md, 14px);
-  background: var(--wex-grad-brand, linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 50%, #00B7FF 100%));
+  background: var(--wex-grad-brand, linear-gradient(135deg, #3340D4 0%, #5A54E6 50%, #6A5CF0 100%));
   color: var(--wex-white);
   border: none;
   font-weight: 700;
@@ -267,7 +267,7 @@
   width: 100%;
   height: 48px;
   border-radius: var(--radius-md, 14px);
-  background: var(--wex-grad-brand, linear-gradient(135deg, #0B3FBF 0%, #1E6BFF 50%, #00B7FF 100%));
+  background: var(--wex-grad-brand, linear-gradient(135deg, #3340D4 0%, #5A54E6 50%, #6A5CF0 100%));
   color: var(--wex-white);
   border: none;
   font-weight: 700;

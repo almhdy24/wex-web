@@ -117,7 +117,7 @@
 }
 
 .perkIcon {
-  color: var(--color-vivid-blue, #1E6BFF);
+  color: var(--color-vivid-blue, #5A54E6);
 }
 
 /* Error Alert */
@@ -442,7 +442,7 @@
 }
 
 .trustIcon {
-  color: var(--color-vivid-blue, #1E6BFF);
+  color: var(--color-vivid-blue, #5A54E6);
 }
 
 .termsText {

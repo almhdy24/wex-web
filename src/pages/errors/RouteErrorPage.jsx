@@ -23,7 +23,7 @@ export default function RouteErrorPage({ homePath = '/' }) {
       }}
       role="alert"
     >
-      <h1 style={{ margin: 0, fontSize: '20px', color: '#061a55' }}>
+      <h1 style={{ margin: 0, fontSize: '20px', color: '#111833' }}>
         حدث خطأ غير متوقع أثناء تحميل الصفحة
       </h1>
       <p style={{ margin: 0, fontSize: '14px', color: '#475569', maxWidth: '420px' }}>
@@ -54,7 +54,7 @@ export default function RouteErrorPage({ homePath = '/' }) {
             borderRadius: '10px',
             border: '1px solid rgba(15, 23, 42, 0.16)',
             background: '#ffffff',
-            color: '#061a55',
+            color: '#111833',
             fontWeight: 700,
             display: 'inline-flex',
             alignItems: 'center',

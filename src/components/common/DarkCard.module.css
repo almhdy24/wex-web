@@ -12,7 +12,7 @@
 }
 
 .gradient {
-  background: var(--wex-grad-navy, linear-gradient(135deg, #061A55 0%, #0B3FBF 100%));
+  background: var(--wex-grad-navy, linear-gradient(135deg, #111833 0%, #3340D4 100%));
 }
 
 .darkCard p,
