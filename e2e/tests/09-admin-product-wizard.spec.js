@@ -43,10 +43,9 @@ test.describe('09: Admin product wizard', () => {
 
     // Clean up: this product has stock 1 and would otherwise be the newest item that later
     // storefront specs buy or open. Delete it from the list (soft delete, hidden from the store).
-    await page.getByPlaceholder(/بحث/).first().fill(name);
-    const row = page.getByText(name).first();
-    await expect(row).toBeVisible({ timeout: 10000 });
-    await page.getByRole('button', { name: 'حذف الجهاز' }).first().click();
+    const card = page.locator('tr, [class*="mobileCard"]').filter({ hasText: name }).first();
+    await expect(card).toBeVisible({ timeout: 10000 });
+    await card.getByRole('button', { name: 'حذف الجهاز' }).click();
     await page.getByRole('button', { name: 'تأكيد الحذف' }).click();
     await expect(page.getByText(name)).toHaveCount(0, { timeout: 10000 });
   });
