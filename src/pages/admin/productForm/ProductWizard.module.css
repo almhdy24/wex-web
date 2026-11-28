@@ -4,7 +4,7 @@
 .progress {
   position: sticky;
   top: env(safe-area-inset-top, 0px);
-  z-index: 20;
+  z-index: var(--z-sticky);
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -261,7 +261,7 @@
 .success {
   position: fixed;
   inset: 0;
-  z-index: 500;
+  z-index: var(--z-modal);
   display: grid;
   place-items: center;
   background: rgba(17, 24, 51, 0.55);

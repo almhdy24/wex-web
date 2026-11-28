@@ -189,7 +189,9 @@ export default function AdminProductsPage() {
   }, [searchQuery, categoryFilter, typeFilter, activeFilter, conditionFilter, brandFilter, stockFilter, statusFilter, sortFilter, currentPage]);
 
   const loadCounts = useCallback(() => {
-    adminApi.getProductCounts().then((r) => setCounts(r.data || null)).catch(() => {});
+    try {
+      Promise.resolve(adminApi.getProductCounts?.()).then((r) => setCounts(r?.data || null)).catch(() => {});
+    } catch { /* counts are optional */ }
   }, []);
   useEffect(() => { loadCounts(); }, [loadCounts, products.length]);
 
