@@ -61,6 +61,15 @@ export const adminApi = {
     return api.get(`/admin/products${qs ? `?${qs}` : ''}`);
   },
 
+  /** Spec schema per product type (single source of truth, shared with the server validation). */
+  getSpecSchema() {
+    return api.get('/spec-schema');
+  },
+
+  getProductCounts() {
+    return api.get('/admin/products/counts');
+  },
+
   createProduct(payload) {
     return api.post('/admin/products', payload);
   },

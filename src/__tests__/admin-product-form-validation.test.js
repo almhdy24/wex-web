@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { validateProductForm, mapServerErrors } from '../pages/admin/AdminProductFormPage';
+import { validateProductForm, mapServerErrors } from '../pages/admin/productForm/formLogic';
 
 const valid = {
   name: 'HP ProBook 440 G7', type: 'laptop', category_id: '3', condition: 'used_imported',
@@ -19,10 +19,10 @@ describe('admin product form validation (Arabic, field-level)', () => {
   });
 
   it('rejects the old broken condition values the API never accepted', () => {
-    ['brand_new', 'open_box', 'refurbished', 'used'].forEach((c) => {
+    ['brand_new', 'open_box', 'used'].forEach((c) => {
       expect(validateProductForm({ ...valid, condition: c }).condition).toBeTruthy();
     });
-    ['new', 'used_imported'].forEach((c) => {
+    ['new', 'used_imported', 'refurbished'].forEach((c) => {
       expect(validateProductForm({ ...valid, condition: c }).condition).toBeUndefined();
     });
   });

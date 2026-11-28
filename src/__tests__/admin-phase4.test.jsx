@@ -37,11 +37,11 @@ describe('Phase 4: Products List & Multi-Section Product Form Unit Tests', () =>
     expect(html).toContain('إضافة منتج جديد');
   });
 
-  it('AdminProductFormPage renders multi-section navigation, AED price input and admin-only badge', () => {
-    const html = renderToStaticMarkup(
+  it('AdminProductFormPage starts with the category-first step and renders the stepper once a type is chosen', () => {
+    const render = (entry) => renderToStaticMarkup(
       <AuthContext.Provider value={mockAuthAdmin}>
         <ToastContext.Provider value={mockToast}>
-          <MemoryRouter initialEntries={['/admin/products/new']}>
+          <MemoryRouter initialEntries={[entry]}>
             <Routes>
               <Route path="/admin/products/new" element={<AdminProductFormPage />} />
             </Routes>
@@ -50,11 +50,15 @@ describe('Phase 4: Products List & Multi-Section Product Form Unit Tests', () =>
       </AuthContext.Provider>
     );
 
-    expect(html).toContain('البيانات الأساسية');
-    expect(html).toContain('السعر والمخزون');
-    expect(html).toContain('صور الجهاز');
-    expect(html).toContain('المواصفات الفنية');
-    expect(html).toContain('للإدارة فقط');
-    expect(html).toContain('إنشاء المنتج');
+    const step0 = render('/admin/products/new');
+    expect(step0).toContain('ماذا تريد أن تضيف؟');
+    ['حاسوب', 'هاتف', 'ملحق'].forEach((l) => expect(step0).toContain(l));
+
+    const html = render('/admin/products/new?type=laptop');
+    ['التصنيف', 'الصور', 'المعلومات الأساسية', 'المواصفات', 'السعر والمخزون', 'المراجعة والنشر'].forEach((l) => {
+      expect(html).toContain(l);
+    });
+    expect(html).toContain('حفظ كمسودة');
+    expect(html).toContain('نشر');
   });
 });
