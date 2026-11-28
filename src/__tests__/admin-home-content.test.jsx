@@ -1,8 +1,8 @@
 /**
  * @vitest-environment jsdom
  *
- * Home hero slides and sections edited in admin (/admin/hero-slides, /admin/home-sections)
- * never reached the storefront: the home page used hard-coded copies.
+ * Home sections edited in admin (/admin/home-sections) reach the storefront; the hero is now the
+ * promotions carousel (admin: /admin/promotions), which renders nothing when there are no promos.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
@@ -13,6 +13,10 @@ import { CartContext } from '../context/CartContext';
 import { FavoritesContext } from '../context/FavoritesContext';
 import { ToastContext } from '../context/ToastContext';
 
+vi.mock('../api/promotions', () => ({
+  promotionsApi: { list: vi.fn().mockResolvedValue([]), track: vi.fn() },
+  promoHref: () => undefined,
+}));
 vi.mock('../api/shop', () => ({ shopApi: { getShop: vi.fn().mockResolvedValue({ data: { lock_hours: 4 } }) } }));
 vi.mock('../api/products', () => ({
   productsApi: {
@@ -54,11 +58,8 @@ beforeEach(() => {
   );
 });
 
-describe('home page uses admin hero slides and sections', () => {
-  it('renders admin slides and sections in admin order with their products', async () => {
-    productsApi.getHeroSlides.mockResolvedValue({
-      data: [{ id: 1, title: 'شريحة من الإدارة', subtitle: 'نص الشريحة', button_label: 'زر الشريحة', link: '/catalog', sort_order: 1, is_active: true }],
-    });
+describe('home page uses admin sections', () => {
+  it('renders admin sections in admin order with their products', async () => {
     productsApi.getHomeSections.mockResolvedValue({
       data: [
         { id: 2, key: 'acc', title: 'قسم الملحقات', source: 'type', source_value: 'accessory', limit: 6, sort_order: 2, is_active: true },
@@ -67,7 +68,6 @@ describe('home page uses admin hero slides and sections', () => {
       ],
     });
     renderHome();
-    expect(await screen.findByText('شريحة من الإدارة')).toBeTruthy();
     const lap = await screen.findByText('قسم اللابتوبات');
     const acc = screen.getByText('قسم الملحقات');
     expect(lap.compareDocumentPosition(acc) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -77,11 +77,9 @@ describe('home page uses admin hero slides and sections', () => {
     expect(screen.queryByText('وصل حديثاً')).toBeNull();
   });
 
-  it('keeps the built-in hero and rows when admin has none', async () => {
-    productsApi.getHeroSlides.mockResolvedValue({ data: [] });
+  it('keeps the built-in rows when admin has none', async () => {
     productsApi.getHomeSections.mockResolvedValue({ data: [] });
     renderHome();
-    expect(await screen.findByText('أجهزة لابتوب جديدة ومستعملة')).toBeTruthy();
     expect(await screen.findByText('وصل حديثاً')).toBeTruthy();
   });
 });
