@@ -1,269 +1,135 @@
-.container {
+/* Clean image tiles: cover star + delete inside the tile bounds, caption collapsed by default. */
+.container { display: flex; flex-direction: column; gap: var(--space-3); }
+
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+@media (min-width: 520px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 900px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+.tile {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4, 16px);
-  width: 100%;
+  min-width: 0;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-slate-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: grab;
+}
+.tilePrimary { border-color: var(--color-royal-blue); }
+.tileDragging { opacity: 0.5; }
+
+.thumbBox { position: relative; aspect-ratio: 1 / 1; background: var(--color-ice); overflow: hidden; }
+.thumb { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumbBusy { opacity: 0.45; }
+
+.cornerBtn {
+  position: absolute;
+  top: 6px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--color-navy);
+  cursor: pointer;
+}
+.cornerStar { inset-inline-start: 6px; }
+.cornerDelete { inset-inline-end: 6px; color: var(--wex-danger, #b42318); }
+.cornerOn { background: var(--color-royal-blue); color: #fff; }
+
+.coverBadge {
+  position: absolute;
+  inset-inline-start: 6px;
+  bottom: 6px;
+  max-width: calc(100% - 12px);
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--color-royal-blue);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 20px;
+  white-space: nowrap;
 }
 
-.dropzone {
+.tileBar { display: flex; align-items: center; justify-content: space-between; padding: 4px var(--space-2); }
+.barBtn {
+  width: 40px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-slate-500);
+  cursor: pointer;
+}
+.barBtn:disabled { opacity: 0.35; cursor: default; }
+
+.altRow { display: flex; align-items: center; gap: 4px; padding: 0 var(--space-2) var(--space-2); }
+.altInput {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 40px;
+  padding: 0 var(--space-2);
+  border: 1.5px solid var(--color-slate-200);
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: var(--text-xs);
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2, 8px);
-  padding: var(--space-6, 24px) var(--space-4, 16px);
-  border: 2px dashed var(--color-slate-300);
-  border-radius: var(--radius-lg, 12px);
-  background-color: var(--color-slate-50);
-  cursor: pointer;
-  transition: all var(--transition-base, 0.2s ease);
-  text-align: center;
-  outline: none;
-}
-
-.dropzone:hover,
-.dropzone:focus-visible {
-  border-color: var(--color-royal-blue);
-  background-color: var(--color-blue-50, #EFF6FF);
-}
-
-.dropzoneActive {
-  border-color: var(--color-royal-blue);
-  background-color: var(--color-blue-50, #EFF6FF);
-}
-
-.dropzoneText {
-  font-size: var(--text-sm, 14px);
-  font-weight: 600;
-  color: var(--color-navy-800, #1E293B);
-}
-
-.dropzoneHint {
-  font-size: var(--text-xs, 12px);
-  color: var(--color-slate-500);
-  max-width: 420px;
-}
-
-.progressContainer {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1, 4px);
-  padding: var(--space-3, 12px);
-  background-color: var(--color-blue-50, #EFF6FF);
-  border: 1px solid var(--color-blue-200, #BFDBFE);
-  border-radius: var(--radius-md, 8px);
-}
-
-.progressBarTrack {
-  width: 100%;
-  height: 6px;
-  background-color: var(--color-blue-200, #BFDBFE);
-  border-radius: var(--radius-full, 9999px);
-  overflow: hidden;
-}
-
-.progressBarFill {
-  height: 100%;
-  background-color: var(--color-royal-blue);
-  border-radius: var(--radius-full, 9999px);
-  transition: width 0.2s ease;
-}
-
-.progressText {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: var(--text-xs, 12px);
-  font-weight: 500;
-  color: var(--color-royal-blue);
-}
-
-.imagesGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: var(--space-3, 12px);
-}
-
-@media (max-width: 400px) {
-  .imagesGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-2, 8px);
-  }
-}
-
-.imageCard {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid var(--color-slate-200);
-  border-radius: var(--radius-md, 8px);
-  overflow: hidden;
-  background-color: var(--wex-white);
-  transition: box-shadow var(--transition-fast, 0.15s ease), border-color var(--transition-fast, 0.15s ease);
-}
-
-.imageCardPrimary {
-  border-color: var(--color-royal-blue);
-  box-shadow: 0 0 0 1px var(--color-royal-blue);
-}
-
-.imageThumbWrap {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  background-color: var(--color-slate-100);
-  overflow: hidden;
-}
-
-.imageThumb {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.primaryBadge {
-  position: absolute;
-  top: 6px;
-  inset-inline-start: 6px;
-  background-color: var(--color-royal-blue);
-  color: var(--wex-white);
+  gap: 6px;
+  color: var(--color-navy);
   font-size: var(--text-xs);
   font-weight: 700;
-  padding: 2px 8px;
-  border-radius: var(--radius-full, 9999px);
+}
+.overlayError { color: var(--wex-danger, #b42318); }
+.retryBtn {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-.cardActions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 8px;
-  background-color: var(--wex-white);
-  border-top: 1px solid var(--color-slate-100);
-  gap: 4px;
-}
-
-.actionButton {
   min-height: 36px;
-  min-width: 36px;
-  padding: 4px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--color-slate-200);
-  background-color: var(--wex-white);
-  color: var(--color-navy-700, #334155);
-  border-radius: var(--radius-sm, 6px);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.actionButton:hover:not(:disabled) {
-  background-color: var(--color-slate-100);
-  color: var(--color-navy-900, #0F172A);
-}
-
-.actionButton:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.actionButtonActive {
-  background-color: var(--color-amber-50, #FFFBEB);
-  border-color: var(--color-amber-400, #FBBF24);
-  color: var(--color-amber-700, #B45309);
-}
-
-.deleteButton:hover:not(:disabled) {
-  background-color: var(--color-red-50, #FEF2F2);
-  border-color: var(--color-red-300, #FCA5A5);
-  color: var(--color-red-600, #DC2626);
-}
-
-.altSection {
-  padding: 6px 8px;
-  background-color: var(--color-slate-50);
-  border-top: 1px solid var(--color-slate-100);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.altInput {
-  flex: 1;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-navy);
+  color: #fff;
+  font: inherit;
   font-size: var(--text-xs);
-  padding: 4px 6px;
-  border: 1px solid var(--color-slate-300);
-  border-radius: var(--radius-sm, 4px);
-  background: var(--wex-white);
-  color: var(--color-navy-900, #0F172A);
-  min-width: 0;
+  font-weight: 700;
+  cursor: pointer;
 }
+.spin { animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.altInput:focus {
-  outline: none;
-  border-color: var(--color-royal-blue);
-}
-
-.emptyState {
+.addTile {
+  aspect-ratio: 1 / 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: var(--space-4, 16px);
-  background-color: var(--color-slate-50);
-  border-radius: var(--radius-md, 8px);
-  color: var(--color-slate-500);
-  font-size: var(--text-xs, 12px);
-  text-align: center;
-}
-
-
-/* Bulk multi-select bar + per-image select box */
-.bulkBar {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  padding: 8px 10px;
-  border: 1px solid var(--color-slate-200, #e2e8f0);
-  border-radius: 10px;
-  background: var(--color-slate-50, #f8fafc);
-}
-.bulkSelectAll {
-  display: inline-flex;
-  align-items: center;
+  justify-content: center;
   gap: 6px;
-  font-size: 13px;
-  font-weight: 600;
+  border: 2px dashed var(--color-slate-300, #c9d2e8);
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--color-royal-blue);
+  font: inherit;
+  font-weight: 700;
+  font-size: var(--text-xs);
   cursor: pointer;
 }
-.bulkDeleteBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border: 1px solid var(--wex-danger, #c0392b);
-  border-radius: 8px;
-  background: var(--wex-danger, #c0392b);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.selectBox {
-  position: absolute;
-  top: 6px;
-  inset-inline-start: 6px;
-  width: 20px;
-  height: 20px;
-  z-index: 2;
-  cursor: pointer;
-  accent-color: var(--wex-royal, #3340D4);
-}
+.addTileActive { background: var(--color-ice); border-color: var(--color-royal-blue); }
+
+.emptyState { display: flex; align-items: center; gap: var(--space-2); color: var(--color-slate-500); font-size: var(--text-sm); }
+.hint { color: var(--color-slate-500); font-size: var(--text-xs); line-height: 1.7; }
+
+@media (prefers-reduced-motion: reduce) { .spin { animation: none; } }

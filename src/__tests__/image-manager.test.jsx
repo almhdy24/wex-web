@@ -102,6 +102,8 @@ describe('ImageManager component', () => {
       </ToastContext.Provider>
     );
 
+    // The caption field is collapsed by default; open it from the tile.
+    fireEvent.click(screen.getByLabelText('وصف الصورة'));
     const altInput = screen.getByPlaceholderText('وصف الصورة النصي لقارئات الشاشة...');
     fireEvent.change(altInput, { target: { value: 'وصف جديد ومفصل' } });
     fireEvent.blur(altInput);

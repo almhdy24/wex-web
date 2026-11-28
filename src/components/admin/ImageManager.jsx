@@ -3,11 +3,14 @@ import PropTypes from 'prop-types';
 import {
   Upload,
   Star,
-  Trash2,
+  X,
   ChevronRight,
   ChevronLeft,
   Check,
   AlertCircle,
+  RotateCw,
+  Type,
+  Loader2,
 } from 'lucide-react';
 import { compressImage } from '../../utils/imageCompressor';
 import { resolveImageUrl } from '../../utils/formatters';
@@ -39,62 +42,71 @@ export default function ImageManager({
   const fileInputRef = useRef(null);
 
   const [isDragging, setIsDragging] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(null); // { current, total }
+  const [uploads, setUploads] = useState([]); // per-file: { key, file, previewUrl, status: 'uploading' | 'error' }
   const [altDrafts, setAltDrafts] = useState({});
-  const [selectedIds, setSelectedIds] = useState(() => new Set());
+  const [altOpen, setAltOpen] = useState(() => new Set());
+  const [dragIndex, setDragIndex] = useState(null);
 
-  const toggleSelected = (imgId) => {
-    setSelectedIds((prev) => {
+  const toggleAlt = (imgId) => {
+    setAltOpen((prev) => {
       const next = new Set(prev);
-      next.has(imgId) ? next.delete(imgId) : next.add(imgId);
+      if (next.has(imgId)) next.delete(imgId);
+      else next.add(imgId);
       return next;
     });
   };
 
   const isEditMode = Boolean(productId);
-  const currentTotal = isEditMode ? images.length : queuedFiles.length;
+  const currentTotal = (isEditMode ? images.length : queuedFiles.length) + uploads.length;
 
-  // Process a batch of files with concurrency limit
+  const refreshImages = async () => {
+    const refreshed = await adminApi.getProduct(productId);
+    if (onImagesChange) onImagesChange(refreshed.data?.images || []);
+  };
+
+  // Uploads one file (compress, then POST). Failed files stay as a tile with a retry button.
+  const uploadOne = async (item) => {
+    setUploads((prev) => prev.map((u) => (u.key === item.key ? { ...u, status: 'uploading' } : u)));
+    try {
+      const compressed = await compressImage(item.file, 1600, 0.82);
+      const formData = new FormData();
+      formData.append('images[]', compressed);
+      await adminApi.uploadProductImages(productId, formData);
+      URL.revokeObjectURL(item.previewUrl);
+      setUploads((prev) => prev.filter((u) => u.key !== item.key));
+      return true;
+    } catch {
+      setUploads((prev) => prev.map((u) => (u.key === item.key ? { ...u, status: 'error' } : u)));
+      return false;
+    }
+  };
+
+  const retryUpload = async (item) => {
+    if (await uploadOne(item)) {
+      await refreshImages();
+      success('تم رفع الصورة');
+    }
+  };
+
+  // Uploads a batch with a concurrency limit; each file reports its own progress/failure.
   const processUploadQueue = async (files) => {
-    const queue = [...files];
-    const total = queue.length;
-    let completed = 0;
-
-    setUploadProgress({ current: 0, total });
-
+    const items = files.map((file, i) => ({
+      key: `up-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 7)}`,
+      file,
+      previewUrl: URL.createObjectURL(file),
+      status: 'uploading',
+    }));
+    setUploads((prev) => [...prev, ...items]);
+    const queue = [...items];
+    let okCount = 0;
     const worker = async () => {
       while (queue.length > 0) {
-        const file = queue.shift();
-        let attempts = 0;
-        let uploaded = false;
-
-        while (attempts < 2 && !uploaded) {
-          try {
-            attempts++;
-            const compressed = await compressImage(file, 1600, 0.82);
-            const formData = new FormData();
-            formData.append('images[]', compressed);
-
-            await adminApi.uploadProductImages(productId, formData);
-            uploaded = true;
-          } catch (err) {
-            if (attempts >= 2) {
-              throw err;
-            }
-          }
-        }
-
-        completed++;
-        setUploadProgress({ current: completed, total });
+        const item = queue.shift();
+        if (await uploadOne(item)) okCount += 1;
       }
     };
-
-    const workers = Array.from(
-      { length: Math.min(CONCURRENCY_LIMIT, total) },
-      () => worker()
-    );
-
-    await Promise.all(workers);
+    await Promise.all(Array.from({ length: Math.min(CONCURRENCY_LIMIT, items.length) }, worker));
+    return { okCount, failed: items.length - okCount };
   };
 
   const handleFiles = async (fileList) => {
@@ -108,16 +120,14 @@ export default function ImageManager({
 
     if (isEditMode) {
       try {
-        await processUploadQueue(incoming);
-        success('تم رفع الصور وضغطها بنجاح');
-        const refreshed = await adminApi.getProduct(productId);
-        if (onImagesChange) {
-          onImagesChange(refreshed.data?.images || []);
+        const { okCount, failed } = await processUploadQueue(incoming);
+        if (okCount > 0) {
+          await refreshImages();
+          success(failed ? `تم رفع ${okCount} صور، وفشل رفع ${failed}` : 'تم رفع الصور وضغطها بنجاح');
+        } else if (failed) {
+          toastError('فشل رفع الصور، اضغط إعادة المحاولة على الصورة');
         }
-      } catch (err) {
-        toastError(err.message || 'فشل رفع بعض الصور، يرجى المحاولة مرة أخرى');
       } finally {
-        setUploadProgress(null);
         if (fileInputRef.current) fileInputRef.current.value = '';
       }
     } else {
@@ -156,16 +166,16 @@ export default function ImageManager({
     }
   };
 
-  // Reordering
-  const handleMove = async (index, direction) => {
-    const newIndex = index + direction;
+  // Reordering (arrow buttons and drag-and-drop)
+  const handleMove = async (index, direction) => moveTo(index, index + direction);
+
+  const moveTo = async (index, newIndex) => {
     const list = isEditMode ? images : queuedFiles;
     if (newIndex < 0 || newIndex >= list.length) return;
 
     const copy = [...list];
-    const temp = copy[index];
-    copy[index] = copy[newIndex];
-    copy[newIndex] = temp;
+    const [moved] = copy.splice(index, 1);
+    copy.splice(newIndex, 0, moved);
 
     if (isEditMode) {
       onImagesChange(copy);
@@ -230,35 +240,6 @@ export default function ImageManager({
     }
   };
 
-  // Bulk delete every selected image
-  const handleBulkDelete = async () => {
-    const ids = displayList.filter((i) => selectedIds.has(i.id)).map((i) => i.id);
-    if (ids.length === 0) return;
-    setSelectedIds(new Set());
-    if (isEditMode) {
-      onImagesChange(images.filter((img) => !ids.includes(img.id)));
-      let failed = 0;
-      for (const imageId of ids) {
-        try {
-          await adminApi.deleteProductImage(productId, imageId);
-        } catch {
-          failed++;
-        }
-      }
-      const refreshed = await adminApi.getProduct(productId);
-      onImagesChange(refreshed.data?.images || []);
-      failed ? toastError(`تعذّر حذف ${failed} صورة`) : info(`تم حذف ${ids.length} صورة`);
-    } else {
-      ids.forEach((imgId) => {
-        const q = queuedFiles.find((item) => item.id === imgId);
-        if (q?.previewUrl) URL.revokeObjectURL(q.previewUrl);
-      });
-      const filtered = queuedFiles.filter((item) => !ids.includes(item.id));
-      if (filtered.length > 0 && !filtered.some((f) => f.is_primary)) filtered[0].is_primary = true;
-      onQueuedFilesChange(filtered);
-    }
-  };
-
   // Alt Text Save
   const handleSaveAlt = async (targetId, currentVal) => {
     const newAlt = altDrafts[targetId] !== undefined ? altDrafts[targetId] : (currentVal || '');
@@ -287,167 +268,71 @@ export default function ImageManager({
         multiple
         accept="image/jpeg,image/png,image/webp"
         onChange={(e) => handleFiles(e.target.files)}
-        disabled={Boolean(uploadProgress) || currentTotal >= MAX_IMAGES}
+        disabled={currentTotal >= MAX_IMAGES}
         style={{ display: 'none' }}
       />
 
-      <div
-        className={`${styles.dropzone} ${isDragging ? styles.dropzoneActive : ''}`}
-        onClick={() => fileInputRef.current?.click()}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setIsDragging(true);
-        }}
-        onDragLeave={() => setIsDragging(false)}
-        onDrop={handleDrop}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            fileInputRef.current?.click();
-          }
-        }}
-      >
-        <Upload size={32} color="var(--color-royal-blue, #1D4ED8)" />
-        <span className={styles.dropzoneText}>
-          {uploadProgress
-            ? 'جاري ضغط ورفع الصور...'
-            : 'اسحب الصور وأفلتها هنا، أو اضغط للاختيار من جهازك'}
-        </span>
-        <span className={styles.dropzoneHint}>
-          الحد الأقصى {MAX_IMAGES} صور. يتم ضغط الصور تلقائياً (بأبعاد حتى 1600 بكسل وجودة 82%)
-        </span>
-      </div>
-
-      {uploadProgress && (
-        <div className={styles.progressContainer}>
-          <div className={styles.progressText}>
-            <span>جاري رفع الصور ومعالجتها...</span>
-            <span>
-              {uploadProgress.current} من {uploadProgress.total}
-            </span>
-          </div>
-          <div className={styles.progressBarTrack}>
+      <div className={styles.grid}>
+        {displayList.map((item, index) => {
+          const isPrimary = Boolean(item.is_primary);
+          const imgSrc = isEditMode ? resolveImageUrl(item.thumb_path || item.path) : item.previewUrl;
+          const currentAlt = altDrafts[item.id] !== undefined ? altDrafts[item.id] : item.alt || '';
+          const showAlt = altOpen.has(item.id);
+          return (
             <div
-              className={styles.progressBarFill}
-              style={{
-                width: `${(uploadProgress.current / uploadProgress.total) * 100}%`,
+              key={item.id}
+              className={`${styles.tile} ${isPrimary ? styles.tilePrimary : ''} ${dragIndex === index ? styles.tileDragging : ''}`}
+              draggable
+              onDragStart={() => setDragIndex(index)}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                if (dragIndex !== null && dragIndex !== index) moveTo(dragIndex, index);
+                setDragIndex(null);
               }}
-            />
-          </div>
-        </div>
-      )}
-
-      {displayList.length === 0 ? (
-        <div className={styles.emptyState}>
-          <AlertCircle size={24} />
-          <span>لا توجد صور مرفوعة للجهاز بعد</span>
-        </div>
-      ) : (
-        <div className={styles.imagesGrid}>
-          <div className={styles.bulkBar}>
-            <label className={styles.bulkSelectAll}>
-              <input
-                type="checkbox"
-                checked={selectedIds.size > 0 && selectedIds.size === displayList.length}
-                ref={(el) => { if (el) el.indeterminate = selectedIds.size > 0 && selectedIds.size < displayList.length; }}
-                onChange={(e) => setSelectedIds(e.target.checked ? new Set(displayList.map((i) => i.id)) : new Set())}
-              />
-              تحديد الكل
-            </label>
-            {selectedIds.size > 0 && (
-              <button
-                type="button"
-                className={styles.bulkDeleteBtn}
-                onClick={handleBulkDelete}
-              >
-                <Trash2 size={15} /> حذف المحدد ({selectedIds.size})
-              </button>
-            )}
-          </div>
-          {displayList.map((item, index) => {
-            const isPrimary = Boolean(item.is_primary);
-            const imgSrc = isEditMode
-              ? resolveImageUrl(item.thumb_path || item.path)
-              : item.previewUrl;
-            const currentAlt = altDrafts[item.id] !== undefined ? altDrafts[item.id] : (item.alt || '');
-
-            return (
-              <div
-                key={item.id}
-                className={`${styles.imageCard} ${isPrimary ? styles.imageCardPrimary : ''}`}
-              >
-                <div className={styles.imageThumbWrap}>
-                  <input
-                    type="checkbox"
-                    className={styles.selectBox}
-                    checked={selectedIds.has(item.id)}
-                    onChange={() => toggleSelected(item.id)}
-                    aria-label="تحديد الصورة"
-                  />
-                  <img src={imgSrc} alt={currentAlt || 'صورة الجهاز'} className={styles.imageThumb} />
-                  {isPrimary && (
-                    <span className={styles.primaryBadge}>
-                      <Star size={12} fill="#FFFFFF" />
-                      الرئيسية
-                    </span>
-                  )}
-                </div>
-
-                <div className={styles.cardActions}>
-                  <button
-                    type="button"
-                    className={`${styles.actionButton} ${isPrimary ? styles.actionButtonActive : ''}`}
-                    onClick={() => handleSetPrimary(item.id)}
-                    title={isPrimary ? 'الصورة الرئيسية' : 'تعيين كصورة رئيسية'}
-                    aria-label="تعيين كصورة رئيسية"
-                  >
-                    <Star size={16} fill={isPrimary ? 'currentColor' : 'none'} />
-                  </button>
-
-                  <button
-                    type="button"
-                    className={styles.actionButton}
-                    disabled={index === 0}
-                    onClick={() => handleMove(index, -1)}
-                    title="تحريك لليمين (سابق)"
-                    aria-label="تحريك لليمين"
-                  >
-                    <ChevronRight size={16} />
-                  </button>
-
-                  <button
-                    type="button"
-                    className={styles.actionButton}
-                    disabled={index === displayList.length - 1}
-                    onClick={() => handleMove(index, 1)}
-                    title="تحريك لليسار (تالي)"
-                    aria-label="تحريك لليسار"
-                  >
-                    <ChevronLeft size={16} />
-                  </button>
-
-                  <button
-                    type="button"
-                    className={`${styles.actionButton} ${styles.deleteButton}`}
-                    onClick={() => handleDelete(item.id)}
-                    title="حذف الصورة"
-                    aria-label="حذف الصورة"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-
-                <div className={styles.altSection}>
+              onDragEnd={() => setDragIndex(null)}
+            >
+              <div className={styles.thumbBox}>
+                <img src={imgSrc} alt={currentAlt || 'صورة الجهاز'} className={styles.thumb} draggable={false} />
+                <button
+                  type="button"
+                  className={`${styles.cornerBtn} ${styles.cornerStar} ${isPrimary ? styles.cornerOn : ''}`}
+                  onClick={() => handleSetPrimary(item.id)}
+                  title={isPrimary ? 'الصورة الرئيسية' : 'تعيين كصورة رئيسية'}
+                  aria-label="تعيين كصورة رئيسية"
+                >
+                  <Star size={16} fill={isPrimary ? 'currentColor' : 'none'} />
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.cornerBtn} ${styles.cornerDelete}`}
+                  onClick={() => handleDelete(item.id)}
+                  title="حذف الصورة"
+                  aria-label="حذف الصورة"
+                >
+                  <X size={16} />
+                </button>
+                {isPrimary ? <span className={styles.coverBadge}>الرئيسية</span> : null}
+              </div>
+              <div className={styles.tileBar}>
+                <button type="button" className={styles.barBtn} disabled={index === 0} onClick={() => handleMove(index, -1)} title="تحريك لليمين (سابق)" aria-label="تحريك لليمين">
+                  <ChevronRight size={16} />
+                </button>
+                <button type="button" className={styles.barBtn} onClick={() => toggleAlt(item.id)} aria-label="وصف الصورة" aria-expanded={showAlt} title="وصف الصورة">
+                  <Type size={15} />
+                </button>
+                <button type="button" className={styles.barBtn} disabled={index === displayList.length - 1} onClick={() => handleMove(index, 1)} title="تحريك لليسار (تالي)" aria-label="تحريك لليسار">
+                  <ChevronLeft size={16} />
+                </button>
+              </div>
+              {showAlt ? (
+                <div className={styles.altRow}>
                   <input
                     type="text"
                     className={styles.altInput}
                     placeholder="وصف الصورة النصي لقارئات الشاشة..."
                     value={currentAlt}
-                    onChange={(e) =>
-                      setAltDrafts((prev) => ({ ...prev, [item.id]: e.target.value }))
-                    }
+                    onChange={(e) => setAltDrafts((prev) => ({ ...prev, [item.id]: e.target.value }))}
                     onBlur={() => handleSaveAlt(item.id, item.alt)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
@@ -456,22 +341,60 @@ export default function ImageManager({
                       }
                     }}
                   />
-                  <button
-                    type="button"
-                    className={styles.actionButton}
-                    onClick={() => handleSaveAlt(item.id, item.alt)}
-                    title="حفظ الوصف"
-                    aria-label="حفظ الوصف"
-                    style={{ minHeight: 28, minWidth: 28, padding: 2 }}
-                  >
+                  <button type="button" className={styles.barBtn} onClick={() => handleSaveAlt(item.id, item.alt)} aria-label="حفظ الوصف">
                     <Check size={14} />
                   </button>
                 </div>
-              </div>
-            );
-          })}
+              ) : null}
+            </div>
+          );
+        })}
+
+        {uploads.map((u) => (
+          <div key={u.key} className={styles.tile}>
+            <div className={styles.thumbBox}>
+              <img src={u.previewUrl} alt="" className={`${styles.thumb} ${styles.thumbBusy}`} draggable={false} />
+              {u.status === 'uploading' ? (
+                <span className={styles.overlay}><Loader2 size={22} className={styles.spin} /><span>جاري الرفع</span></span>
+              ) : (
+                <span className={`${styles.overlay} ${styles.overlayError}`}>
+                  <span>فشل الرفع</span>
+                  <button type="button" className={styles.retryBtn} onClick={() => retryUpload(u)} aria-label="إعادة المحاولة">
+                    <RotateCw size={14} />
+                    <span>إعادة المحاولة</span>
+                  </button>
+                </span>
+              )}
+            </div>
+          </div>
+        ))}
+
+        {currentTotal < MAX_IMAGES ? (
+          <button
+            type="button"
+            className={`${styles.addTile} ${isDragging ? styles.addTileActive : ''}`}
+            onClick={() => fileInputRef.current?.click()}
+            onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={handleDrop}
+            aria-label="إضافة صور"
+          >
+            <Upload size={22} />
+            <span>إضافة صور</span>
+          </button>
+        ) : null}
+      </div>
+
+      {displayList.length === 0 && uploads.length === 0 ? (
+        <div className={styles.emptyState}>
+          <AlertCircle size={20} />
+          <span>لا توجد صور مرفوعة للجهاز بعد</span>
         </div>
-      )}
+      ) : null}
+
+      <span className={styles.hint}>
+        الحد الأقصى {MAX_IMAGES} صور — تُضغط تلقائياً (حتى 1600 بكسل). اسحب الصورة أو استخدم الأسهم لتغيير الترتيب، والنجمة تحدد الصورة الرئيسية.
+      </span>
     </div>
   );
 }
