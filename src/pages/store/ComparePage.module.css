@@ -97,7 +97,7 @@
   min-height: 36px;
   padding: 6px 14px;
   border-radius: var(--radius-sm, 8px);
-  background: var(--gradient-brand-cta, linear-gradient(135deg, #5A54E6 0%, #111833 100%));
+  background: var(--gradient-brand-cta);
   color: var(--wex-white);
   text-decoration: none;
   font-size: var(--text-s);
@@ -155,12 +155,12 @@
   min-height: 44px;
   padding: 10px 24px;
   border-radius: var(--radius-button, 10px);
-  background: var(--gradient-brand-cta, linear-gradient(135deg, #5A54E6 0%, #111833 100%));
+  background: var(--gradient-brand-cta);
   color: var(--wex-white);
   text-decoration: none;
   font-weight: 700;
   font-size: var(--text-sm, 0.875rem);
-  box-shadow: 0 8px 20px rgba(11, 63, 191, 0.28);
+  box-shadow: none;
 }
 
 /* Table Wrapper */
@@ -193,13 +193,13 @@
   color: var(--color-navy);
   border-bottom: 2px solid var(--color-slate-200);
   background-color: var(--wex-ice-light);
-  box-shadow: 2px 0 6px -2px rgba(6, 26, 85, 0.06);
+  box-shadow: none;
 }
 
 .productHeaderCell {
   padding: 20px 16px;
   border-bottom: 2px solid var(--color-slate-200);
-  border-right: 1px solid var(--color-slate-200);
+  border-inline-start: 1px solid var(--color-slate-200);
   vertical-align: top;
   width: 220px;
   min-width: 200px;
@@ -209,7 +209,7 @@
 .emptySlotCell {
   padding: 20px 16px;
   border-bottom: 2px solid var(--color-slate-200);
-  border-right: 1px solid var(--color-slate-200);
+  border-inline-start: 1px solid var(--color-slate-200);
   vertical-align: middle;
   text-align: center;
   width: 200px;
@@ -389,7 +389,7 @@
   color: var(--color-navy);
   border-bottom: 1px solid var(--color-slate-200);
   background-color: var(--wex-ice-light);
-  box-shadow: 2px 0 6px -2px rgba(6, 26, 85, 0.06);
+  box-shadow: none;
 }
 
 .labelWithTag {
@@ -414,7 +414,7 @@
   font-weight: 500;
   color: var(--color-slate-800);
   border-bottom: 1px solid var(--color-slate-200);
-  border-right: 1px solid var(--color-slate-200);
+  border-inline-start: 1px solid var(--color-slate-200);
   scroll-snap-align: start;
 }
 
@@ -437,7 +437,7 @@
 /* Sticky label cells need a surface: values scrolled visibly underneath them. */
 .specLabelCell {
   background: var(--wex-ice-light);
-  box-shadow: 2px 0 6px -2px rgba(6, 26, 85, 0.06);
+  box-shadow: none;
 }
 
 .tableWrapper {

@@ -23,7 +23,7 @@ export const SECTIONS = [
 export const FIELD_SECTION = {
   type: 'category', subcategory: 'category', category_id: 'category', brand_id: 'category', condition: 'category',
   name: 'basic', short_description: 'basic', description: 'basic', warranty_text: 'basic',
-  price_aed: 'pricing', stock_quantity: 'pricing',
+  price_aed: 'pricing', compare_at_price: 'pricing', stock_quantity: 'pricing',
 };
 export const sectionOfField = (field) =>
   field.startsWith('spec.') ? 'specs' : FIELD_SECTION[field] || 'basic';
@@ -77,6 +77,11 @@ export function validateProductForm(f, schema = null, { draft = false } = {}) {
     e.price_aed = 'السعر يجب أن يكون رقماً صحيحاً بدون كسور';
   } else if (price > 10000000) {
     e.price_aed = 'السعر كبير جداً';
+  }
+  if (f.compare_at_price !== '' && f.compare_at_price != null && Number(f.compare_at_price) !== 0) {
+    const cmp = Number(f.compare_at_price);
+    if (!Number.isInteger(cmp) || cmp <= 0) e.compare_at_price = 'السعر قبل الخصم يجب أن يكون رقماً صحيحاً';
+    else if (Number.isFinite(price) && cmp <= price) e.compare_at_price = 'السعر قبل الخصم يجب أن يكون أكبر من سعر البيع';
   }
   const stock = Number(f.stock_quantity);
   if (!Number.isInteger(stock) || stock < 0 || stock > 100000) e.stock_quantity = FIELD_FALLBACK_AR.stock_quantity;

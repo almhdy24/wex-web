@@ -40,5 +40,13 @@ test.describe('09: Admin product wizard', () => {
     await expect(page.getByText('تم الحفظ')).toBeVisible({ timeout: 8000 });
     await page.waitForURL(/\/admin\/products$/, { timeout: 8000 });
     await expect(page.getByText(/Validation failed/i)).toHaveCount(0);
+
+    // Clean up: this product has stock 1 and would otherwise be the newest item that later
+    // storefront specs buy or open. Delete it from the list (soft delete, hidden from the store).
+    const card = page.locator('tr, [class*="mobileCard"]').filter({ hasText: name }).first();
+    await expect(card).toBeVisible({ timeout: 10000 });
+    await card.getByRole('button', { name: 'حذف الجهاز' }).click();
+    await page.getByRole('button', { name: 'تأكيد الحذف' }).click();
+    await expect(page.getByText(name)).toHaveCount(0, { timeout: 10000 });
   });
 });

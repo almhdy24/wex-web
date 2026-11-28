@@ -2,6 +2,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './app/App';
 import './styles/tokens.css';
+import './styles/tokens.v2.css';
 import './styles/global.css';
 
 // Ensure dev mode never serves or caches stale Service Worker builds (unless VITE_DEV_SW=1 for push testing)

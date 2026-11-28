@@ -1,0 +1,19 @@
+.wrap { display: grid; gap: 12px; }
+.track {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding-inline: 4px;
+}
+.track::-webkit-scrollbar { display: none; }
+.slide { flex: 0 0 92%; scroll-snap-align: center; min-inline-size: 0; }
+.single .slide { flex-basis: 100%; }
+@media (min-width: 768px) { .slide { flex-basis: 100%; } }
+.dots { display: flex; justify-content: center; gap: 4px; }
+.dot { block-size: 3px; inline-size: 6px; border-radius: 2px; background: var(--v2-line); border: 0; padding: 0; transition: inline-size var(--v2-motion-base) ease; }
+.dotOn { inline-size: 20px; background: var(--v2-ink900); }
+.skeleton { block-size: 172px; border-radius: var(--v2-radius-card); background: var(--v2-sunken); }
+@media (min-width: 768px) { .skeleton { block-size: 360px; } }
+@media (prefers-reduced-motion: reduce) { .dot { transition: none; } .track { scroll-behavior: auto; } }

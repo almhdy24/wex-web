@@ -61,6 +61,32 @@ export const adminApi = {
     return api.get(`/admin/products${qs ? `?${qs}` : ''}`);
   },
 
+  // Promotions / ads
+  getPromotions() {
+    return api.get('/admin/promotions');
+  },
+  getPromotion(id) {
+    return api.get(`/admin/promotions/${id}`);
+  },
+  createPromotion(payload) {
+    return api.post('/admin/promotions', payload);
+  },
+  updatePromotion(id, payload) {
+    return api.patch(`/admin/promotions/${id}`, payload);
+  },
+  deletePromotion(id) {
+    return api.delete(`/admin/promotions/${id}`);
+  },
+  togglePromotion(id) {
+    return api.patch(`/admin/promotions/${id}/toggle`, {});
+  },
+  duplicatePromotion(id) {
+    return api.post(`/admin/promotions/${id}/duplicate`, {});
+  },
+  uploadPromotionImage(id, formData) {
+    return api.post(`/admin/promotions/${id}/image`, formData);
+  },
+
   /** Spec schema per product type (single source of truth, shared with the server validation). */
   getSpecSchema() {
     return api.get('/spec-schema');

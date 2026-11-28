@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ github.repository_owner }}/wex-api
-          ref: stabilize
+          ref: feat/premium-ui-v2  # TEMP: API changes live on this branch until merged; restore to stabilize on merge
           path: .wex-api
 
       - name: Setup Node.js 20

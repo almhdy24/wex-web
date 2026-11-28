@@ -31,7 +31,7 @@
 
 .titleDivider {
   height: 2px;
-  background: var(--wex-grad-brand, linear-gradient(135deg, #3340D4 0%, #5A54E6 50%, #6A5CF0 100%));
+  background: var(--wex-grad-brand);
   border-radius: var(--radius-full, 9999px);
   opacity: 0.6;
 }
@@ -234,7 +234,9 @@
 .formInput:focus, .formTextarea:focus {
   outline: none;
   border-color: var(--wex-royal);
-  box-shadow: 0 0 0 3px rgba(11, 63, 191, 0.12);
+  outline: 2px solid var(--wex-vivid);
+  outline-offset: 2px;
+  box-shadow: none;
 }
 
 .checkboxGroup {
@@ -271,7 +273,7 @@
   inset-inline-end: 0;
   background: var(--color-white);
   border-top: 1px solid var(--color-slate-200);
-  box-shadow: 0 -4px 12px rgba(6, 26, 85, 0.08);
+  box-shadow: none;
   padding: var(--space-3, 12px) var(--space-4, 16px);
   display: flex;
   align-items: center;

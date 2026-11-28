@@ -9,7 +9,7 @@
   color: #92400e;
   margin-block: var(--space-3);
   width: 100%;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: none;
   font-size: var(--font-size-sm);
   line-height: var(--line-height-normal);
 }

@@ -109,6 +109,15 @@ export const ADMIN_ROUTES = [
     showInNav: true,
   },
   {
+    path: '/admin/promotions',
+    title: 'العروض والإعلانات',
+    group: 'content',
+    icon: 'Megaphone',
+    allowedRoles: ['admin'],
+    isTopLevel: true,
+    showInNav: true,
+  },
+  {
     path: '/admin/hero-slides',
     title: 'الشرائح',
     group: 'content',

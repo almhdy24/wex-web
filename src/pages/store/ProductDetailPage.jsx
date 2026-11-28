@@ -493,7 +493,13 @@ export default function ProductDetailPage({
           <h1 className={styles.title} dir="auto">{product.name}</h1>
 
           <div className={styles.priceRow}>
-            <Price value={product.price_sdg} size="xl" tone="royal" />
+            <Price value={product.price_sdg} size="xl" tone="navy" />
+            {Number(product.compare_at_sdg) > Number(product.price_sdg) ? (
+              <>
+                <Price value={product.compare_at_sdg} size="sm" tone="inherit" strike />
+                <span className={styles.dealTag}>وفّر {Math.round(Number(product.compare_at_sdg) - Number(product.price_sdg)).toLocaleString('en-US')} ج.س</span>
+              </>
+            ) : null}
             {stockCount > 0 && stockCount <= 3 && !isOutOfStock && (
               <span className={styles.lowStockBadge}>متبقي {stockCount} فقط</span>
             )}

@@ -48,7 +48,7 @@ const SPEC_GROUP_LABELS = {
 };
 const EMPTY_FORM = {
   name: '', type: '', subcategory: '', category_id: '', brand_id: '', condition: 'used_imported',
-  price_aed: '', stock_quantity: 1, warranty_text: '', short_description: '', description: '',
+  price_aed: '', compare_at_price: '', stock_quantity: 1, warranty_text: '', short_description: '', description: '',
   is_active: true, is_featured: false, is_draft: false, specs: {},
 };
 const domId = (k) => `f-${String(k).replace('.', '-')}`;
@@ -193,6 +193,7 @@ export default function AdminProductFormPage() {
           brand_id: p.brand_id ? String(p.brand_id) : '',
           condition: p.condition || 'used_imported',
           price_aed: p.price_aed ? String(p.price_aed) : '',
+          compare_at_price: p.compare_at_price ? String(p.compare_at_price) : '',
           stock_quantity: Number(p.stock_quantity ?? 1),
           warranty_text: p.warranty_text || '',
           short_description: p.short_description || '',
@@ -344,6 +345,7 @@ export default function AdminProductFormPage() {
     brand_id: form.brand_id ? Number(form.brand_id) : undefined,
     condition: form.condition,
     price_aed: form.price_aed ? Number(form.price_aed) : undefined,
+    compare_at_price: form.compare_at_price ? Number(form.compare_at_price) : (isEditMode ? null : undefined),
     stock_quantity: Number(form.stock_quantity),
     warranty_text: form.warranty_text.trim() || undefined,
     short_description: form.short_description.trim() || undefined,
@@ -730,6 +732,23 @@ export default function AdminProductFormPage() {
               value={formatThousands(form.price_aed)}
               onChange={(e) => handleField('price_aed', digitsOnly(e.target.value))}
               placeholder="1,200"
+              autoComplete="off"
+            />
+          </Field>
+          <Field
+            name="compare_at_price"
+            label="سعر قبل الخصم (اختياري)"
+            error={errors.compare_at_price}
+            help="اتركه فارغاً إذا لم يكن المنتج عليه خصم. يجب أن يكون أكبر من سعر البيع."
+          >
+            <input
+              id={domId('compare_at_price')}
+              className={w.control}
+              inputMode="numeric"
+              dir="ltr"
+              value={formatThousands(form.compare_at_price)}
+              onChange={(e) => handleField('compare_at_price', digitsOnly(e.target.value))}
+              placeholder="1,500"
               autoComplete="off"
             />
           </Field>

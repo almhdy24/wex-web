@@ -252,7 +252,7 @@
   font-weight: 800;
 }
 .pillPublished { background: #e7f6ef; color: #12805c; }
-.pillDraft { background: #eef0fb; color: #3e4ee8; }
+.pillDraft { background: #eef0fb; color: var(--wex-royal); }
 .pillHidden { background: #f1f2f6; color: #6b7090; }
 .pillOut { background: #fdecea; color: #b42318; }
 .toggleRow { display: flex; align-items: center; gap: var(--space-3); min-height: 44px; cursor: pointer; font-size: var(--text-sm); color: var(--color-navy); }

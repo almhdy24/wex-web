@@ -471,6 +471,7 @@ export default function AdminProductsPage() {
         <div className={styles.priceCol}>
           <div className={styles.priceAed}>
             <span>{formatAed(p.price_aed)}</span>
+            {p.compare_at_price ? <s style={{ opacity: 0.6, fontSize: 12 }}>{formatAed(p.compare_at_price)}</s> : null}
             <span className={styles.adminBadge}>للإدارة فقط</span>
           </div>
           <div className={styles.priceSdg}>

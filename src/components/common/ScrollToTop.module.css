@@ -12,7 +12,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px rgba(11, 63, 191, 0.35);
+  box-shadow: none;
   z-index: var(--z-sticky, 50);
   transition: transform var(--motion-fast, 150ms) var(--ease-standard),
               box-shadow var(--motion-fast, 150ms) var(--ease-standard);
@@ -31,7 +31,7 @@
 
 .scrollBtn:hover {
   transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 12px 28px rgba(11, 63, 191, 0.45);
+  box-shadow: none;
 }
 
 .scrollBtn:active {

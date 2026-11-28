@@ -30,7 +30,7 @@
 
 .titleDivider {
   height: 2px;
-  background: var(--wex-grad-brand, linear-gradient(135deg, #3340D4 0%, #5A54E6 50%, #6A5CF0 100%));
+  background: var(--wex-grad-brand);
   border-radius: var(--radius-full, 9999px);
   opacity: 0.6;
 }
@@ -115,7 +115,9 @@
 .notesTextarea:focus {
   outline: none;
   border-color: var(--wex-royal);
-  box-shadow: 0 0 0 3px rgba(11, 63, 191, 0.12);
+  outline: 2px solid var(--wex-vivid);
+  outline-offset: 2px;
+  box-shadow: none;
 }
 
 .notesFooter {
@@ -444,7 +446,9 @@
 .formInput:focus {
   outline: none;
   border-color: var(--wex-royal);
-  box-shadow: 0 0 0 3px rgba(11, 63, 191, 0.12);
+  outline: 2px solid var(--wex-vivid);
+  outline-offset: 2px;
+  box-shadow: none;
 }
 
 .checkboxGroup {

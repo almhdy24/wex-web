@@ -7,7 +7,7 @@
 
 .ribbonDivider {
   height: 3px;
-  background: linear-gradient(90deg, var(--wex-vivid) 0%, var(--wex-cyan) 50%, var(--wex-vivid) 100%);
+  background: var(--wex-royal);
   width: 100%;
 }
 

@@ -2,8 +2,6 @@
   position: fixed;
   inset: 0;
   background: rgba(6, 26, 85, 0.45);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
   z-index: var(--z-sheet-backdrop, 400);
   display: flex;
   animation: fadeIn var(--motion-base, 250ms) var(--ease-standard) forwards;
@@ -42,8 +40,8 @@
 
 /* Start position: right side in RTL */
 .drawerStart {
-  right: 0;
-  left: auto;
+  inset-inline-start: 0;
+  inset-inline-end: auto;
   animation: slideInFromStart var(--motion-base, 250ms) var(--ease-standard) forwards;
 }
 

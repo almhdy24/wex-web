@@ -8,7 +8,6 @@
   position: fixed;
   inset: 0;
   background-color: rgba(6, 26, 85, 0.45);
-  backdrop-filter: blur(2px);
   z-index: var(--z-sheet-backdrop, 400);
 }
 

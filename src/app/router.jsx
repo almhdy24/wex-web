@@ -65,6 +65,8 @@ const AdminPaymentAccountsPage = lazy(() => import('../pages/admin/AdminPaymentA
 const AdminAnnouncementsPage = lazy(() => import('../pages/admin/AdminAnnouncementsPage'));
 const AdminRecentPurchasesPage = lazy(() => import('../pages/admin/AdminRecentPurchasesPage'));
 const AdminHeroSlidesPage = lazy(() => import('../pages/admin/AdminHeroSlidesPage'));
+const AdminPromotionsPage = lazy(() => import('../pages/admin/AdminPromotionsPage'));
+const AdminPromotionFormPage = lazy(() => import('../pages/admin/AdminPromotionFormPage'));
 const AdminHomeSectionsPage = lazy(() => import('../pages/admin/AdminHomeSectionsPage'));
 const AdminFaqPage = lazy(() => import('../pages/admin/AdminFaqPage'));
 const AdminPagesPage = lazy(() => import('../pages/admin/AdminPagesPage'));
@@ -171,6 +173,30 @@ export const router = createBrowserRouter([
         element: (
           <RoleGuard allowedRoles={['admin']}>
             {load(AdminPaymentAccountsPage)}
+          </RoleGuard>
+        ),
+      },
+      {
+        path: 'promotions',
+        element: (
+          <RoleGuard allowedRoles={['admin']}>
+            {load(AdminPromotionsPage)}
+          </RoleGuard>
+        ),
+      },
+      {
+        path: 'promotions/new',
+        element: (
+          <RoleGuard allowedRoles={['admin']}>
+            {load(AdminPromotionFormPage)}
+          </RoleGuard>
+        ),
+      },
+      {
+        path: 'promotions/:id/edit',
+        element: (
+          <RoleGuard allowedRoles={['admin']}>
+            {load(AdminPromotionFormPage)}
           </RoleGuard>
         ),
       },
