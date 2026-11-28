@@ -21,11 +21,11 @@ import { ProductCardSkeleton } from '../../components/common/Skeleton';
 import ErrorState from '../../components/common/ErrorState';
 import Page from '../../components/common/Page';
 import BrandRibbons from '../../components/common/BrandRibbons';
+import { PromoCarousel, PromoStrip } from '../../components/promo/PromoCarousel';
 import { Reveal, Stagger } from '../../motion';
 import { formatPriceUpdateCaption } from '../../utils/formatters';
 import { normalizeShopInfo, buildWhatsAppLink } from '../../utils/shopSettings';
 import styles from './HomePage.module.css';
-import { formatHoursAr, renderLockDuration } from '../../utils/arabicDuration';
 
 
 // Home section (admin) -> product list query. Sources: newest | type | category | featured.
@@ -41,12 +41,6 @@ function homeSectionQuery(sec) {
     default:
       return { sort: 'newest' };
   }
-}
-
-// Slide links are admin input: only same-site paths navigate; anything else goes to the catalog.
-function safeInternalPath(link) {
-  const l = String(link || '').trim();
-  return l.startsWith('/') && !l.startsWith('//') && !l.startsWith('/\\') ? l : '/products';
 }
 
 export default function HomePage({
@@ -65,9 +59,6 @@ export default function HomePage({
   const [loading, setLoading] = useState(initialLoading);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeSlide, setActiveSlide] = useState(0);
-  // Admin-managed content (hero slides, home sections) was never read by the storefront.
-  const [adminSlides, setAdminSlides] = useState([]);
   const [homeSections, setHomeSections] = useState([]);
 
   useEffect(() => {
@@ -75,11 +66,10 @@ export default function HomePage({
     async function loadData() {
       try {
         setLoading(true);
-        const [shopRes, prodsRes, brandsRes, slidesRes, sectionsRes] = await Promise.all([
+        const [shopRes, prodsRes, brandsRes, sectionsRes] = await Promise.all([
           shopApi.getShop().catch(() => null),
           productsApi.getProducts({ per_page: 24 }).catch(() => ({ data: [] })),
           productsApi.getBrands().catch(() => ({ data: [] })),
-          productsApi.getHeroSlides().catch(() => ({ data: [] })),
           productsApi.getHomeSections().catch(() => ({ data: [] })),
         ]);
         const activeSections = (Array.isArray(sectionsRes?.data) ? sectionsRes.data : [])
@@ -96,11 +86,6 @@ export default function HomePage({
           setShopInfo(shopRes?.data ? normalizeShopInfo(shopRes.data) : null);
           setProducts(prodsRes?.data || []);
           setBrands(Array.isArray(brandsRes?.data) ? brandsRes.data : []);
-          setAdminSlides(
-            (Array.isArray(slidesRes?.data) ? slidesRes.data : [])
-              .filter((sl) => sl && sl.is_active !== false && sl.is_active !== 0 && sl.title)
-              .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
-          );
           setHomeSections(sectionsWithProducts.filter((sec) => sec.products.length > 0));
         }
       } catch (err) {
@@ -122,48 +107,7 @@ export default function HomePage({
     }
   };
 
-  const lockHours = shopInfo?.lock_hours || 4;
 
-  const builtInSlides = [
-    {
-      title: 'أجهزة لابتوب جديدة ومستعملة',
-      text: 'تصفّح الأجهزة المتوفرة بأسعار واضحة.',
-      buttonLabel: 'تصفّح الأجهزة',
-      action: () => navigate('/products'),
-    },
-    {
-      title: 'ثبّت السعر عند الطلب',
-      text: `بعد تأكيد الطلب يبقى السعر ثابتًا لمدة ${formatHoursAr(lockHours)} لتتمكّن من التحويل.`,
-      buttonLabel: 'طريقة الطلب',
-      action: () => {
-        const el = document.getElementById('how-to-order');
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-      },
-    },
-    {
-      title: 'ملحقات الحاسوب',
-      text: 'اختر ما يلزم جهازك من الملحقات.',
-      buttonLabel: 'تصفّح الملحقات',
-      action: () => navigate('/products?type=accessory'),
-    },
-  ];
-
-  // Admin slides when any are active; the built-in three otherwise.
-  const slides = adminSlides.length > 0
-    ? adminSlides.map((sl) => ({
-      title: renderLockDuration(sl.title, lockHours),
-      text: renderLockDuration(sl.subtitle || '', lockHours),
-      buttonLabel: sl.button_label || 'تصفّح الأجهزة',
-      action: () => navigate(safeInternalPath(sl.link)),
-    }))
-    : builtInSlides;
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % slides.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [slides.length]);
 
   if (loading) {
     return (
@@ -206,8 +150,6 @@ export default function HomePage({
     <div className={styles.pageWrapper}>
       {/* 1. Hero block (navy) containing: logo chip + cart/fav buttons, greeting, title, subtitle, CTA, dots */}
       <section className={styles.heroBlock} aria-label="العروض الرئيسية">
-        <BrandRibbons variant="hero" />
-
         {/* Top row: Logo Chip on start side, glass Cart / Fav buttons on end side */}
         <div className={styles.heroTopRow}>
           <Link to="/" className={styles.logoChip} aria-label="ويكس تكنولوجي">
@@ -257,38 +199,6 @@ export default function HomePage({
             : 'مرحبًا بك'}
         </p>
 
-        {/* Slide Title */}
-        <h2 key={`title-${activeSlide}`} className={styles.slideTitle}>{slides[activeSlide].title}</h2>
-
-        {/* Slide Subtitle */}
-        <p key={`sub-${activeSlide}`} className={styles.slideSubtitle}>{slides[activeSlide].text}</p>
-
-        {/* Slide CTA */}
-        <button
-          type="button"
-          onClick={slides[activeSlide].action}
-          className={styles.slideCta}
-        >
-          <span>{slides[activeSlide].buttonLabel}</span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M19 12H5M11 6l-6 6 6 6" />
-          </svg>
-        </button>
-
-        {/* Dots */}
-        <div className={styles.dots} role="tablist" aria-label="شرائح العرض">
-          {slides.map((_, idx) => (
-            <button
-              key={idx}
-              type="button"
-              role="tab"
-              aria-selected={activeSlide === idx}
-              aria-label={`الشريحة ${idx + 1}`}
-              className={`${styles.dot} ${activeSlide === idx ? styles.dotActive : ''}`}
-              onClick={() => setActiveSlide(idx)}
-            />
-          ))}
-        </div>
       </section>
 
       <Page padded={false} className={styles.container}>
@@ -306,6 +216,11 @@ export default function HomePage({
           />
         </div>
       </form>
+
+      <div className={styles.promoSlot}>
+        <PromoStrip whatsapp={shopInfo?.whatsapp} />
+        <PromoCarousel placement="web_hero" whatsapp={shopInfo?.whatsapp} />
+      </div>
 
       {/* 3. "آخر تحديث للأسعار" / Orders-disabled strip */}
       <Reveal>

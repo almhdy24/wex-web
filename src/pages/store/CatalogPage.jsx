@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, SlidersHorizontal, RotateCcw, X } from 'lucide-react';
 import { productsApi } from '../../api/products';
 import ProductCard from '../../components/products/ProductCard';
+import { PromoInline } from '../../components/promo/PromoCarousel';
 import { ProductCardSkeleton } from '../../components/common/Skeleton';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
@@ -494,7 +495,12 @@ export default function CatalogPage({
       ) : (
         <Stagger className={styles.grid}>
           {products.map((product, idx) => (
-            <ProductCard key={product.id} product={product} index={idx} />
+            <React.Fragment key={product.id}>
+              <ProductCard product={product} index={idx} />
+              {(idx + 1) % 8 === 0 ? (
+                <div className={styles.inlinePromo}><PromoInline placement="web_inline" /></div>
+              ) : null}
+            </React.Fragment>
           ))}
         </Stagger>
       )}

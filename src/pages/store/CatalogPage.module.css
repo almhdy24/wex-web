@@ -374,3 +374,7 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
+/* One promo spans the full grid row every 8th slot. */
+.inlinePromo { grid-column: 1 / -1; }
+.inlinePromo:empty { display: none; }

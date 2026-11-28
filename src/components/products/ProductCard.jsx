@@ -165,6 +165,9 @@ export default function ProductCard({ product, index, style = {} }) {
 
       <div className={styles.footer}>
         <div className={styles.pricing}>
+          {Number(product.compare_at_sdg) > Number(product.price_sdg) ? (
+            <Price value={product.compare_at_sdg} size="xs" tone="inherit" strike />
+          ) : null}
           <Price value={product.price_sdg} size="md" tone="navy" />
         </div>
 

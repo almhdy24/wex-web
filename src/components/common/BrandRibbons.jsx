@@ -1,9 +1,11 @@
-import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
- * BrandRibbons — De-AI-ified.
- * Removed decorative floating gradient ribbons in favor of clean, authentic retail surfaces.
+ * Decorative ribbons were removed in the v2 design (no decorative shapes behind content).
+ * Kept as a no-op so existing call sites stay valid.
  */
 export default function BrandRibbons() {
   return null;
 }
+
+BrandRibbons.propTypes = { variant: PropTypes.string };

@@ -939,3 +939,15 @@
   background: var(--wex-ice);
   border-color: var(--wex-border);
 }
+
+.dealTag {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 28px;
+  padding-inline: 10px;
+  border-radius: 8px;
+  background: var(--v2-sun50);
+  color: var(--v2-sun700);
+  font-size: 12px;
+  font-weight: 600;
+}
