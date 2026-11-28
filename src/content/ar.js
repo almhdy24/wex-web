@@ -155,7 +155,7 @@ export const ar = {
       phones: 'الهواتف',
       accessories: 'الملحقات',
       conditionNew: 'جديد',
-      conditionUsed: 'مستعمل استيراد',
+      conditionUsed: 'مستعمل مستورد',
     },
     rails: {
       newArrivals: 'وصل حديثًا',
@@ -191,7 +191,7 @@ export const ar = {
 
   product: {
     conditionNew: 'جديد',
-    conditionUsed: 'مستعمل استيراد',
+    conditionUsed: 'مستعمل مستورد',
     conditionRefurbished: 'مجدد',
     conditionOpenBox: 'كرتونة مفتوحة',
     stockAvailable: 'متوفر',
@@ -226,7 +226,7 @@ export const ar = {
     filterCondition: 'الحالة',
     filterConditionAll: 'الكل',
     filterConditionNew: 'جديد',
-    filterConditionUsed: 'مستعمل استيراد',
+    filterConditionUsed: 'مستعمل مستورد',
     filterPrice: 'السعر',
     filterSort: 'الترتيب',
     sortTitle: 'الترتيب',

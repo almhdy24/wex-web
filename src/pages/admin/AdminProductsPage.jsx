@@ -703,7 +703,7 @@ export default function AdminProductsPage() {
             { value: '', label: adminAr.products.allConditions },
             { value: 'brand_new', label: 'جديد' },
             { value: 'open_box', label: 'كرتونة مفتوحة' },
-            { value: 'used_imported', label: 'مستعمل استيراد' },
+            { value: 'used_imported', label: 'مستعمل مستورد' },
             { value: 'refurbished', label: 'مجدد' },
           ]}
         />

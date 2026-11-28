@@ -33,8 +33,8 @@ describe('Price and Currency Formatting (Western Digits & Tabular Numerals)', ()
   it('maps condition strings accurately to honest technical labels', () => {
     expect(formatCondition('new')).toBe('جديد');
     expect(formatCondition('brand_new')).toBe('جديد');
-    expect(formatCondition('used')).toBe('مستعمل استيراد');
-    expect(formatCondition('used_imported')).toBe('مستعمل استيراد');
+    expect(formatCondition('used')).toBe('مستعمل مستورد');
+    expect(formatCondition('used_imported')).toBe('مستعمل مستورد');
     expect(formatCondition('refurbished')).toBe('مجدد');
     expect(formatCondition('open_box')).toBe('كرتونة مفتوحة');
     // Ensure forbidden marketing words are not returned

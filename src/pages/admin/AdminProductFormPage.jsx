@@ -26,6 +26,81 @@ import { Skeleton } from '../../components/common/Skeleton';
 import Page from '../../components/common/Page';
 import styles from './AdminProductFormPage.module.css';
 
+
+// ---- Validation (client + server) -------------------------------------------
+// The API accepts exactly these (wex-api Wex::CONDITIONS / PRODUCT_TYPES).
+const CONDITION_OPTIONS = [
+  { value: 'new', label: 'جديد' },
+  { value: 'used_imported', label: 'مستعمل مستورد' },
+];
+const TYPE_VALUES = ['laptop', 'phone', 'accessory'];
+
+// DOM order, used to scroll to the first invalid field.
+const FIELD_ORDER = ['name', 'type', 'category_id', 'brand_id', 'condition', 'price_aed', 'stock_quantity'];
+
+// Arabic fallbacks. Raw (English) server text is never shown to the user.
+const FIELD_FALLBACK_AR = {
+  name: 'اسم الجهاز غير صالح',
+  type: 'اختر نوع المنتج',
+  category_id: 'اختر القسم',
+  brand_id: 'الماركة المحددة غير موجودة',
+  condition: 'اختر حالة الجهاز',
+  price_aed: 'أدخل السعر بالدرهم كرقم صحيح أكبر من صفر',
+  stock_quantity: 'الكمية يجب أن تكون رقماً صحيحاً بين 0 و 100000',
+};
+const GENERIC_FIELD_AR = 'قيمة غير صحيحة';
+const hasArabic = (t) => /[\u0600-\u06FF]/.test(String(t || ''));
+
+export function validateProductForm(f) {
+  const e = {};
+  const name = String(f.name || '').trim();
+  if (!name) e.name = 'اسم الجهاز مطلوب';
+  else if (name.length < 3) e.name = 'اسم الجهاز قصير جداً';
+  else if (name.length > 191) e.name = 'اسم الجهاز طويل جداً';
+  if (!TYPE_VALUES.includes(f.type)) e.type = FIELD_FALLBACK_AR.type;
+  if (!f.category_id) e.category_id = FIELD_FALLBACK_AR.category_id;
+  if (!CONDITION_OPTIONS.some((o) => o.value === f.condition)) e.condition = FIELD_FALLBACK_AR.condition;
+  const price = Number(f.price_aed);
+  if (f.price_aed === '' || f.price_aed === null || !Number.isFinite(price) || price <= 0) {
+    e.price_aed = 'أدخل السعر بالدرهم';
+  } else if (!Number.isInteger(price)) {
+    e.price_aed = 'السعر يجب أن يكون رقماً صحيحاً بدون كسور';
+  } else if (price > 10000000) {
+    e.price_aed = 'السعر كبير جداً';
+  }
+  const stock = Number(f.stock_quantity);
+  if (!Number.isInteger(stock) || stock < 0 || stock > 100000) e.stock_quantity = FIELD_FALLBACK_AR.stock_quantity;
+  return e;
+}
+
+/** Maps an ApiError.errors object to { field: arabicMessage }. */
+export function mapServerErrors(errors) {
+  const out = {};
+  if (!errors || typeof errors !== 'object') return out;
+  Object.entries(errors).forEach(([field, msg]) => {
+    const text = Array.isArray(msg) ? msg[0] : msg;
+    out[field] = hasArabic(text) ? String(text) : FIELD_FALLBACK_AR[field] || GENERIC_FIELD_AR;
+  });
+  return out;
+}
+
+const NAME_TYPOS = { bropook: 'ProBook', bropok: 'ProBook', probok: 'ProBook', elitebok: 'EliteBook', thinkpd: 'ThinkPad' };
+function nameTypoHint(name) {
+  const m = String(name || '').toLowerCase().match(/[a-z]+/g) || [];
+  for (const w of m) if (NAME_TYPOS[w]) return `تنبيه: هل تقصد «${NAME_TYPOS[w]}» بدل «${w}»؟`;
+  return null;
+}
+
+function scrollToFirstError(errors) {
+  const first = FIELD_ORDER.find((k) => errors[k]) || Object.keys(errors)[0];
+  if (!first) return;
+  const el = document.getElementById(first) || document.getElementById('pricing');
+  if (el && typeof el.scrollIntoView === 'function') {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (typeof el.focus === 'function') el.focus({ preventScroll: true });
+  }
+}
+
 export default function AdminProductFormPage() {
   const { id } = useParams();
   const isEditMode = Boolean(id);
@@ -39,6 +114,7 @@ export default function AdminProductFormPage() {
   const [currentRate, setCurrentRate] = useState(null);
   const [productSlug, setProductSlug] = useState('');
   const [isDirty, setIsDirty] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
   const [activeSection, setActiveSection] = useState('basic');
 
   // Form Fields
@@ -202,6 +278,7 @@ export default function AdminProductFormPage() {
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setIsDirty(true);
+    setFieldErrors((prev) => (prev[name] ? { ...prev, [name]: undefined } : prev));
     setFormData((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
@@ -210,6 +287,7 @@ export default function AdminProductFormPage() {
 
   const handleStockStepperChange = (val) => {
     setIsDirty(true);
+    setFieldErrors((prev) => (prev.stock_quantity ? { ...prev, stock_quantity: undefined } : prev));
     setFormData((prev) => ({ ...prev, stock_quantity: val }));
   };
 
@@ -263,10 +341,14 @@ export default function AdminProductFormPage() {
   // Submit Form
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
-    if (!formData.name.trim() || !formData.price_aed) {
-      toastError('يرجى ملء الحقول الإلزامية (اسم الجهاز والسعر بالدرهم)');
+    const clientErrors = validateProductForm(formData);
+    if (Object.keys(clientErrors).length > 0) {
+      setFieldErrors(clientErrors);
+      toastError('تحقق من الحقول المظللة بالأحمر');
+      scrollToFirstError(clientErrors);
       return;
     }
+    setFieldErrors({});
 
     setSubmitting(true);
     const specsObj = {};
@@ -322,7 +404,15 @@ export default function AdminProductFormPage() {
         navigate('/admin/products');
       }
     } catch (err) {
-      toastError(err.message || 'حدث خطأ أثناء حفظ الجهاز');
+      const serverErrors = mapServerErrors(err && err.errors);
+      if (Object.keys(serverErrors).length > 0) {
+        setFieldErrors(serverErrors);
+        toastError('تحقق من الحقول المظللة بالأحمر');
+        scrollToFirstError(serverErrors);
+      } else {
+        // Never surface raw English server text.
+        toastError(hasArabic(err && err.message) ? err.message : 'تعذّر حفظ الجهاز. حاول مرة أخرى.');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -446,7 +536,7 @@ export default function AdminProductFormPage() {
         </aside>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className={styles.formContent}>
+        <form onSubmit={handleSubmit} className={styles.formContent} noValidate>
           {/* Section 1: Basic Info */}
           <section id="basic" className={styles.sectionCard}>
             <div className={styles.sectionHeader}>
@@ -460,6 +550,8 @@ export default function AdminProductFormPage() {
                 onChange={handleInputChange}
                 placeholder="مثال: Dell Latitude 5420 i7 11th Gen 16GB 512GB SSD"
                 required
+                error={fieldErrors.name}
+                helperText={!fieldErrors.name ? nameTypoHint(formData.name) || undefined : undefined}
               />
 
               <div className={styles.grid3}>
@@ -474,6 +566,7 @@ export default function AdminProductFormPage() {
                     { value: 'accessory', label: 'ملحق' },
                   ]}
                   required
+                  error={fieldErrors.type}
                 />
 
                 <Select
@@ -489,6 +582,7 @@ export default function AdminProductFormPage() {
                     })),
                   ]}
                   required
+                  error={fieldErrors.category_id}
                 />
 
                 <Select
@@ -500,6 +594,7 @@ export default function AdminProductFormPage() {
                     { value: '', label: 'بدون ماركة محددة' },
                     ...brands.map((b) => ({ value: String(b.id), label: b.name })),
                   ]}
+                  error={fieldErrors.brand_id}
                 />
               </div>
 
@@ -509,13 +604,9 @@ export default function AdminProductFormPage() {
                   name="condition"
                   value={formData.condition}
                   onChange={handleInputChange}
-                  options={[
-                    { value: 'brand_new', label: 'جديد' },
-                    { value: 'open_box', label: 'كرتونة مفتوحة' },
-                    { value: 'used_imported', label: 'مستعمل استيراد' },
-                    { value: 'refurbished', label: 'مجدد' },
-                  ]}
+                  options={CONDITION_OPTIONS}
                   required
+                  error={fieldErrors.condition}
                 />
 
                 <Input
@@ -587,6 +678,7 @@ export default function AdminProductFormPage() {
                   min="1"
                   dir="ltr"
                   required
+                  error={fieldErrors.price_aed}
                   helperText={
                     liveSdgPrice
                       ? `= ${formatSdg(liveSdgPrice)} بسعر صرف اليوم (${currentRate} ج.س)`
@@ -602,6 +694,11 @@ export default function AdminProductFormPage() {
                     onChange={handleStockStepperChange}
                     ariaLabel="تعديل مخزون الجهاز"
                   />
+                  {fieldErrors.stock_quantity && (
+                    <span role="alert" style={{ color: 'var(--wex-danger)', fontSize: 'var(--text-xs, 12px)' }}>
+                      {fieldErrors.stock_quantity}
+                    </span>
+                  )}
                 </div>
 
                 <Input

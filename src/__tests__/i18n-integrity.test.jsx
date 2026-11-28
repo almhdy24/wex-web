@@ -22,7 +22,7 @@ const mockProduct = {
   slug: 'thinkpad-t480s',
   type: 'laptop',
   condition: 'used',
-  condition_label: 'مستعمل استيراد',
+  condition_label: 'مستعمل مستورد',
   stock_quantity: 5,
   stock_status: 'in_stock',
   price_sdg: 450000,

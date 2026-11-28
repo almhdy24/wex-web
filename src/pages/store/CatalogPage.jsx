@@ -27,7 +27,7 @@ const POPULAR_BRANDS = ['Dell', 'Lenovo', 'HP', 'Apple', 'Acer', 'Asus'];
 const CONDITION_OPTIONS = [
   { id: 'all', label: 'الكل' },
   { id: 'new', label: 'جديد' },
-  { id: 'used_imported', label: 'مستعمل استيراد' },
+  { id: 'used_imported', label: 'مستعمل مستورد' },
 ];
 
 const PRICE_OPTIONS = [
