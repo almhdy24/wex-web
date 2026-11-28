@@ -674,7 +674,7 @@ export default function AdminProductFormPage() {
           <Field name="description" label="الوصف التفصيلي (اختياري)">
             <textarea id={domId('description')} className={styles.textarea} rows={4} value={form.description} onChange={(e) => handleField('description', e.target.value)} placeholder="حالة المنافذ، الشاشة، البطارية..." />
           </Field>
-          <Field name="warranty_text" label="ملاحظات على الحالة أو الضمان (اختياري)">
+          <Field name="warranty_text" label="ملاحظات على حالة الجهاز (اختياري)">
             <input id={domId('warranty_text')} className={w.control} value={form.warranty_text} onChange={(e) => handleField('warranty_text', e.target.value)} maxLength={255} />
           </Field>
           <div className={w.nextRow}><Button type="button" size="sm" variant="primary" onClick={() => goNext('basic')}>التالي</Button></div>
