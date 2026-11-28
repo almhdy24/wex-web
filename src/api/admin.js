@@ -66,6 +66,10 @@ export const adminApi = {
     return api.get('/spec-schema');
   },
 
+  restoreProduct(id) {
+    return api.post(`/admin/products/${id}/restore`, {});
+  },
+
   getProductCounts() {
     return api.get('/admin/products/counts');
   },

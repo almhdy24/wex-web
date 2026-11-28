@@ -11,6 +11,10 @@ import {
   CheckSquare,
   Square,
   AlertTriangle,
+  LayoutGrid,
+  List as ListIcon,
+  PackageX,
+  Undo2,
 } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { adminAr } from '../../content/admin.ar';
@@ -18,7 +22,6 @@ import { formatAed, formatSdg, resolveImageUrl, formatCondition } from '../../ut
 import { getProductUrl } from '../../utils/productUrl';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/common/Button';
-import StatusChip from '../../components/admin/StatusChip';
 import Select from '../../components/common/Select';
 import ErrorState from '../../components/common/ErrorState';
 import DataList from '../../components/admin/DataList';
@@ -27,7 +30,55 @@ import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import Stepper from '../../components/admin/Stepper';
 import Page from '../../components/common/Page';
 import ProductImage from '../../components/common/ProductImage';
+import EmptyState from '../../components/common/EmptyState';
 import styles from './AdminProductsPage.module.css';
+import l from './AdminProductsList.module.css';
+
+const TABS = [
+  { value: '', label: 'الكل', count: 'all' },
+  { value: 'laptop', label: 'حواسيب', count: 'laptop' },
+  { value: 'phone', label: 'هواتف', count: 'phone' },
+  { value: 'accessory', label: 'ملحقات', count: 'accessory' },
+];
+const STATUS_CHIPS = [
+  { value: '', label: 'الكل' },
+  { value: 'published', label: 'منشور' },
+  { value: 'draft', label: 'مسودة', count: 'draft' },
+  { value: 'hidden', label: 'مخفي', count: 'hidden' },
+  { value: 'out', label: 'نفد', count: 'out_of_stock' },
+  { value: 'review', label: 'تحتاج مراجعة', count: 'needs_review' },
+];
+const SORTS = [
+  { value: '', label: 'الأحدث' },
+  { value: 'oldest', label: 'الأقدم' },
+  { value: 'price_asc', label: 'السعر: الأقل أولاً' },
+  { value: 'price_desc', label: 'السعر: الأعلى أولاً' },
+  { value: 'stock_asc', label: 'المخزون: الأقل أولاً' },
+  { value: 'name', label: 'الاسم' },
+];
+
+/** Semantic status of a product row. */
+function statusOf(p) {
+  if (Number(p.is_draft) === 1 || p.is_draft === true) return 'draft';
+  if (!(Number(p.is_active) === 1 || p.is_active === true)) return 'hidden';
+  if (Number(p.stock_quantity) <= 0) return 'out';
+  return 'published';
+}
+const STATUS_META = {
+  published: ['منشور', l.pillPublished],
+  draft: ['مسودة', l.pillDraft],
+  hidden: ['مخفي', l.pillHidden],
+  out: ['نفد', l.pillOut],
+};
+function StatusPill({ product }) {
+  const [label, cls] = STATUS_META[statusOf(product)];
+  return (
+    <span className={`${l.pill} ${cls}`}>
+      {label}
+      {product.needs_review ? <span className={l.reviewDot} title="تحتاج مراجعة المواصفات" /> : null}
+    </span>
+  );
+}
 
 export default function AdminProductsPage() {
   const navigate = useNavigate();
@@ -51,6 +102,16 @@ export default function AdminProductsPage() {
   // Bulk delete modal
   const [bulkDeleteDialog, setBulkDeleteDialog] = useState(false);
 
+  // Tab counts, view mode, bulk price, undo bar
+  const [counts, setCounts] = useState(null);
+  const [view, setView] = useState(() => {
+    try { return window.localStorage.getItem('wex_admin_products_view') || 'list'; } catch { return 'list'; }
+  });
+  const [priceMode, setPriceMode] = useState(false);
+  const [bulkPrice, setBulkPrice] = useState('');
+  const [undo, setUndo] = useState(null); // { ids: number[], label: string }
+
+
   // Read URL search params
   const searchQuery = searchParams.get('q') || '';
   const categoryFilter = searchParams.get('category_id') || '';
@@ -59,6 +120,8 @@ export default function AdminProductsPage() {
   const conditionFilter = searchParams.get('condition') || '';
   const stockFilter = searchParams.get('stock') || '';
   const activeFilter = searchParams.get('is_active') || '';
+  const statusFilter = searchParams.get('status') || '';
+  const sortFilter = searchParams.get('sort') || '';
   const currentPage = Number(searchParams.get('page')) || 1;
 
   // Load Categories & Brands metadata
@@ -97,23 +160,21 @@ export default function AdminProductsPage() {
       if (categoryFilter) params.category_id = categoryFilter;
       if (typeFilter) params.type = typeFilter;
       if (activeFilter !== '') params.is_active = activeFilter;
+      if (brandFilter) params.brand_id = brandFilter;
+      if (conditionFilter) params.condition = conditionFilter;
+      if (sortFilter) params.sort = sortFilter;
+      if (statusFilter === 'review') params.needs_review = 1;
+      else if (statusFilter) params.status = statusFilter;
+      if (stockFilter === 'out_of_stock') params.out_of_stock = 1;
 
       const res = await adminApi.getProducts(params);
       let items = res.data || [];
 
-      // Client-side additional filtering for condition and stock status
-      if (conditionFilter) {
-        items = items.filter((p) => p.condition === conditionFilter);
-      }
-      if (brandFilter) {
-        items = items.filter((p) => String(p.brand_id) === String(brandFilter));
-      }
+      // Remaining stock filters are applied to the loaded page only.
       if (stockFilter === 'in_stock') {
         items = items.filter((p) => p.stock_quantity > 0);
       } else if (stockFilter === 'low_stock') {
         items = items.filter((p) => p.stock_quantity === 1 || p.stock_quantity === 2);
-      } else if (stockFilter === 'out_of_stock') {
-        items = items.filter((p) => p.stock_quantity === 0);
       }
 
       setProducts(items);
@@ -125,7 +186,17 @@ export default function AdminProductsPage() {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, categoryFilter, typeFilter, activeFilter, conditionFilter, brandFilter, stockFilter, currentPage]);
+  }, [searchQuery, categoryFilter, typeFilter, activeFilter, conditionFilter, brandFilter, stockFilter, statusFilter, sortFilter, currentPage]);
+
+  const loadCounts = useCallback(() => {
+    adminApi.getProductCounts().then((r) => setCounts(r.data || null)).catch(() => {});
+  }, []);
+  useEffect(() => { loadCounts(); }, [loadCounts, products.length]);
+
+  const changeView = (v) => {
+    setView(v);
+    try { window.localStorage.setItem('wex_admin_products_view', v); } catch { /* ignore */ }
+  };
 
   useEffect(() => {
     fetchProducts();
@@ -190,47 +261,56 @@ export default function AdminProductsPage() {
     }
   };
 
-  // Duplicate Product ("تكرار المنتج")
-  const handleDuplicateProduct = async (product) => {
+  // Duplicate: opens the new-product form pre-filled with this product (nothing is created until saved).
+  const handleDuplicateProduct = (product) => {
+    navigate(`/admin/products/new?copy=${product.id}`);
+  };
+
+  // Mark out of stock (quick action)
+  const handleMarkOut = async (product) => {
+    await handleStockChange(product.id, 0);
+    loadCounts();
+  };
+
+  const undoTimer = React.useRef(null);
+  const showUndo = (ids, label) => {
+    setUndo({ ids, label });
+    window.clearTimeout(undoTimer.current);
+    undoTimer.current = window.setTimeout(() => setUndo(null), 8000);
+  };
+  const handleUndo = async () => {
+    if (!undo) return;
+    const { ids } = undo;
+    window.clearTimeout(undoTimer.current);
+    setUndo(null);
     try {
-      const fullRes = await adminApi.getProduct(product.id);
-      const orig = fullRes.data;
-      if (!orig) throw new Error('المنتج غير موجود');
+      await Promise.all(ids.map((pid) => adminApi.restoreProduct(pid)));
+      success('تم استرجاع المنتجات');
+      fetchProducts();
+      loadCounts();
+    } catch {
+      toastError('تعذر استرجاع بعض المنتجات');
+    }
+  };
 
-      let specsObj = orig.specs;
-      if (typeof specsObj === 'string') {
-        try {
-          specsObj = JSON.parse(specsObj);
-        } catch {
-          specsObj = undefined;
-        }
-      }
-
-      const clonePayload = {
-        name: `${orig.name} (نسخة)`,
-        type: orig.type || 'laptop',
-        category_id: orig.category_id || undefined,
-        brand_id: orig.brand_id || undefined,
-        condition: orig.condition || 'used_imported',
-        price_aed: Number(orig.price_aed),
-        stock_quantity: 0,
-        warranty_text: orig.warranty_text || undefined,
-        short_description: orig.short_description || undefined,
-        description: orig.description || undefined,
-        specs: specsObj && Object.keys(specsObj).length > 0 ? specsObj : undefined,
-        is_active: 0, // cloned product is inactive by default
-        is_featured: 0,
-      };
-
-      const createRes = await adminApi.createProduct(clonePayload);
-      success(adminAr.products.duplicateSuccess);
-      if (createRes.data?.id) {
-        navigate(`/admin/products/${createRes.data.id}/edit`);
-      } else {
-        fetchProducts();
-      }
-    } catch (err) {
-      toastError(err.message || adminAr.products.duplicateError);
+  const handleBulkPrice = async () => {
+    const price = Number(String(bulkPrice).replace(/[^\d]/g, ''));
+    if (!price || price <= 0) {
+      toastError('أدخل سعراً صحيحاً أكبر من صفر');
+      return;
+    }
+    try {
+      setBulkProcessing(true);
+      await Promise.all(selectedIds.map((pid) => adminApi.updateProduct(pid, { price_aed: price })));
+      success('تم تحديث سعر المنتجات المحددة');
+      setSelectedIds([]);
+      setPriceMode(false);
+      setBulkPrice('');
+      fetchProducts();
+    } catch {
+      toastError('تعذر تحديث سعر بعض المنتجات');
+    } finally {
+      setBulkProcessing(false);
     }
   };
 
@@ -240,7 +320,7 @@ export default function AdminProductsPage() {
     try {
       setDeleteDialog((prev) => ({ ...prev, loading: true }));
       await adminApi.deleteProduct(deleteDialog.product.id);
-      success('تم حذف المنتج بنجاح');
+      showUndo([deleteDialog.product.id], deleteDialog.product.name);
       setDeleteDialog({ open: false, product: null, loading: false });
       setSelectedIds((prev) => prev.filter((id) => id !== deleteDialog.product.id));
       fetchProducts();
@@ -285,7 +365,7 @@ export default function AdminProductsPage() {
     try {
       setBulkProcessing(true);
       await Promise.all(selectedIds.map((id) => adminApi.deleteProduct(id)));
-      success('تم حذف الأجهزة المحددة بنجاح');
+      showUndo(selectedIds, `${selectedIds.length} منتجات`);
       setSelectedIds([]);
       setBulkDeleteDialog(false);
       fetchProducts();
@@ -419,22 +499,9 @@ export default function AdminProductsPage() {
     },
     {
       key: 'is_active',
-      label: 'الحالة في المتجر',
+      label: 'الحالة',
       isStatus: true,
-      render: (p) => {
-        const isActive = Number(p.is_active) === 1;
-        return (
-          <button
-            type="button"
-            className={styles.statusToggleBtn}
-            onClick={() => handleToggleActive(p)}
-            title={isActive ? 'إخفاء من المتجر' : 'تفعيل العرض في المتجر'}
-            aria-label={isActive ? 'إخفاء من المتجر' : 'تفعيل العرض في المتجر'}
-          >
-            <StatusChip domain="visibility" status={isActive ? 'active' : 'inactive'} />
-          </button>
-        );
-      },
+      render: (p) => <StatusPill product={p} />,
     },
     {
       key: 'actions',
@@ -450,6 +517,24 @@ export default function AdminProductsPage() {
           >
             <Edit size={14} />
           </Link>
+          <button
+            type="button"
+            className={styles.actionIconBtn}
+            onClick={() => handleToggleActive(p)}
+            title={Number(p.is_active) === 1 ? 'إخفاء من المتجر' : 'إظهار في المتجر'}
+            aria-label={Number(p.is_active) === 1 ? 'إخفاء من المتجر' : 'إظهار في المتجر'}
+          >
+            {Number(p.is_active) === 1 ? <EyeOff size={14} /> : <Eye size={14} />}
+          </button>
+          <button
+            type="button"
+            className={styles.actionIconBtn}
+            onClick={() => handleMarkOut(p)}
+            title="تحديد كنفد"
+            aria-label="تحديد كنفد"
+          >
+            <PackageX size={14} />
+          </button>
           <button
             type="button"
             className={styles.actionIconBtn}
@@ -527,7 +612,7 @@ export default function AdminProductsPage() {
           </div>
 
           <div className={styles.mobileStatusChip}>
-            <StatusChip domain="visibility" status={isActive ? 'active' : 'inactive'} size="sm" />
+            <StatusPill product={p} />
           </div>
         </div>
 
@@ -637,6 +722,38 @@ export default function AdminProductsPage() {
     );
   };
 
+  const renderGridCard = (p) => {
+    const thumb = resolveImageUrl(p.image?.thumb_path || p.thumb_url || p.primary_image || p.image_path);
+    return (
+      <div key={p.id} className={l.gridCard}>
+        <label className={l.gridSelect} aria-label={`تحديد ${p.name}`}>
+          <input type="checkbox" checked={selectedIds.includes(p.id)} onChange={() => handleToggleSelectOne(p.id)} />
+        </label>
+        <Link to={`/admin/products/${p.id}/edit`} className={l.gridThumbLink}>
+          <ProductImage src={thumb} alt={p.name} type={p.type || 'laptop'} className={l.gridThumb} />
+        </Link>
+        <div className={l.gridBody}>
+          <Link to={`/admin/products/${p.id}/edit`} className={l.gridTitle}>{p.name}</Link>
+          <div className={l.gridMeta}>
+            <span className={l.gridPrice}>{p.price_sdg ? formatSdg(p.price_sdg) : '—'}</span>
+            <StatusPill product={p} />
+          </div>
+          <span className={l.gridStock}>المخزون: {p.stock_quantity}</span>
+        </div>
+        <div className={l.gridActions}>
+          <button type="button" className={styles.actionIconBtn} onClick={() => handleToggleActive(p)} aria-label={Number(p.is_active) === 1 ? 'إخفاء من المتجر' : 'إظهار في المتجر'}>
+            {Number(p.is_active) === 1 ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+          <button type="button" className={styles.actionIconBtn} onClick={() => handleMarkOut(p)} aria-label="تحديد كنفد"><PackageX size={16} /></button>
+          <button type="button" className={styles.actionIconBtn} onClick={() => handleDuplicateProduct(p)} aria-label="نسخ المنتج"><Copy size={16} /></button>
+          <Link to={`/admin/products/${p.id}/edit`} className={styles.actionIconBtn} aria-label="تعديل الجهاز"><Edit size={16} /></Link>
+        </div>
+      </div>
+    );
+  };
+
+  const hasFilters = Boolean(searchQuery || typeFilter || statusFilter || activeFiltersCount);
+
   return (
     <Page className={styles.container}>
       {/* Header */}
@@ -658,6 +775,42 @@ export default function AdminProductsPage() {
       {/* Decorative Ribbon */}
       <div className={styles.titleDivider} aria-hidden="true" />
 
+      {/* Category tabs with counts */}
+      <div className={l.tabs} role="tablist" aria-label="تصنيف المنتجات">
+        {TABS.map((t) => (
+          <button
+            key={t.value || 'all'}
+            type="button"
+            role="tab"
+            aria-selected={typeFilter === t.value}
+            className={`${l.tab} ${typeFilter === t.value ? l.tabActive : ''}`}
+            onClick={() => updateParam('type', t.value)}
+          >
+            <span>{t.label}</span>
+            {counts ? <span className={l.tabCount}>{counts[t.count] ?? 0}</span> : null}
+          </button>
+        ))}
+        <div className={l.viewToggle} role="group" aria-label="طريقة العرض">
+          <button type="button" className={`${l.viewBtn} ${view === 'list' ? l.viewBtnOn : ''}`} onClick={() => changeView('list')} aria-label="عرض قائمة" aria-pressed={view === 'list'}><ListIcon size={16} /></button>
+          <button type="button" className={`${l.viewBtn} ${view === 'grid' ? l.viewBtnOn : ''}`} onClick={() => changeView('grid')} aria-label="عرض شبكة" aria-pressed={view === 'grid'}><LayoutGrid size={16} /></button>
+        </div>
+      </div>
+
+      {/* Status chips */}
+      <div className={l.chipsRow} role="group" aria-label="حالة المنتج">
+        {STATUS_CHIPS.map((c) => (
+          <button
+            key={c.value || 'all'}
+            type="button"
+            className={`${l.statusChip} ${statusFilter === c.value ? l.statusChipOn : ''}`}
+            onClick={() => updateParam('status', c.value)}
+          >
+            {c.label}
+            {c.count && counts && counts[c.count] ? <span className={l.chipCount}>{counts[c.count]}</span> : null}
+          </button>
+        ))}
+      </div>
+
       {/* Filter and Search Bar */}
       <FilterBar
         search={searchQuery}
@@ -676,15 +829,10 @@ export default function AdminProductsPage() {
           ]}
         />
         <Select
-          label="النوع"
-          value={typeFilter}
-          onChange={(e) => updateParam('type', e.target.value)}
-          options={[
-            { value: '', label: 'كافة الأنواع' },
-            { value: 'laptop', label: 'لابتوبات' },
-            { value: 'phone', label: 'هواتف' },
-            { value: 'accessory', label: 'ملحقات' },
-          ]}
+          label="الترتيب"
+          value={sortFilter}
+          onChange={(e) => updateParam('sort', e.target.value)}
+          options={SORTS}
         />
         <Select
           label="الماركة"
@@ -701,10 +849,9 @@ export default function AdminProductsPage() {
           onChange={(e) => updateParam('condition', e.target.value)}
           options={[
             { value: '', label: adminAr.products.allConditions },
-            { value: 'brand_new', label: 'جديد' },
-            { value: 'open_box', label: 'كرتونة مفتوحة' },
+            { value: 'new', label: 'جديد' },
             { value: 'used_imported', label: 'مستعمل مستورد' },
-            { value: 'refurbished', label: 'مجدد' },
+            { value: 'refurbished', label: 'مجدّد' },
           ]}
         />
         <Select
@@ -755,6 +902,24 @@ export default function AdminProductsPage() {
               <EyeOff size={14} />
               <span>{adminAr.products.bulkDeactivate}</span>
             </Button>
+            {priceMode ? (
+              <span className={l.bulkPrice}>
+                <input
+                  className={l.bulkPriceInput}
+                  inputMode="numeric"
+                  dir="ltr"
+                  value={bulkPrice}
+                  onChange={(e) => setBulkPrice(e.target.value.replace(/[^\d]/g, ''))}
+                  placeholder="السعر بالدرهم"
+                  aria-label="السعر الجديد بالدرهم"
+                />
+                <Button variant="primary" size="sm" loading={bulkProcessing} onClick={handleBulkPrice}>تطبيق</Button>
+              </span>
+            ) : (
+              <Button variant="outline" size="sm" onClick={() => setPriceMode(true)}>
+                <span>تغيير السعر</span>
+              </Button>
+            )}
             <Button
               variant="danger"
               size="sm"
@@ -778,6 +943,22 @@ export default function AdminProductsPage() {
       {/* Responsive Products DataList or ErrorState */}
       {error && !loading ? (
         <ErrorState message={error} onRetry={fetchProducts} />
+      ) : !loading && products.length === 0 && !hasFilters ? (
+        <EmptyState
+          title="لا توجد منتجات بعد"
+          description="ابدأ بإضافة أول جهاز إلى المتجر."
+          action={(
+            <Link to="/admin/products/new">
+              <Button variant="primary" size="md"><Plus size={16} /><span>أضف أول منتج</span></Button>
+            </Link>
+          )}
+        />
+      ) : view === 'grid' && !loading ? (
+        products.length === 0 ? (
+          <EmptyState title="لا توجد نتائج مطابقة" description="جرّب تغيير الفلاتر أو البحث." />
+        ) : (
+          <div className={l.grid}>{products.map(renderGridCard)}</div>
+        )
       ) : (
         <DataList
           columns={columns}
@@ -797,6 +978,16 @@ export default function AdminProductsPage() {
           }
         />
       )}
+
+      {undo ? (
+        <div className={l.undoBar} role="status" aria-live="polite">
+          <span>تم حذف «{undo.label}»</span>
+          <button type="button" className={l.undoBtn} onClick={handleUndo}>
+            <Undo2 size={16} />
+            <span>تراجع</span>
+          </button>
+        </div>
+      ) : null}
 
       {/* Single Delete Confirmation Dialog */}
       <ConfirmDialog
