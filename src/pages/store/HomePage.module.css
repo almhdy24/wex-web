@@ -39,7 +39,7 @@
   background: var(--wex-white);
   border-radius: 14px;
   padding: 8px 12px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  box-shadow: none;
   display: flex;
   align-items: center;
   text-decoration: none;
@@ -156,7 +156,7 @@
   color: var(--wex-royal);
   font-size: var(--text-md);
   font-weight: 800;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: none;
   border: 0;
   cursor: pointer;
   position: relative;
@@ -250,7 +250,7 @@
   height: 8px;
   border-radius: 50%;
   background: var(--wex-cyan);
-  box-shadow: 0 0 0 4px rgba(0, 183, 255, 0.22);
+  box-shadow: none;
   flex-shrink: 0;
   animation: pulseDot 2s infinite ease-in-out;
 }
@@ -308,7 +308,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 14px rgba(11, 63, 191, 0.25);
+  box-shadow: none;
   box-sizing: border-box;
   flex-shrink: 0;
 }
@@ -408,7 +408,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 0 4px rgba(0, 183, 255, 0.28);
+  box-shadow: none;
   box-sizing: border-box;
 }
 
@@ -417,7 +417,7 @@
   flex: 1;
   min-height: 26px;
   margin: 4px 0;
-  background: linear-gradient(180deg, var(--wex-cyan), rgba(0, 183, 255, 0.15));
+  background: rgba(11, 31, 42, 0.4);
 }
 
 .stepText {

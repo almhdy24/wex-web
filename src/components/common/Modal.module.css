@@ -2,7 +2,6 @@
   position: fixed;
   inset: 0;
   background-color: rgba(6, 26, 85, 0.55);
-  backdrop-filter: blur(4px);
   z-index: var(--z-modal-backdrop, 490);
   display: flex;
   align-items: center;
@@ -13,7 +12,6 @@
 
 .imageBackdrop {
   background-color: rgba(6, 26, 85, 0.92);
-  backdrop-filter: blur(8px);
   padding: 0;
 }
 
@@ -124,7 +122,7 @@
   max-height: 85vh;
   object-fit: contain;
   border-radius: var(--radius-control);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  box-shadow: none;
 }
 
 .header {

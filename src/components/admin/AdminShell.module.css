@@ -381,7 +381,9 @@
 .searchInput:focus {
   background-color: var(--color-white);
   border-color: var(--color-royal-blue);
-  box-shadow: 0 0 0 2px var(--color-ice);
+  outline: 2px solid var(--wex-vivid);
+  outline-offset: 2px;
+  box-shadow: none;
 }
 
 .searchKbd {

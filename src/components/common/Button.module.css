@@ -94,13 +94,13 @@
 
 .primary:hover:not(:disabled) {
   opacity: 0.95;
-  box-shadow: 0 6px 18px rgba(30, 107, 255, 0.35);
+  box-shadow: none;
   transform: translateY(-1px);
 }
 
 .primary:active:not(:disabled) {
   transform: scale(0.97);
-  box-shadow: 0 2px 6px rgba(11, 63, 191, 0.2);
+  box-shadow: none;
 }
 
 .primary:disabled {
@@ -122,7 +122,7 @@
 
 .vivid:hover:not(:disabled) {
   opacity: 0.95;
-  box-shadow: 0 6px 18px rgba(30, 107, 255, 0.32);
+  box-shadow: none;
 }
 
 .vivid:disabled {

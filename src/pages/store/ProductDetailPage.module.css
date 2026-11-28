@@ -149,8 +149,7 @@
 .dotsRow {
   position: absolute;
   bottom: 10px;
-  left: 0;
-  right: 0;
+  inset-inline: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -242,7 +241,7 @@
   cursor: pointer;
   z-index: 3;
   color: var(--wex-navy);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: none;
   transition: transform 120ms ease;
 }
 
@@ -281,7 +280,7 @@
   color: var(--wex-navy);
   cursor: pointer;
   z-index: 3;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: none;
 }
 
 /* Gallery Thumbnails */
@@ -465,7 +464,7 @@
   background: var(--grad-cta);
   color: var(--wex-white);
   font-weight: 800;
-  box-shadow: 0 6px 14px rgba(30, 107, 255, 0.3);
+  box-shadow: none;
 }
 
 /* Specs List Card */
@@ -713,7 +712,7 @@
   font-family: inherit;
   font-size: var(--text-base);
   font-weight: 800;
-  box-shadow: 0 10px 20px rgba(30, 107, 255, 0.35);
+  box-shadow: none;
   border: none;
   cursor: pointer;
   white-space: nowrap;

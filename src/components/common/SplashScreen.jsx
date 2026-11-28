@@ -101,7 +101,7 @@ export default function SplashScreen({
         >
           <defs>
             <linearGradient id="wexSplashBlue" x1="0%" y1="100%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#3340D4" />
+              <stop offset="0%" stopColor="var(--wex-royal)" />
               <stop offset="100%" stopColor="#1E8BFF" />
             </linearGradient>
           </defs>

@@ -21,7 +21,7 @@
 .ink { background: var(--hero-gradient); color: var(--v2-surface); }
 .teal { background: var(--v2-teal700); color: var(--v2-surface); }
 .sun { background: var(--v2-sun500); color: var(--v2-ink900); }
-.paper { background: var(--v2-sunken); color: var(--v2-ink900); box-shadow: inset 0 0 0 1px var(--v2-line); }
+.paper { background: var(--v2-sunken); color: var(--v2-ink900); border: 1px solid var(--v2-line); }
 
 .body { position: relative; z-index: 1; display: flex; flex-direction: column; flex: 1; gap: 8px; }
 .split .body { inline-size: 60%; }

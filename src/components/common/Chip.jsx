@@ -5,7 +5,7 @@ import styles from './Chip.module.css';
 /**
  * Design System Chip
  * - Outline neutral: border #D5E2F7, white bg, navy text
- * - Selected: solid royal (#3340D4) + white text (#FFFFFF)
+ * - Selected: solid royal (var(--wex-royal)) + white text (#FFFFFF)
  * - Radius 999px
  */
 export default function Chip({

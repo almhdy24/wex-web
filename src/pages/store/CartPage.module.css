@@ -469,7 +469,7 @@
   font-family: inherit;
   font-size: var(--text-lg);
   font-weight: 800;
-  box-shadow: 0 10px 20px rgba(30, 107, 255, 0.35);
+  box-shadow: none;
   border: none;
   cursor: pointer;
   display: flex;

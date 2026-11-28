@@ -1,6 +1,6 @@
 /* Persistent Pending Order Countdown Banner */
 .banner {
-  background: linear-gradient(135deg, var(--wex-navy) 0%, var(--wex-royal) 70%, var(--wex-vivid) 100%);
+  background: var(--hero-gradient);
   color: var(--wex-white);
   border-bottom: 2px solid var(--wex-cyan);
   position: relative;
@@ -13,7 +13,7 @@
 }
 
 .urgent {
-  background: linear-gradient(135deg, #78350F 0%, #B45309 60%, #D97706 100%);
+  background: var(--wex-royal);
   border-bottom: 2px solid #FCD34D;
 }
 
@@ -125,7 +125,7 @@
   font-size: var(--text-xs);
   font-weight: 800;
   text-decoration: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: none;
   transition: transform var(--motion-fast, 150ms) var(--ease-standard),
               background-color var(--motion-fast, 150ms) var(--ease-standard);
   white-space: nowrap;

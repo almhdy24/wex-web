@@ -94,7 +94,9 @@
   outline: none;
   background: var(--wex-white);
   border-color: var(--wex-vivid);
-  box-shadow: 0 0 0 3px rgba(30, 107, 255, 0.15);
+  outline: 2px solid var(--wex-vivid);
+  outline-offset: 2px;
+  box-shadow: none;
 }
 
 /* Highlights Grid */
@@ -256,7 +258,7 @@
 
 /* Support Card */
 .supportCard {
-  background: linear-gradient(135deg, rgba(6, 26, 85, 0.04) 0%, rgba(30, 107, 255, 0.08) 100%);
+  background: var(--wex-royal);
   border: 1px solid rgba(30, 107, 255, 0.15);
   border-radius: var(--radius-lg, 20px);
   padding: 20px;
@@ -303,7 +305,7 @@
   font-size: var(--text-s);
   font-weight: 800;
   text-decoration: none;
-  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.25);
+  box-shadow: none;
   transition: transform var(--motion-fast, 150ms) var(--ease-standard);
 }
 
